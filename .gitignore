@@ -1,0 +1,7 @@
+*.vs
+*.user
+src/Dapper.Sharding/bin
+src/Dapper.Sharding/obj
+src/Test/bin
+src/Test/obj
+src/TestResults

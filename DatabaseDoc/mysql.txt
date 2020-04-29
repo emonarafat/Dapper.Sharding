@@ -1,0 +1,73 @@
+1、是否存在数据库
+SHOW DATABASES LIKE 'test';
+
+2、创建数据库
+CREATE DATABASE `test`;
+CREATE DATABASE IF NOT EXISTS `test` DEFAULT CHARACTER SET utf8 COLLATE utf8_general_ci
+CREATE DATABASE IF NOT EXISTS `test` DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci
+
+3、删除数据库
+DROP DATABASE `test`;
+DROP DATABASE IF EXISTS `test`
+
+4、修改数据库编码 utf8、utf8mb4
+ALTER DATABASE `School` DEFAULT CHARACTER SET utf8 COLLATE utf8_general_ci
+
+===================================================================
+1、是否存在表
+SHOW TABLES LIKE 'School'
+
+2、创建表
+CREATE TABLE `School` (
+	`Id` int(11) AUTO_INCREMENT,
+	`Age` bigint(20),
+	`Fl` float,
+	`Db` double,
+	`TotalMoney` decimal(18,2),
+	`Name` varchar(255) COMMENT '姓名',  --65535
+	`Sex` bit(1),
+	`Time` datetime,
+	`Address` text,       --65535        64kb
+	`Address2` longtext,   --4294967295   4G
+	PRIMARY KEY (`id`),
+	UNIQUE KEY `Age` (`Age`),
+	KEY `Fl` (`Fl`,`Db`) USING BTREE
+) DEFAULT CHARSET=utf8
+
+CREATE TABLE IF NOT EXISTS `School` (
+	`Id` int(11) AUTO_INCREMENT PRIMARY KEY,
+	`Age` bigint(20),
+	`Fl` float,
+	`Db` double,
+	`TotalMoney` decimal(18,2),
+	`Name` varchar(255) COMMENT '姓名',  --65535
+	`Sex` bit(1),
+	`Time` datetime,
+	`Address` text,       --65535        64kb
+	`Address2` longtext   --4294967295   4G
+)
+
+
+3、删除表
+DROP TABLE `School`
+DROP TABLE IF EXISTS `School`
+
+4、新增字段
+ALTER TABLE `School` ADD COLUMN `Address3` VARCHAR(100)
+
+5、修改字段属性
+ALTER TABLE `School` MODIFY `Name` VARCHAR(200) COMMENT '姓名'
+
+6、修改字段名称和属性
+ALTER TABLE `School` CHANGE `Name` `Name2` VARCHAR(32);
+
+7、删除字段
+ALTER TABLE `School` DROP COLUMN `Address3`
+
+8、修改表名注释
+ALTER TABLE `School` COMMENT='姓名';
+
+====================================================
+1、查询索引
+SHOW INDEX FROM app_info
+

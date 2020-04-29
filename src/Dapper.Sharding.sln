@@ -1,0 +1,31 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 16
+VisualStudioVersion = 16.0.30011.22
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Dapper.Sharding", "Dapper.Sharding\Dapper.Sharding.csproj", "{EFE67DA1-977F-4D42-8789-80BD430BBEAC}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Test", "Test\Test.csproj", "{EA88E20F-4EB2-4C74-AB83-413FF99C6678}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{EFE67DA1-977F-4D42-8789-80BD430BBEAC}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{EFE67DA1-977F-4D42-8789-80BD430BBEAC}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{EFE67DA1-977F-4D42-8789-80BD430BBEAC}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{EFE67DA1-977F-4D42-8789-80BD430BBEAC}.Release|Any CPU.Build.0 = Release|Any CPU
+		{EA88E20F-4EB2-4C74-AB83-413FF99C6678}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{EA88E20F-4EB2-4C74-AB83-413FF99C6678}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{EA88E20F-4EB2-4C74-AB83-413FF99C6678}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{EA88E20F-4EB2-4C74-AB83-413FF99C6678}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {44012F54-274F-4979-827E-CA62A22CB4C4}
+	EndGlobalSection
+EndGlobal
