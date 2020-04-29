@@ -131,8 +131,8 @@ namespace Test
 
             db.Using(conn =>
             {
-                var table = db.GetTable<School>("SchoolQQQ", conn);
-                var table2 = db.GetTable<People>("peopleQQQ", conn);
+                var table = db.GetTable<School>("SchoolQQQ11111", conn);
+                var table2 = db.GetTable<People>("peopleQQQ1111", conn);
             });
         }
 

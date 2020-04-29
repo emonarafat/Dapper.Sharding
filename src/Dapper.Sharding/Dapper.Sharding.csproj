@@ -59,6 +59,13 @@
     <Compile Include="Entity\TableEntity.cs" />
     <Compile Include="Enum\DataBaseType.cs" />
     <Compile Include="Enum\IndexType.cs" />
+    <Compile Include="FastMember\CallSiteCache.cs" />
+    <Compile Include="FastMember\Member.cs" />
+    <Compile Include="FastMember\MemberSet.cs" />
+    <Compile Include="FastMember\ObjectAccessor.cs" />
+    <Compile Include="FastMember\ObjectReader.cs" />
+    <Compile Include="FastMember\TypeAccessor.cs" />
+    <Compile Include="FastMember\TypeHelpers.cs" />
     <Compile Include="InterfaceImpl\MySql\MySqlClient.cs" />
     <Compile Include="InterfaceImpl\MySql\MySqlDatabase.cs" />
     <Compile Include="InterfaceImpl\MySql\MySqlTable.cs" />
@@ -72,14 +79,19 @@
     <Compile Include="Interface\IDapperTable.cs" />
     <Compile Include="Interface\IDapperTableManager.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="Utils\BalanceRound.cs" />
+    <Compile Include="Utils\BalanceRoundBase.cs" />
     <Compile Include="Utils\ClassToTableEntityUtils.cs" />
     <Compile Include="Utils\CsharpTypeToDbType.cs" />
     <Compile Include="Utils\DbCsharpTypeMap.cs" />
     <Compile Include="Utils\Ext.cs" />
+    <Compile Include="Utils\HashBloomFilter.cs" />
     <Compile Include="Utils\LockManager.cs" />
+    <Compile Include="Utils\QueryExtensions.cs" />
   </ItemGroup>
   <ItemGroup>
     <EmbeddedResource Include="DbTypeMap.xml" />
   </ItemGroup>
+  <ItemGroup />
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>
