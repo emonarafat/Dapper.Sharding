@@ -3,7 +3,7 @@ using System.Data;
 
 namespace Dapper.Sharding
 {
-    public interface IDapperClient
+    public interface IClient
     {
         LockManager Locker { get; }
 
@@ -21,7 +21,7 @@ namespace Dapper.Sharding
 
         IEnumerable<string> GetAllDatabase();
 
-        IDapperDatabase GetDatabase(string name);
+        IDatabase GetDatabase(string name);
 
         string Charset { get; set; }
 

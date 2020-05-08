@@ -6,12 +6,12 @@ using System.Text;
 
 namespace Dapper.Sharding
 {
-    internal class MySqlDatabase : IDapperDatabase
+    internal class MySqlDatabase : IDatabase
     {
 
         public string Name { get; }
 
-        public IDapperClient Client { get; }
+        public IClient Client { get; }
 
         public MySqlDatabase(string name, MySqlClient client)
         {
@@ -134,12 +134,12 @@ namespace Dapper.Sharding
             });
         }
 
-        public IDapperTableManager GetTableManager(string name)
+        public ITableManager GetTableManager(string name)
         {
             return new MySqlTableManager(name, this);
         }
 
-        public IDapperTable<T> GetTable<T>(string name, IDbConnection conn, IDbTransaction tran = null, int? commandTimeout = null)
+        public ITable<T> GetTable<T>(string name, IDbConnection conn, IDbTransaction tran = null, int? commandTimeout = null)
         {
             if (Client.AutoCreateTable)
             {

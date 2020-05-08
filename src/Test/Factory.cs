@@ -9,23 +9,18 @@ namespace Test
 {
     class Factory
     {
-        static IDapperClient client = DapperFactory.CreateMySqlClient("server=127.0.0.1;uid=root;pwd=123456;Charset=utf8");
+        public static IClient Client = DapperFactory.CreateMySqlClient("server=127.0.0.1;uid=root;pwd=123456;Charset=utf8");
 
         public static string Database = "test";
 
         public static string Table = "ddd";
 
-        public static IDapperClient GetClient()
+        public static IDatabase GetDatabase()
         {
-            return client;
+            return Client.GetDatabase(Database);
         }
 
-        public static IDapperDatabase GetDatabase()
-        {
-            return GetClient().GetDatabase(Database);
-        }
-
-        public static IDapperTableManager GetTableManager()
+        public static ITableManager GetTableManager()
         {
             return GetDatabase().GetTableManager(Table);
         }

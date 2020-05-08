@@ -74,10 +74,10 @@
     <Compile Include="InterfaceImpl\Postgre\PostgreClient.cs" />
     <Compile Include="InterfaceImpl\SQLite\SQLiteClient.cs" />
     <Compile Include="InterfaceImpl\SqlServer\SqlServerClient.cs" />
-    <Compile Include="Interface\IDapperClient.cs" />
-    <Compile Include="Interface\IDapperDatabase.cs" />
-    <Compile Include="Interface\IDapperTable.cs" />
-    <Compile Include="Interface\IDapperTableManager.cs" />
+    <Compile Include="Interface\IClient.cs" />
+    <Compile Include="Interface\IDatabase.cs" />
+    <Compile Include="Interface\ITable.cs" />
+    <Compile Include="Interface\ITableManager.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Utils\BalanceRound.cs" />
     <Compile Include="Utils\BalanceRoundBase.cs" />

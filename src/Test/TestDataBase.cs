@@ -128,7 +128,7 @@ namespace Test
         public void GetTable()
         {
             var db = Factory.GetDatabase();
-
+            
             db.Using(conn =>
             {
                 var table = db.GetTable<School>("SchoolQQQ11111", conn);

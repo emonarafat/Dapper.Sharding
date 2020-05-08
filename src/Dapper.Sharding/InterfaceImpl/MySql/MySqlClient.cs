@@ -4,7 +4,7 @@ using System.Data;
 
 namespace Dapper.Sharding
 {
-    internal class MySqlClient : IDapperClient
+    internal class MySqlClient : IClient
     {
         public LockManager Locker { get; } = new LockManager();
 
@@ -64,7 +64,7 @@ namespace Dapper.Sharding
             }
         }
 
-        public IDapperDatabase GetDatabase(string name)
+        public IDatabase GetDatabase(string name)
         {
             if (AutoCreateDatabase)
             {

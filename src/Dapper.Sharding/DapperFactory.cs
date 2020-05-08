@@ -2,7 +2,7 @@
 {
     public class DapperFactory
     {
-        public static IDapperClient CreateMySqlClient(string connectionString)
+        public static IClient CreateMySqlClient(string connectionString)
         {
             return new MySqlClient(connectionString);
         }

@@ -11,29 +11,29 @@ namespace Test
         [Test]
         public void CreateDataBase()
         {
-            Factory.GetClient().CreateDatabase(Factory.Database);
+            Factory.Client.CreateDatabase(Factory.Database);
             Assert.Pass();
         }
 
         [Test]
         public void DropDataBase()
         {
-            Factory.GetClient().DropDatabase(Factory.Database);
+            Factory.Client.DropDatabase(Factory.Database);
             Assert.Pass();
         }
 
         [Test]
         public void GetAllDatabase()
         {
-            var data = Factory.GetClient().GetAllDatabase();
+            var data = Factory.Client.GetAllDatabase();
             Console.WriteLine(JsonConvert.SerializeObject(data));
         }
 
         [Test]
         public void GetDataBase()
         {
-            Factory.GetClient().Charset = "utf8mb4";
-            Factory.GetClient().GetDatabase(Factory.Database);
+            Factory.Client.Charset = "utf8mb4";
+            Factory.GetDatabase();
             Console.WriteLine("GetDataBase");
         }
 

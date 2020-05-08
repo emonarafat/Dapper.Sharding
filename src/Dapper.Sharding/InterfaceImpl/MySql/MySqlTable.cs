@@ -7,7 +7,7 @@ using System.Threading.Tasks;
 
 namespace Dapper.Sharding
 {
-    internal class MySqlTable<T> : IDapperTable<T>
+    internal class MySqlTable<T> : ITable<T>
     {
         public MySqlTable(string name, IDbConnection conn, IDbTransaction tran = null, int? commandTimeout = null)
         {

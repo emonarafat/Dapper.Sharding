@@ -4,12 +4,12 @@ using System.Linq;
 
 namespace Dapper.Sharding
 {
-    internal class MySqlTableManager : IDapperTableManager
+    internal class MySqlTableManager : ITableManager
     {
 
         public string Name { get; }
 
-        public IDapperDatabase DataBase { get; }
+        public IDatabase DataBase { get; }
 
         public MySqlTableManager(string tableName, MySqlDatabase database)
         {

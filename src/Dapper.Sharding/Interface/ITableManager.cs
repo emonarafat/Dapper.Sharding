@@ -3,11 +3,11 @@ using System.Collections.Generic;
 
 namespace Dapper.Sharding
 {
-    public interface IDapperTableManager
+    public interface ITableManager
     {
         string Name { get; }
 
-        IDapperDatabase DataBase { get; }
+        IDatabase DataBase { get; }
 
         void CreateIndex(string name, string columns, IndexType indexType);
 

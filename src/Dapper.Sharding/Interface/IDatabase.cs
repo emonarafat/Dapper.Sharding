@@ -4,11 +4,11 @@ using System.Data;
 
 namespace Dapper.Sharding
 {
-    public interface IDapperDatabase
+    public interface IDatabase
     {
         string Name { get; }
 
-        IDapperClient Client { get; }
+        IClient Client { get; }
 
         IDbConnection GetConn();
 
@@ -32,9 +32,9 @@ namespace Dapper.Sharding
 
         List<TableEntity> GetTableEnitys();
 
-        IDapperTableManager GetTableManager(string name);
+        ITableManager GetTableManager(string name);
 
-        IDapperTable<T> GetTable<T>(string name, IDbConnection conn, IDbTransaction tran = null, int? commandTimeout = null);
+        ITable<T> GetTable<T>(string name, IDbConnection conn, IDbTransaction tran = null, int? commandTimeout = null);
 
         string CreateTableScript<T>(string tableName);
 

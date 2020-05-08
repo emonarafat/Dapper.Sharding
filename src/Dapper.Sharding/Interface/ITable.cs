@@ -7,7 +7,7 @@ using System.Threading.Tasks;
 
 namespace Dapper.Sharding
 {
-    public interface IDapperTable<T>
+    public interface ITable<T>
     {
         string Name { get; }
 
