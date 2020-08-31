@@ -49,10 +49,12 @@ namespace Dapper.Sharding
 
         public IEnumerable<dynamic> GetIndexs()
         {
-            return DataBase.Using(conn =>
-            {
-                return conn.Query($"SHOW INDEX FROM `{Name}`");
-            });
+            IEnumerable<dynamic> data = null;
+            DataBase.Using(conn =>
+           {
+               data = conn.Query($"SHOW INDEX FROM `{Name}`");
+           });
+            return data;
         }
 
         public List<IndexEntity> GetIndexEntitys()
@@ -117,10 +119,12 @@ namespace Dapper.Sharding
 
         public IEnumerable<dynamic> GetColumns()
         {
-            return DataBase.Using(conn =>
+            IEnumerable<dynamic> data = null;
+            DataBase.Using(conn =>
             {
-                return conn.Query($"SHOW FULL COLUMNS FROM `{Name}`");
+                data = conn.Query($"SHOW FULL COLUMNS FROM `{Name}`");
             });
+            return data;
         }
 
         public List<ColumnEntity> GetColumnEntitys()

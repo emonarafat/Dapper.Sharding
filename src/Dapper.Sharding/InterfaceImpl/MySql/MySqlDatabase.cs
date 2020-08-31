@@ -37,14 +37,6 @@ namespace Dapper.Sharding
             }
         }
 
-        public T Using<T>(Func<IDbConnection, T> func)
-        {
-            using (var conn = GetConn())
-            {
-                return func(conn);
-            }
-        }
-
         public void UsingTran(Action<IDbConnection, IDbTransaction> action)
         {
             using (var conn = GetConn())
@@ -52,17 +44,6 @@ namespace Dapper.Sharding
                 using (var tran = conn.BeginTransaction())
                 {
                     action(conn, tran);
-                }
-            }
-        }
-
-        public T UsingTran<T>(Func<IDbConnection, IDbTransaction, T> func)
-        {
-            using (var conn = GetConn())
-            {
-                using (var tran = conn.BeginTransaction())
-                {
-                    return func(conn, tran);
                 }
             }
         }
@@ -86,18 +67,22 @@ namespace Dapper.Sharding
 
         public IEnumerable<string> GetTables()
         {
-            return Using(conn =>
+            IEnumerable<string> tables = null;
+            Using(conn =>
             {
-                return conn.Query<string>("SHOW TABLES");
+                tables = conn.Query<string>("SHOW TABLES");
             });
+            return tables;
         }
 
         public IEnumerable<dynamic> GetTableStatus()
         {
-            return Using(conn =>
+            IEnumerable<dynamic> data = null;
+            Using(conn =>
             {
-                return conn.Query("SHOW TABLE STATUS");
+                data = conn.Query("SHOW TABLE STATUS");
             });
+            return data;
         }
 
         public void CreateTable<T>(string name)

@@ -14,11 +14,7 @@ namespace Dapper.Sharding
 
         void Using(Action<IDbConnection> action);
 
-        T Using<T>(Func<IDbConnection, T> func);
-
         void UsingTran(Action<IDbConnection, IDbTransaction> action);
-
-        T UsingTran<T>(Func<IDbConnection, IDbTransaction, T> func);
 
         void SetCharset(string chartset);
 
