@@ -1,4 +1,4 @@
-﻿using MySql.Data.MySqlClient;
+﻿//using MySql.Data.MySqlClient;
 using System.Collections.Generic;
 using System.Data;
 
@@ -19,10 +19,11 @@ namespace Dapper.Sharding
 
         public IDbConnection GetConn()
         {
-            var conn = new MySqlConnection(ConnectionString);
-            if (conn.State != ConnectionState.Open)
-                conn.Open();
-            return conn;
+            //var conn = new MySqlConnection(ConnectionString);
+            //if (conn.State != ConnectionState.Open)
+            //    conn.Open();
+            //return conn;
+            return null;
         }
 
         #region Interface Method

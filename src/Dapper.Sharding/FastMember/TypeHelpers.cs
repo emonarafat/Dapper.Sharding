@@ -1,49 +1,30 @@
-using System;
+﻿using System;
+using System.Linq;
+using System.Reflection;
 using System.Reflection.Emit;
 
 namespace Dapper.Sharding
 {
-	internal static class TypeHelpers
-	{
-		public static readonly Type[] EmptyTypes = Type.EmptyTypes;
 
-		public static bool _IsValueType(Type type)
-		{
-			return type.IsValueType;
-		}
+    internal static class TypeHelpers
+    {
 
-		public static bool _IsPublic(Type type)
-		{
-			return type.IsPublic;
-		}
+        public static int Min(int x, int y)
+        {
+            return x < y ? x : y;
+        }
 
-		public static bool _IsNestedPublic(Type type)
-		{
-			return type.IsNestedPublic;
-		}
+        /// <summary>
+        /// If type is a class, get its properties; if type is an interface, get its
+        /// properties plus the properties of all the interfaces it inherits.
+        /// </summary>
+        /// <param name="type"></param>
+        /// <param name="flags"></param>
+        /// <returns></returns>
+        public static PropertyInfo[] GetTypeAndInterfaceProperties(this Type type, BindingFlags flags)
+        {
+            return !type.IsInterface ? type.GetProperties(flags) : (new[] { type }).Concat(type.GetInterfaces()).SelectMany(i => i.GetProperties(flags)).ToArray();
+        }
 
-		public static bool _IsClass(Type type)
-		{
-			return type.IsClass;
-		}
-
-		public static bool _IsAbstract(Type type)
-		{
-			return type.IsAbstract;
-		}
-
-		public static Type _CreateType(TypeBuilder type)
-		{
-			return type.CreateType();
-		}
-
-		public static int Min(int x, int y)
-		{
-			if (x >= y)
-			{
-				return y;
-			}
-			return x;
-		}
-	}
+    }
 }

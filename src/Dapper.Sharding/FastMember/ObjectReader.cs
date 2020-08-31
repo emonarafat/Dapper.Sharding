@@ -1,326 +1,349 @@
-using System;
+﻿using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Data;
 using System.Data.Common;
+using System.Linq;
 
 namespace Dapper.Sharding
 {
-	internal class ObjectReader : DbDataReader
-	{
-		private IEnumerator source;
+    /// <summary>
+    /// Provides a means of reading a sequence of objects as a data-reader, for example
+    /// for use with SqlBulkCopy or other data-base oriented code
+    /// </summary>
+    internal class ObjectReader : DbDataReader
+    {
+        private IEnumerator source;
+        private readonly TypeAccessor accessor;
+        private readonly string[] memberNames;
+        private readonly Type[] effectiveTypes;
+        private readonly BitArray allowNull;
 
-		private readonly TypeAccessor accessor;
+        /// <summary>
+        /// Creates a new ObjectReader instance for reading the supplied data
+        /// </summary>
+        /// <param name="source">The sequence of objects to represent</param>
+        /// <param name="members">The members that should be exposed to the reader</param>
+        public static ObjectReader Create<T>(IEnumerable<T> source, params string[] members)
+        {
+            return new ObjectReader(typeof(T), source, members);
+        }
 
-		private readonly string[] memberNames;
+        /// <summary>
+        /// Creates a new ObjectReader instance for reading the supplied data
+        /// </summary>
+        /// <param name="type">The expected Type of the information to be read</param>
+        /// <param name="source">The sequence of objects to represent</param>
+        /// <param name="members">The members that should be exposed to the reader</param>
+        public ObjectReader(Type type, IEnumerable source, params string[] members)
+        {
+            if (source == null) throw new ArgumentOutOfRangeException("source");
 
-		private readonly Type[] effectiveTypes;
+            
 
-		private readonly BitArray allowNull;
+            bool allMembers = members == null || members.Length == 0;
 
-		private object current;
+            this.accessor = TypeAccessor.Create(type);
+            if (accessor.GetMembersSupported)
+            {
+                // Sort members by ordinal first and then by name.
+                var typeMembers = this.accessor.GetMembers().OrderBy(p => p.Ordinal).ToList();
 
-		private bool active = true;
+                if (allMembers)
+                {
+                    members = new string[typeMembers.Count];
+                    for (int i = 0; i < members.Length; i++)
+                    {
+                        members[i] = typeMembers[i].Name;
+                    }
+                }
 
-		public override int Depth => 0;
+                this.allowNull = new BitArray(members.Length);
+                this.effectiveTypes = new Type[members.Length];
+                for (int i = 0; i < members.Length; i++)
+                {
+                    Type memberType = null;
+                    bool allowNull = true;
+                    string hunt = members[i];
+                    foreach (var member in typeMembers)
+                    {
+                        if (member.Name == hunt)
+                        {
+                            if (memberType == null)
+                            {
+                                var tmp = member.Type;
+                                memberType = Nullable.GetUnderlyingType(tmp) ?? tmp;
 
-		public override bool HasRows => active;
+                                allowNull = !(memberType.IsValueType && memberType == tmp);
 
-		public override int RecordsAffected => 0;
+                                // but keep checking, in case of duplicates
+                            }
+                            else
+                            {
+                                memberType = null; // duplicate found; say nothing
+                                break;
+                            }
+                        }
+                    }
+                    this.allowNull[i] = allowNull;
+                    this.effectiveTypes[i] = memberType ?? typeof(object);
+                }
+            }
+            else if (allMembers)
+            {
+                throw new InvalidOperationException("Member information is not available for this type; the required members must be specified explicitly");
+            }
 
-		public override int FieldCount => memberNames.Length;
+            this.current = null;
+            this.memberNames = (string[])members.Clone();
 
-		public override bool IsClosed => source == null;
+            this.source = source.GetEnumerator();
+        }
 
-		public override object this[string name] => accessor[current, name] ?? DBNull.Value;
+        object current;
 
-		public override object this[int i] => accessor[current, memberNames[i]] ?? DBNull.Value;
 
-		public static ObjectReader Create<T>(IEnumerable<T> source, params string[] members)
-		{
-			return new ObjectReader(typeof(T), source, members);
-		}
+        public override int Depth
+        {
+            get { return 0; }
+        }
 
-		public ObjectReader(Type type, IEnumerable source, params string[] members)
-		{
-			if (source == null)
-			{
-				throw new ArgumentOutOfRangeException("source");
-			}
-			bool flag = members == null || members.Length == 0;
-			accessor = TypeAccessor.Create(type);
-			if (accessor.GetMembersSupported)
-			{
-				MemberSet members2 = accessor.GetMembers();
-				if (flag)
-				{
-					members = new string[members2.Count];
-					for (int i = 0; i < members.Length; i++)
-					{
-						members[i] = members2[i].Name;
-					}
-				}
-				allowNull = new BitArray(members.Length);
-				effectiveTypes = new Type[members.Length];
-				for (int j = 0; j < members.Length; j++)
-				{
-					Type type2 = null;
-					bool value = true;
-					string b = members[j];
-					foreach (Member item in members2)
-					{
-						if (item.Name == b)
-						{
-							if (!(type2 == null))
-							{
-								type2 = null;
-								break;
-							}
-							Type type3 = item.Type;
-							type2 = (Nullable.GetUnderlyingType(type3) ?? type3);
-							value = (!TypeHelpers._IsValueType(type2) || !(type2 == type3));
-						}
-					}
-					allowNull[j] = value;
-					effectiveTypes[j] = (type2 ?? typeof(object));
-				}
-			}
-			else if (flag)
-			{
-				throw new InvalidOperationException("Member information is not available for this type; the required members must be specified explicitly");
-			}
-			current = null;
-			memberNames = (string[])members.Clone();
-			this.source = source.GetEnumerator();
-		}
+        public override DataTable GetSchemaTable()
+        {
+            // these are the columns used by DataTable load
+            DataTable table = new DataTable
+            {
+                Columns =
+                {
+                    {"ColumnOrdinal", typeof(int)},
+                    {"ColumnName", typeof(string)},
+                    {"DataType", typeof(Type)},
+                    {"ColumnSize", typeof(int)},
+                    {"AllowDBNull", typeof(bool)}
+                }
+            };
+            object[] rowData = new object[5];
+            for (int i = 0; i < memberNames.Length; i++)
+            {
+                rowData[0] = i;
+                rowData[1] = memberNames[i];
+                rowData[2] = effectiveTypes == null ? typeof(object) : effectiveTypes[i];
+                rowData[3] = -1;
+                rowData[4] = allowNull == null ? true : allowNull[i];
+                table.Rows.Add(rowData);
+            }
+            return table;
+        }
+        public override void Close()
+        {
+            Shutdown();
+        }
 
-		public override DataTable GetSchemaTable()
-		{
-			DataTable dataTable = new DataTable
-			{
-				Columns = 
-				{
-					{
-						"ColumnOrdinal",
-						typeof(int)
-					},
-					{
-						"ColumnName",
-						typeof(string)
-					},
-					{
-						"DataType",
-						typeof(Type)
-					},
-					{
-						"ColumnSize",
-						typeof(int)
-					},
-					{
-						"AllowDBNull",
-						typeof(bool)
-					}
-				}
-			};
-			object[] array = new object[5];
-			for (int i = 0; i < memberNames.Length; i++)
-			{
-				array[0] = i;
-				array[1] = memberNames[i];
-				array[2] = ((effectiveTypes == null) ? typeof(object) : effectiveTypes[i]);
-				array[3] = -1;
-				array[4] = (allowNull == null || allowNull[i]);
-				dataTable.Rows.Add(array);
-			}
-			return dataTable;
-		}
+        public override bool HasRows
+        {
+            get
+            {
+                return active;
+            }
+        }
+        private bool active = true;
+        public override bool NextResult()
+        {
+            active = false;
+            return false;
+        }
+        public override bool Read()
+        {
+            if (active)
+            {
+                var tmp = source;
+                if (tmp != null && tmp.MoveNext())
+                {
+                    current = tmp.Current;
+                    return true;
+                }
+                else
+                {
+                    active = false;
+                }
+            }
+            current = null;
+            return false;
+        }
 
-		public override void Close()
-		{
-			Shutdown();
-		}
+        public override int RecordsAffected
+        {
+            get { return 0; }
+        }
 
-		public override bool NextResult()
-		{
-			active = false;
-			return false;
-		}
+        protected override void Dispose(bool disposing)
+        {
+            base.Dispose(disposing);
+            if (disposing) Shutdown();
+        }
+        private void Shutdown()
+        {
+            active = false;
+            current = null;
+            var tmp = source as IDisposable;
+            source = null;
+            if (tmp != null) tmp.Dispose();
+        }
 
-		public override bool Read()
-		{
-			if (active)
-			{
-				IEnumerator enumerator = source;
-				if (enumerator != null && enumerator.MoveNext())
-				{
-					current = enumerator.Current;
-					return true;
-				}
-				active = false;
-			}
-			current = null;
-			return false;
-		}
+        public override int FieldCount
+        {
+            get { return memberNames.Length; }
+        }
+        public override bool IsClosed
+        {
+            get
+            {
+                return source == null;
+            }
+        }
 
-		protected override void Dispose(bool disposing)
-		{
-			base.Dispose(disposing);
-			if (disposing)
-			{
-				Shutdown();
-			}
-		}
+        public override bool GetBoolean(int i)
+        {
+            return (bool)this[i];
+        }
 
-		private void Shutdown()
-		{
-			active = false;
-			current = null;
-			IDisposable disposable = source as IDisposable;
-			source = null;
-			disposable?.Dispose();
-		}
+        public override byte GetByte(int i)
+        {
+            return (byte)this[i];
+        }
 
-		public override bool GetBoolean(int i)
-		{
-			return (bool)this[i];
-		}
+        public override long GetBytes(int i, long fieldOffset, byte[] buffer, int bufferoffset, int length)
+        {
+            byte[] s = (byte[])this[i];
+            int available = s.Length - (int)fieldOffset;
+            if (available <= 0) return 0;
 
-		public override byte GetByte(int i)
-		{
-			return (byte)this[i];
-		}
+            int count = Math.Min(length, available);
+            Buffer.BlockCopy(s, (int)fieldOffset, buffer, bufferoffset, count);
+            return count;
+        }
 
-		public override long GetBytes(int i, long fieldOffset, byte[] buffer, int bufferoffset, int length)
-		{
-			byte[] array = (byte[])this[i];
-			int num = array.Length - (int)fieldOffset;
-			if (num <= 0)
-			{
-				return 0L;
-			}
-			int num2 = TypeHelpers.Min(length, num);
-			Buffer.BlockCopy(array, (int)fieldOffset, buffer, bufferoffset, num2);
-			return num2;
-		}
+        public override char GetChar(int i)
+        {
+            return (char)this[i];
+        }
 
-		public override char GetChar(int i)
-		{
-			return (char)this[i];
-		}
+        public override long GetChars(int i, long fieldoffset, char[] buffer, int bufferoffset, int length)
+        {
+            string s = (string)this[i];
+            int available = s.Length - (int)fieldoffset;
+            if (available <= 0) return 0;
 
-		public override long GetChars(int i, long fieldoffset, char[] buffer, int bufferoffset, int length)
-		{
-			string text = (string)this[i];
-			int num = text.Length - (int)fieldoffset;
-			if (num <= 0)
-			{
-				return 0L;
-			}
-			int num2 = TypeHelpers.Min(length, num);
-			text.CopyTo((int)fieldoffset, buffer, bufferoffset, num2);
-			return num2;
-		}
+            int count = Math.Min(length, available);
+            s.CopyTo((int)fieldoffset, buffer, bufferoffset, count);
+            return count;
+        }
 
-		protected override DbDataReader GetDbDataReader(int i)
-		{
-			throw new NotSupportedException();
-		}
+        protected override DbDataReader GetDbDataReader(int i)
+        {
+            throw new NotSupportedException();
+        }
 
-		public override string GetDataTypeName(int i)
-		{
-			return ((effectiveTypes == null) ? typeof(object) : effectiveTypes[i]).Name;
-		}
+        public override string GetDataTypeName(int i)
+        {
+            return (effectiveTypes == null ? typeof(object) : effectiveTypes[i]).Name;
+        }
 
-		public override DateTime GetDateTime(int i)
-		{
-			return (DateTime)this[i];
-		}
+        public override DateTime GetDateTime(int i)
+        {
+            return (DateTime)this[i];
+        }
 
-		public override decimal GetDecimal(int i)
-		{
-			return (decimal)this[i];
-		}
+        public override decimal GetDecimal(int i)
+        {
+            return (decimal)this[i];
+        }
 
-		public override double GetDouble(int i)
-		{
-			return (double)this[i];
-		}
+        public override double GetDouble(int i)
+        {
+            return (double)this[i];
+        }
 
-		public override Type GetFieldType(int i)
-		{
-			if (effectiveTypes != null)
-			{
-				return effectiveTypes[i];
-			}
-			return typeof(object);
-		}
+        public override Type GetFieldType(int i)
+        {
+            return effectiveTypes == null ? typeof(object) : effectiveTypes[i];
+        }
 
-		public override float GetFloat(int i)
-		{
-			return (float)this[i];
-		}
+        public override float GetFloat(int i)
+        {
+            return (float)this[i];
+        }
 
-		public override Guid GetGuid(int i)
-		{
-			return (Guid)this[i];
-		}
+        public override Guid GetGuid(int i)
+        {
+            return (Guid)this[i];
+        }
 
-		public override short GetInt16(int i)
-		{
-			return (short)this[i];
-		}
+        public override short GetInt16(int i)
+        {
+            return (short)this[i];
+        }
 
-		public override int GetInt32(int i)
-		{
-			return (int)this[i];
-		}
+        public override int GetInt32(int i)
+        {
+            return (int)this[i];
+        }
 
-		public override long GetInt64(int i)
-		{
-			return (long)this[i];
-		}
+        public override long GetInt64(int i)
+        {
+            return (long)this[i];
+        }
 
-		public override string GetName(int i)
-		{
-			return memberNames[i];
-		}
+        public override string GetName(int i)
+        {
+            return memberNames[i];
+        }
 
-		public override int GetOrdinal(string name)
-		{
-			return Array.IndexOf(memberNames, name);
-		}
+        public override int GetOrdinal(string name)
+        {
+            return Array.IndexOf(memberNames, name);
+        }
 
-		public override string GetString(int i)
-		{
-			return (string)this[i];
-		}
+        public override string GetString(int i)
+        {
+            return (string)this[i];
+        }
 
-		public override object GetValue(int i)
-		{
-			return this[i];
-		}
+        public override object GetValue(int i)
+        {
+            return this[i];
+        }
 
-		public override IEnumerator GetEnumerator()
-		{
-			return new DbEnumerator((IDataReader)this);
-		}
+        public override IEnumerator GetEnumerator() => new DbEnumerator(this);
 
-		public override int GetValues(object[] values)
-		{
-			string[] array = memberNames;
-			object target = current;
-			TypeAccessor typeAccessor = accessor;
-			int num = TypeHelpers.Min(values.Length, array.Length);
-			for (int i = 0; i < num; i++)
-			{
-				values[i] = (typeAccessor[target, array[i]] ?? DBNull.Value);
-			}
-			return num;
-		}
+        public override int GetValues(object[] values)
+        {
+            // duplicate the key fields on the stack
+            var members = this.memberNames;
+            var current = this.current;
+            var accessor = this.accessor;
 
-		public override bool IsDBNull(int i)
-		{
-			return this[i] is DBNull;
-		}
-	}
+            int count = Math.Min(values.Length, members.Length);
+            for (int i = 0; i < count; i++) values[i] = accessor[current, members[i]] ?? DBNull.Value;
+            return count;
+        }
+
+        public override bool IsDBNull(int i)
+        {
+            return this[i] is DBNull;
+        }
+
+        public override object this[string name]
+        {
+            get { return accessor[current, name] ?? DBNull.Value; }
+
+        }
+        /// <summary>
+        /// Gets the value of the current object in the member specified
+        /// </summary>
+        public override object this[int i]
+        {
+            get { return accessor[current, memberNames[i]] ?? DBNull.Value; }
+        }
+    }
 }

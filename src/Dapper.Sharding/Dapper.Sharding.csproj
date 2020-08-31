@@ -1,97 +1,24 @@
-﻿<?xml version="1.0" encoding="utf-8"?>
-<Project ToolsVersion="15.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
-  <Import Project="$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props" Condition="Exists('$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props')" />
-  <PropertyGroup>
-    <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
-    <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
-    <ProjectGuid>{EFE67DA1-977F-4D42-8789-80BD430BBEAC}</ProjectGuid>
-    <OutputType>Library</OutputType>
-    <AppDesignerFolder>Properties</AppDesignerFolder>
-    <RootNamespace>Dapper.Sharding</RootNamespace>
-    <AssemblyName>Dapper.Sharding</AssemblyName>
-    <TargetFrameworkVersion>v4.5</TargetFrameworkVersion>
-    <FileAlignment>512</FileAlignment>
-    <Deterministic>true</Deterministic>
-  </PropertyGroup>
-  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
-    <DebugSymbols>true</DebugSymbols>
-    <DebugType>full</DebugType>
-    <Optimize>false</Optimize>
-    <OutputPath>bin\Debug\</OutputPath>
-    <DefineConstants>DEBUG;TRACE</DefineConstants>
-    <ErrorReport>prompt</ErrorReport>
-    <WarningLevel>4</WarningLevel>
-  </PropertyGroup>
-  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
-    <DebugType>pdbonly</DebugType>
-    <Optimize>true</Optimize>
-    <OutputPath>bin\Release\</OutputPath>
-    <DefineConstants>TRACE</DefineConstants>
-    <ErrorReport>prompt</ErrorReport>
-    <WarningLevel>4</WarningLevel>
-  </PropertyGroup>
-  <ItemGroup>
-    <Reference Include="Dapper">
-      <HintPath>..\Lib\Dapper.1.50.2\Dapper.dll</HintPath>
-    </Reference>
-    <Reference Include="MySql.Data">
-      <HintPath>..\Lib\MySql.Data\MySql.Data.dll</HintPath>
-    </Reference>
-    <Reference Include="System" />
-    <Reference Include="System.Core" />
-    <Reference Include="System.Xml.Linq" />
-    <Reference Include="System.Data.DataSetExtensions" />
-    <Reference Include="Microsoft.CSharp" />
-    <Reference Include="System.Data" />
-    <Reference Include="System.Net.Http" />
-    <Reference Include="System.Xml" />
-  </ItemGroup>
-  <ItemGroup>
-    <Compile Include="Attribute\ColumnAttribute.cs" />
-    <Compile Include="Attribute\IgnoreAttribute.cs" />
-    <Compile Include="Attribute\IndexAttribute.cs" />
-    <Compile Include="Attribute\TableAttribute.cs" />
-    <Compile Include="DapperExt\DapperExtensions.cs" />
-    <Compile Include="DapperFactory.cs" />
-    <Compile Include="Entity\ColumnEntity.cs" />
-    <Compile Include="Entity\DbCsharpTypeEntity.cs" />
-    <Compile Include="Entity\IndexEntity.cs" />
-    <Compile Include="Entity\TableEntity.cs" />
-    <Compile Include="Enum\DataBaseType.cs" />
-    <Compile Include="Enum\IndexType.cs" />
-    <Compile Include="FastMember\CallSiteCache.cs" />
-    <Compile Include="FastMember\Member.cs" />
-    <Compile Include="FastMember\MemberSet.cs" />
-    <Compile Include="FastMember\ObjectAccessor.cs" />
-    <Compile Include="FastMember\ObjectReader.cs" />
-    <Compile Include="FastMember\TypeAccessor.cs" />
-    <Compile Include="FastMember\TypeHelpers.cs" />
-    <Compile Include="InterfaceImpl\MySql\MySqlClient.cs" />
-    <Compile Include="InterfaceImpl\MySql\MySqlDatabase.cs" />
-    <Compile Include="InterfaceImpl\MySql\MySqlTable.cs" />
-    <Compile Include="InterfaceImpl\MySql\MySqlTableManager.cs" />
-    <Compile Include="InterfaceImpl\Oracle\OracleClient.cs" />
-    <Compile Include="InterfaceImpl\Postgre\PostgreClient.cs" />
-    <Compile Include="InterfaceImpl\SQLite\SQLiteClient.cs" />
-    <Compile Include="InterfaceImpl\SqlServer\SqlServerClient.cs" />
-    <Compile Include="Interface\IClient.cs" />
-    <Compile Include="Interface\IDatabase.cs" />
-    <Compile Include="Interface\ITable.cs" />
-    <Compile Include="Interface\ITableManager.cs" />
-    <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="Utils\BalanceRound.cs" />
-    <Compile Include="Utils\BalanceRoundBase.cs" />
-    <Compile Include="Utils\ClassToTableEntityUtils.cs" />
-    <Compile Include="Utils\CsharpTypeToDbType.cs" />
-    <Compile Include="Utils\DbCsharpTypeMap.cs" />
-    <Compile Include="Utils\Ext.cs" />
-    <Compile Include="Utils\HashBloomFilter.cs" />
-    <Compile Include="Utils\LockManager.cs" />
-    <Compile Include="Utils\QueryExtensions.cs" />
-  </ItemGroup>
-  <ItemGroup>
-    <EmbeddedResource Include="DbTypeMap.xml" />
-  </ItemGroup>
-  <ItemGroup />
-  <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+	<PropertyGroup>
+		<TargetFrameworks>net461;net472;netcoreapp3.1</TargetFrameworks>
+	</PropertyGroup>
+
+	<ItemGroup>
+		<None Remove="DbTypeMap.xml" />
+	</ItemGroup>
+
+	<ItemGroup>
+		<EmbeddedResource Include="DbTypeMap.xml" />
+	</ItemGroup>
+
+	<ItemGroup>
+		<PackageReference Include="Dapper" Version="2.0.35" />
+	</ItemGroup>
+	<ItemGroup Condition="'$(TargetFramework)'=='net461'">
+		<Reference Include="Microsoft.CSharp" />
+	</ItemGroup>
+	<ItemGroup Condition="'$(TargetFramework)'=='net472'">
+		<Reference Include="Microsoft.CSharp" />
+	</ItemGroup>
 </Project>
