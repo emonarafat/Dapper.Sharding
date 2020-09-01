@@ -14,7 +14,7 @@ namespace Test
         [Test]
         public void Add()
         {
-            var client = DapperFactory.CreateMySqlClient("server=127.0.0.1;user=root");
+            var client = ClientFactory.CreateMySqlClient("server=127.0.0.1;user=root");
             client.AutoCompareTableColumn = true;
             var db = client.GetDatabase("test");
 

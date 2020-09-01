@@ -1,6 +1,6 @@
 ﻿namespace Dapper.Sharding
 {
-    public class DapperFactory
+    public class ClientFactory
     {
         public static IClient CreateMySqlClient(string connectionString)
         {
