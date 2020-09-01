@@ -212,7 +212,7 @@ namespace Dapper.Sharding
                     }
                     if (ix.Type == IndexType.FullText)
                     {
-                        sb.Append("FullText KEY");
+                        sb.Append("FULLTEXT KEY");
                     }
                     if (ix.Type == IndexType.Spatial)
                     {
