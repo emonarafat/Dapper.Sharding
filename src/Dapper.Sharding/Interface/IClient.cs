@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System.Collections.Concurrent;
+using System.Collections.Generic;
 using System.Data;
 
 namespace Dapper.Sharding
@@ -7,9 +8,7 @@ namespace Dapper.Sharding
     {
         LockManager Locker { get; }
 
-        HashSet<string> DataBaseCache { get; }
-
-        HashSet<string> TableCache { get; }
+        ConcurrentDictionary<string, IDatabase> DataBaseCache { get; }
 
         string ConnectionString { get; }
 
@@ -21,7 +20,7 @@ namespace Dapper.Sharding
 
         IEnumerable<string> ShowDatabases();
 
-        IEnumerable<string> ShowDatabasesWithOutSystem();
+        IEnumerable<string> ShowDatabasesExcludeSystem();
 
         bool ExistsDatabase(string name);
 
@@ -36,5 +35,7 @@ namespace Dapper.Sharding
         bool AutoCompareTableColumn { get; set; }
 
         DataBaseType DbType { get; }
+
+        void ClearCache();
     }
 }

@@ -1,4 +1,5 @@
 ﻿using MySqlConnector;
+using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Data;
 using System.Linq;
@@ -9,9 +10,7 @@ namespace Dapper.Sharding
     {
         public LockManager Locker { get; } = new LockManager();
 
-        public HashSet<string> DataBaseCache { get; } = new HashSet<string>();
-
-        public HashSet<string> TableCache { get; } = new HashSet<string>();
+        public ConcurrentDictionary<string, IDatabase> DataBaseCache { get; } = new ConcurrentDictionary<string, IDatabase>();
 
         public MySqlClient(string connectionString)
         {
@@ -40,6 +39,7 @@ namespace Dapper.Sharding
 
         public string ConnectionString { get; }
 
+
         public void CreateDatabase(string name)
         {
             using (var conn = GetConn())
@@ -54,7 +54,8 @@ namespace Dapper.Sharding
             {
                 conn.Execute($"DROP DATABASE IF EXISTS `{name}`");
             }
-            DataBaseCache.Remove(name);
+
+            DataBaseCache.TryRemove(name, out _);
         }
 
         public IEnumerable<string> ShowDatabases()
@@ -65,7 +66,7 @@ namespace Dapper.Sharding
             }
         }
 
-        public IEnumerable<string> ShowDatabasesWithOutSystem()
+        public IEnumerable<string> ShowDatabasesExcludeSystem()
         {
             return ShowDatabases().Where(w => w != "mysql" && w != "information_schema" && w != "performance_schema" && w != "sys");
         }
@@ -80,22 +81,32 @@ namespace Dapper.Sharding
 
         public IDatabase GetDatabase(string name)
         {
-            if (AutoCreateDatabase)
+            if (!DataBaseCache.ContainsKey(name))
             {
-                if (!DataBaseCache.Contains(name))
+                lock (Locker.GetObject(name))
                 {
-                    lock (Locker.GetObject(name))
+                    if (!DataBaseCache.ContainsKey(name))
                     {
-                        if (!DataBaseCache.Contains(name))
+                        if (AutoCreateDatabase)
                         {
                             CreateDatabase(name);
-                            DataBaseCache.Add(name);
                         }
+                        DataBaseCache.TryAdd(name, new MySqlDatabase(name, this));
                     }
                 }
-            }
 
-            return new MySqlDatabase(name, this);
+            }
+            return DataBaseCache[name];
+        }
+
+        public void ClearCache()
+        {
+            DataBaseCache.Clear();
+            var databaseList = ShowDatabasesExcludeSystem();
+            foreach (var item in databaseList)
+            {
+                GetDatabase(item).TableCache.Clear();
+            }
         }
 
 

@@ -8,6 +8,10 @@ namespace Dapper.Sharding
     {
         string Name { get; }
 
+        LockManager Locker { get; }
+
+        HashSet<string> TableCache { get; }
+
         IClient Client { get; }
 
         IDbConnection GetConn();
@@ -22,9 +26,13 @@ namespace Dapper.Sharding
 
         void DropTable(string name);
 
-        IEnumerable<string> GetTables();
+        IEnumerable<string> ShowTables();
 
-        IEnumerable<dynamic> GetTableStatus();
+        bool ExistsTable(string name);
+
+        string ShowTableScript<T>(string name);
+
+        IEnumerable<dynamic> ShowTableStatus();
 
         List<TableEntity> GetTableEnitys();
 

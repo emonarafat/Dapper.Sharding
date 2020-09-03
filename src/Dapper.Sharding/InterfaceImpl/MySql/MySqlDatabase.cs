@@ -13,6 +13,10 @@ namespace Dapper.Sharding
 
         public IClient Client { get; }
 
+        public LockManager Locker { get; } = new LockManager();
+
+        public HashSet<string> TableCache { get; } = new HashSet<string>();
+
         public MySqlDatabase(string name, MySqlClient client)
         {
             Name = name;
@@ -62,20 +66,85 @@ namespace Dapper.Sharding
             {
                 conn.Execute($"DROP TABLE IF EXISTS `{name}`");
             });
-            Client.TableCache.Remove(Name + name);
+            TableCache.Remove(name);
         }
 
-        public IEnumerable<string> GetTables()
+        public IEnumerable<string> ShowTables()
         {
-            IEnumerable<string> tables = null;
-            Using(conn =>
+            using (var conn = GetConn())
             {
-                tables = conn.Query<string>("SHOW TABLES");
-            });
-            return tables;
+                return conn.Query<string>("SHOW TABLES");
+            }
         }
 
-        public IEnumerable<dynamic> GetTableStatus()
+        public bool ExistsTable(string name)
+        {
+            using (var conn = GetConn())
+            {
+                return !string.IsNullOrEmpty(conn.QueryFirstOrDefault<string>($"SHOW TABLES LIKE '{name}'"));
+            }
+        }
+
+        public string ShowTableScript<T>(string name)
+        {
+            var table = ClassToTableEntityUtils.Get<T>(name);
+            var sb = new StringBuilder();
+            sb.Append($"CREATE TABLE IF NOT EXISTS `{table.Name}` (");
+            foreach (var item in table.ColumnList)
+            {
+                sb.Append($"`{item.Name}` {item.DbType}");
+                if (!string.IsNullOrEmpty(table.PrimaryKey))
+                {
+                    if (table.PrimaryKey.ToLower() == item.Name.ToLower())
+                    {
+                        if (table.IsIdentity)
+                        {
+                            sb.Append(" AUTO_INCREMENT");
+                        }
+                        sb.Append(" PRIMARY KEY");
+                    }
+                }
+                sb.Append($" COMMENT '{item.Comment}'");
+                if (item != table.ColumnList.Last())
+                {
+                    sb.Append(",");
+                }
+            }
+
+            if (table.IndexList != null && table.IndexList.Count > 0)
+            {
+                sb.Append(",");
+                foreach (var ix in table.IndexList)
+                {
+                    if (ix.Type == IndexType.Normal)
+                    {
+                        sb.Append("KEY");
+                    }
+                    if (ix.Type == IndexType.Unique)
+                    {
+                        sb.Append("UNIQUE KEY");
+                    }
+                    if (ix.Type == IndexType.FullText)
+                    {
+                        sb.Append("FULLTEXT KEY");
+                    }
+                    if (ix.Type == IndexType.Spatial)
+                    {
+                        sb.Append("SPATIAL KEY");
+                    }
+                    sb.Append($" `{ix.Name}` ({ix.Columns})");
+                    if (ix != table.IndexList.Last())
+                    {
+                        sb.Append(",");
+                    }
+                }
+            }
+            sb.Append($")DEFAULT CHARSET={Client.Charset} COMMENT '{table.Comment}'");
+
+            return sb.ToString();
+        }
+
+        public IEnumerable<dynamic> ShowTableStatus()
         {
             IEnumerable<dynamic> data = null;
             Using(conn =>
@@ -91,7 +160,7 @@ namespace Dapper.Sharding
             {
                 var obj = conn.QueryFirstOrDefault($"SHOW TABLES LIKE '{name}'");
                 if (obj == null)
-                    conn.Execute(ClassToTableScriptUtils.GetMySqlScript<T>(name));
+                    conn.Execute(ShowTableScript<T>(name));
                 else
                 {
                     if (Client.AutoCompareTableColumn)
@@ -128,15 +197,14 @@ namespace Dapper.Sharding
         {
             if (Client.AutoCreateTable)
             {
-                string key = Name + name;
-                if (!Client.TableCache.Contains(key))
+                if (!TableCache.Contains(name))
                 {
-                    lock (Client.Locker.GetObject(key))
+                    lock (Locker.GetObject(name))
                     {
-                        if (!Client.TableCache.Contains(key))
+                        if (!TableCache.Contains(name))
                         {
                             CreateTable<T>(name);
-                            Client.TableCache.Add(key);
+                            TableCache.Add(name);
                         }
                     }
                 }
@@ -147,7 +215,7 @@ namespace Dapper.Sharding
         public List<TableEntity> GetTableEnitys()
         {
             var list = new List<TableEntity>();
-            var statusList = GetTableStatus();
+            var statusList = ShowTableStatus();
             foreach (var item in statusList)
             {
                 var entity = new TableEntity();
@@ -170,6 +238,10 @@ namespace Dapper.Sharding
             }
             return list;
         }
+
+
+
+
 
         #endregion
     }
