@@ -32,7 +32,5 @@ namespace Dapper.Sharding
 
         ITable<T> GetTable<T>(string name, IDbConnection conn, IDbTransaction tran = null, int? commandTimeout = null);
 
-        string CreateTableScript<T>(string tableName);
-
     }
 }

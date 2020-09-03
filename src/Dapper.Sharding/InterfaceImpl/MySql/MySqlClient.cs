@@ -1,6 +1,7 @@
 ﻿using MySqlConnector;
 using System.Collections.Generic;
 using System.Data;
+using System.Linq;
 
 namespace Dapper.Sharding
 {
@@ -56,11 +57,24 @@ namespace Dapper.Sharding
             DataBaseCache.Remove(name);
         }
 
-        public IEnumerable<string> GetAllDatabase()
+        public IEnumerable<string> ShowDatabases()
         {
             using (var conn = GetConn())
             {
                 return conn.Query<string>("SHOW DATABASES");
+            }
+        }
+
+        public IEnumerable<string> ShowDatabasesWithOutSystem()
+        {
+            return ShowDatabases().Where(w => w != "mysql" && w != "information_schema" && w != "performance_schema" && w != "sys");
+        }
+
+        public bool ExistsDatabase(string name)
+        {
+            using (var conn = GetConn())
+            {
+                return !string.IsNullOrEmpty(conn.QueryFirstOrDefault<string>($"SHOW DATABASES LIKE '{name}'"));
             }
         }
 
@@ -83,6 +97,7 @@ namespace Dapper.Sharding
 
             return new MySqlDatabase(name, this);
         }
+
 
         #endregion
 

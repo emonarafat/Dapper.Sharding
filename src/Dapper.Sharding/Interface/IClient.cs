@@ -19,7 +19,11 @@ namespace Dapper.Sharding
 
         void DropDatabase(string name);
 
-        IEnumerable<string> GetAllDatabase();
+        IEnumerable<string> ShowDatabases();
+
+        IEnumerable<string> ShowDatabasesWithOutSystem();
+
+        bool ExistsDatabase(string name);
 
         IDatabase GetDatabase(string name);
 

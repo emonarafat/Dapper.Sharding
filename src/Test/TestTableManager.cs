@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace Test
 {
-    class TestTable
+    class TestTableManager
     {
     }
 }

@@ -7,8 +7,8 @@ using System.Threading.Tasks;
 
 namespace Test
 {
-    [Table("Id", false, "人类表")]
-    class People2
+    [Table("Id", false, "学生表")]
+    class Student
     {
         [Column(24, "主键id")]
         public string Id { get; set; }
@@ -16,7 +16,7 @@ namespace Test
         [Column(50, "名字")]
         public string Name { get; set; }
 
-        [Column(comment: "年龄")]
+        [Column(20, "年龄")]
         public long Age { get; set; }
 
     }

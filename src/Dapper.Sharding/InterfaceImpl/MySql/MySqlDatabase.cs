@@ -91,7 +91,7 @@ namespace Dapper.Sharding
             {
                 var obj = conn.QueryFirstOrDefault($"SHOW TABLES LIKE '{name}'");
                 if (obj == null)
-                    conn.Execute(CreateTableScript<T>(name));
+                    conn.Execute(ClassToTableScriptUtils.GetMySqlScript<T>(name));
                 else
                 {
                     if (Client.AutoCompareTableColumn)
@@ -169,11 +169,6 @@ namespace Dapper.Sharding
                 list.Add(entity);
             }
             return list;
-        }
-
-        public string CreateTableScript<T>(string tableName)
-        {
-            return ClassToTableScriptUtils.GetMySqlScript<T>(tableName, Client.Charset);
         }
 
         #endregion
