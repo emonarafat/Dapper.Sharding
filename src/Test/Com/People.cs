@@ -7,6 +7,8 @@ using System.Threading.Tasks;
 
 namespace Test
 {
+    [Index("Name","Name",IndexType.Normal)]
+    [Index("Age","Age",IndexType.Unique)]
     [Table("Id", true, "人类表")]
     class People
     {

@@ -32,7 +32,9 @@ namespace Dapper.Sharding
 
         string ShowTableScript<T>(string name);
 
-        IEnumerable<dynamic> ShowTableStatus();
+        dynamic ShowTableStatus(string name);
+
+        IEnumerable<dynamic> ShowTablesStatus();
 
         List<TableEntity> GetTableEnitys();
 

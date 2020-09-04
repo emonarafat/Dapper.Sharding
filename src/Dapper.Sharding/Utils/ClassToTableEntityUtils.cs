@@ -5,14 +5,13 @@ namespace Dapper.Sharding
 {
     public class ClassToTableEntityUtils
     {
-        public static TableEntity Get<T>(string name)
+        public static TableEntity Get<T>()
         {
             var entity = new TableEntity();
             entity.ColumnList = new List<ColumnEntity>();
             entity.IndexList = new List<IndexEntity>();
             var t = typeof(T);
             var tableAttr = t.GetCustomAttributes(false).First(f => f is TableAttribute) as TableAttribute;
-            entity.Name = name;
             entity.PrimaryKey = tableAttr.PrimaryKey;
             entity.IsIdentity = tableAttr.IsIdentity;
             entity.Comment = tableAttr.Comment;

@@ -87,17 +87,17 @@ namespace Dapper.Sharding
 
         public string ShowTableScript<T>(string name)
         {
-            var table = ClassToTableEntityUtils.Get<T>(name);
+            var tableEntity = ClassToTableEntityUtils.Get<T>();
             var sb = new StringBuilder();
-            sb.Append($"CREATE TABLE IF NOT EXISTS `{table.Name}` (");
-            foreach (var item in table.ColumnList)
+            sb.Append($"CREATE TABLE IF NOT EXISTS `{name}` (");
+            foreach (var item in tableEntity.ColumnList)
             {
                 sb.Append($"`{item.Name}` {item.DbType}");
-                if (!string.IsNullOrEmpty(table.PrimaryKey))
+                if (!string.IsNullOrEmpty(tableEntity.PrimaryKey))
                 {
-                    if (table.PrimaryKey.ToLower() == item.Name.ToLower())
+                    if (tableEntity.PrimaryKey.ToLower() == item.Name.ToLower())
                     {
-                        if (table.IsIdentity)
+                        if (tableEntity.IsIdentity)
                         {
                             sb.Append(" AUTO_INCREMENT");
                         }
@@ -105,16 +105,16 @@ namespace Dapper.Sharding
                     }
                 }
                 sb.Append($" COMMENT '{item.Comment}'");
-                if (item != table.ColumnList.Last())
+                if (item != tableEntity.ColumnList.Last())
                 {
                     sb.Append(",");
                 }
             }
 
-            if (table.IndexList != null && table.IndexList.Count > 0)
+            if (tableEntity.IndexList != null && tableEntity.IndexList.Count > 0)
             {
                 sb.Append(",");
-                foreach (var ix in table.IndexList)
+                foreach (var ix in tableEntity.IndexList)
                 {
                     if (ix.Type == IndexType.Normal)
                     {
@@ -133,25 +133,31 @@ namespace Dapper.Sharding
                         sb.Append("SPATIAL KEY");
                     }
                     sb.Append($" `{ix.Name}` ({ix.Columns})");
-                    if (ix != table.IndexList.Last())
+                    if (ix != tableEntity.IndexList.Last())
                     {
                         sb.Append(",");
                     }
                 }
             }
-            sb.Append($")DEFAULT CHARSET={Client.Charset} COMMENT '{table.Comment}'");
+            sb.Append($")DEFAULT CHARSET={Client.Charset} COMMENT '{tableEntity.Comment}'");
 
             return sb.ToString();
         }
 
-        public IEnumerable<dynamic> ShowTableStatus()
+        public dynamic ShowTableStatus(string name)
         {
-            IEnumerable<dynamic> data = null;
-            Using(conn =>
+            using (var conn = GetConn())
             {
-                data = conn.Query("SHOW TABLE STATUS");
-            });
-            return data;
+                return conn.QueryFirstOrDefault($"SHOW TABLE STATUS LIKE '{name}'");
+            }
+        }
+
+        public IEnumerable<dynamic> ShowTablesStatus()
+        {
+            using (var conn = GetConn())
+            {
+                return conn.Query("SHOW TABLE STATUS");
+            }
         }
 
         public void CreateTable<T>(string name)
@@ -166,7 +172,7 @@ namespace Dapper.Sharding
                     if (Client.AutoCompareTableColumn)
                     {
                         var dbColumns = conn.Query<string>($"SELECT COLUMN_NAME FROM information_schema.COLUMNS WHERE TABLE_SCHEMA='{Name}' AND TABLE_NAME='{name}'");
-                        var tableEntity = ClassToTableEntityUtils.Get<T>(name);
+                        var tableEntity = ClassToTableEntityUtils.Get<T>();
                         var manager = GetTableManager(name);
 
                         foreach (var item in dbColumns)
@@ -215,17 +221,16 @@ namespace Dapper.Sharding
         public List<TableEntity> GetTableEnitys()
         {
             var list = new List<TableEntity>();
-            var statusList = ShowTableStatus();
+            var statusList = ShowTablesStatus();
             foreach (var item in statusList)
             {
                 var entity = new TableEntity();
-                entity.Name = item.Name;
                 if (item.Auto_increment != null)
                 {
                     entity.IsIdentity = item.Auto_increment == 1 ? true : false;
                 }
                 entity.Comment = item.Comment;
-                var manager = GetTableManager(entity.Name);
+                var manager = GetTableManager((string)item.Name);
                 var indexList = manager.GetIndexEntitys();
                 entity.IndexList = indexList;
                 var ix = indexList.FirstOrDefault(f => f.Type == IndexType.PrimaryKey);
@@ -238,10 +243,6 @@ namespace Dapper.Sharding
             }
             return list;
         }
-
-
-
-
 
         #endregion
     }
