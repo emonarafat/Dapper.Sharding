@@ -41,5 +41,39 @@ namespace Dapper.Sharding
                 return action();
             }
         }
+
+        public static void Using(this ITableManager table, Action action)
+        {
+            if (table.Conn == null)
+            {
+                using (table.Conn = table.DataBase.GetConn())
+                {
+                    action();
+                    table.Conn = null;
+                }
+            }
+            else
+            {
+                action();
+            }
+        }
+
+        public static T Using<T>(this ITableManager table, Func<T> action)
+        {
+            if (table.Conn == null)
+            {
+                using (table.Conn = table.DataBase.GetConn())
+                {
+                    var result = action();
+                    table.Conn = null;
+                    return result;
+                }
+            }
+            else
+            {
+                return action();
+            }
+        }
+
     }
 }

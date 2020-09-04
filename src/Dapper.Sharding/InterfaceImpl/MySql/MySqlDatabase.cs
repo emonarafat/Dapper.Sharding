@@ -162,7 +162,7 @@ namespace Dapper.Sharding
 
         public ITableManager GetTableManager(string name, IDbConnection conn = null, IDbTransaction tran = null, int? commandTimeout = null)
         {
-            return new MySqlTableManager(name, this);
+            return new MySqlTableManager(name, this, conn, tran, commandTimeout);
         }
 
         public TableEntity GetTableEntityFromDatabase(string name)

@@ -11,16 +11,22 @@ namespace Dapper.Sharding
     {
         string Name { get; }
 
-        IDbConnection Conn { get; set; }
-
-        IDbTransaction Tran { get; }
-
-        int? CommandTimeout { get; }
-
         IDatabase DataBase { get; }
 
-        int Insert(T model);
+        IDbConnection Conn { get; set; }
 
-        int Update(T model);
+        IDbTransaction Tran { get; set; }
+
+        int? CommandTimeout { get; set; }
+
+        bool Insert(T model);
+
+        bool Update(T model);
+
+        int UpdateByWhere(T model, string where, string updateFields);
+
+        bool Delete(object id);
+
+        bool Delete(T model);
     }
 }

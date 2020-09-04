@@ -20,30 +20,47 @@ namespace Dapper.Sharding
 
         public IDbConnection Conn { get; set; }
 
-        public IDbTransaction Tran { get; }
+        public IDbTransaction Tran { get; set; }
 
-        public int? CommandTimeout { get; }
+        public int? CommandTimeout { get; set; }
 
         public string Name { get; }
 
         public IDatabase DataBase { get; }
 
-        public int Insert(T model)
+        public bool Insert(T model)
         {
             this.Using(() =>
             {
 
             });
-           return 0;
+            return false;
         }
 
-        public int Update(T model)
+        public bool Update(T model)
         {
             return this.Using(() =>
             {
-                return 1;
+                return false;
             });
             //throw new NotImplementedException();
         }
+
+        public int UpdateByWhere(T model, string where, string updateFields)
+        {
+            throw new NotImplementedException();
+        }
+
+        public bool Delete(object id)
+        {
+            throw new NotImplementedException();
+        }
+
+        public bool Delete(T model)
+        {
+            throw new NotImplementedException();
+        }
+
+
     }
 }

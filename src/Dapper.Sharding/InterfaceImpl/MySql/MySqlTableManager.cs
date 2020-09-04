@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Data;
 using System.Linq;
 
 namespace Dapper.Sharding
@@ -11,10 +12,19 @@ namespace Dapper.Sharding
 
         public IDatabase DataBase { get; }
 
-        public MySqlTableManager(string tableName, MySqlDatabase database)
+        public IDbConnection Conn { get; set; }
+
+        public IDbTransaction Tran { get; set; }
+
+        public int? CommandTimeout { get; set; }
+
+        public MySqlTableManager(string tableName, MySqlDatabase database, IDbConnection conn = null, IDbTransaction tran = null, int? commandTimeout = null)
         {
             Name = tableName;
             DataBase = database;
+            Conn = conn;
+            Tran = tran;
+            CommandTimeout = commandTimeout;
         }
 
         public void CreateIndex(string name, string columns, IndexType indexType)
