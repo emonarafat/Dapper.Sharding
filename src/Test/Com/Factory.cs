@@ -9,7 +9,7 @@ namespace Test
 {
     public class Factory
     {
-        public static IClient Client = ClientFactory.CreateMySqlClient("server=127.0.0.1;user=root");
+        public static IClient Client = ClientFactory.CreateClient(DataBaseType.MySql, "server=127.0.0.1;user=root");
         public static IDatabase Db = Client.GetDatabase("test");
     }
 }

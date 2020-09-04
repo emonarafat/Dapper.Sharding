@@ -2,15 +2,14 @@
 {
     public class ClientFactory
     {
-        public static IClient CreateMySqlClient(string connectionString)
+        public static IClient CreateClient(DataBaseType dbType, string connectionString)
         {
-            return new MySqlClient(connectionString);
+            switch (dbType)
+            {
+                case DataBaseType.MySql:
+                    return new  MySqlClient(connectionString);
+            }
+            return null;
         }
-
-        //public static IDapperClient CreateSqlServerClient(string connectionString)
-        //{
-        //    return new SqlServerClient(connectionString);
-        //}
-
     }
 }
