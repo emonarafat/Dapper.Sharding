@@ -34,7 +34,7 @@ namespace Dapper.Sharding
 
         IEnumerable<dynamic> ShowTablesStatus();
 
-        ITableManager GetTableManager(string name);
+        ITableManager GetTableManager(string name, IDbConnection conn = null, IDbTransaction tran = null, int? commandTimeout = null);
 
         TableEntity GetTableEntityFromDatabase(string name);
 

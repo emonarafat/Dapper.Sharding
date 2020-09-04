@@ -9,15 +9,16 @@ namespace Dapper.Sharding
 {
     internal class MySqlTable<T> : ITable<T>
     {
-        public MySqlTable(string name, IDbConnection conn, IDbTransaction tran = null, int? commandTimeout = null)
+        public MySqlTable(string name, IDatabase database, IDbConnection conn = null, IDbTransaction tran = null, int? commandTimeout = null)
         {
             Name = name;
+            DataBase = database;
             Conn = conn;
             Tran = tran;
             CommandTimeout = commandTimeout;
         }
 
-        public IDbConnection Conn { get; }
+        public IDbConnection Conn { get; set; }
 
         public IDbTransaction Tran { get; }
 
@@ -25,14 +26,24 @@ namespace Dapper.Sharding
 
         public string Name { get; }
 
+        public IDatabase DataBase { get; }
+
         public int Insert(T model)
         {
-            return 0;
+            this.Using(() =>
+            {
+
+            });
+           return 0;
         }
 
         public int Update(T model)
         {
-            throw new NotImplementedException();
+            return this.Using(() =>
+            {
+                return 1;
+            });
+            //throw new NotImplementedException();
         }
     }
 }

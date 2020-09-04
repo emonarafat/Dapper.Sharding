@@ -11,11 +11,13 @@ namespace Dapper.Sharding
     {
         string Name { get; }
 
-        IDbConnection Conn { get; }
+        IDbConnection Conn { get; set; }
 
         IDbTransaction Tran { get; }
 
         int? CommandTimeout { get; }
+
+        IDatabase DataBase { get; }
 
         int Insert(T model);
 

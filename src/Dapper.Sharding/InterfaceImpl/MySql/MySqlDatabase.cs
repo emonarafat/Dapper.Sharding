@@ -160,7 +160,7 @@ namespace Dapper.Sharding
             }
         }
 
-        public ITableManager GetTableManager(string name)
+        public ITableManager GetTableManager(string name, IDbConnection conn = null, IDbTransaction tran = null, int? commandTimeout = null)
         {
             return new MySqlTableManager(name, this);
         }
@@ -246,7 +246,7 @@ namespace Dapper.Sharding
                     }
                 }
             }
-            return new MySqlTable<T>(name, conn, tran, commandTimeout);
+            return new MySqlTable<T>(name, this, conn, tran, commandTimeout);
         }
 
         #endregion
