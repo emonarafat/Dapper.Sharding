@@ -209,7 +209,7 @@ namespace Dapper.Sharding
                     {
                         var dbColumns = conn.Query<string>($"SELECT COLUMN_NAME FROM information_schema.COLUMNS WHERE TABLE_SCHEMA='{Name}' AND TABLE_NAME='{name}'");
                         var tableEntity = ClassToTableEntityUtils.Get<T>();
-                        var manager = GetTableManager(name);
+                        var manager = GetTableManager(name,conn);
 
                         foreach (var item in dbColumns)
                         {
