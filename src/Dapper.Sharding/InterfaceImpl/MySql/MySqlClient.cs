@@ -81,22 +81,22 @@ namespace Dapper.Sharding
 
         public IDatabase GetDatabase(string name)
         {
-            if (!DataBaseCache.ContainsKey(name))
+            var lowerName = name.ToLower();
+            if (!DataBaseCache.ContainsKey(lowerName))
             {
-                lock (Locker.GetObject(name))
+                lock (Locker.GetObject(lowerName))
                 {
-                    if (!DataBaseCache.ContainsKey(name))
+                    if (!DataBaseCache.ContainsKey(lowerName))
                     {
                         if (AutoCreateDatabase)
                         {
                             CreateDatabase(name);
                         }
-                        DataBaseCache.TryAdd(name, new MySqlDatabase(name, this));
+                        DataBaseCache.TryAdd(lowerName, new MySqlDatabase(name, this));
                     }
                 }
-
             }
-            return DataBaseCache[name];
+            return DataBaseCache[lowerName];
         }
 
         public void ClearCache()

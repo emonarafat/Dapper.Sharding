@@ -232,16 +232,17 @@ namespace Dapper.Sharding
 
         public ITable<T> GetTable<T>(string name, IDbConnection conn = null, IDbTransaction tran = null, int? commandTimeout = null)
         {
+            var lowerName = name.ToLower();
             if (Client.AutoCreateTable)
             {
-                if (!TableCache.Contains(name))
+                if (!TableCache.Contains(lowerName))
                 {
-                    lock (Locker.GetObject(name))
+                    lock (Locker.GetObject(lowerName))
                     {
-                        if (!TableCache.Contains(name))
+                        if (!TableCache.Contains(lowerName))
                         {
                             CreateTable<T>(name);
-                            TableCache.Add(name);
+                            TableCache.Add(lowerName);
                         }
                     }
                 }
