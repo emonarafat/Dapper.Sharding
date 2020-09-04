@@ -160,6 +160,42 @@ namespace Dapper.Sharding
             }
         }
 
+        public ITableManager GetTableManager(string name)
+        {
+            return new MySqlTableManager(name, this);
+        }
+
+        public TableEntity GetTableEntityFromDatabase(string name)
+        {
+            throw new NotImplementedException();
+        }
+
+        public List<TableEntity> GetTableEnitys()
+        {
+            var list = new List<TableEntity>();
+            var statusList = ShowTablesStatus();
+            foreach (var item in statusList)
+            {
+                var entity = new TableEntity();
+                if (item.Auto_increment != null)
+                {
+                    entity.IsIdentity = (item.Auto_increment == 1);
+                }
+                entity.Comment = item.Comment;
+                var manager = GetTableManager((string)item.Name);
+                var indexList = manager.GetIndexEntitys();
+                entity.IndexList = indexList;
+                var ix = indexList.FirstOrDefault(f => f.Type == IndexType.PrimaryKey);
+                if (ix != null)
+                {
+                    entity.PrimaryKey = ix.Columns.FirstCharToUpper();
+                }
+                entity.ColumnList = manager.GetColumnEntitys();
+                list.Add(entity);
+            }
+            return list;
+        }
+
         public void CreateTable<T>(string name)
         {
             Using(conn =>
@@ -194,12 +230,7 @@ namespace Dapper.Sharding
             });
         }
 
-        public ITableManager GetTableManager(string name)
-        {
-            return new MySqlTableManager(name, this);
-        }
-
-        public ITable<T> GetTable<T>(string name, IDbConnection conn, IDbTransaction tran = null, int? commandTimeout = null)
+        public ITable<T> GetTable<T>(string name, IDbConnection conn = null, IDbTransaction tran = null, int? commandTimeout = null)
         {
             if (Client.AutoCreateTable)
             {
@@ -216,32 +247,6 @@ namespace Dapper.Sharding
                 }
             }
             return new MySqlTable<T>(name, conn, tran, commandTimeout);
-        }
-
-        public List<TableEntity> GetTableEnitys()
-        {
-            var list = new List<TableEntity>();
-            var statusList = ShowTablesStatus();
-            foreach (var item in statusList)
-            {
-                var entity = new TableEntity();
-                if (item.Auto_increment != null)
-                {
-                    entity.IsIdentity = item.Auto_increment == 1 ? true : false;
-                }
-                entity.Comment = item.Comment;
-                var manager = GetTableManager((string)item.Name);
-                var indexList = manager.GetIndexEntitys();
-                entity.IndexList = indexList;
-                var ix = indexList.FirstOrDefault(f => f.Type == IndexType.PrimaryKey);
-                if (ix != null)
-                {
-                    entity.PrimaryKey = ix.Columns.FirstCharToUpper();
-                }
-                entity.ColumnList = manager.GetColumnEntitys();
-                list.Add(entity);
-            }
-            return list;
         }
 
         #endregion

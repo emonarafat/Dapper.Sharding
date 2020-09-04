@@ -135,7 +135,7 @@ namespace Dapper.Sharding
             {
 
                 ColumnEntity model = new ColumnEntity();
-                model.Name = item.Field; //列名
+                model.Name = ((string)item.Field).FirstCharToUpper(); //列名
 
                 string columnType = item.Type;//数据类型
 

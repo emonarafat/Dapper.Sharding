@@ -22,8 +22,6 @@ namespace Dapper.Sharding
 
         void SetCharset(string chartset);
 
-        void CreateTable<T>(string name);
-
         void DropTable(string name);
 
         IEnumerable<string> ShowTables();
@@ -36,11 +34,15 @@ namespace Dapper.Sharding
 
         IEnumerable<dynamic> ShowTablesStatus();
 
-        List<TableEntity> GetTableEnitys();
-
         ITableManager GetTableManager(string name);
 
-        ITable<T> GetTable<T>(string name, IDbConnection conn, IDbTransaction tran = null, int? commandTimeout = null);
+        TableEntity GetTableEntityFromDatabase(string name);
+
+        List<TableEntity> GetTableEnitys();
+
+        void CreateTable<T>(string name);
+
+        ITable<T> GetTable<T>(string name, IDbConnection conn = null, IDbTransaction tran = null, int? commandTimeout = null);
 
     }
 }
