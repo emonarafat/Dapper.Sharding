@@ -20,7 +20,7 @@ namespace Test
 
             Factory.Db.Using(conn =>
             {
-                conn.Execute("INSERT INTO People(Name,Age)VALUES(\"阿萨的1\",288)");
+                conn.Execute("INSERT INTO People(Name,Age)VALUES(\"阿萨的\",288)");
                 conn.Execute($"INSERT INTO Student(Id,Name,Age)VALUES(\"{ObjectId.GenerateNewIdAsString()}\",\"王\",288)");
             });
 
