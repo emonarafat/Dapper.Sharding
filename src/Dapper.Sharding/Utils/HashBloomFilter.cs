@@ -1,6 +1,6 @@
 ﻿namespace Dapper.Sharding
 {
-    public class HashBloomFilter
+    internal class HashBloomFilter
     {
         // BKDR Hash Function  92.64
         public static int BKDRHash(string str)

@@ -18,9 +18,9 @@ namespace Dapper.Sharding
 
         public int? CommandTimeout { get; set; }
 
-        public MySqlTableManager(string tableName, MySqlDatabase database, IDbConnection conn = null, IDbTransaction tran = null, int? commandTimeout = null)
+        public MySqlTableManager(string name, MySqlDatabase database, IDbConnection conn = null, IDbTransaction tran = null, int? commandTimeout = null)
         {
-            Name = tableName;
+            Name = name;
             DataBase = database;
             Conn = conn;
             Tran = tran;

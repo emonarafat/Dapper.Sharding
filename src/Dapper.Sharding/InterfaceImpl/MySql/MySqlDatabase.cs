@@ -9,6 +9,39 @@ namespace Dapper.Sharding
     internal class MySqlDatabase : IDatabase
     {
 
+        public MySqlDatabase(string name, MySqlClient client)
+        {
+            Name = name;
+            Client = client;
+        }
+
+        #region method
+
+        private TableEntity StatusToTableEntity(dynamic data)
+        {
+            var entity = new TableEntity();
+            if (data.Auto_increment != null)
+            {
+                entity.IsIdentity = (data.Auto_increment == 1);
+            }
+            entity.Comment = data.Comment;
+            var manager = GetTableManager((string)data.Name);
+            var indexList = manager.GetIndexEntitys();
+            entity.IndexList = indexList;
+            var ix = indexList.FirstOrDefault(f => f.Type == IndexType.PrimaryKey);
+            if (ix != null)
+            {
+                entity.PrimaryKey = ix.Columns.FirstCharToUpper();
+            }
+            entity.ColumnList = manager.GetColumnEntitys();
+
+            return entity;
+        }
+
+        #endregion
+
+        #region interface method
+
         public string Name { get; }
 
         public IClient Client { get; }
@@ -17,12 +50,6 @@ namespace Dapper.Sharding
 
         public HashSet<string> TableCache { get; } = new HashSet<string>();
 
-        public MySqlDatabase(string name, MySqlClient client)
-        {
-            Name = name;
-            Client = client;
-        }
-
         public IDbConnection GetConn()
         {
             var conn = Client.GetConn();
@@ -30,8 +57,6 @@ namespace Dapper.Sharding
                 conn.ChangeDatabase(Name);
             return conn;
         }
-
-        #region interface method
 
         public void Using(Action<IDbConnection> action)
         {
@@ -167,68 +192,29 @@ namespace Dapper.Sharding
 
         public TableEntity GetTableEntityFromDatabase(string name)
         {
-            throw new NotImplementedException();
+            return StatusToTableEntity(ShowTableStatus(name));
         }
 
-        public List<TableEntity> GetTableEnitys()
+        public List<TableEntity> GetTableEnitysFromDatabase()
         {
             var list = new List<TableEntity>();
             var statusList = ShowTablesStatus();
             foreach (var item in statusList)
             {
-                var entity = new TableEntity();
-                if (item.Auto_increment != null)
-                {
-                    entity.IsIdentity = (item.Auto_increment == 1);
-                }
-                entity.Comment = item.Comment;
-                var manager = GetTableManager((string)item.Name);
-                var indexList = manager.GetIndexEntitys();
-                entity.IndexList = indexList;
-                var ix = indexList.FirstOrDefault(f => f.Type == IndexType.PrimaryKey);
-                if (ix != null)
-                {
-                    entity.PrimaryKey = ix.Columns.FirstCharToUpper();
-                }
-                entity.ColumnList = manager.GetColumnEntitys();
-                list.Add(entity);
+                list.Add(StatusToTableEntity(item));
             }
             return list;
         }
 
         public void CreateTable<T>(string name)
         {
-            Using(conn =>
+            using (var conn = GetConn())
             {
-                var obj = conn.QueryFirstOrDefault($"SHOW TABLES LIKE '{name}'");
-                if (obj == null)
-                    conn.Execute(ShowTableScript<T>(name));
-                else
-                {
-                    if (Client.AutoCompareTableColumn)
-                    {
-                        var dbColumns = conn.Query<string>($"SELECT COLUMN_NAME FROM information_schema.COLUMNS WHERE TABLE_SCHEMA='{Name}' AND TABLE_NAME='{name}'");
-                        var tableEntity = ClassToTableEntityUtils.Get<T>();
-                        var manager = GetTableManager(name,conn);
-
-                        foreach (var item in dbColumns)
-                        {
-                            if (!tableEntity.ColumnList.Any(a => a.Name.ToLower() == item.ToLower()))
-                            {
-                                manager.DropColumn(item);
-                            }
-                        }
-                        foreach (var item in tableEntity.ColumnList)
-                        {
-                            if (!dbColumns.Any(a => a.ToLower() == item.Name.ToLower()))
-                            {
-                                manager.AddColumn(item.Name, item.CsType, item.Length, item.Comment);
-                            }
-                        }
-                    }
-                }
-            });
+                var script = ShowTableScript<T>(name);
+                conn.Execute(script);
+            }
         }
+
 
         public ITable<T> GetTable<T>(string name, IDbConnection conn = null, IDbTransaction tran = null, int? commandTimeout = null)
         {
@@ -241,7 +227,48 @@ namespace Dapper.Sharding
                     {
                         if (!TableCache.Contains(lowerName))
                         {
-                            CreateTable<T>(name);
+                            #region 创建、比对表
+
+                            if (!ExistsTable(name))
+                            {
+                                CreateTable<T>(name);
+                            }
+                            else
+                            {
+                                if (Client.AutoCompareTableColumn)
+                                {
+                                    IEnumerable<string> dbColumns;
+
+                                    using (var conn2 = GetConn())
+                                    {
+                                        dbColumns = conn2.Query<string>($"SELECT COLUMN_NAME FROM information_schema.COLUMNS WHERE TABLE_SCHEMA='{Name}' AND TABLE_NAME='{name}'");
+                                    }
+
+                                    var tableEntity = ClassToTableEntityUtils.Get<T>();
+                                    var manager = GetTableManager(name);
+
+                                    foreach (var item in tableEntity.ColumnList)
+                                    {
+                                        if (!dbColumns.Any(a => a.ToLower().Equals(item.Name.ToLower())))
+                                        {
+                                            manager.AddColumn(item.Name, item.CsType, item.Length, item.Comment);
+                                        }
+                                    }
+
+                                    foreach (var item in dbColumns)
+                                    {
+                                        if (!tableEntity.ColumnList.Any(a => a.Name.ToLower().Equals(item.ToLower())))
+                                        {
+                                            manager.DropColumn(item);
+                                        }
+                                    }
+
+         
+                                }
+                            }
+
+                            #endregion
+
                             TableCache.Add(lowerName);
                         }
                     }

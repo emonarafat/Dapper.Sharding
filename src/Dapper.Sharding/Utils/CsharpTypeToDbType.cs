@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace Dapper.Sharding
 {
-    public class CsharpTypeToDbType
+    internal class CsharpTypeToDbType
     {
 
         public static string CreateSqlServer(Type type, double length = 0)

@@ -2,7 +2,7 @@
 
 namespace Dapper.Sharding
 {
-    public class BalanceRoundBase
+    internal class BalanceRoundBase
     {
         private int start = -1;
         private readonly int t1;

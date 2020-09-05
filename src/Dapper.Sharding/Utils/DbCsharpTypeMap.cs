@@ -4,7 +4,7 @@ using System.Xml.Linq;
 
 namespace Dapper.Sharding
 {
-    public class DbCsharpTypeMap
+    internal class DbCsharpTypeMap
     {
         private static readonly string SqlServerCSharp = "SqlServerCSharp";
         private static readonly string MySqlCSharp = "MySqlCSharp";

@@ -8,24 +8,17 @@ namespace Dapper.Sharding
 {
     internal class MySqlClient : IClient
     {
-        public LockManager Locker { get; } = new LockManager();
-
-        public ConcurrentDictionary<string, IDatabase> DataBaseCache { get; } = new ConcurrentDictionary<string, IDatabase>();
 
         public MySqlClient(string connectionString)
         {
             ConnectionString = connectionString;
         }
 
-        public IDbConnection GetConn()
-        {
-            var conn = new MySqlConnection(ConnectionString);
-            if (conn.State != ConnectionState.Open)
-                conn.Open();
-            return conn;
-        }
-
         #region Interface Method
+
+        public LockManager Locker { get; } = new LockManager();
+
+        public ConcurrentDictionary<string, IDatabase> DataBaseCache { get; } = new ConcurrentDictionary<string, IDatabase>();
 
         public bool AutoCreateDatabase { get; set; } = true;
 
@@ -35,10 +28,17 @@ namespace Dapper.Sharding
 
         public bool AutoCompareTableColumn { get; set; } = false;
 
-        public DataBaseType DbType => DataBaseType.MySql;
+        public DataBaseType DbType { get; } = DataBaseType.MySql;
 
         public string ConnectionString { get; }
 
+        public IDbConnection GetConn()
+        {
+            var conn = new MySqlConnection(ConnectionString);
+            if (conn.State != ConnectionState.Open)
+                conn.Open();
+            return conn;
+        }
 
         public void CreateDatabase(string name)
         {

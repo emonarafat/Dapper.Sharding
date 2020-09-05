@@ -38,7 +38,7 @@ namespace Dapper.Sharding
 
         TableEntity GetTableEntityFromDatabase(string name);
 
-        List<TableEntity> GetTableEnitys();
+        List<TableEntity> GetTableEnitysFromDatabase();
 
         void CreateTable<T>(string name);
 

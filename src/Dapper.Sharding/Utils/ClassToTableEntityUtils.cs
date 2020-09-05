@@ -3,7 +3,7 @@ using System.Linq;
 
 namespace Dapper.Sharding
 {
-    public class ClassToTableEntityUtils
+    internal class ClassToTableEntityUtils
     {
         public static TableEntity Get<T>()
         {

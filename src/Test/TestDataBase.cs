@@ -14,6 +14,7 @@ namespace Test
         [Test]
         public void Add()
         {
+            Factory.Client.AutoCompareTableColumn = true;
             var p1 = Factory.Db.GetTable<People>("People", null);
             var p2 = Factory.Db.GetTable<People>("People2", null);
             var p3 = Factory.Db.GetTable<Student>("Student", null);

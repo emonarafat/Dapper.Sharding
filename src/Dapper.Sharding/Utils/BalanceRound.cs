@@ -1,6 +1,6 @@
 ﻿namespace Dapper.Sharding
 {
-    public class BalanceRound<T>
+    internal class BalanceRound<T>
     {
         BalanceRoundBase balanceRoundBase;
         readonly T[] _objs;

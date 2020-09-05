@@ -5,7 +5,7 @@ using System.Linq.Expressions;
 
 namespace Dapper.Sharding
 {
-    public static class QueryExtensions
+    internal static class QueryExtensions
     {
         public static IQueryable<T> OrderBy<T>(this IQueryable<T> source, string propertyName, bool asc = true)
         {
