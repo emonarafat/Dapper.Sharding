@@ -15,13 +15,13 @@ namespace Test
         [Test]
         public void CreateDatabase()
         {
-            Factory.Client.CreateDatabase("test");
+            Factory.Client.CreateDatabase("demo");
         }
 
         [Test]
         public void DropDatabase()
         {
-            Factory.Client.DropDatabase("test");
+            Factory.Client.DropDatabase("demo");
         }
 
         [Test]

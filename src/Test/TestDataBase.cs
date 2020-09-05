@@ -1,5 +1,6 @@
 ﻿using Dapper;
 using Dapper.Sharding;
+using Newtonsoft.Json;
 using NUnit.Framework;
 using System;
 using System.Collections.Generic;
@@ -12,20 +13,72 @@ namespace Test
     class TestDataBase
     {
         [Test]
-        public void Add()
+        public void CreateTable()
         {
-            Factory.Client.AutoCompareTableColumn = true;
-            var p1 = Factory.Db.GetTable<People>("People", null);
-            var p2 = Factory.Db.GetTable<People>("People2", null);
-            var p3 = Factory.Db.GetTable<Student>("Student", null);
+            Factory.Db.CreateTable<People>("People");
+            Factory.Db.CreateTable<People>("People2");
+            Factory.Db.CreateTable<People>("P");
 
-            Factory.Db.Using(conn =>
-            {
-                conn.Execute("INSERT INTO People(Name,Age)VALUES(\"阿萨的\",288)");
-                conn.Execute($"INSERT INTO Student(Id,Name,Age)VALUES(\"{ObjectId.GenerateNewIdAsString()}\",\"王\",288)");
-            });
+            Factory.Db.CreateTable<Student>("Student");
+            Factory.Db.CreateTable<Student>("Student2");
+            Factory.Db.CreateTable<Student>("S");
+        }
 
-            Assert.Pass("111");
+        [Test]
+        public void DropTable()
+        {
+            Factory.Db.DropTable("People2");
+            Factory.Db.DropTable("P");
+            Factory.Db.DropTable("Student2");
+            Factory.Db.DropTable("S");
+        }
+
+        [Test]
+        public void ShowTables()
+        {
+            var data = Factory.Db.ShowTables();
+            Assert.Pass(JsonConvert.SerializeObject(data));
+        }
+
+        [Test]
+        public void ExistsTable()
+        {
+            Console.WriteLine(Factory.Db.ExistsTable("People"));
+            Console.WriteLine(Factory.Db.ExistsTable("People22222"));
+        }
+
+        [Test]
+        public void ShowTableScript()
+        {
+            Console.WriteLine(Factory.Db.ShowTableScript<People>("People"));
+            Console.WriteLine("\r\n");
+            Console.WriteLine("\r\n");
+            Console.WriteLine(Factory.Db.ShowTableScript<Student>("sss"));
+        }
+
+        [Test]
+        public void ShowTableStatus()
+        {
+            object data = Factory.Db.ShowTableStatus("People");
+            Console.WriteLine(JsonConvert.SerializeObject(data));
+        }
+
+        [Test]
+        public void ShowTablesStatus()
+        {
+            Console.WriteLine(JsonConvert.SerializeObject(Factory.Db.ShowTablesStatus()));
+        }
+
+        [Test]
+        public void GetTableEntityFromDatabase()
+        {
+            Console.WriteLine(JsonConvert.SerializeObject(Factory.Db.GetTableEntityFromDatabase("People")));
+        }
+
+        [Test]
+        public void GetTableEntitysFromDatabase()
+        {
+            Console.WriteLine(JsonConvert.SerializeObject(Factory.Db.GetTableEnitysFromDatabase()));
         }
     }
 }

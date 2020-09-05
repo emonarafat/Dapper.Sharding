@@ -30,7 +30,7 @@ namespace Dapper.Sharding
 
         List<ColumnEntity> GetColumnEntitys();
 
-        void Rename(string name);
+        void ReName(string name);
 
         void SetComment(string comment);
 

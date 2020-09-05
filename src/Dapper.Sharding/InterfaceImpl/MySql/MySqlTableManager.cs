@@ -178,7 +178,7 @@ namespace Dapper.Sharding
             return list;
         }
 
-        public void Rename(string name)
+        public void ReName(string name)
         {
             this.Using(() =>
             {

@@ -85,6 +85,15 @@ namespace Dapper.Sharding
             });
         }
 
+        public void CreateTable<T>(string name)
+        {
+            using (var conn = GetConn())
+            {
+                var script = ShowTableScript<T>(name);
+                conn.Execute(script);
+            }
+        }
+
         public void DropTable(string name)
         {
             Using(conn =>
@@ -205,16 +214,6 @@ namespace Dapper.Sharding
             }
             return list;
         }
-
-        public void CreateTable<T>(string name)
-        {
-            using (var conn = GetConn())
-            {
-                var script = ShowTableScript<T>(name);
-                conn.Execute(script);
-            }
-        }
-
 
         public ITable<T> GetTable<T>(string name, IDbConnection conn = null, IDbTransaction tran = null, int? commandTimeout = null)
         {
