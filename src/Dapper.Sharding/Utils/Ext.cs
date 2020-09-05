@@ -84,12 +84,12 @@ namespace Dapper.Sharding
             }
         }
 
-        public static void CreateFiles(this IDatabase database, string savePath, string tableList = "*", string nameSpace = "Model", string Suffix = "Table")
+        public static void CreateFiles(this IDatabase database, string savePath, string tableList = "*", string nameSpace = "Model", string Suffix = "Table", bool partialClass = false)
         {
             IEnumerable<string> list;
             if (tableList == "*")
             {
-                list = database.ShowTables();
+                list = database.ShowTableList();
             }
             else if (tableList.Contains(","))
             {
@@ -123,7 +123,14 @@ namespace Dapper.Sharding
                 }
                 sb.Append($"    [Table(\"{entity.PrimaryKey}\", {entity.IsIdentity.ToString().ToLower()}, \"{entity.Comment}\")]");
                 sb.AppendLine();
-                sb.Append($"    public class {className}");
+                if (partialClass)
+                {
+                    sb.Append($"    public partial class {className}");
+                }
+                else
+                {
+                    sb.Append($"    public class {className}");
+                }
                 sb.AppendLine();
                 sb.Append("    {");
                 sb.AppendLine();

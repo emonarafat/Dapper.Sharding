@@ -32,8 +32,13 @@ namespace Test
 
         public float Money2 { get; set; }
 
+        public double Money3 { get; set; }
+
         public bool IsAdmin { get; set; }
 
         public DateTime AddTime { get; set; }
+
+        [Ignore]
+        public string NoDataBaseColumn { get; set; }
     }
 }

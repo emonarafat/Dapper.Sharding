@@ -26,7 +26,7 @@ namespace Dapper.Sharding
 
         void DropTable(string name);
 
-        IEnumerable<string> ShowTables();
+        IEnumerable<string> ShowTableList();
 
         bool ExistsTable(string name);
 
@@ -34,15 +34,15 @@ namespace Dapper.Sharding
 
         dynamic ShowTableStatus(string name);
 
-        IEnumerable<dynamic> ShowTablesStatus();
+        IEnumerable<dynamic> ShowTableStatusList();
 
         ITableManager GetTableManager(string name, IDbConnection conn = null, IDbTransaction tran = null, int? commandTimeout = null);
 
         TableEntity GetTableEntityFromDatabase(string name);
 
-        List<TableEntity> GetTableEnitysFromDatabase();
+        List<TableEntity> GetTableEnityListFromDatabase();
 
-        void CreateClassFileFromDatabase(string savePath, string tableName = "*", string nameSpace = "Model", string Suffix = "Table");
+        void GeneratorClassFile(string savePath, string tableName = "*", string nameSpace = "Model", string Suffix = "Table", bool partialClass = false);
 
         ITable<T> GetTable<T>(string name, IDbConnection conn = null, IDbTransaction tran = null, int? commandTimeout = null);
 

@@ -22,18 +22,18 @@ namespace Dapper.Sharding
             var entity = new TableEntity();
             if (data.Auto_increment != null)
             {
-                entity.IsIdentity = (data.Auto_increment == 1);
+                entity.IsIdentity = (data.Auto_increment >= 1);
             }
             entity.Comment = data.Comment;
             var manager = GetTableManager((string)data.Name);
-            var indexList = manager.GetIndexEntitys();
+            var indexList = manager.GetIndexEntityList();
             entity.IndexList = indexList;
             var ix = indexList.FirstOrDefault(f => f.Type == IndexType.PrimaryKey);
             if (ix != null)
             {
                 entity.PrimaryKey = ix.Columns.FirstCharToUpper();
             }
-            entity.ColumnList = manager.GetColumnEntitys();
+            entity.ColumnList = manager.GetColumnEntityList();
 
             return entity;
         }
@@ -103,7 +103,7 @@ namespace Dapper.Sharding
             TableCache.Remove(name);
         }
 
-        public IEnumerable<string> ShowTables()
+        public IEnumerable<string> ShowTableList()
         {
             using (var conn = GetConn())
             {
@@ -186,7 +186,7 @@ namespace Dapper.Sharding
             }
         }
 
-        public IEnumerable<dynamic> ShowTablesStatus()
+        public IEnumerable<dynamic> ShowTableStatusList()
         {
             using (var conn = GetConn())
             {
@@ -204,10 +204,10 @@ namespace Dapper.Sharding
             return StatusToTableEntity(ShowTableStatus(name));
         }
 
-        public List<TableEntity> GetTableEnitysFromDatabase()
+        public List<TableEntity> GetTableEnityListFromDatabase()
         {
             var list = new List<TableEntity>();
-            var statusList = ShowTablesStatus();
+            var statusList = ShowTableStatusList();
             foreach (var item in statusList)
             {
                 list.Add(StatusToTableEntity(item));
@@ -215,9 +215,9 @@ namespace Dapper.Sharding
             return list;
         }
 
-        public void CreateClassFileFromDatabase(string savePath, string tableList = "*", string nameSpace = "Model", string Suffix = "Table")
+        public void GeneratorClassFile(string savePath, string tableList = "*", string nameSpace = "Model", string Suffix = "Table", bool partialClass = false)
         {
-            this.CreateFiles(savePath, tableList, nameSpace, Suffix);
+            this.CreateFiles(savePath, tableList, nameSpace, Suffix, partialClass);
         }
 
         public ITable<T> GetTable<T>(string name, IDbConnection conn = null, IDbTransaction tran = null, int? commandTimeout = null)

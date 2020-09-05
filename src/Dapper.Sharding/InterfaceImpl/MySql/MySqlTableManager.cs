@@ -57,7 +57,7 @@ namespace Dapper.Sharding
             CreateIndex(name, columns, indexType);
         }
 
-        public IEnumerable<dynamic> GetIndexs()
+        public IEnumerable<dynamic> ShowIndexList()
         {
             return this.Using(() =>
             {
@@ -65,10 +65,10 @@ namespace Dapper.Sharding
             });
         }
 
-        public List<IndexEntity> GetIndexEntitys()
+        public List<IndexEntity> GetIndexEntityList()
         {
             var list = new List<IndexEntity>();
-            var indexList = GetIndexs();
+            var indexList = ShowIndexList();
             var groupNames = indexList.Select(s => s.Key_name).Distinct();
 
             foreach (var g in groupNames)
@@ -125,7 +125,7 @@ namespace Dapper.Sharding
             return list;
         }
 
-        public IEnumerable<dynamic> GetColumns()
+        public IEnumerable<dynamic> ShowColumnList()
         {
             return this.Using(() =>
             {
@@ -133,10 +133,10 @@ namespace Dapper.Sharding
             });
         }
 
-        public List<ColumnEntity> GetColumnEntitys()
+        public List<ColumnEntity> GetColumnEntityList()
         {
             var list = new List<ColumnEntity>();
-            var columnList = GetColumns();
+            var columnList = ShowColumnList();
             foreach (var item in columnList)
             {
 

@@ -22,13 +22,13 @@ namespace Dapper.Sharding
 
         void AlertIndex(string name, string columns, IndexType indexType);
 
-        IEnumerable<dynamic> GetIndexs();
+        IEnumerable<dynamic> ShowIndexList();
 
-        List<IndexEntity> GetIndexEntitys();
+        List<IndexEntity> GetIndexEntityList();
 
-        IEnumerable<dynamic> GetColumns();
+        IEnumerable<dynamic> ShowColumnList();
 
-        List<ColumnEntity> GetColumnEntitys();
+        List<ColumnEntity> GetColumnEntityList();
 
         void ReName(string name);
 

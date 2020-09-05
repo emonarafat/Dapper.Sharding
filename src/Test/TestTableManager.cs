@@ -32,30 +32,30 @@ namespace Test
         }
 
         [Test]
-        public void GetIndexs()
+        public void ShowIndexList()
         {
-            var data = Factory.TableManager.GetIndexs();
+            var data = Factory.TableManager.ShowIndexList();
             Console.WriteLine(JsonConvert.SerializeObject(data));
         }
 
         [Test]
-        public void GetIndexEntitys()
+        public void GetIndexEntityList()
         {
-            var data = Factory.TableManager.GetIndexEntitys();
+            var data = Factory.TableManager.GetIndexEntityList();
             Console.WriteLine(JsonConvert.SerializeObject(data));
         }
 
         [Test]
-        public void GetColumns()
+        public void ShowColumnList()
         {
-            var data = Factory.TableManager.GetColumns();
+            var data = Factory.TableManager.ShowColumnList();
             Console.WriteLine(JsonConvert.SerializeObject(data));
         }
 
         [Test]
-        public void GetColumnEntitys()
+        public void GetColumnEntityList()
         {
-            var data = Factory.TableManager.GetColumnEntitys();
+            var data = Factory.TableManager.GetColumnEntityList();
             Console.WriteLine(JsonConvert.SerializeObject(data));
         }
 

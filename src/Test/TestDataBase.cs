@@ -34,9 +34,9 @@ namespace Test
         }
 
         [Test]
-        public void ShowTables()
+        public void ShowTableList()
         {
-            var data = Factory.Db.ShowTables();
+            var data = Factory.Db.ShowTableList();
             Assert.Pass(JsonConvert.SerializeObject(data));
         }
 
@@ -64,9 +64,9 @@ namespace Test
         }
 
         [Test]
-        public void ShowTablesStatus()
+        public void ShowTableStatusList()
         {
-            Console.WriteLine(JsonConvert.SerializeObject(Factory.Db.ShowTablesStatus()));
+            Console.WriteLine(JsonConvert.SerializeObject(Factory.Db.ShowTableStatusList()));
         }
 
         [Test]
@@ -76,15 +76,15 @@ namespace Test
         }
 
         [Test]
-        public void GetTableEntitysFromDatabase()
+        public void GetTableEnityListFromDatabase()
         {
-            Console.WriteLine(JsonConvert.SerializeObject(Factory.Db.GetTableEnitysFromDatabase()));
+            Console.WriteLine(JsonConvert.SerializeObject(Factory.Db.GetTableEnityListFromDatabase()));
         }
 
         [Test]
-        public void CreateClassFileFromDatabase()
+        public void GeneratorClassFile()
         {
-            Factory.Db.CreateClassFileFromDatabase("D:\\");
+            Factory.Db.GeneratorClassFile("D:\\");
         }
 
     }
