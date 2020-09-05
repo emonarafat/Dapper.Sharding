@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Linq;
 using System.Text;
 
 namespace Dapper.Sharding
@@ -85,43 +86,66 @@ namespace Dapper.Sharding
 
         public static void CreateFiles(this IDatabase database, string savePath, string tableList = "*", string nameSpace = "Model", string Suffix = "Table")
         {
-            List<TableEntity> tableEntityList;
+            IEnumerable<string> list;
             if (tableList == "*")
             {
-                tableEntityList = database.GetTableEnitysFromDatabase();
+                list = database.ShowTables();
             }
             else if (tableList.Contains(","))
             {
-                tableEntityList = new List<TableEntity>();
-                var array = tableList.Split(',');
-                foreach (var item in array)
-                {
-                    tableEntityList.Add(database.GetTableEntityFromDatabase(item));
-                }
+                list = tableList.Split(',').ToList(); ;
             }
             else
             {
-                tableEntityList = new List<TableEntity>();
-                tableEntityList.Add(database.GetTableEntityFromDatabase(tableList));
+                list = new List<string> { tableList };
             }
 
-            foreach (var table in tableEntityList)
+            foreach (var name in list)
             {
+                var entity = database.GetTableEntityFromDatabase(name);
+                var className = name.FirstCharToUpper() + Suffix;
                 var sb = new StringBuilder();
                 sb.Append("using System;");
-                sb.Append("\r\n");
+                sb.AppendLine();
                 sb.Append("using Dapper.Sharding;");
-                sb.Append("\r\n");
+                sb.AppendLine();
+                sb.AppendLine();
                 sb.Append($"namespace {nameSpace}");
-                sb.Append("\r\n");
+                sb.AppendLine();
                 sb.Append("{");
-                sb.Append("\r\n");
-                sb.Append($"    [Table(\"{table.PrimaryKey}\", {table.IsIdentity.ToString().ToLower()}, \"{table.Comment}\")]");
+                sb.AppendLine();
+                var indexList = entity.IndexList.Where(w => w.Type != IndexType.PrimaryKey);
+                foreach (var item in indexList)
+                {
+                    sb.Append($"    [Index(\"{item.Name}\", \"{item.Columns}\", {item.StringType})]");
 
-                sb.Append("\r\n");
+                    sb.AppendLine();
+                }
+                sb.Append($"    [Table(\"{entity.PrimaryKey}\", {entity.IsIdentity.ToString().ToLower()}, \"{entity.Comment}\")]");
+                sb.AppendLine();
+                sb.Append($"    public class {className}");
+                sb.AppendLine();
+                sb.Append("    {");
+                sb.AppendLine();
+                foreach (var item in entity.ColumnList)
+                {
+                    sb.Append($"        [Column({item.Length}, \"{item.Comment}\")]");
+                    sb.AppendLine();
+                    sb.Append("        public " + item.CsStringType + " " + item.Name + " { get; set; }");
+                    sb.AppendLine();
+                    if (item != entity.ColumnList.Last())
+                    {
+                        sb.AppendLine();
+                    }
+                }
+                sb.AppendLine();
+                sb.Append("    }");
+                sb.AppendLine();
+                sb.AppendLine();
                 sb.Append("}");
-                var path = Path.Combine(savePath, "test.cs");
-                File.WriteAllText(savePath, sb.ToString(), Encoding.UTF8);
+
+                var path = Path.Combine(savePath, $"{className}.cs");
+                File.WriteAllText(path, sb.ToString(), Encoding.UTF8);
             }
 
         }

@@ -10,7 +10,7 @@ namespace Test
     //[Index("Name","Name",IndexType.Normal)]
     //[Index("Age","Age",IndexType.Unique)]
     [Table("Id", true, "人类表")]
-    class People
+    public class People
     {
         [Column(11, "主键id")]
         public int Id { get; set; }

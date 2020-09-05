@@ -169,8 +169,19 @@ namespace Dapper.Sharding
                 }
                 else
                 {
-                    model.Length = 0;
-                    model.DbLength = "0";
+                    if (t.ToLower() == "text")
+                    {
+                        model.Length = -1;
+                    }
+                    else if (t.ToLower() == "longtext")
+                    {
+                        model.Length = -2;
+                    }
+                    else 
+                    {
+                        model.Length = 0;
+                        model.DbLength = "0";
+                    }
                 }
                 model.Comment = item.Comment; //说明
                 list.Add(model);

@@ -84,7 +84,7 @@ namespace Test
         [Test]
         public void CreateClassFileFromDatabase()
         {
-            Factory.Db.CreateClassFileFromDatabase("D:\\abc");
+            Factory.Db.CreateClassFileFromDatabase("D:\\");
         }
 
     }
