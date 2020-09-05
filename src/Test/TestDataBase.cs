@@ -80,5 +80,12 @@ namespace Test
         {
             Console.WriteLine(JsonConvert.SerializeObject(Factory.Db.GetTableEnitysFromDatabase()));
         }
+
+        [Test]
+        public void CreateClassFileFromDatabase()
+        {
+            Factory.Db.CreateClassFileFromDatabase("D:\\abc");
+        }
+
     }
 }

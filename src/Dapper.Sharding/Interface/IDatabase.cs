@@ -42,6 +42,8 @@ namespace Dapper.Sharding
 
         List<TableEntity> GetTableEnitysFromDatabase();
 
+        void CreateClassFileFromDatabase(string savePath, string tableName = "*", string nameSpace = "Model", string Suffix = "Table");
+
         ITable<T> GetTable<T>(string name, IDbConnection conn = null, IDbTransaction tran = null, int? commandTimeout = null);
 
     }

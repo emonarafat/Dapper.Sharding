@@ -215,6 +215,11 @@ namespace Dapper.Sharding
             return list;
         }
 
+        public void CreateClassFileFromDatabase(string savePath, string tableList = "*", string nameSpace = "Model", string Suffix = "Table")
+        {
+            this.CreateFiles(savePath, tableList, nameSpace, Suffix);
+        }
+
         public ITable<T> GetTable<T>(string name, IDbConnection conn = null, IDbTransaction tran = null, int? commandTimeout = null)
         {
             var lowerName = name.ToLower();
@@ -262,7 +267,7 @@ namespace Dapper.Sharding
                                         }
                                     }
 
-         
+
                                 }
                             }
 
