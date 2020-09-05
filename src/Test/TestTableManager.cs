@@ -92,7 +92,7 @@ namespace Test
         [Test]
         public void AddColumnAfter()
         {
-            Factory.TableManager.AddColumnAfter("NewColumn","IsAdmin", typeof(string), 60, "新增字段");
+            Factory.TableManager.AddColumnAfter("NewColumn", "IsAdmin", typeof(string), 60, "新增字段");
         }
 
     }
