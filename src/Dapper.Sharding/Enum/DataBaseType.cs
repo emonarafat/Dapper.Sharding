@@ -3,9 +3,11 @@
     public enum DataBaseType
     {
         MySql = 1,
-        SqlServer = 2,
-        Postgresql = 3,
-        Oracel = 4,
-        Sqlite = 5
+        Sqlite = 2,
+        SqlServer2008 = 3,
+        SqlServer2012 = 4,
+        Postgresql = 5,
+        Oracel = 6
+        
     }
 }
