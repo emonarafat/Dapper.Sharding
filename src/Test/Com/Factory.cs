@@ -1,17 +1,13 @@
 ﻿using Dapper.Sharding;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using Test.Com;
 
 namespace Test
 {
     public class Factory
     {
-        //Must singleton mode(必须是单例模式)
-        public static IClient Client = ClientFactory.CreateClient(DataBaseType.MySql, "server=127.0.0.1;user=root");
+        //must singleton mode(必须是单例模式)
+        //public static IClient Client = ClientFactory.CreateClient(DataBaseType.MySql, "server=127.0.0.1;user=root");
+        public static IClient Client = ClientFactory.CreateClient(DataBaseType.SqlServer2008, "data source=.\\express;user=sa;password=123456");
 
         public static IDatabase Db
         {
@@ -25,15 +21,15 @@ namespace Test
         {
             get
             {
-                return Db.GetTableManager("People");
+                return Db.GetTableManager("People");//multi threading is not safe, you must new it
             }
         }
 
         public static ITable<People> peopleTable
         {
-            get 
+            get
             {
-                return Db.GetTable<People>("People"); //Multi threading is not safe, you must new it
+                return Db.GetTable<People>("People"); //multi threading is not safe, you must new it
             }
         }
 

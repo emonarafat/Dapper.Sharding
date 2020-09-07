@@ -54,8 +54,7 @@ namespace Dapper.Sharding
             {
                 conn.Execute($"DROP DATABASE IF EXISTS `{name}`");
             }
-
-            DataBaseCache.TryRemove(name, out _);
+            DataBaseCache.TryRemove(name.ToLower(), out _);
         }
 
         public IEnumerable<string> ShowDatabases()

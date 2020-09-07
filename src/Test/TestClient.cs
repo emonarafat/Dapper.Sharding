@@ -27,7 +27,7 @@ namespace Test
         [Test]
         public void ExistDatabase()
         {
-            bool exists = Factory.Client.ExistsDatabase("aaa");
+            bool exists = Factory.Client.ExistsDatabase("test1");
             Console.WriteLine(exists);
         }
 

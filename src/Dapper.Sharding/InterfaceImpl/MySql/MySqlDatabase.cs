@@ -106,7 +106,7 @@ namespace Dapper.Sharding
             {
                 conn.Execute($"DROP TABLE IF EXISTS `{name}`");
             });
-            TableCache.Remove(name);
+            TableCache.Remove(name.ToLower());
         }
 
         public void TruncateTable(string name)
@@ -237,10 +237,10 @@ namespace Dapper.Sharding
         }
 
         public ITable<T> GetTable<T>(string name, IDbConnection conn = null, IDbTransaction tran = null, int? commandTimeout = null)
-        {
-            var lowerName = name.ToLower();
+        {           
             if (Client.AutoCreateTable)
             {
+                var lowerName = name.ToLower();
                 if (!TableCache.Contains(lowerName))
                 {
                     lock (Locker.GetObject(lowerName))
