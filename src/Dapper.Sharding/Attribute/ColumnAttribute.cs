@@ -15,7 +15,7 @@ namespace Dapper.Sharding
         /// </summary>
         public string Comment;
 
-        public ColumnAttribute(double length = 0, string comment = null)
+        public ColumnAttribute(string comment = null, double length = 0)
         {
             Length = length;
             Comment = comment;

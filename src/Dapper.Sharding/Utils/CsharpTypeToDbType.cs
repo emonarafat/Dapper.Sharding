@@ -86,7 +86,7 @@ namespace Dapper.Sharding
             {
                 if (length <= 0)
                 {
-                    length = 32;
+                    length = 36;
                 }
                 return $"varchar({length})";
 
@@ -99,16 +99,34 @@ namespace Dapper.Sharding
                 if (length == -2)
                     return "longtext";
                 if (length == 0)
-                    length = 50;
+                    length = 24;
                 return $"varchar({length})";
 
             }
 
-            if (type == typeof(int) || type == typeof(uint) || type == typeof(short) || type == typeof(ushort))
+            if (type == typeof(int) || type == typeof(uint))
             {
                 if (length <= 0)
                     length = 11;
                 return $"int({length})";
+            }
+
+            if (type == typeof(short) || type == typeof(ushort))
+            {
+                if (length <= 0)
+                {
+                    length = 6;
+                }
+                return $"smallint({length})";
+            }
+
+            if (type == typeof(byte))
+            {
+                if (length <= 0)
+                {
+                    length = 4;
+                }
+                return $"tinyint({length})";
             }
 
             if (type == typeof(long) || type == typeof(ulong))

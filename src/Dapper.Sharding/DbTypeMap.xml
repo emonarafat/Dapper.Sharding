@@ -64,10 +64,10 @@
     <DbType Name="datetime2" To="DateTime"/>
     <DbType Name="time" To="TimeSpan"/>
     <DbType Name="datetimeoffset" To="DateTimeOffset"/>
+	<DbType Name="bigint" To="long"/>
+	<DbType Name="int" To="int"/>
+	<DbType Name="smallint" To="short"/>
     <DbType Name="tinyint" To="byte"/>
-    <DbType Name="smallint" To="short"/>
-    <DbType Name="int" To="int"/>
-    <DbType Name="bigint" To="long"/>
     <DbType Name="bit" To="bool" />
     <DbType Name="char" To="string" />
     <DbType Name="nchar" To="string" />
