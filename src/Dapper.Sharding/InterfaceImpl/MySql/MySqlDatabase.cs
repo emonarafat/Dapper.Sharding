@@ -35,6 +35,12 @@ namespace Dapper.Sharding
             }
             entity.ColumnList = manager.GetColumnEntityList();
 
+            var col = entity.ColumnList.FirstOrDefault(w => w.Name == entity.PrimaryKey);
+            if (col != null)
+            {
+                entity.PrimaryKeyType = col.CsType;
+            }
+
             return entity;
         }
 

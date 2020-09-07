@@ -28,7 +28,7 @@ namespace Dapper.Sharding
 
         public IDatabase DataBase { get; }
 
-        public SqlFieldEntity SqlField { get; } = null;
+        public SqlFieldEntity SqlField { get; } = SqlFieldCacheUtils.GetMySqlFieldEntity<T>();
 
         public bool Insert(T model)
         {

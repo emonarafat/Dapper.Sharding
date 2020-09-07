@@ -1,10 +1,13 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 
 namespace Dapper.Sharding
 {
     public class TableEntity
     {
         public string PrimaryKey { get; set; }
+
+        public Type PrimaryKeyType { get; set; }
 
         public bool IsIdentity { get; set; }
 

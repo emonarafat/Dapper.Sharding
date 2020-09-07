@@ -36,6 +36,10 @@ namespace Dapper.Sharding
                 column.Name = pro.Name;
                 column.CsType = pro.PropertyType;
                 column.DbType = CsharpTypeToDbType.CreateMySqlType(column.CsType);
+                if (column.Name.ToLower() == entity.PrimaryKey)
+                {
+                    entity.PrimaryKeyType = column.CsType;
+                }
                 var colAttr = pro.GetCustomAttributes(false).FirstOrDefault(f => f is ColumnAttribute) as ColumnAttribute;
                 if (colAttr != null)
                 {
