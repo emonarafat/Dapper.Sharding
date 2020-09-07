@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using Test.Com;
 
 namespace Test
 {
@@ -27,6 +28,31 @@ namespace Test
                 return Db.GetTableManager("People");
             }
         }
+
+        public static ITable<People> peopleTable
+        {
+            get 
+            {
+                return Db.GetTable<People>("People"); //Multi threading is not safe, you must new it
+            }
+        }
+
+        public static ITable<Student> studentTable
+        {
+            get
+            {
+                return Db.GetTable<Student>("Student");
+            }
+        }
+
+        public static ITable<Teacher> teacherTable
+        {
+            get
+            {
+                return Db.GetTable<Teacher>("Teacher");
+            }
+        }
+
 
     }
 }

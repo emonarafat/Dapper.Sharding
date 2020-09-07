@@ -69,6 +69,14 @@ namespace Dapper.Sharding
             });
         }
 
+        public bool InsertIdentity(T model)
+        {
+            return this.Using(() =>
+            {
+                return this.Execute($"INSERT INTO `{Name}` ({SqlField.AllFields})VALUES({SqlField.AllFieldsAt})", model) > 0;
+            });
+        }
+
         public bool Update(T model)
         {
             return this.Using(() =>

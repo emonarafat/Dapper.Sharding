@@ -23,6 +23,8 @@ namespace Dapper.Sharding
 
         bool Insert(T model);
 
+        bool InsertIdentity(T model);
+
         bool Update(T model);
 
         int UpdateByWhere(T model, string where, string updateFields);

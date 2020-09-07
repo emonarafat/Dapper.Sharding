@@ -13,7 +13,6 @@ namespace Test
         [Test]
         public void Insert()
         {
-            var peopleTable = Factory.Db.GetTable<People>("People");
             var p = new People
             {
                 Name = "李四",
@@ -22,27 +21,37 @@ namespace Test
                 IsAdmin = true,
                 Text = "你好"
             };
-            peopleTable.Insert(p);
+            Factory.peopleTable.Insert(p);
             Console.WriteLine(p.Id);
 
-            var teacherTable = Factory.Db.GetTable<Teacher>("Teacher");
             var teacher = new Teacher
             {
                 Name = "王老师",
                 Sex = 70,
                 Age = 5
             };
-            teacherTable.Insert(teacher);
+            Factory.teacherTable.Insert(teacher);
             Console.WriteLine(teacher.Id);
 
-            var studentTable = Factory.Db.GetTable<Student>("Student");
             var student = new Student
             {
                 Name = "李同学",
                 Age = 100
             };
-            studentTable.Insert(student);
+            Factory.studentTable.Insert(student);
             Console.WriteLine(student.Id);
+        }
+
+        [Test]
+        public void InsertIdentity()
+        {
+
+            var table = new People
+            {
+                Id = 10,
+                Name = "自动添加id"
+            };
+            Factory.peopleTable.InsertIdentity(table);
         }
 
         [Test]
@@ -57,10 +66,10 @@ namespace Test
                     throw new Exception("an exception");
                     tran.Commit();
                 }
-                catch 
+                catch
                 {
                     tran.Rollback();
-                } 
+                }
             });
         }
     }
