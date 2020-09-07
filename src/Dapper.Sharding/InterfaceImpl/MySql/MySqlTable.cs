@@ -28,6 +28,8 @@ namespace Dapper.Sharding
 
         public IDatabase DataBase { get; }
 
+        public SqlFieldEntity SqlField { get; } = null;
+
         public bool Insert(T model)
         {
             return this.Using(() =>

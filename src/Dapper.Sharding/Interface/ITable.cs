@@ -17,6 +17,8 @@ namespace Dapper.Sharding
 
         IDbTransaction Tran { get; set; }
 
+        SqlFieldEntity SqlField { get; }
+
         int? CommandTimeout { get; set; }
 
         bool Insert(T model);
