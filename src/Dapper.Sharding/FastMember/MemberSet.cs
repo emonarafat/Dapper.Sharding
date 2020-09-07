@@ -8,7 +8,7 @@ namespace Dapper.Sharding
     /// <summary>
     /// Represents an abstracted view of the members defined for a type
     /// </summary>
-    internal sealed class MemberSet : IEnumerable<Member>, IList<Member>
+    public sealed class MemberSet : IEnumerable<Member>, IList<Member>
     {
         Member[] members;
         internal MemberSet(Type type)

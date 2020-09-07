@@ -12,7 +12,7 @@ namespace Dapper.Sharding
     /// <summary>
     /// Provides by-name member-access to objects of a given type
     /// </summary>
-    internal abstract class TypeAccessor
+    public abstract class TypeAccessor
     {
         // hash-table has better read-without-locking semantics than dictionary
         private static readonly Hashtable publicAccessorsOnly = new Hashtable(), nonPublicAccessors = new Hashtable();

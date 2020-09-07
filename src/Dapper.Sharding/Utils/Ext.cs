@@ -147,6 +147,16 @@ namespace Dapper.Sharding
             return table.Conn.Execute(sql, param, table.Tran, table.CommandTimeout);
         }
 
+        public static object ExecuteScalar<T>(this ITable<T> table, string sql, object param = null)
+        {
+            return table.Conn.ExecuteScalar(sql, param, table.Tran, table.CommandTimeout);
+        }
+
+        public static TValue ExecuteScalar<T, TValue>(this ITable<T> table, string sql, object param = null)
+        {
+            return table.Conn.ExecuteScalar<TValue>(sql, param, table.Tran, table.CommandTimeout);
+        }
+
         #endregion
 
         #region IDatabase

@@ -7,7 +7,7 @@ namespace Dapper.Sharding
     /// <summary>
     /// Represents an individual object, allowing access to members by-name
     /// </summary>
-    internal abstract class ObjectAccessor
+    public abstract class ObjectAccessor
     {
         /// <summary>
         /// Get or Set the value of a named member for the underlying object

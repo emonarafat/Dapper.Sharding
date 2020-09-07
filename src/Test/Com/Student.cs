@@ -8,7 +8,7 @@ using System.Threading.Tasks;
 namespace Test
 {
     [Table("Id", false, "学生表")]
-    class Student
+    public class Student
     {
         [Column("主键id", 24)]
         public string Id { get; set; }

@@ -11,7 +11,7 @@ namespace Dapper.Sharding
     /// Provides a means of reading a sequence of objects as a data-reader, for example
     /// for use with SqlBulkCopy or other data-base oriented code
     /// </summary>
-    internal class ObjectReader : DbDataReader
+    public class ObjectReader : DbDataReader
     {
         private IEnumerator source;
         private readonly TypeAccessor accessor;

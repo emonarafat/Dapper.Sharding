@@ -1,6 +1,7 @@
 ﻿using Newtonsoft.Json;
 using NUnit.Framework;
 using System;
+using Test.Com;
 
 namespace Test
 {
@@ -9,22 +10,16 @@ namespace Test
         [Test]
         public void CreateTable()
         {
-            Factory.Db.CreateTable<People>("People");
-            Factory.Db.CreateTable<People>("People2");
-            Factory.Db.CreateTable<People>("P");
-
-            Factory.Db.CreateTable<Student>("Student");
-            Factory.Db.CreateTable<Student>("Student2");
-            Factory.Db.CreateTable<Student>("S");
+            Factory.Db.GetTable<People>("People");
+            Factory.Db.GetTable<Teacher>("Teacher");
+            Factory.Db.GetTable<Student>("Student");
+            Factory.Db.GetTable<People>("P2");
         }
 
         [Test]
         public void DropTable()
         {
-            Factory.Db.DropTable("People2");
-            Factory.Db.DropTable("P");
-            Factory.Db.DropTable("Student2");
-            Factory.Db.DropTable("S");
+            Factory.Db.DropTable("P2");
         }
 
         [Test]

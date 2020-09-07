@@ -34,7 +34,38 @@ namespace Dapper.Sharding
         {
             return this.Using(() =>
             {
-                return this.Execute("INSERT INTO People(Name)VALUES('小哦哦奥')", model) > 0;
+                var accessor = TypeAccessor.Create(typeof(T));
+                if (SqlField.IsIdentity)
+                {
+                    var sql = $"INSERT INTO `{Name}` ({SqlField.AllFieldsExceptKey})VALUES({SqlField.AllFieldsAtExceptKey})";
+                    var res = this.Execute(sql, model);
+                    if (res > 0)
+                    {
+                        if (SqlField.PrimaryKeyType == typeof(int))
+                        {
+                            accessor[model, SqlField.PrimaryKey] = this.ExecuteScalar<T, int>("SELECT @@IDENTITY");
+                        }
+                        else
+                        {
+                            accessor[model, SqlField.PrimaryKey] = this.ExecuteScalar<T, long>("SELECT @@IDENTITY");
+                        }
+                    }
+                    return res > 0;
+                }
+                else
+                {
+                    if (SqlField.PrimaryKeyType == typeof(string))
+                    {
+                        var val = (string)accessor[model, SqlField.PrimaryKey];
+                        if (string.IsNullOrEmpty(val))
+                        {
+                            accessor[model, SqlField.PrimaryKey] = ObjectId.GenerateNewIdAsString();
+                        }
+                    }
+                    var sql = $"INSERT INTO `{Name}` ({SqlField.AllFields})VALUES({SqlField.AllFieldsAt})";
+                    return this.Execute(sql, model) > 0;
+                }
+
             });
         }
 

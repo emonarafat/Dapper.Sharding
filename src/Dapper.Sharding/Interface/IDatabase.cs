@@ -26,6 +26,8 @@ namespace Dapper.Sharding
 
         void DropTable(string name);
 
+        void TruncateTable(string name);
+
         IEnumerable<string> ShowTableList();
 
         bool ExistsTable(string name);

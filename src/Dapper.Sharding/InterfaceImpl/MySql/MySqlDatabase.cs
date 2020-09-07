@@ -35,7 +35,7 @@ namespace Dapper.Sharding
             }
             entity.ColumnList = manager.GetColumnEntityList();
 
-            var col = entity.ColumnList.FirstOrDefault(w => w.Name == entity.PrimaryKey);
+            var col = entity.ColumnList.FirstOrDefault(w => w.Name.ToLower() == entity.PrimaryKey.ToLower());
             if (col != null)
             {
                 entity.PrimaryKeyType = col.CsType;
@@ -108,6 +108,16 @@ namespace Dapper.Sharding
             });
             TableCache.Remove(name);
         }
+
+        public void TruncateTable(string name)
+        {
+            Using(conn =>
+            {
+                conn.Execute($"truncate table `{name}`");
+            });
+
+        }
+
 
         public IEnumerable<string> ShowTableList()
         {

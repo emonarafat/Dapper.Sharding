@@ -4,7 +4,7 @@
     /// Emphasizes column position used in <see cref="System.Data.IDataReader"/> instance.
     /// </summary>
     [System.AttributeUsage(System.AttributeTargets.Property | System.AttributeTargets.Field, AllowMultiple = false)]
-    internal class OrdinalAttribute : System.Attribute
+    public class OrdinalAttribute : System.Attribute
     {
         /// <summary>
         /// Creates a new instance of <see cref="OrdinalAttribute"/> class.
