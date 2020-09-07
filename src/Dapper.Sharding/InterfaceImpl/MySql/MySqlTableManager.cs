@@ -7,20 +7,6 @@ namespace Dapper.Sharding
 {
     internal class MySqlTableManager : ITableManager
     {
-        #region method
-
-        private int Execute(string sql)
-        {
-            return Conn.Execute(sql, transaction: Tran, commandTimeout: CommandTimeout);
-        }
-
-        private IEnumerable<dynamic> Query(string sql)
-        {
-            return Conn.Query(sql, transaction: Tran, commandTimeout: CommandTimeout);
-        }
-
-        #endregion
-
         public string Name { get; }
 
         public IDatabase DataBase { get; }
@@ -52,7 +38,7 @@ namespace Dapper.Sharding
                     case IndexType.FullText: sql = $"CREATE FULLTEXT INDEX `{name}` ON `{Name}` ({columns});"; break;
                     case IndexType.Spatial: sql = $"CREATE SPATIAL INDEX `{name}` ON `{Name}` ({columns});"; break;
                 }
-                Execute(sql);
+                this.Execute(sql);
             });
         }
 
@@ -60,7 +46,7 @@ namespace Dapper.Sharding
         {
             this.Using(() =>
             {
-                Execute($"ALTER TABLE {Name} DROP INDEX {name}");
+                this.Execute($"ALTER TABLE {Name} DROP INDEX {name}");
             });
         }
 
@@ -74,7 +60,7 @@ namespace Dapper.Sharding
         {
             return this.Using(() =>
             {
-                return Query($"SHOW INDEX FROM `{Name}`");
+                return this.Query($"SHOW INDEX FROM `{Name}`");
             });
         }
 
@@ -142,7 +128,7 @@ namespace Dapper.Sharding
         {
             return this.Using(() =>
             {
-                return Query($"SHOW FULL COLUMNS FROM `{Name}`");
+                return this.Query($"SHOW FULL COLUMNS FROM `{Name}`");
             });
         }
 
@@ -206,7 +192,7 @@ namespace Dapper.Sharding
         {
             this.Using(() =>
             {
-                Execute($"ALTER TABLE `{Name}` RENAME TO `{name}`");
+                this.Execute($"ALTER TABLE `{Name}` RENAME TO `{name}`");
             });
         }
 
@@ -214,7 +200,7 @@ namespace Dapper.Sharding
         {
             this.Using(() =>
             {
-                Execute($"ALTER TABLE `{Name}` COMMENT '{comment}'");
+                this.Execute($"ALTER TABLE `{Name}` COMMENT '{comment}'");
             });
         }
 
@@ -222,7 +208,7 @@ namespace Dapper.Sharding
         {
             this.Using(() =>
             {
-                Execute($"ALTER TABLE `{Name}` DEFAULT CHARACTER SET {name}");
+                this.Execute($"ALTER TABLE `{Name}` DEFAULT CHARACTER SET {name}");
             });
         }
 
@@ -231,7 +217,7 @@ namespace Dapper.Sharding
             this.Using(() =>
             {
                 var dbType = CsharpTypeToDbType.CreateMySqlType(t, length);
-                Execute($"ALTER TABLE `{Name}` ADD  `{name}` {dbType} COMMENT '{comment}'");
+                this.Execute($"ALTER TABLE `{Name}` ADD  `{name}` {dbType} COMMENT '{comment}'");
             });
         }
 
@@ -239,7 +225,7 @@ namespace Dapper.Sharding
         {
             this.Using(() =>
             {
-                Execute($"ALTER TABLE `{Name}` DROP COLUMN `{name}`");
+                this.Execute($"ALTER TABLE `{Name}` DROP COLUMN `{name}`");
             });
         }
 
@@ -248,7 +234,7 @@ namespace Dapper.Sharding
             this.Using(() =>
             {
                 var dbType = CsharpTypeToDbType.CreateMySqlType(t, length);
-                Execute($"ALTER TABLE `{Name}` ADD  `{name}` {dbType} COMMENT '{comment}' AFTER `{afterName}`");
+                this.Execute($"ALTER TABLE `{Name}` ADD  `{name}` {dbType} COMMENT '{comment}' AFTER `{afterName}`");
             });
         }
 
@@ -257,7 +243,7 @@ namespace Dapper.Sharding
             this.Using(() =>
             {
                 var dbType = CsharpTypeToDbType.CreateMySqlType(t, length);
-                Execute($"ALTER TABLE `{Name}` ADD  `{name}` {dbType} COMMENT '{comment}' FIRST");
+                this.Execute($"ALTER TABLE `{Name}` ADD  `{name}` {dbType} COMMENT '{comment}' FIRST");
             });
         }
 
@@ -266,7 +252,7 @@ namespace Dapper.Sharding
             this.Using(() =>
             {
                 var dbType = CsharpTypeToDbType.CreateMySqlType(t, length);
-                Execute($"ALTER TABLE `{Name}` MODIFY COLUMN `{name}` {dbType} COMMENT '{comment}'");
+                this.Execute($"ALTER TABLE `{Name}` MODIFY COLUMN `{name}` {dbType} COMMENT '{comment}'");
             });
         }
 
@@ -275,7 +261,7 @@ namespace Dapper.Sharding
             this.Using(() =>
             {
                 var dbType = CsharpTypeToDbType.CreateMySqlType(t, length);
-                Execute($"ALTER TABLE `{Name}` MODIFY COLUMN `{name}` {dbType} COMMENT '{comment}' FIRST");
+                this.Execute($"ALTER TABLE `{Name}` MODIFY COLUMN `{name}` {dbType} COMMENT '{comment}' FIRST");
             });
         }
 
@@ -285,7 +271,7 @@ namespace Dapper.Sharding
             {
 
                 var dbType = CsharpTypeToDbType.CreateMySqlType(t, length);
-                Execute($"ALTER TABLE `{Name}` MODIFY COLUMN `{name}` {dbType} COMMENT '{comment}' AFTER `{afterName}`");
+                this.Execute($"ALTER TABLE `{Name}` MODIFY COLUMN `{name}` {dbType} COMMENT '{comment}' AFTER `{afterName}`");
             });
         }
 
@@ -294,7 +280,7 @@ namespace Dapper.Sharding
             this.Using(() =>
             {
                 var dbType = CsharpTypeToDbType.CreateMySqlType(t, length);
-                Execute($"ALTER TABLE `{Name}` CHANGE `{oldName}` `{newName}` {dbType} COMMENT '{comment}'");
+                this.Execute($"ALTER TABLE `{Name}` CHANGE `{oldName}` `{newName}` {dbType} COMMENT '{comment}'");
             });
         }
     }

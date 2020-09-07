@@ -12,12 +12,6 @@ namespace Dapper.Sharding
         private static readonly string OracleCSharp = "OracleCSharp";
         private static readonly string SqLiteCSharp = "SQLiteCSharp";
 
-        //private static readonly string MySqlJava = "MySqlJava";
-        //private static readonly string PostgreSqlJava = "PostgreSqlJava";
-        //private static readonly string SqlServerJava = "SqlServerJava";
-        //private static readonly string OracleJava = "OracleJava";
-        //private static readonly string SQLiteJava = "SQLiteJava";
-
         private static Dictionary<string, List<DbCsharpTypeEntity>> _dict;
 
         private static object _lock = new object();

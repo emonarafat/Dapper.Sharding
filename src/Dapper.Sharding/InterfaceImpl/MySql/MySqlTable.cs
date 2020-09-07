@@ -9,15 +9,6 @@ namespace Dapper.Sharding
 {
     internal class MySqlTable<T> : ITable<T>
     {
-        #region Method
-
-        private int Execute(string sql, object param = null)
-        {
-            return Conn.Execute(sql, param, Tran, CommandTimeout);
-        }
-
-        #endregion
-
         public MySqlTable(string name, IDatabase database, IDbConnection conn = null, IDbTransaction tran = null, int? commandTimeout = null)
         {
             Name = name;
@@ -41,7 +32,7 @@ namespace Dapper.Sharding
         {
             return this.Using(() =>
             {
-                return Execute("INSERT INTO People(Name)VALUES('小哦哦奥')", model) > 0;
+                return this.Execute("INSERT INTO People(Name)VALUES('小哦哦奥')", model) > 0;
             });
         }
 

@@ -12,6 +12,7 @@ namespace Test
         [Test]
         public void Insert()
         {
+            Factory.Client.AutoCompareTableColumn = true;
             var table = Factory.Db.GetTable<People>("People");
             table.Insert(null);
         }

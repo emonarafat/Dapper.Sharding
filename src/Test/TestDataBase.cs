@@ -10,12 +10,12 @@ namespace Test
         public void CreateTable()
         {
             Factory.Db.CreateTable<People>("People");
-            //Factory.Db.CreateTable<People>("People2");
-            //Factory.Db.CreateTable<People>("P");
+            Factory.Db.CreateTable<People>("People2");
+            Factory.Db.CreateTable<People>("P");
 
             Factory.Db.CreateTable<Student>("Student");
-            //Factory.Db.CreateTable<Student>("Student2");
-            //Factory.Db.CreateTable<Student>("S");
+            Factory.Db.CreateTable<Student>("Student2");
+            Factory.Db.CreateTable<Student>("S");
         }
 
         [Test]

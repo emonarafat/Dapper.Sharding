@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Data;
 using System.IO;
 using System.Linq;
 using System.Text;
@@ -8,6 +9,46 @@ namespace Dapper.Sharding
 {
     internal static class Ext
     {
+        #region dapper
+
+        public static DataTable GetDataTable(this IDbConnection conn, string sql, object param = null, IDbTransaction tran = null, int? commandTimeout = null, CommandType? commandType = null)
+        {
+            if (conn.State == ConnectionState.Closed)
+                conn.Open();
+
+            using (IDataReader reader = conn.ExecuteReader(sql, param, tran, commandTimeout, commandType))
+            {
+                DataTable dt = new DataTable();
+                dt.Load(reader);
+                return dt;
+            }
+        }
+
+        public static DataSet GetDataSet(this IDbConnection conn, string sql, object param = null, IDbTransaction tran = null, int? commandTimeout = null, CommandType? commandType = null)
+        {
+            //oracle do no support GetDataSet
+
+            if (conn.State == ConnectionState.Closed)
+                conn.Open();
+            using (IDataReader reader = conn.ExecuteReader(sql, param, tran, commandTimeout, commandType))
+            {
+                DataSet ds = new DataSet();
+                int i = 0;
+                while (!reader.IsClosed)
+                {
+                    i++;
+                    DataTable dt = new DataTable();
+                    dt.TableName = "T" + i;
+                    dt.Load(reader);
+                    ds.Tables.Add(dt);
+                }
+                return ds;
+            }
+        }
+
+        #endregion
+
+        #region string
         public static string FirstCharToUpper(this string txt)
         {
             return txt.Substring(0, 1).ToUpper() + txt.Substring(1);
@@ -17,6 +58,56 @@ namespace Dapper.Sharding
         {
             return txt.Substring(0, 1).ToLower() + txt.Substring(1);
         }
+
+        #endregion
+
+        #region ITableManager
+        public static void Using(this ITableManager table, Action action)
+        {
+            if (table.Conn == null)
+            {
+                using (table.Conn = table.DataBase.GetConn())
+                {
+                    action();
+                    table.Conn = null;
+                }
+            }
+            else
+            {
+                action();
+            }
+        }
+
+        public static T Using<T>(this ITableManager table, Func<T> action)
+        {
+            if (table.Conn == null)
+            {
+                using (table.Conn = table.DataBase.GetConn())
+                {
+                    var result = action();
+                    table.Conn = null;
+                    return result;
+                }
+            }
+            else
+            {
+                return action();
+            }
+        }
+
+        public static int Execute(this ITableManager table, string sql, object param = null)
+        {
+            return table.Conn.Execute(sql, param, table.Tran, table.CommandTimeout);
+        }
+
+        public static IEnumerable<dynamic> Query(this ITableManager table, string sql, object param = null)
+        {
+            return table.Conn.Query(sql, param, table.Tran, commandTimeout: table.CommandTimeout);
+        }
+
+        #endregion
+
+        #region ITable<T>
 
         public static void Using<T>(this ITable<T> table, Action action)
         {
@@ -51,38 +142,14 @@ namespace Dapper.Sharding
             }
         }
 
-        public static void Using(this ITableManager table, Action action)
+        public static int Execute<T>(this ITable<T> table, string sql, object param = null)
         {
-            if (table.Conn == null)
-            {
-                using (table.Conn = table.DataBase.GetConn())
-                {
-                    action();
-                    table.Conn = null;
-                }
-            }
-            else
-            {
-                action();
-            }
+            return table.Conn.Execute(sql, param, table.Tran, table.CommandTimeout);
         }
 
-        public static T Using<T>(this ITableManager table, Func<T> action)
-        {
-            if (table.Conn == null)
-            {
-                using (table.Conn = table.DataBase.GetConn())
-                {
-                    var result = action();
-                    table.Conn = null;
-                    return result;
-                }
-            }
-            else
-            {
-                return action();
-            }
-        }
+        #endregion
+
+        #region IDatabase
 
         public static void CreateFiles(this IDatabase database, string savePath, string tableList = "*", string nameSpace = "Model", string Suffix = "Table", bool partialClass = false)
         {
@@ -156,6 +223,8 @@ namespace Dapper.Sharding
             }
 
         }
+
+        #endregion
 
     }
 }
