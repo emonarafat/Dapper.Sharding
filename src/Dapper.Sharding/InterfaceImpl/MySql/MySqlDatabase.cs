@@ -113,7 +113,7 @@ namespace Dapper.Sharding
         {
             Using(conn =>
             {
-                conn.Execute($"truncate table `{name}`");
+                conn.Execute($"TRUNCATE TABLE `{name}`");
             });
 
         }
