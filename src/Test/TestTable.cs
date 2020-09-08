@@ -111,7 +111,7 @@ namespace Test
                 Money = 200M,
                 AddTime = DateTime.Now
             };
-            Factory.peopleTable.UpdateInclude(model, "Money");
+            Factory.peopleTable.UpdateInclude(model, "Money,AddTime");
         }
 
         [Test]
