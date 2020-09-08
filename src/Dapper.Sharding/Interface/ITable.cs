@@ -21,6 +21,8 @@ namespace Dapper.Sharding
 
         SqlFieldEntity SqlField { get; }
 
+        ITable<T> BeginTran(IDbConnection conn, IDbTransaction tran, int? commandTimeout = null);
+
         bool Insert(T model);
 
         bool InsertIdentity(T model);

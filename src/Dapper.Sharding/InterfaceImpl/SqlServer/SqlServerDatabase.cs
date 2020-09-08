@@ -58,7 +58,7 @@ namespace Dapper.Sharding
             return conn;
         }
 
-        public ITable<T> GetTable<T>(string name, IDbConnection conn = null, IDbTransaction tran = null, int? commandTimeout = null)
+        public ITable<T> GetTable<T>(string name)
         {
             throw new NotImplementedException();
         }

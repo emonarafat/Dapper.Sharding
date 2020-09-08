@@ -11,14 +11,23 @@ namespace Test
     class TestTable
     {
         [Test]
-        public void InsertUsingTran()
+        public void BeginTran()
         {
             Factory.Db.UsingTran((conn, tran) =>
             {
-                var table = Factory.Db.GetTable<People>("People", conn, tran);
+                var table = Factory.peopleTable;
+                var tableTran = table.BeginTran(conn, tran);
                 try
                 {
-                    table.Insert(null);
+                    var p = new People
+                    {
+                        Name = "李四",
+                        Age = 50,
+                        AddTime = DateTime.Now,
+                        IsAdmin = true,
+                        Text = "你好"
+                    };
+                    tableTran.Insert(p);
                     throw new Exception("an exception");
                     tran.Commit();
                 }
@@ -26,6 +35,7 @@ namespace Test
                 {
                     tran.Rollback();
                 }
+
             });
         }
 

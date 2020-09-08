@@ -18,6 +18,11 @@ namespace Dapper.Sharding
             CommandTimeout = commandTimeout;
         }
 
+        public ITable<T> BeginTran(IDbConnection conn, IDbTransaction tran, int? commandTimeout = null)
+        {
+            return new MySqlTable<T>(Name, DataBase, conn, tran, commandTimeout);
+        }
+
         public IDbConnection Conn { get; }
 
         public IDbTransaction Tran { get; }
@@ -172,6 +177,5 @@ namespace Dapper.Sharding
         {
             return this.ExecuteScalar($"SELECT 1 FROM `{Name}` WHERE `{SqlField.PrimaryKey}`=@{SqlField.PrimaryKey}", model) != null;
         }
-
     }
 }

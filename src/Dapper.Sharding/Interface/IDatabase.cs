@@ -46,7 +46,7 @@ namespace Dapper.Sharding
 
         void GeneratorClassFile(string savePath, string tableName = "*", string nameSpace = "Model", string Suffix = "Table", bool partialClass = false);
 
-        ITable<T> GetTable<T>(string name, IDbConnection conn = null, IDbTransaction tran = null, int? commandTimeout = null);
+        ITable<T> GetTable<T>(string name);
 
     }
 }

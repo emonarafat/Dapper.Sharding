@@ -235,8 +235,8 @@ namespace Dapper.Sharding
             this.CreateFiles(savePath, tableList, nameSpace, Suffix, partialClass);
         }
 
-        public ITable<T> GetTable<T>(string name, IDbConnection conn = null, IDbTransaction tran = null, int? commandTimeout = null)
-        {           
+        public ITable<T> GetTable<T>(string name)
+        {
             if (Client.AutoCreateTable)
             {
                 var lowerName = name.ToLower();
@@ -293,7 +293,7 @@ namespace Dapper.Sharding
                     }
                 }
             }
-            return new MySqlTable<T>(name, this, conn, tran, commandTimeout);
+            return new MySqlTable<T>(name, this);
         }
 
         #endregion
