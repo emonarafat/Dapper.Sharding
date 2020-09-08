@@ -62,99 +62,87 @@ namespace Dapper.Sharding
         #endregion
 
         #region ITableManager
-        public static void Using(this ITableManager table, Action action)
-        {
-            if (table.Conn == null)
-            {
-                using (table.Conn = table.DataBase.GetConn())
-                {
-                    action();
-                    table.Conn = null;
-                }
-            }
-            else
-            {
-                action();
-            }
-        }
-
-        public static T Using<T>(this ITableManager table, Func<T> action)
-        {
-            if (table.Conn == null)
-            {
-                using (table.Conn = table.DataBase.GetConn())
-                {
-                    var result = action();
-                    table.Conn = null;
-                    return result;
-                }
-            }
-            else
-            {
-                return action();
-            }
-        }
 
         public static int Execute(this ITableManager table, string sql, object param = null)
         {
-            return table.Conn.Execute(sql, param, table.Tran, table.CommandTimeout);
+            if (table.Conn == null)
+            {
+                using (var conn = table.DataBase.GetConn())
+                {
+                    return conn.Execute(sql, param, table.Tran, table.CommandTimeout);
+                }
+            }
+            else
+            {
+                return table.Conn.Execute(sql, param, table.Tran, table.CommandTimeout);
+            }
+
         }
 
         public static IEnumerable<dynamic> Query(this ITableManager table, string sql, object param = null)
         {
-            return table.Conn.Query(sql, param, table.Tran, commandTimeout: table.CommandTimeout);
+            if (table.Conn == null)
+            {
+                using (var conn = table.DataBase.GetConn())
+                {
+                    return conn.Query(sql, param, table.Tran, commandTimeout: table.CommandTimeout);
+                }
+            }
+            else
+            {
+                return table.Conn.Query(sql, param, table.Tran, commandTimeout: table.CommandTimeout);
+            }
+
         }
 
         #endregion
 
         #region ITable<T>
 
-        public static void Using<T>(this ITable<T> table, Action action)
-        {
-            if (table.Conn == null)
-            {
-                using (table.Conn = table.DataBase.GetConn())
-                {
-                    action();
-                    table.Conn = null;
-                }
-            }
-            else
-            {
-                action();
-            }
-        }
-
-        public static T Using<T, T2>(this ITable<T2> table, Func<T> action)
-        {
-            if (table.Conn == null)
-            {
-                using (table.Conn = table.DataBase.GetConn())
-                {
-                    var result = action();
-                    table.Conn = null;
-                    return result;
-                }
-            }
-            else
-            {
-                return action();
-            }
-        }
-
         public static int Execute<T>(this ITable<T> table, string sql, object param = null)
         {
-            return table.Conn.Execute(sql, param, table.Tran, table.CommandTimeout);
+            if (table.Conn == null)
+            {
+                using (var conn = table.DataBase.GetConn())
+                {
+                    return conn.Execute(sql, param, table.Tran, table.CommandTimeout);
+                }
+            }
+            else
+            {
+                return table.Conn.Execute(sql, param, table.Tran, table.CommandTimeout);
+            }          
         }
 
         public static object ExecuteScalar<T>(this ITable<T> table, string sql, object param = null)
         {
-            return table.Conn.ExecuteScalar(sql, param, table.Tran, table.CommandTimeout);
+            if (table.Conn == null)
+            {
+                using (var conn = table.DataBase.GetConn())
+                {
+                    return conn.ExecuteScalar(sql, param, table.Tran, table.CommandTimeout);
+                }
+            }
+            else
+            {
+                return table.Conn.ExecuteScalar(sql, param, table.Tran, table.CommandTimeout);
+            }
+            
         }
 
         public static TValue ExecuteScalar<T, TValue>(this ITable<T> table, string sql, object param = null)
         {
-            return table.Conn.ExecuteScalar<TValue>(sql, param, table.Tran, table.CommandTimeout);
+            if (table.Conn == null)
+            {
+                using (var conn = table.DataBase.GetConn())
+                {
+                    return conn.ExecuteScalar<TValue>(sql, param, table.Tran, table.CommandTimeout);
+                }
+            }
+            else
+            {
+                return table.Conn.ExecuteScalar<TValue>(sql, param, table.Tran, table.CommandTimeout);
+            }
         }
 
         #endregion

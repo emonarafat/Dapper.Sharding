@@ -7,16 +7,6 @@ namespace Dapper.Sharding
 {
     internal class MySqlTableManager : ITableManager
     {
-        public string Name { get; }
-
-        public IDatabase DataBase { get; }
-
-        public IDbConnection Conn { get; set; }
-
-        public IDbTransaction Tran { get; set; }
-
-        public int? CommandTimeout { get; set; }
-
         public MySqlTableManager(string name, MySqlDatabase database, IDbConnection conn = null, IDbTransaction tran = null, int? commandTimeout = null)
         {
             Name = name;
@@ -26,28 +16,32 @@ namespace Dapper.Sharding
             CommandTimeout = commandTimeout;
         }
 
+        public string Name { get; }
+
+        public IDatabase DataBase { get; }
+
+        public IDbConnection Conn { get; }
+
+        public IDbTransaction Tran { get; }
+
+        public int? CommandTimeout { get; }
+
         public void CreateIndex(string name, string columns, IndexType indexType)
         {
-            this.Using(() =>
+            string sql = null;
+            switch (indexType)
             {
-                string sql = null;
-                switch (indexType)
-                {
-                    case IndexType.Normal: sql = $"CREATE INDEX `{name}` ON `{Name}` ({columns});"; break;
-                    case IndexType.Unique: sql = $"CREATE UNIQUE INDEX `{name}` ON `{Name}` ({columns});"; break;
-                    case IndexType.FullText: sql = $"CREATE FULLTEXT INDEX `{name}` ON `{Name}` ({columns});"; break;
-                    case IndexType.Spatial: sql = $"CREATE SPATIAL INDEX `{name}` ON `{Name}` ({columns});"; break;
-                }
-                this.Execute(sql);
-            });
+                case IndexType.Normal: sql = $"CREATE INDEX `{name}` ON `{Name}` ({columns});"; break;
+                case IndexType.Unique: sql = $"CREATE UNIQUE INDEX `{name}` ON `{Name}` ({columns});"; break;
+                case IndexType.FullText: sql = $"CREATE FULLTEXT INDEX `{name}` ON `{Name}` ({columns});"; break;
+                case IndexType.Spatial: sql = $"CREATE SPATIAL INDEX `{name}` ON `{Name}` ({columns});"; break;
+            }
+            this.Execute(sql);
         }
 
         public void DropIndex(string name)
         {
-            this.Using(() =>
-            {
-                this.Execute($"ALTER TABLE {Name} DROP INDEX {name}");
-            });
+            this.Execute($"ALTER TABLE {Name} DROP INDEX {name}");
         }
 
         public void AlertIndex(string name, string columns, IndexType indexType)
@@ -58,10 +52,7 @@ namespace Dapper.Sharding
 
         public IEnumerable<dynamic> ShowIndexList()
         {
-            return this.Using(() =>
-            {
-                return this.Query($"SHOW INDEX FROM `{Name}`");
-            });
+            return this.Query($"SHOW INDEX FROM `{Name}`");
         }
 
         public List<IndexEntity> GetIndexEntityList()
@@ -126,10 +117,7 @@ namespace Dapper.Sharding
 
         public IEnumerable<dynamic> ShowColumnList()
         {
-            return this.Using(() =>
-            {
-                return this.Query($"SHOW FULL COLUMNS FROM `{Name}`");
-            });
+            return this.Query($"SHOW FULL COLUMNS FROM `{Name}`");
         }
 
         public List<ColumnEntity> GetColumnEntityList()
@@ -190,98 +178,64 @@ namespace Dapper.Sharding
 
         public void ReName(string name)
         {
-            this.Using(() =>
-            {
-                this.Execute($"ALTER TABLE `{Name}` RENAME TO `{name}`");
-            });
+            this.Execute($"ALTER TABLE `{Name}` RENAME TO `{name}`");
         }
 
         public void SetComment(string comment)
         {
-            this.Using(() =>
-            {
-                this.Execute($"ALTER TABLE `{Name}` COMMENT '{comment}'");
-            });
+            this.Execute($"ALTER TABLE `{Name}` COMMENT '{comment}'");
         }
 
         public void SetCharset(string name)
         {
-            this.Using(() =>
-            {
-                this.Execute($"ALTER TABLE `{Name}` DEFAULT CHARACTER SET {name}");
-            });
+            this.Execute($"ALTER TABLE `{Name}` DEFAULT CHARACTER SET {name}");
         }
 
         public void AddColumn(string name, Type t, double length = 0, string comment = null)
         {
-            this.Using(() =>
-            {
-                var dbType = CsharpTypeToDbType.CreateMySqlType(t, length);
-                this.Execute($"ALTER TABLE `{Name}` ADD  `{name}` {dbType} COMMENT '{comment}'");
-            });
+            var dbType = CsharpTypeToDbType.CreateMySqlType(t, length);
+            this.Execute($"ALTER TABLE `{Name}` ADD  `{name}` {dbType} COMMENT '{comment}'");
         }
 
         public void DropColumn(string name)
         {
-            this.Using(() =>
-            {
-                this.Execute($"ALTER TABLE `{Name}` DROP COLUMN `{name}`");
-            });
+            this.Execute($"ALTER TABLE `{Name}` DROP COLUMN `{name}`");
         }
 
         public void AddColumnAfter(string name, string afterName, Type t, double length = 0, string comment = null)
         {
-            this.Using(() =>
-            {
-                var dbType = CsharpTypeToDbType.CreateMySqlType(t, length);
-                this.Execute($"ALTER TABLE `{Name}` ADD  `{name}` {dbType} COMMENT '{comment}' AFTER `{afterName}`");
-            });
+            var dbType = CsharpTypeToDbType.CreateMySqlType(t, length);
+            this.Execute($"ALTER TABLE `{Name}` ADD  `{name}` {dbType} COMMENT '{comment}' AFTER `{afterName}`");
         }
 
         public void AddColumnFirst(string name, Type t, double length = 0, string comment = null)
         {
-            this.Using(() =>
-            {
-                var dbType = CsharpTypeToDbType.CreateMySqlType(t, length);
-                this.Execute($"ALTER TABLE `{Name}` ADD  `{name}` {dbType} COMMENT '{comment}' FIRST");
-            });
+            var dbType = CsharpTypeToDbType.CreateMySqlType(t, length);
+            this.Execute($"ALTER TABLE `{Name}` ADD  `{name}` {dbType} COMMENT '{comment}' FIRST");
         }
 
         public void ModifyColumn(string name, Type t, double length = 0, string comment = null)
         {
-            this.Using(() =>
-            {
-                var dbType = CsharpTypeToDbType.CreateMySqlType(t, length);
-                this.Execute($"ALTER TABLE `{Name}` MODIFY COLUMN `{name}` {dbType} COMMENT '{comment}'");
-            });
+            var dbType = CsharpTypeToDbType.CreateMySqlType(t, length);
+            this.Execute($"ALTER TABLE `{Name}` MODIFY COLUMN `{name}` {dbType} COMMENT '{comment}'");
         }
 
         public void ModifyColumnFirst(string name, Type t, double length = 0, string comment = null)
         {
-            this.Using(() =>
-            {
-                var dbType = CsharpTypeToDbType.CreateMySqlType(t, length);
-                this.Execute($"ALTER TABLE `{Name}` MODIFY COLUMN `{name}` {dbType} COMMENT '{comment}' FIRST");
-            });
+            var dbType = CsharpTypeToDbType.CreateMySqlType(t, length);
+            this.Execute($"ALTER TABLE `{Name}` MODIFY COLUMN `{name}` {dbType} COMMENT '{comment}' FIRST");
         }
 
         public void ModifyColumnAfter(string name, string afterName, Type t, double length = 0, string comment = null)
         {
-            this.Using(() =>
-            {
-
-                var dbType = CsharpTypeToDbType.CreateMySqlType(t, length);
-                this.Execute($"ALTER TABLE `{Name}` MODIFY COLUMN `{name}` {dbType} COMMENT '{comment}' AFTER `{afterName}`");
-            });
+            var dbType = CsharpTypeToDbType.CreateMySqlType(t, length);
+            this.Execute($"ALTER TABLE `{Name}` MODIFY COLUMN `{name}` {dbType} COMMENT '{comment}' AFTER `{afterName}`");
         }
 
         public void ModifyColumnName(string oldName, string newName, Type t, double length = 0, string comment = null)
         {
-            this.Using(() =>
-            {
-                var dbType = CsharpTypeToDbType.CreateMySqlType(t, length);
-                this.Execute($"ALTER TABLE `{Name}` CHANGE `{oldName}` `{newName}` {dbType} COMMENT '{comment}'");
-            });
+            var dbType = CsharpTypeToDbType.CreateMySqlType(t, length);
+            this.Execute($"ALTER TABLE `{Name}` CHANGE `{oldName}` `{newName}` {dbType} COMMENT '{comment}'");
         }
     }
 }

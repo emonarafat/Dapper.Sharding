@@ -8,7 +8,6 @@ namespace Dapper.Sharding
 {
     internal class MySqlDatabase : IDatabase
     {
-
         public MySqlDatabase(string name, MySqlClient client)
         {
             Name = name;

@@ -10,11 +10,11 @@ namespace Dapper.Sharding
 
         IDatabase DataBase { get; }
 
-        IDbConnection Conn { get; set; }
+        IDbConnection Conn { get; }
 
-        IDbTransaction Tran { get; set; }
+        IDbTransaction Tran { get; }
 
-        int? CommandTimeout { get; set; }
+        int? CommandTimeout { get;}
 
         void CreateIndex(string name, string columns, IndexType indexType);
 

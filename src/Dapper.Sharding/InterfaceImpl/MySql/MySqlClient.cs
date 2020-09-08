@@ -104,7 +104,7 @@ namespace Dapper.Sharding
             var databaseList = ShowDatabasesExcludeSystem();
             foreach (var item in databaseList)
             {
-                GetDatabase(item).TableCache.Clear();
+                GetDatabase(item.ToLower()).TableCache.Clear();
             }
         }
 
