@@ -23,6 +23,12 @@ namespace Test
         }
 
         [Test]
+        public void TruncateTable()
+        {
+            Factory.Db.TruncateTable("P2");
+        }
+
+        [Test]
         public void ShowTableList()
         {
             var data = Factory.Db.ShowTableList();

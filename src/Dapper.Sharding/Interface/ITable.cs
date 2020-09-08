@@ -25,12 +25,32 @@ namespace Dapper.Sharding
 
         bool InsertIdentity(T model);
 
+        bool InsertIfNoExists(T model);
+
+        bool InsertIfExistsUpdate(T model, string fields = null);
+
+        bool InsertIdentityIfNoExists(T model);
+
+        bool InsertIdentityIfExistsUpdate(T model, string fields = null);
+
         bool Update(T model);
 
-        int UpdateByWhere(T model, string where, string updateFields);
+        bool UpdateInclude(T model, string fields);
+
+        bool UpdateExclude(T model, string fields);
+
+        int UpdateByWhere(T model, string where);
+
+        int UpdateByWhereInclude(T model, string where, string fields);
+
+        int UpdateByWhereExclude(T model, string where, string fields);
 
         bool Delete(object id);
 
         bool Delete(T model);
+
+        bool Exists(object id);
+
+        bool Exists(T model);
     }
 }

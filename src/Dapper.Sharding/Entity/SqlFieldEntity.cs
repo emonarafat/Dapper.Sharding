@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 
 namespace Dapper.Sharding
@@ -7,20 +8,20 @@ namespace Dapper.Sharding
     {
         public SqlFieldEntity(TableEntity entity, string leftChar, string rightChart, string symbol)
         {
-            this.PrimaryKey = entity.PrimaryKey;
-            this.IsIdentity = entity.IsIdentity;
-            this.PrimaryKeyType = entity.PrimaryKeyType;
+            PrimaryKey = entity.PrimaryKey;
+            IsIdentity = entity.IsIdentity;
+            PrimaryKeyType = entity.PrimaryKeyType;
 
-            var allFieldList = entity.ColumnList.Select(s => s.Name);
-            var allFieldExceptKeyList = allFieldList.Where(w => w.ToLower() != entity.PrimaryKey.ToLower());
+            AllFieldList = entity.ColumnList.Select(s => s.Name);
+            AllFieldExceptKeyList = AllFieldList.Where(w => w.ToLower() != entity.PrimaryKey.ToLower());
 
-            this.AllFields = CommonUtil.GetFieldsStr(allFieldList, leftChar, rightChart);
-            this.AllFieldsAt = CommonUtil.GetFieldsAtStr(allFieldList, symbol);
-            this.AllFieldsAtEq = CommonUtil.GetFieldsAtEqStr(allFieldList, leftChar, rightChart, symbol);
+            AllFields = CommonUtil.GetFieldsStr(AllFieldList, leftChar, rightChart);
+            AllFieldsAt = CommonUtil.GetFieldsAtStr(AllFieldList, symbol);
+            AllFieldsAtEq = CommonUtil.GetFieldsAtEqStr(AllFieldList, leftChar, rightChart, symbol);
 
-            this.AllFieldsExceptKey = CommonUtil.GetFieldsStr(allFieldExceptKeyList, leftChar, rightChart);
-            this.AllFieldsAtExceptKey = CommonUtil.GetFieldsAtStr(allFieldExceptKeyList, symbol);
-            this.AllFieldsAtEqExceptKey = CommonUtil.GetFieldsAtEqStr(allFieldExceptKeyList, leftChar, rightChart, symbol);
+            AllFieldsExceptKey = CommonUtil.GetFieldsStr(AllFieldExceptKeyList, leftChar, rightChart);
+            AllFieldsAtExceptKey = CommonUtil.GetFieldsAtStr(AllFieldExceptKeyList, symbol);
+            AllFieldsAtEqExceptKey = CommonUtil.GetFieldsAtEqStr(AllFieldExceptKeyList, leftChar, rightChart, symbol);
         }
 
         public string PrimaryKey { get; }
@@ -28,6 +29,10 @@ namespace Dapper.Sharding
         public Type PrimaryKeyType { get; }
 
         public bool IsIdentity { get; }
+
+        public IEnumerable<string> AllFieldList { get; }
+
+        public IEnumerable<string> AllFieldExceptKeyList { get; }
 
         //保留主键
         public string AllFields { get; }//所有列逗号分隔[name],[sex]

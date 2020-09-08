@@ -11,6 +11,25 @@ namespace Test
     class TestTable
     {
         [Test]
+        public void InsertUsingTran()
+        {
+            Factory.Db.UsingTran((conn, tran) =>
+            {
+                var table = Factory.Db.GetTable<People>("People", conn, tran);
+                try
+                {
+                    table.Insert(null);
+                    throw new Exception("an exception");
+                    tran.Commit();
+                }
+                catch
+                {
+                    tran.Rollback();
+                }
+            });
+        }
+
+        [Test]
         public void Insert()
         {
             var p = new People
@@ -48,29 +67,163 @@ namespace Test
 
             var table = new People
             {
-                Id = 10,
+                Id = 11,
                 Name = "自动添加id"
             };
             Factory.peopleTable.InsertIdentity(table);
         }
 
         [Test]
-        public void InsertUsingTran()
+        public void Update()
         {
-            Factory.Db.UsingTran((conn, tran) =>
+            var model = new People
             {
-                var table = Factory.Db.GetTable<People>("People", conn, tran);
-                try
-                {
-                    table.Insert(null);
-                    throw new Exception("an exception");
-                    tran.Commit();
-                }
-                catch
-                {
-                    tran.Rollback();
-                }
-            });
+                Id = 1,
+                Name = "李四1111",
+                Age = 51111,
+                Text = "你好11",
+                Money = 500M,
+                AddTime = DateTime.Now
+            };
+
+            Factory.peopleTable.Update(model);
+        }
+
+        [Test]
+        public void UpdateInclude()
+        {
+            var model = new People
+            {
+                Id = 1,
+                Name = "111",
+                Age = 123,
+                Text = "666",
+                Money = 200M,
+                AddTime = DateTime.Now
+            };
+            Factory.peopleTable.UpdateInclude(model, "Money");
+        }
+
+        [Test]
+        public void UpdateExclude()
+        {
+            var model = new People
+            {
+                Id = 1,
+                Name = "333",
+                Age = 333,
+                Text = "444",
+                Money = 800M,
+                AddTime = DateTime.Now
+            };
+
+            Factory.peopleTable.UpdateExclude(model, "Name");
+        }
+
+        [Test]
+        public void UpdateByWhere()
+        {
+            var model = new People
+            {
+                Id = 1,
+                Name = "李四1111",
+                Age = 333,
+                Text = "你好11",
+                Money = 500M,
+                AddTime = DateTime.Now
+            };
+
+            Factory.peopleTable.UpdateByWhere(model, "WHERE Age=@Age");
+        }
+
+        [Test]
+        public void UpdateByWhereInclude()
+        {
+            var model = new People
+            {
+                Id = 1,
+                Name = "111",
+                Age = 333,
+                Text = "666",
+                Money = 200M,
+                AddTime = DateTime.Now
+            };
+            Factory.peopleTable.UpdateByWhereInclude(model, "WHERE Age=@Age", "Name");
+        }
+
+        [Test]
+        public void UpdateByWhereExclude()
+        {
+            var model = new People
+            {
+                Id = 1,
+                Name = "333",
+                Age = 333,
+                Text = "444",
+                Money = 800M,
+                AddTime = DateTime.Now
+            };
+
+            Factory.peopleTable.UpdateByWhereExclude(model, "WHERE Age=@Age", "Name");
+        }
+
+        [Test]
+        public void InsertIfNoExists()
+        {
+            var p = new People
+            {
+                Id = 12,
+                Name = "李四",
+                Age = 50,
+                AddTime = DateTime.Now,
+                IsAdmin = true,
+                Text = "你好"
+            };
+            Factory.peopleTable.InsertIfNoExists(p);
+            Console.WriteLine(p.Id);
+        }
+
+        [Test]
+        public void InsertIfExistsUpdate()
+        {
+            var p = new People
+            {
+                Id = 12,
+                Name = "asdad",
+                Age = 44,
+                AddTime = DateTime.Now,
+                IsAdmin = true,
+                Text = "你好21112222222"
+            };
+            Factory.peopleTable.InsertIfExistsUpdate(p, "Age");
+            Console.WriteLine(p.Id);
+        }
+
+        [Test]
+        public void Delete()
+        {
+            Factory.peopleTable.Delete(11);
+        }
+
+        [Test]
+        public void DeleteModel()
+        {
+            Factory.peopleTable.Delete(new People { Id = 11 });
+        }
+
+        [Test]
+        public void Exists()
+        {
+            var result = Factory.peopleTable.Exists(1);
+            Console.WriteLine(result);
+        }
+
+        [Test]
+        public void ExistsModel()
+        {
+            var p = new People { Id = 11 };
+            var result = Factory.peopleTable.Exists(p);
+            Console.WriteLine(result);
         }
     }
 }

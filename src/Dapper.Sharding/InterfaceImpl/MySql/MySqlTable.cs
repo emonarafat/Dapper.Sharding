@@ -77,30 +77,139 @@ namespace Dapper.Sharding
             });
         }
 
+        public bool InsertIfNoExists(T model)
+        {
+            if (!Exists(model))
+            {
+                return Insert(model);
+            }
+            return false;
+        }
+
+        public bool InsertIfExistsUpdate(T model, string fields = null)
+        {
+            if (Exists(model))
+            {
+                if (fields == null)
+                    return Update(model);
+                else
+                    return UpdateInclude(model, fields);
+            }
+            else
+            {
+                return Insert(model);
+            }
+        }
+
+        public bool InsertIdentityIfNoExists(T model)
+        {
+            if (!Exists(model))
+            {
+                return InsertIdentity(model);
+            }
+            return false;
+        }
+
+        public bool InsertIdentityIfExistsUpdate(T model, string fields = null)
+        {
+            if (Exists(model))
+            {
+                if (fields == null)
+                    return Update(model);
+                else
+                    return UpdateInclude(model, fields);
+            }
+            else
+            {
+                return InsertIdentity(model);
+            }
+        }
+
         public bool Update(T model)
         {
             return this.Using(() =>
             {
-                return false;
+                return this.Execute($"UPDATE `{Name}` SET {SqlField.AllFieldsAtEqExceptKey} WHERE `{SqlField.PrimaryKey}`=@{SqlField.PrimaryKey}", model) > 0;
             });
-            //throw new NotImplementedException();
         }
 
-        public int UpdateByWhere(T model, string where, string updateFields)
+        public bool UpdateInclude(T model, string fields)
         {
-            throw new NotImplementedException();
+            fields = CommonUtil.GetFieldsAtEqStr(fields.Split(','), "`", "`");
+            return this.Using(() =>
+            {
+                return this.Execute($"UPDATE `{Name}` SET {fields} WHERE `{SqlField.PrimaryKey}`=@{SqlField.PrimaryKey}", model) > 0;
+            });
+        }
+
+        public bool UpdateExclude(T model, string fields)
+        {
+            var excludeFields = fields.Split(',').AsEnumerable();
+            fields = CommonUtil.GetFieldsAtEqStr(SqlField.AllFieldExceptKeyList.Except(excludeFields), "`", "`");
+            return this.Using(() =>
+            {
+                return this.Execute($"UPDATE `{Name}` SET {fields} WHERE `{SqlField.PrimaryKey}`=@{SqlField.PrimaryKey}", model) > 0;
+            });
+        }
+
+        public int UpdateByWhere(T model, string where)
+        {
+            return this.Using(() =>
+            {
+                return this.Execute($"UPDATE `{Name}` SET {SqlField.AllFieldsAtEqExceptKey} {where}", model);
+            });
+        }
+
+        public int UpdateByWhereInclude(T model, string where, string fields)
+        {
+            fields = CommonUtil.GetFieldsAtEqStr(fields.Split(','), "`", "`");
+            return this.Using(() =>
+            {
+                return this.Execute($"UPDATE `{Name}` SET {fields} {where}", model);
+            });
+        }
+
+        public int UpdateByWhereExclude(T model, string where, string fields)
+        {
+            var excludeFields = fields.Split(',').AsEnumerable();
+            fields = CommonUtil.GetFieldsAtEqStr(SqlField.AllFieldExceptKeyList.Except(excludeFields), "`", "`");
+            return this.Using(() =>
+            {
+                return this.Execute($"UPDATE `{Name}` SET {fields} {where}", model);
+            });
         }
 
         public bool Delete(object id)
         {
-            throw new NotImplementedException();
+            return this.Using(() =>
+            {
+                return this.Execute($"DELETE FROM `{Name}` WHERE `{SqlField.PrimaryKey}`=@id", new { id }) > 0;
+            });
         }
 
         public bool Delete(T model)
         {
-            throw new NotImplementedException();
+            return this.Using(() =>
+            {
+                return this.Execute($"DELETE FROM `{Name}` WHERE `{SqlField.PrimaryKey}`=@{SqlField.PrimaryKey}", model) > 0;
+            });
         }
 
+        public bool Exists(object id)
+        {
+            return this.Using(() =>
+            {
+                return this.ExecuteScalar($"SELECT 1 FROM `{Name}` WHERE `{SqlField.PrimaryKey}`=@id", new { id }) != null;
+            });
+        }
+
+        public bool Exists(T model)
+        {
+            return this.Using(() =>
+            {
+                return this.ExecuteScalar($"SELECT 1 FROM `{Name}` WHERE `{SqlField.PrimaryKey}`=@{SqlField.PrimaryKey}", model) != null;
+            });
+        }
 
     }
 }

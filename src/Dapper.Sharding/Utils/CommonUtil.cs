@@ -32,12 +32,43 @@ namespace Dapper.Sharding
             return sb.ToString();
         }
 
+        public static string GetFieldsStr(string[] fieldList, string leftChar, string rightChar)
+        {
+            StringBuilder sb = new StringBuilder();
+            foreach (var item in fieldList)
+            {
+                sb.AppendFormat("{0}{1}{2}", leftChar, item, rightChar);
+
+                if (item != fieldList.Last())
+                {
+                    sb.Append(",");
+                }
+            }
+
+            return sb.ToString();
+        }
+
         /// <summary>
         /// //获取@id,@sex,@name
         /// </summary>
         /// <param name="fieldList"></param>
         /// <returns></returns>
         public static string GetFieldsAtStr(IEnumerable<string> fieldList, string symbol = "@") //oracle @换成 
+        {
+            StringBuilder sb = new StringBuilder();
+            foreach (var item in fieldList)
+            {
+                sb.AppendFormat("{0}{1}", symbol, item);
+
+                if (item != fieldList.Last())
+                {
+                    sb.Append(",");
+                }
+            }
+            return sb.ToString();
+        }
+
+        public static string GetFieldsAtStr(string[] fieldList, string symbol = "@") //oracle @换成 
         {
             StringBuilder sb = new StringBuilder();
             foreach (var item in fieldList)
@@ -61,6 +92,21 @@ namespace Dapper.Sharding
         /// <param name="rightChar">右符号</param>
         /// <returns></returns>
         public static string GetFieldsAtEqStr(IEnumerable<string> fieldList, string leftChar, string rightChar, string symbol = "@") //oracle @换成 
+        {
+            StringBuilder sb = new StringBuilder();
+            foreach (var item in fieldList)
+            {
+                sb.AppendFormat("{0}{1}{2}={3}{1}", leftChar, item, rightChar, symbol);
+
+                if (item != fieldList.Last())
+                {
+                    sb.Append(",");
+                }
+            }
+            return sb.ToString();
+        }
+
+        public static string GetFieldsAtEqStr(string[] fieldList, string leftChar, string rightChar, string symbol = "@") //oracle @换成 
         {
             StringBuilder sb = new StringBuilder();
             foreach (var item in fieldList)

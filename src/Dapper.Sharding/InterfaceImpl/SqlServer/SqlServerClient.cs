@@ -62,8 +62,7 @@ namespace Dapper.Sharding
         {
             using (var conn = GetConn())
             {
-                var val = conn.ExecuteScalar($"SELECT 1 FROM sys.databases WHERE name='{name}'");
-                return val != null;
+                return conn.ExecuteScalar($"SELECT 1 FROM sys.databases WHERE name='{name}'") != null;
             }
         }
 

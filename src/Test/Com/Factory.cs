@@ -6,8 +6,8 @@ namespace Test
     public class Factory
     {
         //must singleton mode(必须是单例模式)
-        //public static IClient Client = ClientFactory.CreateClient(DataBaseType.MySql, "server=127.0.0.1;user=root");
-        public static IClient Client = ClientFactory.CreateClient(DataBaseType.SqlServer2008, "data source=.\\express;user=sa;password=123456");
+        public static IClient Client = ClientFactory.CreateClient(DataBaseType.MySql, "server=127.0.0.1;user=root");
+        //public static IClient Client = ClientFactory.CreateClient(DataBaseType.SqlServer2008, "data source=.\\express;user=sa;password=123456");
 
         public static IDatabase Db
         {

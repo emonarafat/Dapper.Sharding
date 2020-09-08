@@ -41,8 +41,7 @@ namespace Dapper.Sharding
         {
             using (var conn = GetConn())
             {
-                var val = conn.ExecuteScalar($"SELECT 1 FROM sysObjects WHERE Id=OBJECT_ID(N'{name}') AND xtype='U'");
-                return val != null;
+                return conn.ExecuteScalar($"SELECT 1 FROM sysObjects WHERE Id=OBJECT_ID(N'{name}') AND xtype='U'") != null;
             }
         }
 
