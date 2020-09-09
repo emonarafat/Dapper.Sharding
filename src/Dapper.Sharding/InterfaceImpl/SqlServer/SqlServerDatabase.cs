@@ -13,13 +13,15 @@ namespace Dapper.Sharding
         {
             Name = name;
             Client = client;
+            Locker = new LockManager();
+            TableCache = new HashSet<string>();
         }
 
         public string Name { get; }
 
-        public LockManager Locker { get; } = new LockManager();
+        public LockManager Locker { get; }
 
-        public HashSet<string> TableCache { get; } = new HashSet<string>();
+        public HashSet<string> TableCache { get; }
 
         public IClient Client { get; }
 
@@ -102,6 +104,11 @@ namespace Dapper.Sharding
         }
 
         public IEnumerable<dynamic> ShowTableStatusList()
+        {
+            throw new NotImplementedException();
+        }
+
+        public TableEntity StatusToTableEntity(dynamic data)
         {
             throw new NotImplementedException();
         }

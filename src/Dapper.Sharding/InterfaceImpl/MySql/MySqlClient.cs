@@ -12,23 +12,30 @@ namespace Dapper.Sharding
         public MySqlClient(string connectionString)
         {
             ConnectionString = connectionString;
+            Locker = new LockManager();
+            DataBaseCache = new ConcurrentDictionary<string, IDatabase>();
+            Charset = "utf8";
+            AutoCreateDatabase = true;
+            AutoCreateTable = true;
+            AutoCompareTableColumn = false;
+            DbType = DataBaseType.MySql;
         }
 
         #region Interface Method
 
-        public LockManager Locker { get; } = new LockManager();
+        public LockManager Locker { get; }
 
-        public ConcurrentDictionary<string, IDatabase> DataBaseCache { get; } = new ConcurrentDictionary<string, IDatabase>();
+        public ConcurrentDictionary<string, IDatabase> DataBaseCache { get; }
 
-        public bool AutoCreateDatabase { get; set; } = true;
+        public bool AutoCreateDatabase { get; set; }
 
-        public bool AutoCreateTable { get; set; } = true;
+        public bool AutoCreateTable { get; set; }
 
-        public string Charset { get; set; } = "utf8";
+        public string Charset { get; set; }
 
-        public bool AutoCompareTableColumn { get; set; } = false;
+        public bool AutoCompareTableColumn { get; set; }
 
-        public DataBaseType DbType { get; } = DataBaseType.MySql;
+        public DataBaseType DbType { get; }
 
         public string ConnectionString { get; }
 

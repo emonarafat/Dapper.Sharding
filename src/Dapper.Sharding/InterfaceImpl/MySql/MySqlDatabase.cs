@@ -12,38 +12,9 @@ namespace Dapper.Sharding
         {
             Name = name;
             Client = client;
+            Locker = new LockManager();
+            TableCache = new HashSet<string>();
         }
-
-        #region method
-
-        private TableEntity StatusToTableEntity(dynamic data)
-        {
-            var entity = new TableEntity();
-            if (data.Auto_increment != null)
-            {
-                entity.IsIdentity = (data.Auto_increment >= 1);
-            }
-            entity.Comment = data.Comment;
-            var manager = GetTableManager((string)data.Name);
-            var indexList = manager.GetIndexEntityList();
-            entity.IndexList = indexList;
-            var ix = indexList.FirstOrDefault(f => f.Type == IndexType.PrimaryKey);
-            if (ix != null)
-            {
-                entity.PrimaryKey = ix.Columns.FirstCharToUpper();
-            }
-            entity.ColumnList = manager.GetColumnEntityList();
-
-            var col = entity.ColumnList.FirstOrDefault(w => w.Name.ToLower() == entity.PrimaryKey.ToLower());
-            if (col != null)
-            {
-                entity.PrimaryKeyType = col.CsType;
-            }
-
-            return entity;
-        }
-
-        #endregion
 
         #region interface method
 
@@ -51,9 +22,9 @@ namespace Dapper.Sharding
 
         public IClient Client { get; }
 
-        public LockManager Locker { get; } = new LockManager();
+        public LockManager Locker { get; } 
 
-        public HashSet<string> TableCache { get; } = new HashSet<string>();
+        public HashSet<string> TableCache { get; } 
 
         public IDbConnection GetConn()
         {
@@ -207,6 +178,33 @@ namespace Dapper.Sharding
             {
                 return conn.Query("SHOW TABLE STATUS");
             }
+        }
+
+        public TableEntity StatusToTableEntity(dynamic data)
+        {
+            var entity = new TableEntity();
+            if (data.Auto_increment != null)
+            {
+                entity.IsIdentity = (data.Auto_increment >= 1);
+            }
+            entity.Comment = data.Comment;
+            var manager = GetTableManager((string)data.Name);
+            var indexList = manager.GetIndexEntityList();
+            entity.IndexList = indexList;
+            var ix = indexList.FirstOrDefault(f => f.Type == IndexType.PrimaryKey);
+            if (ix != null)
+            {
+                entity.PrimaryKey = ix.Columns.FirstCharToUpper();
+            }
+            entity.ColumnList = manager.GetColumnEntityList();
+
+            var col = entity.ColumnList.FirstOrDefault(w => w.Name.ToLower() == entity.PrimaryKey.ToLower());
+            if (col != null)
+            {
+                entity.PrimaryKeyType = col.CsType;
+            }
+
+            return entity;
         }
 
         public ITableManager GetTableManager(string name, IDbConnection conn = null, IDbTransaction tran = null, int? commandTimeout = null)

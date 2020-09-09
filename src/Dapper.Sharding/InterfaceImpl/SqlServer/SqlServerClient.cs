@@ -12,22 +12,28 @@ namespace Dapper.Sharding
         public SqlServerClient(string connectionString, DataBaseType dbType)
         {
             ConnectionString = connectionString;
+            Locker = new LockManager();
+            DataBaseCache = new ConcurrentDictionary<string, IDatabase>();
+            Charset = "utf8";
+            AutoCreateDatabase = true;
+            AutoCreateTable = true;
+            AutoCompareTableColumn = false;
             DbType = dbType;
         }
 
-        public LockManager Locker { get; } = new LockManager();
+        public LockManager Locker { get; }
 
-        public ConcurrentDictionary<string, IDatabase> DataBaseCache { get; } = new ConcurrentDictionary<string, IDatabase>();
+        public ConcurrentDictionary<string, IDatabase> DataBaseCache { get; }
 
         public string ConnectionString { get; }
 
-        public string Charset { get => throw new NotImplementedException(); set => throw new NotImplementedException(); }
+        public string Charset { get; set; }
 
-        public bool AutoCreateDatabase { get; set; } = true;
+        public bool AutoCreateDatabase { get; set; }
 
-        public bool AutoCreateTable { get; set; } = true;
+        public bool AutoCreateTable { get; set; }
 
-        public bool AutoCompareTableColumn { get; set; } = false;
+        public bool AutoCompareTableColumn { get; set; }
 
         public DataBaseType DbType { get; }
 
