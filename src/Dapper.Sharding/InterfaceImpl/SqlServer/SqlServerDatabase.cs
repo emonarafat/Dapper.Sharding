@@ -15,18 +15,16 @@ namespace Dapper.Sharding
             Name = name;
             Client = client;
             Locker = new LockManager();
-            TableCache = new HashSet<string>();
+            TableCache = new ConcurrentDictionary<string, object>();
         }
 
         public string Name { get; }
 
         public LockManager Locker { get; }
 
-        public HashSet<string> TableCache { get; }
-
         public IClient Client { get; }
 
-        ConcurrentDictionary<string, object> IDatabase.TableCache => throw new NotImplementedException();
+        public ConcurrentDictionary<string, object> TableCache { get; }
 
         public void CompareTableColumn<T>(string name, IEnumerable<string> dbColumns)
         {
@@ -44,7 +42,7 @@ namespace Dapper.Sharding
             {
                 conn.Execute($"IF EXISTS(SELECT 1 FROM sysObjects WHERE Id=OBJECT_ID(N'{name}') AND xtype='U')DROP TABLE [{name}]");
             }
-            TableCache.Remove(name.ToLower());
+            TableCache.TryRemove(name.ToLower(), out _);
         }
 
         public bool ExistsTable(string name)
