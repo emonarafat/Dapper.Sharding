@@ -39,12 +39,11 @@ namespace Dapper.Sharding
 
         public void ClearCache()
         {
-            DataBaseCache.Clear();
-            var databaseList = ShowDatabasesExcludeSystem();
-            foreach (var item in databaseList)
+            foreach (var item in DataBaseCache.Keys)
             {
                 GetDatabase(item).TableCache.Clear();
             }
+            DataBaseCache.Clear();
         }
 
         public void CreateDatabase(string name)

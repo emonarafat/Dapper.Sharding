@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Data;
 using System.Linq;
@@ -13,7 +14,7 @@ namespace Dapper.Sharding
             Name = name;
             Client = client;
             Locker = new LockManager();
-            TableCache = new HashSet<string>();
+            TableCache = new ConcurrentDictionary<string, object>();
         }
 
         public string Name { get; }
@@ -22,7 +23,7 @@ namespace Dapper.Sharding
 
         public LockManager Locker { get; }
 
-        public HashSet<string> TableCache { get; }
+        public ConcurrentDictionary<string, object> TableCache { get; }
 
         public IDbConnection GetConn()
         {
@@ -74,7 +75,7 @@ namespace Dapper.Sharding
             {
                 conn.Execute($"DROP TABLE IF EXISTS `{name}`");
             });
-            TableCache.Remove(name.ToLower());
+            TableCache.TryRemove(name.ToLower(), out _);
         }
 
         public void TruncateTable(string name)
@@ -205,9 +206,9 @@ namespace Dapper.Sharding
             return entity;
         }
 
-        public ITableManager GetTableManager(string name, IDbConnection conn = null, IDbTransaction tran = null, int? commandTimeout = null)
+        public ITableManager GetTableManager(string name)
         {
-            return new MySqlTableManager(name, this, conn, tran, commandTimeout);
+            return new MySqlTableManager(name, this);
         }
 
         public TableEntity GetTableEntityFromDatabase(string name)
@@ -231,16 +232,38 @@ namespace Dapper.Sharding
             this.CreateFiles(savePath, tableList, nameSpace, Suffix, partialClass);
         }
 
+        public void CompareTableColumn<T>(string name, IEnumerable<string> dbColumns)
+        {
+            var tableEntity = ClassToTableEntityUtils.Get<T>();
+            var manager = GetTableManager(name);
+
+            foreach (var item in tableEntity.ColumnList)
+            {
+                if (!dbColumns.Any(a => a.ToLower().Equals(item.Name.ToLower())))
+                {
+                    manager.AddColumn(item.Name, item.CsType, item.Length, item.Comment);
+                }
+            }
+
+            foreach (var item in dbColumns)
+            {
+                if (!tableEntity.ColumnList.Any(a => a.Name.ToLower().Equals(item.ToLower())))
+                {
+                    manager.DropColumn(item);
+                }
+            }
+        }
+
         public ITable<T> GetTable<T>(string name)
         {
-            if (Client.AutoCreateTable)
+            var lowerName = name.ToLower();
+            if (!TableCache.ContainsKey(lowerName))
             {
-                var lowerName = name.ToLower();
-                if (!TableCache.Contains(lowerName))
+                lock (Locker.GetObject(lowerName))
                 {
-                    lock (Locker.GetObject(lowerName))
+                    if (!TableCache.ContainsKey(lowerName))
                     {
-                        if (!TableCache.Contains(lowerName))
+                        if (Client.AutoCreateTable)
                         {
                             #region 创建、比对表
 
@@ -258,39 +281,19 @@ namespace Dapper.Sharding
                                     {
                                         dbColumns = conn2.Query<string>($"SELECT COLUMN_NAME FROM information_schema.COLUMNS WHERE TABLE_SCHEMA='{Name}' AND TABLE_NAME='{name}'");
                                     }
-
-                                    var tableEntity = ClassToTableEntityUtils.Get<T>();
-                                    var manager = GetTableManager(name);
-
-                                    foreach (var item in tableEntity.ColumnList)
-                                    {
-                                        if (!dbColumns.Any(a => a.ToLower().Equals(item.Name.ToLower())))
-                                        {
-                                            manager.AddColumn(item.Name, item.CsType, item.Length, item.Comment);
-                                        }
-                                    }
-
-                                    foreach (var item in dbColumns)
-                                    {
-                                        if (!tableEntity.ColumnList.Any(a => a.Name.ToLower().Equals(item.ToLower())))
-                                        {
-                                            manager.DropColumn(item);
-                                        }
-                                    }
-
-
+                                    CompareTableColumn<T>(name, dbColumns);
                                 }
                             }
 
                             #endregion
-
-                            TableCache.Add(lowerName);
                         }
+                        TableCache.TryAdd(lowerName, new MySqlTable<T>(name, this));
                     }
                 }
             }
-            return new MySqlTable<T>(name, this);
+            return (ITable<T>)TableCache[lowerName];
         }
+
 
     }
 }

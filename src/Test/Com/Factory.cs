@@ -21,7 +21,7 @@ namespace Test
         {
             get
             {
-                return Db.GetTableManager("People");//multi threading is not safe, you must new it
+                return Db.GetTableManager("People");
             }
         }
 
@@ -29,7 +29,7 @@ namespace Test
         {
             get
             {
-                return Db.GetTable<People>("People"); //multi threading is not safe, you must new it
+                return Db.GetTable<People>("People");
             }
         }
 

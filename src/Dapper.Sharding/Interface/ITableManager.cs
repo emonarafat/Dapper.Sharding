@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Data;
 
 namespace Dapper.Sharding
 {
@@ -10,6 +11,8 @@ namespace Dapper.Sharding
         IDatabase DataBase { get; }
 
         DapperEntity DpEntity {get;}
+
+        ITableManager BeginTran(IDbConnection conn, IDbTransaction tran, int? commandTimeout = null);
 
         void CreateIndex(string name, string columns, IndexType indexType);
 

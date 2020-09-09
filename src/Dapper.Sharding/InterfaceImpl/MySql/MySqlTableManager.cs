@@ -7,7 +7,7 @@ namespace Dapper.Sharding
 {
     internal class MySqlTableManager : ITableManager
     {
-        public MySqlTableManager(string name, MySqlDatabase database, IDbConnection conn = null, IDbTransaction tran = null, int? commandTimeout = null)
+        public MySqlTableManager(string name, IDatabase database, IDbConnection conn = null, IDbTransaction tran = null, int? commandTimeout = null)
         {
             Name = name;
             DataBase = database;
@@ -19,6 +19,11 @@ namespace Dapper.Sharding
         public IDatabase DataBase { get; }
 
         public DapperEntity DpEntity { get; }
+
+        public ITableManager BeginTran(IDbConnection conn, IDbTransaction tran, int? commandTimeout = null)
+        {
+            return new MySqlTableManager(Name, DataBase, conn, tran, commandTimeout);
+        }
 
         public void CreateIndex(string name, string columns, IndexType indexType)
         {

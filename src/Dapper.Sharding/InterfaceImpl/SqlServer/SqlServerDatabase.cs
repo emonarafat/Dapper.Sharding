@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Data;
 using System.Linq;
@@ -24,6 +25,13 @@ namespace Dapper.Sharding
         public HashSet<string> TableCache { get; }
 
         public IClient Client { get; }
+
+        ConcurrentDictionary<string, object> IDatabase.TableCache => throw new NotImplementedException();
+
+        public void CompareTableColumn<T>(string name, IEnumerable<string> dbColumns)
+        {
+            throw new NotImplementedException();
+        }
 
         public void CreateTable<T>(string name)
         {
@@ -76,6 +84,11 @@ namespace Dapper.Sharding
         }
 
         public ITableManager GetTableManager(string name, IDbConnection conn = null, IDbTransaction tran = null, int? commandTimeout = null)
+        {
+            throw new NotImplementedException();
+        }
+
+        public ITableManager GetTableManager(string name)
         {
             throw new NotImplementedException();
         }

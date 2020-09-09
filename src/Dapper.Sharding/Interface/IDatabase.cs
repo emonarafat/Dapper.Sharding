@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Data;
 
@@ -10,7 +11,7 @@ namespace Dapper.Sharding
 
         LockManager Locker { get; }
 
-        HashSet<string> TableCache { get; }
+        ConcurrentDictionary<string, object> TableCache { get; }
 
         IClient Client { get; }
 
@@ -40,13 +41,15 @@ namespace Dapper.Sharding
 
         TableEntity StatusToTableEntity(dynamic data);
 
-        ITableManager GetTableManager(string name, IDbConnection conn = null, IDbTransaction tran = null, int? commandTimeout = null);
+        ITableManager GetTableManager(string name);
 
         TableEntity GetTableEntityFromDatabase(string name);
 
         List<TableEntity> GetTableEnityListFromDatabase();
 
         void GeneratorClassFile(string savePath, string tableName = "*", string nameSpace = "Model", string Suffix = "Table", bool partialClass = false);
+
+        void CompareTableColumn<T>(string name, IEnumerable<string> dbColumns);
 
         ITable<T> GetTable<T>(string name);
 

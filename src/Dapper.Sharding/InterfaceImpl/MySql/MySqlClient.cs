@@ -21,8 +21,6 @@ namespace Dapper.Sharding
             DbType = DataBaseType.MySql;
         }
 
-        #region Interface Method
-
         public LockManager Locker { get; }
 
         public ConcurrentDictionary<string, IDatabase> DataBaseCache { get; }
@@ -107,16 +105,13 @@ namespace Dapper.Sharding
 
         public void ClearCache()
         {
-            DataBaseCache.Clear();
-            var databaseList = ShowDatabasesExcludeSystem();
-            foreach (var item in databaseList)
+            foreach (var item in DataBaseCache.Keys)
             {
-                GetDatabase(item.ToLower()).TableCache.Clear();
+                GetDatabase(item).TableCache.Clear();
             }
+            DataBaseCache.Clear();
         }
 
-
-        #endregion
 
     }
 }
