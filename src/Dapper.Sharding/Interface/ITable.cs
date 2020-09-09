@@ -1,9 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Data;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿using System.Data;
 
 namespace Dapper.Sharding
 {
@@ -13,11 +8,7 @@ namespace Dapper.Sharding
 
         IDatabase DataBase { get; }
 
-        IDbConnection Conn { get; }
-
-        IDbTransaction Tran { get; }
-
-        int? CommandTimeout { get; }
+        DapperEntity DpEntity { get; }
 
         SqlFieldEntity SqlField { get; }
 

@@ -1,9 +1,5 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Data;
+﻿using System.Data;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace Dapper.Sharding
 {
@@ -13,27 +9,22 @@ namespace Dapper.Sharding
         {
             Name = name;
             DataBase = database;
-            Conn = conn;
-            Tran = tran;
-            CommandTimeout = commandTimeout;
+            SqlField = SqlFieldCacheUtils.GetMySqlFieldEntity<T>();
+            DpEntity = new DapperEntity(database, conn, tran, commandTimeout);
         }
-
-        public ITable<T> BeginTran(IDbConnection conn, IDbTransaction tran, int? commandTimeout = null)
-        {
-            return new MySqlTable<T>(Name, DataBase, conn, tran, commandTimeout);
-        }
-
-        public IDbConnection Conn { get; }
-
-        public IDbTransaction Tran { get; }
-
-        public int? CommandTimeout { get; }
 
         public string Name { get; }
 
         public IDatabase DataBase { get; }
 
-        public SqlFieldEntity SqlField { get; } = SqlFieldCacheUtils.GetMySqlFieldEntity<T>();
+        public SqlFieldEntity SqlField { get; }
+
+        public DapperEntity DpEntity { get; }
+
+        public ITable<T> BeginTran(IDbConnection conn, IDbTransaction tran, int? commandTimeout = null)
+        {
+            return new MySqlTable<T>(Name, DataBase, conn, tran, commandTimeout);
+        }
 
         public bool Insert(T model)
         {
@@ -43,13 +34,13 @@ namespace Dapper.Sharding
                 var sql = $"INSERT INTO `{Name}` ({SqlField.AllFieldsExceptKey})VALUES({SqlField.AllFieldsAtExceptKey});SELECT @@IDENTITY";
                 if (SqlField.PrimaryKeyType == typeof(int))
                 {
-                    var id = this.ExecuteScalar<T, int>(sql, model);
+                    var id = DpEntity.ExecuteScalar<int>(sql, model);
                     accessor[model, SqlField.PrimaryKey] = id;
                     return id > 0;
                 }
                 else
                 {
-                    var id = this.ExecuteScalar<T, long>(sql, model);
+                    var id = DpEntity.ExecuteScalar<long>(sql, model);
                     accessor[model, SqlField.PrimaryKey] = id;
                     return id > 0;
                 }
@@ -65,13 +56,13 @@ namespace Dapper.Sharding
                     }
                 }
                 var sql = $"INSERT INTO `{Name}` ({SqlField.AllFields})VALUES({SqlField.AllFieldsAt})";
-                return this.Execute(sql, model) > 0;
+                return DpEntity.Execute(sql, model) > 0;
             }
         }
 
         public bool InsertIdentity(T model)
         {
-            return this.Execute($"INSERT INTO `{Name}` ({SqlField.AllFields})VALUES({SqlField.AllFieldsAt})", model) > 0;
+            return DpEntity.Execute($"INSERT INTO `{Name}` ({SqlField.AllFields})VALUES({SqlField.AllFieldsAt})", model) > 0;
         }
 
         public bool InsertIfNoExists(T model)
@@ -124,58 +115,58 @@ namespace Dapper.Sharding
 
         public bool Update(T model)
         {
-            return this.Execute($"UPDATE `{Name}` SET {SqlField.AllFieldsAtEqExceptKey} WHERE `{SqlField.PrimaryKey}`=@{SqlField.PrimaryKey}", model) > 0;
+            return DpEntity.Execute($"UPDATE `{Name}` SET {SqlField.AllFieldsAtEqExceptKey} WHERE `{SqlField.PrimaryKey}`=@{SqlField.PrimaryKey}", model) > 0;
         }
 
         public bool UpdateInclude(T model, string fields)
         {
             fields = CommonUtil.GetFieldsAtEqStr(fields.Split(','), "`", "`");
-            return this.Execute($"UPDATE `{Name}` SET {fields} WHERE `{SqlField.PrimaryKey}`=@{SqlField.PrimaryKey}", model) > 0;
+            return DpEntity.Execute($"UPDATE `{Name}` SET {fields} WHERE `{SqlField.PrimaryKey}`=@{SqlField.PrimaryKey}", model) > 0;
         }
 
         public bool UpdateExclude(T model, string fields)
         {
             var excludeFields = fields.Split(',').AsEnumerable();
             fields = CommonUtil.GetFieldsAtEqStr(SqlField.AllFieldExceptKeyList.Except(excludeFields), "`", "`");
-            return this.Execute($"UPDATE `{Name}` SET {fields} WHERE `{SqlField.PrimaryKey}`=@{SqlField.PrimaryKey}", model) > 0;
+            return DpEntity.Execute($"UPDATE `{Name}` SET {fields} WHERE `{SqlField.PrimaryKey}`=@{SqlField.PrimaryKey}", model) > 0;
         }
 
         public int UpdateByWhere(T model, string where)
         {
-            return this.Execute($"UPDATE `{Name}` SET {SqlField.AllFieldsAtEqExceptKey} {where}", model);
+            return DpEntity.Execute($"UPDATE `{Name}` SET {SqlField.AllFieldsAtEqExceptKey} {where}", model);
         }
 
         public int UpdateByWhereInclude(T model, string where, string fields)
         {
             fields = CommonUtil.GetFieldsAtEqStr(fields.Split(','), "`", "`");
-            return this.Execute($"UPDATE `{Name}` SET {fields} {where}", model);
+            return DpEntity.Execute($"UPDATE `{Name}` SET {fields} {where}", model);
         }
 
         public int UpdateByWhereExclude(T model, string where, string fields)
         {
             var excludeFields = fields.Split(',').AsEnumerable();
             fields = CommonUtil.GetFieldsAtEqStr(SqlField.AllFieldExceptKeyList.Except(excludeFields), "`", "`");
-            return this.Execute($"UPDATE `{Name}` SET {fields} {where}", model);
+            return DpEntity.Execute($"UPDATE `{Name}` SET {fields} {where}", model);
         }
 
         public bool Delete(object id)
         {
-            return this.Execute($"DELETE FROM `{Name}` WHERE `{SqlField.PrimaryKey}`=@id", new { id }) > 0;
+            return DpEntity.Execute($"DELETE FROM `{Name}` WHERE `{SqlField.PrimaryKey}`=@id", new { id }) > 0;
         }
 
         public bool Delete(T model)
         {
-            return this.Execute($"DELETE FROM `{Name}` WHERE `{SqlField.PrimaryKey}`=@{SqlField.PrimaryKey}", model) > 0;
+            return DpEntity.Execute($"DELETE FROM `{Name}` WHERE `{SqlField.PrimaryKey}`=@{SqlField.PrimaryKey}", model) > 0;
         }
 
         public bool Exists(object id)
         {
-            return this.ExecuteScalar($"SELECT 1 FROM `{Name}` WHERE `{SqlField.PrimaryKey}`=@id", new { id }) != null;
+            return DpEntity.ExecuteScalar($"SELECT 1 FROM `{Name}` WHERE `{SqlField.PrimaryKey}`=@id", new { id }) != null;
         }
 
         public bool Exists(T model)
         {
-            return this.ExecuteScalar($"SELECT 1 FROM `{Name}` WHERE `{SqlField.PrimaryKey}`=@{SqlField.PrimaryKey}", model) != null;
+            return DpEntity.ExecuteScalar($"SELECT 1 FROM `{Name}` WHERE `{SqlField.PrimaryKey}`=@{SqlField.PrimaryKey}", model) != null;
         }
     }
 }
