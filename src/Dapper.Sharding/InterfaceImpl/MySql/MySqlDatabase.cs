@@ -16,15 +16,13 @@ namespace Dapper.Sharding
             TableCache = new HashSet<string>();
         }
 
-        #region interface method
-
         public string Name { get; }
 
         public IClient Client { get; }
 
-        public LockManager Locker { get; } 
+        public LockManager Locker { get; }
 
-        public HashSet<string> TableCache { get; } 
+        public HashSet<string> TableCache { get; }
 
         public IDbConnection GetConn()
         {
@@ -294,6 +292,5 @@ namespace Dapper.Sharding
             return new MySqlTable<T>(name, this);
         }
 
-        #endregion
     }
 }
