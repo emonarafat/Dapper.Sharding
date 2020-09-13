@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using System.Data;
 using System.Data.SqlClient;
 using System.Linq;
+using System.Threading.Tasks;
 
 namespace Dapper.Sharding
 {
@@ -77,6 +78,11 @@ namespace Dapper.Sharding
             if (conn.State != ConnectionState.Open)
                 conn.Open();
             return conn;
+        }
+
+        public Task<IDbConnection> GetConnAsync()
+        {
+            throw new NotImplementedException();
         }
 
         public IDatabase GetDatabase(string name)

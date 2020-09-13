@@ -1,6 +1,7 @@
 ﻿using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Data;
+using System.Threading.Tasks;
 
 namespace Dapper.Sharding
 {
@@ -13,6 +14,8 @@ namespace Dapper.Sharding
         string ConnectionString { get; }
 
         IDbConnection GetConn();
+
+        Task<IDbConnection> GetConnAsync();
 
         void CreateDatabase(string name);
 

@@ -3,6 +3,7 @@ using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Data;
 using System.Linq;
+using System.Threading.Tasks;
 
 namespace Dapper.Sharding
 {
@@ -42,6 +43,14 @@ namespace Dapper.Sharding
             var conn = new MySqlConnection(ConnectionString);
             if (conn.State != ConnectionState.Open)
                 conn.Open();
+            return conn;
+        }
+
+        public async Task<IDbConnection> GetConnAsync()
+        {
+            var conn = new MySqlConnection(ConnectionString);
+            if (conn.State != ConnectionState.Open)
+              await conn.OpenAsync();
             return conn;
         }
 
@@ -111,7 +120,6 @@ namespace Dapper.Sharding
             }
             DataBaseCache.Clear();
         }
-
 
     }
 }

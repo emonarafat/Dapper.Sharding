@@ -53,6 +53,11 @@ namespace Dapper.Sharding
             throw new NotImplementedException();
         }
 
+        public Task<IDbConnection> GetConnAsync()
+        {
+            throw new NotImplementedException();
+        }
+
         public IDatabase GetDatabase(string name)
         {
             throw new NotImplementedException();
