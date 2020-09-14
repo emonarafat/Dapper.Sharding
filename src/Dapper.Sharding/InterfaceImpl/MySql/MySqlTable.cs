@@ -1,4 +1,5 @@
-﻿using System.Data;
+﻿using System.Collections.Generic;
+using System.Data;
 using System.Linq;
 
 namespace Dapper.Sharding
@@ -159,6 +160,25 @@ namespace Dapper.Sharding
             return DpEntity.Execute($"DELETE FROM `{Name}` WHERE `{SqlField.PrimaryKey}`=@{SqlField.PrimaryKey}", model) > 0;
         }
 
+        public int DeleteByIds(object ids)
+        {
+            if (CommonUtil.ObjectIsEmpty(ids))
+                return 0;
+            var dpar = new DynamicParameters();
+            dpar.Add("@ids", ids);
+            return DpEntity.Execute($"DELETE FROM `{Name}` WHERE `{SqlField.PrimaryKey}` IN @ids", dpar);
+        }
+
+        public int DeleteByWhere(string where, object param)
+        {
+            return DpEntity.Execute($"DELETE FROM `{Name}` " + where, param);
+        }
+
+        public int DeleteAll()
+        {
+            return DpEntity.Execute($"DELETE FROM `{Name}`");
+        }
+
         public bool Exists(object id)
         {
             return DpEntity.ExecuteScalar($"SELECT 1 FROM `{Name}` WHERE `{SqlField.PrimaryKey}`=@id", new { id }) != null;
@@ -168,5 +188,16 @@ namespace Dapper.Sharding
         {
             return DpEntity.ExecuteScalar($"SELECT 1 FROM `{Name}` WHERE `{SqlField.PrimaryKey}`=@{SqlField.PrimaryKey}", model) != null;
         }
+
+        public long Count()
+        {
+            return DpEntity.ExecuteScalar<long>($"SELECT COUNT(1) FROM `{Name}`");
+        }
+
+        public long Count(string where, object param = null)
+        {
+            return DpEntity.ExecuteScalar<long>($"SELECT COUNT(1) FROM `{Name}` {where}", param);
+        }
+
     }
 }

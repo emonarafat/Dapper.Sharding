@@ -1,4 +1,5 @@
-﻿using System.Data;
+﻿using System.Collections.Generic;
+using System.Data;
 
 namespace Dapper.Sharding
 {
@@ -42,8 +43,18 @@ namespace Dapper.Sharding
 
         bool Delete(T model);
 
+        int DeleteByIds(object ids);
+
+        int DeleteByWhere(string where, object param = null);
+
+        int DeleteAll();
+
         bool Exists(object id);
 
         bool Exists(T model);
+
+        long Count();
+
+        long Count(string where, object param = null);
     }
 }

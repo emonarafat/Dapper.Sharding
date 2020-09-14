@@ -2,7 +2,7 @@
 using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Data;
-using System.Data.SqlClient;
+//using System.Data.SqlClient;
 using System.Linq;
 using System.Threading.Tasks;
 
@@ -74,10 +74,11 @@ namespace Dapper.Sharding
 
         public IDbConnection GetConn()
         {
-            var conn = new SqlConnection(ConnectionString);
-            if (conn.State != ConnectionState.Open)
-                conn.Open();
-            return conn;
+            //var conn = new SqlConnection(ConnectionString);
+            //if (conn.State != ConnectionState.Open)
+            //    conn.Open();
+            //return conn;
+            return null;
         }
 
         public Task<IDbConnection> GetConnAsync()

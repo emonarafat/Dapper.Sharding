@@ -6,9 +6,9 @@ namespace Dapper.Sharding
     {
         private object _lock = new object();
 
-        private Dictionary<object, object> dict = new Dictionary<object, object>();
+        private Dictionary<string, object> dict = new Dictionary<string, object>();
 
-        public object GetObject(object name)
+        public object GetObject(string name)
         {
             if (!dict.ContainsKey(name))
             {
