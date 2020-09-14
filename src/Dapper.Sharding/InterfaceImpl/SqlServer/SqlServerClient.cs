@@ -98,7 +98,7 @@ namespace Dapper.Sharding
                         {
                             CreateDatabase(name);
                         }
-                        DataBaseCache.TryAdd(lowerName, new SqlServerDatabase(name, this));
+                        //DataBaseCache.TryAdd(lowerName, new SqlServerDatabase(name, this));
                     }
                 }
             }
