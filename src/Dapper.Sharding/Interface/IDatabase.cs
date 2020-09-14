@@ -2,6 +2,7 @@
 using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Data;
+using System.Threading.Tasks;
 
 namespace Dapper.Sharding
 {
@@ -16,6 +17,8 @@ namespace Dapper.Sharding
         IClient Client { get; }
 
         IDbConnection GetConn();
+
+        Task<IDbConnection> GetConnAsync();
 
         void Using(Action<IDbConnection> action);
 

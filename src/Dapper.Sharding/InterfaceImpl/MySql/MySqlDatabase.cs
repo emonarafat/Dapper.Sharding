@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using System.Data;
 using System.Linq;
 using System.Text;
+using System.Threading.Tasks;
 
 namespace Dapper.Sharding
 {
@@ -28,6 +29,15 @@ namespace Dapper.Sharding
         public IDbConnection GetConn()
         {
             var conn = Client.GetConn();
+            if (conn.Database != Name)
+                conn.ChangeDatabase(Name);
+            return conn;
+        }
+
+
+        public async Task<IDbConnection> GetConnAsync()
+        {
+            var conn = await Client.GetConnAsync();
             if (conn.Database != Name)
                 conn.ChangeDatabase(Name);
             return conn;
@@ -293,7 +303,6 @@ namespace Dapper.Sharding
             }
             return (ITable<T>)TableCache[lowerName];
         }
-
 
     }
 }
