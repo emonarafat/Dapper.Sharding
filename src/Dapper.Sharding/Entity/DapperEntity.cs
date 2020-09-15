@@ -99,6 +99,37 @@ namespace Dapper.Sharding
             }
         }
 
+        public dynamic QueryFirstOrDefault(string sql, object param = null)
+        {
+            if (Conn == null)
+            {
+                using (var cnn = DataBase.GetConn())
+                {
+                    return cnn.QueryFirstOrDefault(sql, param);
+                }
+            }
+            else
+            {
+                return Conn.QueryFirstOrDefault(sql, param, Tran, commandTimeout: CommandTimeout);
+            }
+
+        }
+
+        public T QueryFirstOrDefault<T>(string sql, object param = null)
+        {
+            if (Conn == null)
+            {
+                using (var cnn = DataBase.GetConn())
+                {
+                    return cnn.QueryFirstOrDefault<T>(sql, param);
+                }
+            }
+            else
+            {
+                return Conn.QueryFirstOrDefault<T>(sql, param, Tran, commandTimeout: CommandTimeout);
+            }
+        }
+
         public SqlMapper.GridReader QueryMultiple(string sql, object param = null)
         {
             if (Conn == null)
