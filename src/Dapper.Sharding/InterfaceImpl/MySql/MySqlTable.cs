@@ -271,21 +271,13 @@ namespace Dapper.Sharding
 
         public IEnumerable<T> GetByPageAndCount(int page, int pageSize, out long count, string where = null, object param = null, string returnFields = null)
         {
-            int skip = 0;
-            if (page > 0)
-            {
-                skip = (page - 1) * pageSize;
-            }
-            if (string.IsNullOrEmpty(returnFields))
-                returnFields = SqlField.AllFields;
-
             var task1 = Task.Run(() =>
             {
                 return Count(where, param);
             });
             var task2 = Task.Run(() =>
             {
-                return GetBySkipTake(skip, pageSize, where, param, returnFields);
+                return GetByPage(page, pageSize, where, param, returnFields);
             });
             Task.WhenAll(task1, task2).Wait();
             count = task1.Result;
