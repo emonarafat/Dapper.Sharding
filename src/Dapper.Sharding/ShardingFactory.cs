@@ -1,6 +1,6 @@
 ﻿namespace Dapper.Sharding
 {
-    public class ClientFactory
+    public class ShardingFactory
     {
         public static IClient CreateClient(DataBaseType dbType, string connectionString)
         {
