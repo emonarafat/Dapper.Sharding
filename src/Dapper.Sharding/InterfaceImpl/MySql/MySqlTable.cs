@@ -62,9 +62,26 @@ namespace Dapper.Sharding
             }
         }
 
+        public int InsertMany(IEnumerable<T> modelList)
+        {
+            if (SqlField.IsIdentity)
+            {
+                return DpEntity.Execute($"INSERT INTO `{Name}` ({SqlField.AllFieldsExceptKey})VALUES({SqlField.AllFieldsAtExceptKey})", modelList);
+            }
+            else
+            {
+                return DpEntity.Execute($"INSERT INTO `{Name}` ({SqlField.AllFields})VALUES({SqlField.AllFieldsAt})", modelList);
+            }
+        }
+
         public bool InsertIdentity(T model)
         {
             return DpEntity.Execute($"INSERT INTO `{Name}` ({SqlField.AllFields})VALUES({SqlField.AllFieldsAt})", model) > 0;
+        }
+
+        public int InsertIdentityMany(IEnumerable<T> modelList)
+        {
+            return DpEntity.Execute($"INSERT INTO `{Name}` ({SqlField.AllFields})VALUES({SqlField.AllFieldsAt})", modelList);
         }
 
         public bool InsertIfNoExists(T model)
@@ -120,10 +137,21 @@ namespace Dapper.Sharding
             return DpEntity.Execute($"UPDATE `{Name}` SET {SqlField.AllFieldsAtEqExceptKey} WHERE `{SqlField.PrimaryKey}`=@{SqlField.PrimaryKey}", model) > 0;
         }
 
+        public int UpdateMany(IEnumerable<T> modelList)
+        {
+            return DpEntity.Execute($"UPDATE `{Name}` SET {SqlField.AllFieldsAtEqExceptKey} WHERE `{SqlField.PrimaryKey}`=@{SqlField.PrimaryKey}", modelList);
+        }
+
         public bool UpdateInclude(T model, string fields)
         {
             fields = CommonUtil.GetFieldsAtEqStr(fields.Split(','), "`", "`");
             return DpEntity.Execute($"UPDATE `{Name}` SET {fields} WHERE `{SqlField.PrimaryKey}`=@{SqlField.PrimaryKey}", model) > 0;
+        }
+
+        public int UpdateIncludeMany(IEnumerable<T> modelList, string fields)
+        {
+            fields = CommonUtil.GetFieldsAtEqStr(fields.Split(','), "`", "`");
+            return DpEntity.Execute($"UPDATE `{Name}` SET {fields} WHERE `{SqlField.PrimaryKey}`=@{SqlField.PrimaryKey}", modelList);
         }
 
         public bool UpdateExclude(T model, string fields)
@@ -131,6 +159,13 @@ namespace Dapper.Sharding
             var excludeFields = fields.Split(',').AsEnumerable();
             fields = CommonUtil.GetFieldsAtEqStr(SqlField.AllFieldExceptKeyList.Except(excludeFields), "`", "`");
             return DpEntity.Execute($"UPDATE `{Name}` SET {fields} WHERE `{SqlField.PrimaryKey}`=@{SqlField.PrimaryKey}", model) > 0;
+        }
+
+        public int UpdateExcludeMany(IEnumerable<T> modelList, string fields)
+        {
+            var excludeFields = fields.Split(',').AsEnumerable();
+            fields = CommonUtil.GetFieldsAtEqStr(SqlField.AllFieldExceptKeyList.Except(excludeFields), "`", "`");
+            return DpEntity.Execute($"UPDATE `{Name}` SET {fields} WHERE `{SqlField.PrimaryKey}`=@{SqlField.PrimaryKey}", modelList);
         }
 
         public int UpdateByWhere(T model, string where)

@@ -72,6 +72,23 @@ namespace Test
         }
 
         [Test]
+        public void InsertMany()
+        {
+            var modelList = new List<People>
+            {
+                new People{ Name = "李白1" },
+                new People{ Name = "李白2" },
+                new People{ Name = "李白3" },
+                new People{ Name = "李白4" },
+                new People{ Name = "李白5" },
+                new People{ Name = "李白6" },
+                new People{ Name = "李白7" }
+            };
+            var data = Factory.peopleTable.InsertMany(modelList);
+            Console.WriteLine(data);
+        }
+
+        [Test]
         public void InsertIdentity()
         {
 
@@ -81,6 +98,23 @@ namespace Test
                 Name = "自动添加id"
             };
             Factory.peopleTable.InsertIdentity(table);
+        }
+
+        [Test]
+        public void InsertIdentityMany()
+        {
+            var modelList = new List<People>
+            {
+                new People{ Id = 17, Name = "李白17" },
+                new People{ Id = 18,Name = "李白18" },
+                new People{ Id = 19,Name = "李白19" },
+                new People{ Id = 20,Name = "李白20" },
+                new People{ Id = 21, Name = "李白21" },
+                new People{ Id = 22,Name = "李白22" },
+                new People{ Id = 23,Name = "李白23" }
+            };
+            var data = Factory.peopleTable.InsertIdentityMany(modelList);
+            Console.WriteLine(data);
         }
 
         [Test]
@@ -97,6 +131,18 @@ namespace Test
             };
 
             Factory.peopleTable.Update(model);
+        }
+
+        [Test]
+        public void UpdateMany()
+        {
+            var modelList = new List<People>
+            {
+                new People{ Id=22,Name="小黑" },
+                new People{ Id=23,Name="小白" }
+            };
+            var data = Factory.peopleTable.UpdateMany(modelList);
+            Console.WriteLine(data);
         }
 
         [Test]
@@ -239,7 +285,7 @@ namespace Test
             Factory.studentTable.DeleteAll();
         }
 
-       
+
 
     }
 }

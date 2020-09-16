@@ -17,7 +17,11 @@ namespace Dapper.Sharding
 
         bool Insert(T model);
 
+        int InsertMany(IEnumerable<T> modelList);
+
         bool InsertIdentity(T model);
+
+        int InsertIdentityMany(IEnumerable<T> modelList);
 
         bool InsertIfNoExists(T model);
 
@@ -29,9 +33,15 @@ namespace Dapper.Sharding
 
         bool Update(T model);
 
+        int UpdateMany(IEnumerable<T> modelList);
+
         bool UpdateInclude(T model, string fields);
 
+        int UpdateIncludeMany(IEnumerable<T> modelList, string fields);
+
         bool UpdateExclude(T model, string fields);
+
+        int UpdateExcludeMany(IEnumerable<T> modelList, string fields);
 
         int UpdateByWhere(T model, string where);
 
