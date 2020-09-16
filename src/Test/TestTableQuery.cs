@@ -127,6 +127,7 @@ namespace Test
         [Test]
         public void GetByPageAndCount()
         {
+            //do not use tran at this method
             var list = Factory.peopleTable.GetByPageAndCount(1, 2, out var total);
             Console.WriteLine(total);
             Console.WriteLine(JsonConvert.SerializeObject(list));
@@ -141,16 +142,42 @@ namespace Test
         }
 
         [Test]
-        public void GetByPageAndCountTran()
+        public void GetByAscPage()
         {
-            //do not use this method
-            Factory.Db.UsingTran((conn, tran) =>
-            {
-                var tb = Factory.peopleTable.BeginTran(conn, tran);
-                var list = tb.GetByPageAndCount(1, 2, out var total);
-                Console.WriteLine(total);
-                Console.WriteLine(JsonConvert.SerializeObject(list));
-            });
+            var data1 = Factory.peopleTable.GetByAscFirstPage(2);
+            Console.WriteLine(JsonConvert.SerializeObject(data1));
+
+            var data2 = Factory.peopleTable.GetByAscPrevPage(2, new People { Id = 5 });
+            Console.WriteLine(JsonConvert.SerializeObject(data2));
+
+            var data3 = Factory.peopleTable.GetByAscCurrentPage(2, new People { Id = 5 });
+            Console.WriteLine(JsonConvert.SerializeObject(data3));
+
+            var data4 = Factory.peopleTable.GetByAscNextPage(2, new People { Id = 6 });
+            Console.WriteLine(JsonConvert.SerializeObject(data4));
+
+            var data5 = Factory.peopleTable.GetByAscLastPage(2);
+            Console.WriteLine(JsonConvert.SerializeObject(data5));
         }
+
+        [Test]
+        public void GetByDescPage()
+        {
+            var data1 = Factory.peopleTable.GetByDescFirstPage(2);
+            Console.WriteLine(JsonConvert.SerializeObject(data1));
+
+            var data2 = Factory.peopleTable.GetByDescPrevPage(2, new People { Id = 19 });
+            Console.WriteLine(JsonConvert.SerializeObject(data2));
+
+            var data3 = Factory.peopleTable.GetByDescCurrentPage(2, new People { Id = 19 });
+            Console.WriteLine(JsonConvert.SerializeObject(data3));
+
+            var data4 = Factory.peopleTable.GetByDescNextPage(2, new People { Id = 18 });
+            Console.WriteLine(JsonConvert.SerializeObject(data4));
+
+            var data5 = Factory.peopleTable.GetByDescLastPage(2);
+            Console.WriteLine(JsonConvert.SerializeObject(data5));
+        }
+
     }
 }
