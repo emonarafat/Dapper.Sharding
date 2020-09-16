@@ -1,6 +1,7 @@
 ﻿using System.Collections.Generic;
 using System.Data;
 using System.Linq;
+using System.Threading.Tasks;
 
 namespace Dapper.Sharding
 {
@@ -265,11 +266,7 @@ namespace Dapper.Sharding
             {
                 skip = (page - 1) * pageSize;
             }
-            if (string.IsNullOrEmpty(returnFields))
-                returnFields = SqlField.AllFields;
-            if (string.IsNullOrEmpty(where))
-                where = $"ORDER BY `{SqlField.PrimaryKey}`";
-            return DpEntity.Query<T>($"SELECT {returnFields} FROM `{Name}` {where} LIMIT {skip},{pageSize}", param);
+            return GetBySkipTake(skip, pageSize, where, param, returnFields);
         }
 
         public IEnumerable<T> GetByPageAndCount(int page, int pageSize, out long count, string where = null, object param = null, string returnFields = null)
@@ -282,25 +279,17 @@ namespace Dapper.Sharding
             if (string.IsNullOrEmpty(returnFields))
                 returnFields = SqlField.AllFields;
 
-            string sql;
-            if (string.IsNullOrEmpty(where))
+            var task1 = Task.Run(() =>
             {
-                where = $"ORDER BY `{SqlField.PrimaryKey}`";
-                sql = $"SELECT COUNT(1) FROM `{Name}`;SELECT {returnFields} FROM `{Name}` {where} LIMIT {skip},{pageSize}";
-            }
-            else
+                return Count(where, param);
+            });
+            var task2 = Task.Run(() =>
             {
-                sql = $"SELECT COUNT(1) FROM `{Name}` {where};SELECT {returnFields} FROM `{Name}` {where} LIMIT {skip},{pageSize}";
-            }
-            using (var reader = DpEntity.QueryMultiple(sql, param))
-            {
-                count = reader.ReadFirstOrDefault<long>();
-                if (count > 0)
-                {
-                    return reader.Read<T>();
-                }
-            }
-            return Enumerable.Empty<T>();
+                return GetBySkipTake(skip, pageSize, where, param, returnFields);
+            });
+            Task.WhenAll(task1, task2).Wait();
+            count = task1.Result;
+            return task2.Result;
         }
 
         public IEnumerable<T> GetByAscFirstPage(int pageSize, object param = null, string and = null, string returnFields = null)

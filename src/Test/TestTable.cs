@@ -222,18 +222,24 @@ namespace Test
         }
 
         [Test]
-        public void Exists()
+        public void DeleteByIds()
         {
-            var result = Factory.peopleTable.Exists(1);
-            Console.WriteLine(result);
+            Factory.peopleTable.DeleteByIds(new int[] { 5, 6, 7 });
         }
 
         [Test]
-        public void ExistsModel()
+        public void DeleteByWhere()
         {
-            var p = new People { Id = 11 };
-            var result = Factory.peopleTable.Exists(p);
-            Console.WriteLine(result);
+            Factory.peopleTable.DeleteByWhere("WHERE Age=@Age", new { Age = 44 });
         }
+
+        [Test]
+        public void DeleteAll()
+        {
+            Factory.studentTable.DeleteAll();
+        }
+
+       
+
     }
 }

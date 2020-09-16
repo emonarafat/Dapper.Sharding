@@ -129,22 +129,5 @@ namespace Dapper.Sharding
                 return Conn.QueryFirstOrDefault<T>(sql, param, Tran, commandTimeout: CommandTimeout);
             }
         }
-
-        public SqlMapper.GridReader QueryMultiple(string sql, object param = null)
-        {
-            if (Conn == null)
-            {
-                using (var cnn = DataBase.GetConn())
-                {
-                    return cnn.QueryMultiple(sql, param);
-                }
-            }
-            else
-            {
-                return Conn.QueryMultiple(sql, param, Tran, CommandTimeout);
-            }
-        }
-
-
     }
 }
