@@ -71,7 +71,11 @@ namespace Dapper.Sharding
 
         T GetById(object id, string returnFields = null);
 
+        T GetByIdForUpdate(object id, string returnFields = null);
+
         IEnumerable<T> GetByIds(object ids, string returnFields = null);
+
+        IEnumerable<T> GetByIdsForUpdate(object ids, string returnFields = null);
 
         IEnumerable<T> GetByIdsWithField(object ids, string field, string returnFields = null);
 

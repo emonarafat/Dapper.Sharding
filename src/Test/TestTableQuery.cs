@@ -59,6 +59,14 @@ namespace Test
         }
 
         [Test]
+        public void GetByIdForUpdate()
+        {
+            var model = Factory.peopleTable.GetByIdForUpdate(1);
+            Console.WriteLine(JsonConvert.SerializeObject(model));
+
+        }
+
+        [Test]
         public void GetByIds()
         {
             var list = Factory.peopleTable.GetByIds(new long[] { 1L, 2L, 3L });
