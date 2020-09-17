@@ -21,5 +21,11 @@
             }
             return null;
         }
+
+        public static ReadWirteClient CreateReadWriteClient(IClient writeClient, params IClient[] readClientList)
+        {
+            return new ReadWirteClient(writeClient, readClientList);
+        }
+
     }
 }
