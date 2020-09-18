@@ -67,6 +67,14 @@ namespace Dapper.Sharding
 
         long Count(string where, object param = null);
 
+        TValue Min<TValue>(string field, string where = null, object param = null);
+
+        TValue Max<TValue>(string field, string where = null, object param = null);
+
+        TValue Sum<TValue>(string field, string where = null, object param = null);
+
+        TValue Avg<TValue>(string field, string where = null, object param = null);
+
         IEnumerable<T> GetAll(string returnFields = null, string orderBy = null);
 
         T GetById(object id, string returnFields = null);

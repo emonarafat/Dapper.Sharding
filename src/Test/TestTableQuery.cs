@@ -36,6 +36,46 @@ namespace Test
         }
 
         [Test]
+        public void Min()
+        {
+            var count = Factory.peopleTable.Min<int>("Id");
+            Console.WriteLine(count);
+
+            var count2 = Factory.peopleTable.Min<int>("Id", "WHERE Text=@Text", new { Text = "A" });
+            Console.WriteLine(count2);
+        }
+
+        [Test]
+        public void Max()
+        {
+            var count = Factory.peopleTable.Max<int>("Id");
+            Console.WriteLine(count);
+
+            var count2 = Factory.peopleTable.Max<int>("Id", "WHERE Text=@Text", new { Text = "A" });
+            Console.WriteLine(count2);
+        }
+
+        [Test]
+        public void Sum()
+        {
+            var count = Factory.peopleTable.Sum<int>("Id");
+            Console.WriteLine(count);
+
+            var count2 = Factory.peopleTable.Sum<int>("Id", "WHERE Text=@Text", new { Text = "A" });
+            Console.WriteLine(count2);
+        }
+
+        [Test]
+        public void Avg()
+        {
+            var count = Factory.peopleTable.Avg<decimal>("Id");
+            Console.WriteLine(count);
+
+            var count2 = Factory.peopleTable.Avg<decimal>("Id", "WHERE Text=@Text", new { Text = "A" });
+            Console.WriteLine(count2);
+        }
+
+        [Test]
         public void GetAll()
         {
             var data = Factory.peopleTable.GetAll();

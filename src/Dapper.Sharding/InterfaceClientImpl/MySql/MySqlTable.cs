@@ -235,6 +235,26 @@ namespace Dapper.Sharding
             return DpEntity.ExecuteScalar<long>($"SELECT COUNT(1) FROM `{Name}` {where}", param);
         }
 
+        public TValue Min<TValue>(string field, string where = null, object param = null)
+        {
+            return DpEntity.ExecuteScalar<TValue>($"SELECT MIN(`{field}`) FROM `{Name}` {where}", param);
+        }
+
+        public TValue Max<TValue>(string field, string where = null, object param = null)
+        {
+            return DpEntity.ExecuteScalar<TValue>($"SELECT MAX(`{field}`) FROM `{Name}` {where}", param);
+        }
+
+        public TValue Sum<TValue>(string field, string where = null, object param = null)
+        {
+            return DpEntity.ExecuteScalar<TValue>($"SELECT SUM(`{field}`) FROM `{Name}` {where}", param);
+        }
+
+        public TValue Avg<TValue>(string field, string where = null, object param = null)
+        {
+            return DpEntity.ExecuteScalar<TValue>($"SELECT AVG(`{field}`) FROM `{Name}` {where}", param);
+        }
+
         public IEnumerable<T> GetAll(string returnFields = null, string orderBy = null)
         {
             if (string.IsNullOrEmpty(returnFields))
