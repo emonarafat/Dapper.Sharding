@@ -59,6 +59,8 @@ namespace Dapper.Sharding
 
         int DeleteAll();
 
+        void Truncate();
+
         bool Exists(object id);
 
         bool Exists(T model);

@@ -215,6 +215,11 @@ namespace Dapper.Sharding
             return DpEntity.Execute($"DELETE FROM `{Name}`");
         }
 
+        public void Truncate()
+        {
+            DataBase.TruncateTable(Name);
+        }
+
         public bool Exists(object id)
         {
             return DpEntity.ExecuteScalar($"SELECT 1 FROM `{Name}` WHERE `{SqlField.PrimaryKey}`=@id", new { id }) != null;
