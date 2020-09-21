@@ -53,5 +53,18 @@ namespace Test
             }
         }
 
+        public static ISharding<Student> ShardingAuto
+        {
+            get
+            {
+                var tableList = new ITable<Student>[]
+                {
+                    Db.GetTable<Student>("s1"),
+                    Db.GetTable<Student>("s2"),
+                    Db.GetTable<Student>("s3")
+                };
+                return ShardingFactory.CreateShardingAuto(tableList);
+            }
+        }
     }
 }

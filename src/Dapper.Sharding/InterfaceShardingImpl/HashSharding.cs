@@ -6,7 +6,8 @@ using System.Threading.Tasks;
 
 namespace Dapper.Sharding
 {
-    public class BloomSharding
+    internal class HashSharding
     {
+
     }
 }

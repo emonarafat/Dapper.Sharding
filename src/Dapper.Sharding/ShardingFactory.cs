@@ -27,5 +27,9 @@
             return new ReadWirteClient(writeClient, readClientList);
         }
 
+        public static ISharding<T> CreateShardingAuto<T>(params ITable<T>[] tableList)
+        {
+            return new AutoSharding<T>(tableList);
+        }
     }
 }

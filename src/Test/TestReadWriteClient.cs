@@ -13,13 +13,16 @@ namespace Test
         [Test]
         public void GetById()
         {
-            var read = Factory.RWClient.ReadClient;
-            var write = Factory.RWClient.WriteClient;
-            var model = read.GetDatabase("test").GetTable<People>("People").GetById(1);
-            var model2 = write.GetDatabase("test").GetTable<People>("People").GetById(1);
+            var dbRead = Factory.RWClient.GetReadDatabase("test");
+            var dbWrite = Factory.RWClient.GetWriteDataBase("test");
+            var model = dbRead.GetTable<People>("People").GetById(1);
+            var model2 = dbWrite.GetTable<People>("People").GetById(1);
+
+            var model3 = Factory.RWClient.GetReadTable<People>("People", "test").GetById(1);
 
             Console.WriteLine(JsonConvert.SerializeObject(model));
             Console.WriteLine(JsonConvert.SerializeObject(model2));
+            Console.WriteLine(JsonConvert.SerializeObject(model3));
         }
     }
 }

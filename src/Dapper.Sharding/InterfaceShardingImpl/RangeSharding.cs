@@ -4,9 +4,9 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace Dapper.Sharding
+namespace Dapper.Sharding.InterfaceShardingImpl
 {
-    internal class Md5Sharding<T> : ISharding<T>
+    internal class RangeSharding
     {
     }
 }
