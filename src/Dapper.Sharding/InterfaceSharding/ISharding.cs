@@ -21,14 +21,14 @@ namespace Dapper.Sharding
 
         public ITable<T>[] TableList { get; }
 
-        #region method protected
+        #region method mod
 
-        protected virtual int GetMod(string id)
+        protected virtual int GetModById(string id)
         {
             return HashBloomFilter.BKDRHash(id) % TableList.Length;
         }
 
-        protected virtual int GetMod(object id)
+        protected virtual int GetModById(object id)
         {
             string key;
             if (KeyType == typeof(string))
@@ -43,17 +43,17 @@ namespace Dapper.Sharding
             return HashBloomFilter.BKDRHash(key) % TableList.Length;
         }
 
-        protected virtual ITable<T> GetTableByMod(string id)
+        protected virtual ITable<T> GetModTableById(string id)
         {
-            return TableList[GetMod(id)];
+            return TableList[GetModById(id)];
         }
 
-        protected virtual ITable<T> GetTableByMod(object id)
+        public virtual ITable<T> GetModTableById(object id)
         {
-            return TableList[GetMod(id)];
+            return TableList[GetModById(id)];
         }
 
-        protected virtual ITable<T> GetTableByMod(T model, bool initId = false)
+        protected virtual ITable<T> GetModTableById(T model, bool initId = false)
         {
             var accessor = TypeAccessor.Create(typeof(T));
             object id = accessor[model, KeyName];
@@ -74,7 +74,7 @@ namespace Dapper.Sharding
             {
                 key = id.ToString();
             }
-            return GetTableByMod(key);
+            return GetModTableById(key);
         }
 
         #endregion
@@ -113,11 +113,7 @@ namespace Dapper.Sharding
 
         public abstract T GetById(object id, string returnFields = null);
 
-        public abstract T GetByIdForUpdate(object id, string returnFields = null);
-
         public abstract IEnumerable<T> GetByIds(object ids, string returnFields = null);
-
-        public abstract IEnumerable<T> GetByIdsForUpdate(object ids, string returnFields = null);
 
         #endregion
 
@@ -154,7 +150,16 @@ namespace Dapper.Sharding
 
         public long Count()
         {
-            return 0;
+            var taskList = new List<Task<long>>();
+            foreach (var item in TableList)
+            {
+                var task = Task.Run(() =>
+                {
+                    return item.Count();
+                });
+                taskList.Add(task);
+            }
+            return Task.WhenAll(taskList).Result.Sum();
         }
 
         public long Count(string where, object param = null)

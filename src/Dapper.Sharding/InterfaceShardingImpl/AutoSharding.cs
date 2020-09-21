@@ -43,24 +43,14 @@ namespace Dapper.Sharding
             throw new NotImplementedException();
         }
 
-        public override T GetByIdForUpdate(object id, string returnFields = null)
-        {
-            throw new NotImplementedException();
-        }
-
         public override IEnumerable<T> GetByIds(object ids, string returnFields = null)
-        {
-            throw new NotImplementedException();
-        }
-
-        public override IEnumerable<T> GetByIdsForUpdate(object ids, string returnFields = null)
         {
             throw new NotImplementedException();
         }
 
         public override bool Insert(T model)
         {
-            return GetTableByMod(model, true).Insert(model);
+            return GetModTableById(model, true).Insert(model);
         }
 
         public override int InsertMany(IEnumerable<T> modelList)

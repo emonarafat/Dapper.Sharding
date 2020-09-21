@@ -21,6 +21,14 @@ namespace Test
             }
         }
 
+        public static IDatabase Db2
+        {
+            get
+            {
+                return Client2.GetDatabase("test");
+            }
+        }
+
         public static ITableManager TableManager
         {
             get
@@ -61,7 +69,10 @@ namespace Test
                 {
                     Db.GetTable<Student>("s1"),
                     Db.GetTable<Student>("s2"),
-                    Db.GetTable<Student>("s3")
+                    Db.GetTable<Student>("s3"),
+                    Db2.GetTable<Student>("s4"),
+                    Db2.GetTable<Student>("s5"),
+                    Db2.GetTable<Student>("s6")
                 };
                 return ShardingFactory.CreateShardingAuto(tableList);
             }
