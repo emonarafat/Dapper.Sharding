@@ -51,8 +51,6 @@ namespace Dapper.Sharding
 
         bool Delete(object id);
 
-        bool Delete(T model);
-
         int DeleteByIds(object ids);
 
         int DeleteByWhere(string where, object param = null);
@@ -62,8 +60,6 @@ namespace Dapper.Sharding
         void Truncate();
 
         bool Exists(object id);
-
-        bool Exists(T model);
 
         long Count();
 

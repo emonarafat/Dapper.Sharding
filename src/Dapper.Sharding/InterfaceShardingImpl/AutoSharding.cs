@@ -18,22 +18,12 @@ namespace Dapper.Sharding
             throw new NotImplementedException();
         }
 
-        public override bool Delete(T model)
-        {
-            throw new NotImplementedException();
-        }
-
         public override int DeleteByIds(object ids)
         {
             throw new NotImplementedException();
         }
 
         public override bool Exists(object id)
-        {
-            throw new NotImplementedException();
-        }
-
-        public override bool Exists(T model)
         {
             throw new NotImplementedException();
         }
@@ -50,7 +40,7 @@ namespace Dapper.Sharding
 
         public override bool Insert(T model)
         {
-            return GetModTableById(model, true).Insert(model);
+            return GetTableByModelAndInitId(model).Insert(model);
         }
 
         public override int InsertMany(IEnumerable<T> modelList)

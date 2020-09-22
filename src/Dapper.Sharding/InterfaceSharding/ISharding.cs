@@ -21,107 +21,31 @@ namespace Dapper.Sharding
 
         public ITable<T>[] TableList { get; }
 
-        #region method mod
-
-        protected virtual int GetModById(string id)
-        {
-            return HashBloomFilter.BKDRHash(id) % TableList.Length;
-        }
-
-        protected virtual int GetModById(object id)
-        {
-            string key;
-            if (KeyType == typeof(string))
-            {
-                key = (string)id;
-            }
-            else
-            {
-                key = id.ToString();
-            }
-
-            return HashBloomFilter.BKDRHash(key) % TableList.Length;
-        }
-
-        protected virtual ITable<T> GetModTableById(string id)
-        {
-            return TableList[GetModById(id)];
-        }
-
-        public virtual ITable<T> GetModTableById(object id)
-        {
-            return TableList[GetModById(id)];
-        }
-
-        protected virtual ITable<T> GetModTableById(T model, bool initId = false)
-        {
-            var accessor = TypeAccessor.Create(typeof(T));
-            object id = accessor[model, KeyName];
-            string key;
-            if (KeyType == typeof(string))
-            {
-                key = (string)id;
-                if (initId)
-                {
-                    if (string.IsNullOrEmpty(key))
-                    {
-                        key = ObjectId.GenerateNewIdAsString();
-                        accessor[model, KeyName] = key;
-                    }
-                }
-            }
-            else
-            {
-                key = id.ToString();
-            }
-            return GetModTableById(key);
-        }
-
-        #endregion
-
-        #region method abstract
-
-        public abstract bool Insert(T model);
-
-        public abstract int InsertMany(IEnumerable<T> modelList);
-
-        public abstract bool InsertIfNoExists(T model);
-
-        public abstract bool InsertIfExistsUpdate(T model, string fields = null);
-
-        public abstract bool Update(T model);
-
-        public abstract int UpdateMany(IEnumerable<T> modelList);
-
-        public abstract bool UpdateInclude(T model, string fields);
-
-        public abstract int UpdateIncludeMany(IEnumerable<T> modelList, string fields);
-
-        public abstract bool UpdateExclude(T model, string fields);
-
-        public abstract int UpdateExcludeMany(IEnumerable<T> modelList, string fields);
-
-        public abstract bool Delete(object id);
-
-        public abstract bool Delete(T model);
-
-        public abstract int DeleteByIds(object ids);
-
-        public abstract bool Exists(object id);
-
-        public abstract bool Exists(T model);
-
-        public abstract T GetById(object id, string returnFields = null);
-
-        public abstract IEnumerable<T> GetByIds(object ids, string returnFields = null);
-
-        #endregion
-
         #region method common
 
         public string KeyName { get; }
 
         public Type KeyType { get; }
+
+        public ITable<T> GetTableById(string id)
+        {
+            return TableList[ShardingUtils.Mod(id, TableList.Length)];
+        }
+
+        public ITable<T> GetTableById(object id)
+        {
+            return TableList[ShardingUtils.Mod(id, TableList.Length)];
+        }
+
+        public ITable<T> GetTableByModel(T model)
+        {
+            return TableList[ShardingUtils.Mod(model, KeyName, KeyType, TableList.Length)];
+        }
+
+        public ITable<T> GetTableByModelAndInitId(T model)
+        {
+            return TableList[ShardingUtils.ModAndInitId(model, KeyName, KeyType, TableList.Length)];
+        }
 
         public int UpdateByWhere(T model, string where)
         {
@@ -256,6 +180,40 @@ namespace Dapper.Sharding
         {
             return default;
         }
+
+        #endregion
+
+        #region method abstract
+
+        public abstract bool Insert(T model);
+
+        public abstract int InsertMany(IEnumerable<T> modelList);
+
+        public abstract bool InsertIfNoExists(T model);
+
+        public abstract bool InsertIfExistsUpdate(T model, string fields = null);
+
+        public abstract bool Update(T model);
+
+        public abstract int UpdateMany(IEnumerable<T> modelList);
+
+        public abstract bool UpdateInclude(T model, string fields);
+
+        public abstract int UpdateIncludeMany(IEnumerable<T> modelList, string fields);
+
+        public abstract bool UpdateExclude(T model, string fields);
+
+        public abstract int UpdateExcludeMany(IEnumerable<T> modelList, string fields);
+
+        public abstract bool Delete(object id);
+
+        public abstract int DeleteByIds(object ids);
+
+        public abstract bool Exists(object id);
+
+        public abstract T GetById(object id, string returnFields = null);
+
+        public abstract IEnumerable<T> GetByIds(object ids, string returnFields = null);
 
         #endregion
 

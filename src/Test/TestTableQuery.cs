@@ -18,14 +18,6 @@ namespace Test
         }
 
         [Test]
-        public void ExistsModel()
-        {
-            var p = new People { Id = 11 };
-            var result = Factory.peopleTable.Exists(p);
-            Console.WriteLine(result);
-        }
-
-        [Test]
         public void Count()
         {
             var count = Factory.peopleTable.Count();

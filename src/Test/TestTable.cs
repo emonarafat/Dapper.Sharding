@@ -262,12 +262,6 @@ namespace Test
         }
 
         [Test]
-        public void DeleteModel()
-        {
-            Factory.peopleTable.Delete(new People { Id = 11 });
-        }
-
-        [Test]
         public void DeleteByIds()
         {
             Factory.peopleTable.DeleteByIds(new int[] { 5, 6, 7 });

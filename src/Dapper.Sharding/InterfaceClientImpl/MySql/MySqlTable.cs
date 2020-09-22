@@ -191,11 +191,6 @@ namespace Dapper.Sharding
             return DpEntity.Execute($"DELETE FROM `{Name}` WHERE `{SqlField.PrimaryKey}`=@id", new { id }) > 0;
         }
 
-        public bool Delete(T model)
-        {
-            return DpEntity.Execute($"DELETE FROM `{Name}` WHERE `{SqlField.PrimaryKey}`=@{SqlField.PrimaryKey}", model) > 0;
-        }
-
         public int DeleteByIds(object ids)
         {
             if (CommonUtil.ObjectIsEmpty(ids))
@@ -223,11 +218,6 @@ namespace Dapper.Sharding
         public bool Exists(object id)
         {
             return DpEntity.ExecuteScalar($"SELECT 1 FROM `{Name}` WHERE `{SqlField.PrimaryKey}`=@id", new { id }) != null;
-        }
-
-        public bool Exists(T model)
-        {
-            return DpEntity.ExecuteScalar($"SELECT 1 FROM `{Name}` WHERE `{SqlField.PrimaryKey}`=@{SqlField.PrimaryKey}", model) != null;
         }
 
         public long Count()
