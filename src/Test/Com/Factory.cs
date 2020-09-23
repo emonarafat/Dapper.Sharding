@@ -61,11 +61,11 @@ namespace Test
             }
         }
 
-        public static ISharding<Student> ShardingAuto
+        public static ITable<Student>[] studentTableList
         {
             get
             {
-                var tableList = new ITable<Student>[]
+                return new ITable<Student>[]
                 {
                     Db.GetTable<Student>("s1"),
                     Db.GetTable<Student>("s2"),
@@ -74,8 +74,24 @@ namespace Test
                     Db2.GetTable<Student>("s5"),
                     Db2.GetTable<Student>("s6")
                 };
-                return ShardingFactory.CreateShardingAuto(tableList);
             }
         }
+
+        public static ISharding<Student> ShardingAuto
+        {
+            get
+            {
+                return ShardingFactory.CreateShardingAuto(studentTableList);
+            }
+        }
+
+        public static ShardingQuery<Student> ShardingQuery
+        {
+            get
+            {
+                return new ShardingQuery<Student>(studentTableList);
+            }
+        }
+
     }
 }

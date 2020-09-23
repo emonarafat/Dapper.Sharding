@@ -1,7 +1,5 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Linq;
-using System.Text;
 using System.Threading.Tasks;
 
 namespace Dapper.Sharding
@@ -128,49 +126,116 @@ namespace Dapper.Sharding
             return SumDecimal(field, where, param) / Count(where, param);
         }
 
-        public IEnumerable<T> GetAll(string returnFields = null, string orderBy = null)
+        public IEnumerable<T> GetAll(string returnFields = null)
         {
-            return default;
+            var taskList = TableList.Select(s =>
+            {
+                return Task.Run(() =>
+                {
+                    return s.GetAll(returnFields);
+                });
+            });
+            var result = Task.WhenAll(taskList).Result;
+            var list = Enumerable.Empty<T>();
+            foreach (var item in result)
+            {
+                list = list.Concat(item);
+            }
+            return list;
         }
 
         public T GetById(object id, string returnFields = null)
         {
-            return default;
-        }
-
-        public T GetByIdForUpdate(object id, string returnFields = null)
-        {
-            return default;
+            var taskList = TableList.Select(s =>
+            {
+                return Task.Run(() =>
+                {
+                    return s.GetById(id, returnFields);
+                });
+            });
+            var result = Task.WhenAll(taskList).Result;
+            return result.FirstOrDefault();
         }
 
         public IEnumerable<T> GetByIds(object ids, string returnFields = null)
         {
-            return default;
-        }
-
-        public IEnumerable<T> GetByIdsForUpdate(object ids, string returnFields = null)
-        {
-            return default;
+            var taskList = TableList.Select(s =>
+            {
+                return Task.Run(() =>
+                {
+                    return s.GetByIds(ids, returnFields);
+                });
+            });
+            var result = Task.WhenAll(taskList).Result;
+            var list = Enumerable.Empty<T>();
+            foreach (var item in result)
+            {
+                list = list.Concat(item);
+            }
+            return list;
         }
 
         public IEnumerable<T> GetByIdsWithField(object ids, string field, string returnFields = null)
         {
-            return default;
+            var taskList = TableList.Select(s =>
+            {
+                return Task.Run(() =>
+                {
+                    return s.GetByIdsWithField(ids, field, returnFields);
+                });
+            });
+            var result = Task.WhenAll(taskList).Result;
+            var list = Enumerable.Empty<T>();
+            foreach (var item in result)
+            {
+                list = list.Concat(item);
+            }
+            return list;
         }
 
         public IEnumerable<T> GetByWhere(string where, object param = null, string returnFields = null)
         {
-            return default;
+            var taskList = TableList.Select(s =>
+            {
+                return Task.Run(() =>
+                {
+                    return s.GetByWhere(where, param, returnFields);
+                });
+            });
+            var result = Task.WhenAll(taskList).Result;
+            var list = Enumerable.Empty<T>();
+            foreach (var item in result)
+            {
+                list = list.Concat(item);
+            }
+            return list;
         }
 
         public T GetByWhereFirst(string where, object param = null, string returnFields = null)
         {
-            return default;
+            var taskList = TableList.Select(s =>
+            {
+                return Task.Run(() =>
+                {
+                    return s.GetByWhereFirst(where, param, returnFields);
+                });
+            });
+            var result = Task.WhenAll(taskList).Result;
+            return result.FirstOrDefault();
         }
 
         public IEnumerable<T> GetBySkipTake(int skip, int take, string where = null, object param = null, string returnFields = null)
         {
-            return default;
+            var taskList = TableList.Select(s =>
+            {
+                return Task.Run(() =>
+                {
+                    return s.GetBySkipTake(skip, take, where, param, returnFields);
+                });
+            });
+            var result = Task.WhenAll(taskList).Result;
+            return null;
+
         }
 
         public IEnumerable<T> GetByPage(int page, int pageSize, string where = null, object param = null, string returnFields = null)

@@ -21,7 +21,7 @@ namespace Test
         {
             for (int i = 0; i < 100; i++)
             {
-                Factory.ShardingAuto.Insert(new Student() { Name = "李四" + i });
+                Factory.ShardingAuto.Insert(new Student() { Name = "李四" + i, Age = i });
             }
         }
 
