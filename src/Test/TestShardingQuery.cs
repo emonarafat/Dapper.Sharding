@@ -64,7 +64,7 @@ namespace Test
         [Test]
         public void GetAll()
         {
-            var data = Factory.ShardingQuery.GetAll();
+            var data = Factory.ShardingQuery.GetAll("Age","Age DESC");
             Console.WriteLine(JsonConvert.SerializeObject(data));
         }
 

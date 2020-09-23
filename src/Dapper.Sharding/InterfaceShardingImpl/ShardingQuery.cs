@@ -126,13 +126,18 @@ namespace Dapper.Sharding
             return SumDecimal(field, where, param) / Count(where, param);
         }
 
-        public IEnumerable<T> GetAll(string returnFields = null)
+        public IEnumerable<T> GetAll(string returnFields = null, string orderBy = null)
         {
+            string dbOrderBy = null;
+            if (orderBy != null)
+            {
+                dbOrderBy = "ORDER BY " + orderBy;
+            }
             var taskList = TableList.Select(s =>
             {
                 return Task.Run(() =>
                 {
-                    return s.GetAll(returnFields);
+                    return s.GetAll(returnFields, dbOrderBy);
                 });
             });
             var result = Task.WhenAll(taskList).Result;
@@ -140,6 +145,10 @@ namespace Dapper.Sharding
             foreach (var item in result)
             {
                 list = list.Concat(item);
+            }
+            if (orderBy != null)
+            {
+                return list.AsQueryable().OrderBy(orderBy).AsEnumerable();
             }
             return list;
         }
