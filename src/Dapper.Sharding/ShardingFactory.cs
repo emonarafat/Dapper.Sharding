@@ -36,5 +36,10 @@
         {
             return new AutoSharding<T>(tableList);
         }
+
+        public static ShardingQuery<T> CreateShardingQuery<T>(params ITable<T>[] tableList)
+        {
+            return new ShardingQuery<T>(tableList);
+        }
     }
 }

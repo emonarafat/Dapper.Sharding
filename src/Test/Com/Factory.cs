@@ -122,7 +122,7 @@ namespace Test
         {
             get
             {
-                return new ShardingQuery<Teacher>(teacherTableList);
+                return ShardingFactory.CreateShardingQuery(teacherTableList);
             }
         }
 
