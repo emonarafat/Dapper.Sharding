@@ -58,6 +58,19 @@ namespace Dapper.Sharding
                     accessor[model, keyName] = key;
                 }
             }
+            else if (keyType == typeof(long))
+            {
+                if ((long)id == 0)
+                {
+                    var newId = SnowflakeId.GenerateNewId();
+                    key = newId.ToString();
+                    accessor[model, keyName] = newId;
+                }
+                else
+                {
+                    key = id.ToString();
+                }
+            }
             else
             {
                 key = id.ToString();

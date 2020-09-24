@@ -76,7 +76,7 @@ namespace Test
             var data1 = Factory.peopleTable.GetAll("Id,Name");
             Console.WriteLine(JsonConvert.SerializeObject(data1));
 
-            var data2 = Factory.peopleTable.GetAll("Id", "ORDER BY Id DESC");
+            var data2 = Factory.peopleTable.GetAll("Id", "Id DESC");
             Console.WriteLine(JsonConvert.SerializeObject(data2));
         }
 

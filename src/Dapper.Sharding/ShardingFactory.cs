@@ -2,6 +2,11 @@
 {
     public class ShardingFactory
     {
+        public static void SetSnowflakeWorker(long workerId, long datacenterId)
+        {
+            SnowflakeId.worker = new IdWorker(workerId, datacenterId);
+        }
+
         public static IClient CreateClient(DataBaseType dbType, string connectionString)
         {
             switch (dbType)

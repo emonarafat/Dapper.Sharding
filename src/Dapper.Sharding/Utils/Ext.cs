@@ -59,6 +59,15 @@ namespace Dapper.Sharding
             return txt.Substring(0, 1).ToLower() + txt.Substring(1);
         }
 
+        public static string SetOrderBy(this string str, string key)
+        {
+            if (string.IsNullOrEmpty(str))
+            {
+                return "ORDER BY " + key;
+            }
+            return "ORDER BY " + str;
+        }
+
         #endregion
 
         #region IDatabase
@@ -134,6 +143,20 @@ namespace Dapper.Sharding
                 File.WriteAllText(path, sb.ToString(), Encoding.UTF8);
             }
 
+        }
+
+        #endregion
+
+        #region IEnumerable
+
+        public static IEnumerable<T> ConcatItem<T>(this IEnumerable<T>[] arrayList)
+        {
+            var list = Enumerable.Empty<T>();
+            foreach (var item in arrayList)
+            {
+                list = list.Concat(item);
+            }
+            return list;
         }
 
         #endregion

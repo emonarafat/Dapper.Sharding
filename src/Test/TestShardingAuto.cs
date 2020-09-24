@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using Test.Com;
 
 namespace Test
 {
@@ -22,6 +23,21 @@ namespace Test
             for (int i = 0; i < 100; i++)
             {
                 Factory.ShardingAuto.Insert(new Student() { Name = "李四" + i, Age = i });
+            }
+        }
+
+        [Test]
+        public void InsertTeacher()
+        {
+            //for (int i = 0; i < 100; i++)
+            //{
+            //    Factory.ShardingAutoTeacher.Insert(new Teacher() { Id = i, Name = "李四" + i, Age = i });
+            //}
+
+            //snowflake
+            for (int i = 0; i < 100; i++)
+            {
+                Factory.ShardingAutoTeacher.Insert(new Teacher() { Name = "李四" + i, Age = i });
             }
         }
 

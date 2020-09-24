@@ -73,7 +73,7 @@ namespace Dapper.Sharding
 
         TValue Avg<TValue>(string field, string where = null, object param = null);
 
-        IEnumerable<T> GetAll(string returnFields = null, string orderBy = null);
+        IEnumerable<T> GetAll(string returnFields = null, string orderby = null);
 
         T GetById(object id, string returnFields = null);
 
@@ -85,15 +85,15 @@ namespace Dapper.Sharding
 
         IEnumerable<T> GetByIdsWithField(object ids, string field, string returnFields = null);
 
-        IEnumerable<T> GetByWhere(string where, object param = null, string returnFields = null);
+        IEnumerable<T> GetByWhere(string where, object param = null, string returnFields = null, string orderby = null, int limit = 0);
 
         T GetByWhereFirst(string where, object param = null, string returnFields = null);
 
-        IEnumerable<T> GetBySkipTake(int skip, int take, string where = null, object param = null, string returnFields = null);
+        IEnumerable<T> GetBySkipTake(int skip, int take, string where = null, object param = null, string returnFields = null, string orderby = null);
 
-        IEnumerable<T> GetByPage(int page, int pageSize, string where = null, object param = null, string returnFields = null);
+        IEnumerable<T> GetByPage(int page, int pageSize, string where = null, object param = null, string returnFields = null, string orderby = null);
 
-        IEnumerable<T> GetByPageAndCount(int page, int pageSize, out long count, string where = null, object param = null, string returnFields = null);
+        IEnumerable<T> GetByPageAndCount(int page, int pageSize, out long count, string where = null, object param = null, string returnFields = null, string orderby = null);
 
         IEnumerable<T> GetByAscFirstPage(int pageSize, object param = null, string and = null, string returnFields = null);
 

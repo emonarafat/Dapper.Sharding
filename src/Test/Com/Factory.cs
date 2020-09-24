@@ -93,5 +93,38 @@ namespace Test
             }
         }
 
+
+        public static ITable<Teacher>[] teacherTableList
+        {
+            get
+            {
+                return new ITable<Teacher>[]
+                {
+                    Db.GetTable<Teacher>("t1"),
+                    Db.GetTable<Teacher>("t2"),
+                    Db.GetTable<Teacher>("t3"),
+                    Db2.GetTable<Teacher>("t4"),
+                    Db2.GetTable<Teacher>("t5"),
+                    Db2.GetTable<Teacher>("t6")
+                };
+            }
+        }
+
+        public static ISharding<Teacher> ShardingAutoTeacher
+        {
+            get
+            {
+                return ShardingFactory.CreateShardingAuto(teacherTableList);
+            }
+        }
+
+        public static ShardingQuery<Teacher> ShardingQueryTeacher
+        {
+            get
+            {
+                return new ShardingQuery<Teacher>(teacherTableList);
+            }
+        }
+
     }
 }

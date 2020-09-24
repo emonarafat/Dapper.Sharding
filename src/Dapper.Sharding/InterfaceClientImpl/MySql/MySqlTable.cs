@@ -57,6 +57,14 @@ namespace Dapper.Sharding
                         accessor[model, SqlField.PrimaryKey] = ObjectId.GenerateNewIdAsString();
                     }
                 }
+                else if (SqlField.PrimaryKeyType == typeof(long))
+                {
+                    var val = (long)accessor[model, SqlField.PrimaryKey];
+                    if (val == 0)
+                    {
+                        accessor[model, SqlField.PrimaryKey] = SnowflakeId.GenerateNewId();
+                    }
+                }
                 var sql = $"INSERT INTO `{Name}` ({SqlField.AllFields})VALUES({SqlField.AllFieldsAt})";
                 return DpEntity.Execute(sql, model) > 0;
             }
@@ -250,11 +258,11 @@ namespace Dapper.Sharding
             return DpEntity.ExecuteScalar<TValue>($"SELECT AVG(`{field}`) FROM `{Name}` {where}", param);
         }
 
-        public IEnumerable<T> GetAll(string returnFields = null, string orderBy = null)
+        public IEnumerable<T> GetAll(string returnFields = null, string orderby = null)
         {
             if (string.IsNullOrEmpty(returnFields))
                 returnFields = SqlField.AllFields;
-            return DpEntity.Query<T>($"SELECT {returnFields} FROM `{Name}` {orderBy}");
+            return DpEntity.Query<T>($"SELECT {returnFields} FROM `{Name}` {orderby.SetOrderBy(SqlField.PrimaryKey)}");
         }
 
         public T GetById(object id, string returnFields = null)
@@ -304,11 +312,16 @@ namespace Dapper.Sharding
             return DpEntity.Query<T>($"SELECT {returnFields} FROM `{Name}` WHERE `{field}` IN @ids", dpar);
         }
 
-        public IEnumerable<T> GetByWhere(string where, object param = null, string returnFields = null)
+        public IEnumerable<T> GetByWhere(string where, object param = null, string returnFields = null, string orderby = null, int limit = 0)
         {
             if (string.IsNullOrEmpty(returnFields))
                 returnFields = SqlField.AllFields;
-            return DpEntity.Query<T>($"SELECT {returnFields} FROM `{Name}` {where}", param);
+            string limitStr = null;
+            if (limit != 0)
+            {
+                limitStr = "LIMIT " + limit;
+            }
+            return DpEntity.Query<T>($"SELECT {returnFields} FROM `{Name}` {where} {orderby.SetOrderBy(SqlField.PrimaryKey)} {limitStr}", param);
         }
 
         public T GetByWhereFirst(string where, object param = null, string returnFields = null)
@@ -318,26 +331,24 @@ namespace Dapper.Sharding
             return DpEntity.QueryFirstOrDefault<T>($"SELECT {returnFields} FROM `{Name}` {where} LIMIT 1", param);
         }
 
-        public IEnumerable<T> GetBySkipTake(int skip, int take, string where = null, object param = null, string returnFields = null)
+        public IEnumerable<T> GetBySkipTake(int skip, int take, string where = null, object param = null, string returnFields = null, string orderby = null)
         {
             if (string.IsNullOrEmpty(returnFields))
                 returnFields = SqlField.AllFields;
-            if (string.IsNullOrEmpty(where))
-                where = $"ORDER BY `{SqlField.PrimaryKey}`";
-            return DpEntity.Query<T>($"SELECT {returnFields} FROM `{Name}` {where} LIMIT {skip},{take}", param);
+            return DpEntity.Query<T>($"SELECT {returnFields} FROM `{Name}` {where} {orderby.SetOrderBy(SqlField.PrimaryKey)} LIMIT {skip},{take}", param);
         }
 
-        public IEnumerable<T> GetByPage(int page, int pageSize, string where = null, object param = null, string returnFields = null)
+        public IEnumerable<T> GetByPage(int page, int pageSize, string where = null, object param = null, string returnFields = null, string orderby = null)
         {
             int skip = 0;
             if (page > 0)
             {
                 skip = (page - 1) * pageSize;
             }
-            return GetBySkipTake(skip, pageSize, where, param, returnFields);
+            return GetBySkipTake(skip, pageSize, where, param, returnFields, orderby);
         }
 
-        public IEnumerable<T> GetByPageAndCount(int page, int pageSize, out long count, string where = null, object param = null, string returnFields = null)
+        public IEnumerable<T> GetByPageAndCount(int page, int pageSize, out long count, string where = null, object param = null, string returnFields = null, string orderby = null)
         {
             var task1 = Task.Run(() =>
             {
@@ -345,7 +356,7 @@ namespace Dapper.Sharding
             });
             var task2 = Task.Run(() =>
             {
-                return GetByPage(page, pageSize, where, param, returnFields);
+                return GetByPage(page, pageSize, where, param, returnFields, orderby);
             });
             Task.WhenAll(task1, task2).Wait();
             count = task1.Result;
@@ -356,70 +367,70 @@ namespace Dapper.Sharding
         {
             if (string.IsNullOrEmpty(returnFields))
                 returnFields = SqlField.AllFields;
-            return DpEntity.Query<T>($"SELECT {returnFields} FROM `{Name}` WHERE 1=1 {and} ORDER BY `{SqlField.PrimaryKey}` LIMIT {pageSize}", param);
+            return DpEntity.Query<T>($"SELECT {returnFields} FROM `{Name}` AS A WHERE 1=1 {and} ORDER BY `{SqlField.PrimaryKey}` LIMIT {pageSize}", param);
         }
 
         public IEnumerable<T> GetByAscPrevPage(int pageSize, T param, string and = null, string returnFields = null)
         {
             if (string.IsNullOrEmpty(returnFields))
                 returnFields = SqlField.AllFields;
-            return DpEntity.Query<T>($"SELECT * FROM (SELECT {returnFields} FROM `{Name}` WHERE `{SqlField.PrimaryKey}`<@{SqlField.PrimaryKey} {and} ORDER BY `{SqlField.PrimaryKey}` DESC LIMIT {pageSize}) AS A ORDER BY `{SqlField.PrimaryKey}`", param);
+            return DpEntity.Query<T>($"SELECT * FROM (SELECT {returnFields} FROM `{Name}` AS A WHERE `{SqlField.PrimaryKey}`<@{SqlField.PrimaryKey} {and} ORDER BY `{SqlField.PrimaryKey}` DESC LIMIT {pageSize}) AS B ORDER BY `{SqlField.PrimaryKey}`", param);
         }
 
         public IEnumerable<T> GetByAscCurrentPage(int pageSize, T param, string and = null, string returnFields = null)
         {
             if (string.IsNullOrEmpty(returnFields))
                 returnFields = SqlField.AllFields;
-            return DpEntity.Query<T>($"SELECT {returnFields} FROM `{Name}` WHERE `{SqlField.PrimaryKey}`>=@{SqlField.PrimaryKey} {and} ORDER BY `{SqlField.PrimaryKey}` LIMIT {pageSize}", param);
+            return DpEntity.Query<T>($"SELECT {returnFields} FROM `{Name}` AS A WHERE `{SqlField.PrimaryKey}`>=@{SqlField.PrimaryKey} {and} ORDER BY `{SqlField.PrimaryKey}` LIMIT {pageSize}", param);
         }
 
         public IEnumerable<T> GetByAscNextPage(int pageSize, T param, string and = null, string returnFields = null)
         {
             if (string.IsNullOrEmpty(returnFields))
                 returnFields = SqlField.AllFields;
-            return DpEntity.Query<T>($"SELECT {returnFields} FROM `{Name}` WHERE `{SqlField.PrimaryKey}`>@{SqlField.PrimaryKey} {and} ORDER BY `{SqlField.PrimaryKey}` LIMIT {pageSize}", param);
+            return DpEntity.Query<T>($"SELECT {returnFields} FROM `{Name}` AS A WHERE `{SqlField.PrimaryKey}`>@{SqlField.PrimaryKey} {and} ORDER BY `{SqlField.PrimaryKey}` LIMIT {pageSize}", param);
         }
 
         public IEnumerable<T> GetByAscLastPage(int pageSize, object param = null, string and = null, string returnFields = null)
         {
             if (string.IsNullOrEmpty(returnFields))
                 returnFields = SqlField.AllFields;
-            return DpEntity.Query<T>($"SELECT * FROM (SELECT {returnFields} FROM `{Name}` WHERE 1=1 {and} ORDER BY `{SqlField.PrimaryKey}` DESC LIMIT {pageSize}) AS A ORDER BY `{SqlField.PrimaryKey}`", param);
+            return DpEntity.Query<T>($"SELECT * FROM (SELECT {returnFields} FROM `{Name}` AS A WHERE 1=1 {and} ORDER BY `{SqlField.PrimaryKey}` DESC LIMIT {pageSize}) AS B ORDER BY `{SqlField.PrimaryKey}`", param);
         }
 
         public IEnumerable<T> GetByDescFirstPage(int pageSize, object param = null, string and = null, string returnFields = null)
         {
             if (string.IsNullOrEmpty(returnFields))
                 returnFields = SqlField.AllFields;
-            return DpEntity.Query<T>($"SELECT {returnFields} FROM `{Name}` WHERE 1=1 {and} ORDER BY `{SqlField.PrimaryKey}` DESC LIMIT {pageSize}", param);
+            return DpEntity.Query<T>($"SELECT {returnFields} FROM `{Name}` AS A WHERE 1=1 {and} ORDER BY `{SqlField.PrimaryKey}` DESC LIMIT {pageSize}", param);
         }
 
         public IEnumerable<T> GetByDescPrevPage(int pageSize, T param, string and = null, string returnFields = null)
         {
             if (string.IsNullOrEmpty(returnFields))
                 returnFields = SqlField.AllFields;
-            return DpEntity.Query<T>($"SELECT * FROM (SELECT {returnFields} FROM `{Name}` WHERE `{SqlField.PrimaryKey}`>@{SqlField.PrimaryKey} {and} ORDER BY `{SqlField.PrimaryKey}` LIMIT {pageSize}) AS A ORDER BY `{SqlField.PrimaryKey}` DESC", param);
+            return DpEntity.Query<T>($"SELECT * FROM (SELECT {returnFields} FROM `{Name}` AS A WHERE `{SqlField.PrimaryKey}`>@{SqlField.PrimaryKey} {and} ORDER BY `{SqlField.PrimaryKey}` LIMIT {pageSize}) AS B ORDER BY `{SqlField.PrimaryKey}` DESC", param);
         }
 
         public IEnumerable<T> GetByDescCurrentPage(int pageSize, T param, string and = null, string returnFields = null)
         {
             if (string.IsNullOrEmpty(returnFields))
                 returnFields = SqlField.AllFields;
-            return DpEntity.Query<T>($"SELECT {returnFields} FROM `{Name}` WHERE `{SqlField.PrimaryKey}`<=@{SqlField.PrimaryKey} {and} ORDER BY `{SqlField.PrimaryKey}` DESC LIMIT {pageSize}", param);
+            return DpEntity.Query<T>($"SELECT {returnFields} FROM `{Name}` AS A WHERE `{SqlField.PrimaryKey}`<=@{SqlField.PrimaryKey} {and} ORDER BY `{SqlField.PrimaryKey}` DESC LIMIT {pageSize}", param);
         }
 
         public IEnumerable<T> GetByDescNextPage(int pageSize, T param, string and = null, string returnFields = null)
         {
             if (string.IsNullOrEmpty(returnFields))
                 returnFields = SqlField.AllFields;
-            return DpEntity.Query<T>($"SELECT {returnFields} FROM `{Name}` WHERE `{SqlField.PrimaryKey}`<@{SqlField.PrimaryKey} {and} ORDER BY `{SqlField.PrimaryKey}` DESC LIMIT {pageSize}", param);
+            return DpEntity.Query<T>($"SELECT {returnFields} FROM `{Name}` AS A WHERE `{SqlField.PrimaryKey}`<@{SqlField.PrimaryKey} {and} ORDER BY `{SqlField.PrimaryKey}` DESC LIMIT {pageSize}", param);
         }
 
         public IEnumerable<T> GetByDescLastPage(int pageSize, object param = null, string and = null, string returnFields = null)
         {
             if (string.IsNullOrEmpty(returnFields))
                 returnFields = SqlField.AllFields;
-            return DpEntity.Query<T>($"SELECT * FROM (SELECT {returnFields} FROM `{Name}` WHERE 1=1 {and} ORDER BY `{SqlField.PrimaryKey}` LIMIT {pageSize}) AS A ORDER BY `{SqlField.PrimaryKey}` DESC", param);
+            return DpEntity.Query<T>($"SELECT * FROM (SELECT {returnFields} FROM `{Name}` AS A WHERE 1=1 {and} ORDER BY `{SqlField.PrimaryKey}` LIMIT {pageSize}) AS B ORDER BY `{SqlField.PrimaryKey}` DESC", param);
         }
     }
 }

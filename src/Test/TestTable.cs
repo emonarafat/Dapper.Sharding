@@ -56,7 +56,6 @@ namespace Test
             var teacher = new Teacher
             {
                 Name = "王老师",
-                Sex = 70,
                 Age = 5
             };
             Factory.teacherTable.Insert(teacher);

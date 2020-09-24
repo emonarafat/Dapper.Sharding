@@ -9,7 +9,10 @@ namespace Dapper.Sharding
         public ShardingQuery(params ITable<T>[] tableList)
         {
             TableList = tableList;
+            SqlField = tableList[0].SqlField;
         }
+
+        private SqlFieldEntity SqlField { get; }
 
         public ITable<T>[] TableList { get; }
 
@@ -126,31 +129,21 @@ namespace Dapper.Sharding
             return SumDecimal(field, where, param) / Count(where, param);
         }
 
-        public IEnumerable<T> GetAll(string returnFields = null, string orderBy = null)
+        public IEnumerable<T> GetAll(string returnFields = null, string orderby = null)
         {
-            string dbOrderBy = null;
-            if (orderBy != null)
-            {
-                dbOrderBy = "ORDER BY " + orderBy;
-            }
             var taskList = TableList.Select(s =>
             {
                 return Task.Run(() =>
                 {
-                    return s.GetAll(returnFields, dbOrderBy);
+                    return s.GetAll(returnFields, orderby);
                 });
             });
+            if (string.IsNullOrEmpty(orderby))
+            {
+                orderby = SqlField.PrimaryKey;
+            }
             var result = Task.WhenAll(taskList).Result;
-            var list = Enumerable.Empty<T>();
-            foreach (var item in result)
-            {
-                list = list.Concat(item);
-            }
-            if (orderBy != null)
-            {
-                return list.AsQueryable().OrderBy(orderBy).AsEnumerable();
-            }
-            return list;
+            return result.ConcatItem().AsQueryable().OrderBy(orderby).AsEnumerable();
         }
 
         public T GetById(object id, string returnFields = null)
@@ -176,12 +169,7 @@ namespace Dapper.Sharding
                 });
             });
             var result = Task.WhenAll(taskList).Result;
-            var list = Enumerable.Empty<T>();
-            foreach (var item in result)
-            {
-                list = list.Concat(item);
-            }
-            return list;
+            return result.ConcatItem();
         }
 
         public IEnumerable<T> GetByIdsWithField(object ids, string field, string returnFields = null)
@@ -194,30 +182,28 @@ namespace Dapper.Sharding
                 });
             });
             var result = Task.WhenAll(taskList).Result;
-            var list = Enumerable.Empty<T>();
-            foreach (var item in result)
-            {
-                list = list.Concat(item);
-            }
-            return list;
+            return result.ConcatItem();
         }
 
-        public IEnumerable<T> GetByWhere(string where, object param = null, string returnFields = null)
+        public IEnumerable<T> GetByWhere(string where, object param = null, string returnFields = null, string orderby = null, int limit = 0)
         {
             var taskList = TableList.Select(s =>
             {
                 return Task.Run(() =>
                 {
-                    return s.GetByWhere(where, param, returnFields);
+                    return s.GetByWhere(where, param, returnFields, orderby, limit);
                 });
             });
             var result = Task.WhenAll(taskList).Result;
-            var list = Enumerable.Empty<T>();
-            foreach (var item in result)
+            if (string.IsNullOrEmpty(orderby))
             {
-                list = list.Concat(item);
+                orderby = SqlField.PrimaryKey;
             }
-            return list;
+            if (limit != 0)
+            {
+                result.ConcatItem().AsQueryable().OrderBy(orderby).Take(limit).AsEnumerable();
+            }
+            return result.ConcatItem().AsQueryable().OrderBy(orderby).AsEnumerable();
         }
 
         public T GetByWhereFirst(string where, object param = null, string returnFields = null)
@@ -233,79 +219,168 @@ namespace Dapper.Sharding
             return result.FirstOrDefault();
         }
 
-        public IEnumerable<T> GetBySkipTake(int skip, int take, string where = null, object param = null, string returnFields = null)
+        public IEnumerable<T> GetBySkipTake(int skip, int take, string where = null, object param = null, string returnFields = null, string orderby = null)
         {
             var taskList = TableList.Select(s =>
             {
                 return Task.Run(() =>
                 {
-                    return s.GetBySkipTake(skip, take, where, param, returnFields);
+                    return s.GetByWhere(where, param, returnFields, orderby, skip + take);
                 });
             });
             var result = Task.WhenAll(taskList).Result;
-            return null;
-
+            if (string.IsNullOrEmpty(orderby))
+            {
+                orderby = SqlField.PrimaryKey;
+            }
+            return result.ConcatItem().AsQueryable().OrderBy(orderby).Skip(skip).Take(take).AsEnumerable();
         }
 
-        public IEnumerable<T> GetByPage(int page, int pageSize, string where = null, object param = null, string returnFields = null)
+        public IEnumerable<T> GetByPage(int page, int pageSize, string where = null, object param = null, string returnFields = null, string orderby = null)
         {
-            return default;
+            int skip = 0;
+            if (page > 0)
+            {
+                skip = (page - 1) * pageSize;
+            }
+            return GetBySkipTake(skip, pageSize, where, param, returnFields, orderby);
         }
 
-        public IEnumerable<T> GetByPageAndCount(int page, int pageSize, out long count, string where = null, object param = null, string returnFields = null)
+        public IEnumerable<T> GetByPageAndCount(int page, int pageSize, out long count, string where = null, object param = null, string returnFields = null, string orderby = null)
         {
-            count = default;
-            return default;
+            var data = GetByPage(page, pageSize, where, param, returnFields, orderby);
+            count = Count(where, param);
+            return data;
         }
 
         public IEnumerable<T> GetByAscFirstPage(int pageSize, object param = null, string and = null, string returnFields = null)
         {
-            return default;
+            var taskList = TableList.Select(s =>
+            {
+                return Task.Run(() =>
+                {
+                    return s.GetByAscFirstPage(pageSize, param, and, returnFields);
+                });
+            });
+            var result = Task.WhenAll(taskList).Result;
+            return result.ConcatItem().AsQueryable().OrderBy(SqlField.PrimaryKey).Take(pageSize).AsQueryable();
         }
 
         public IEnumerable<T> GetByAscPrevPage(int pageSize, T param, string and = null, string returnFields = null)
         {
-            return default;
+            var taskList = TableList.Select(s =>
+            {
+                return Task.Run(() =>
+                {
+                    return s.GetByAscPrevPage(pageSize, param, and, returnFields);
+                });
+            });
+            var result = Task.WhenAll(taskList).Result;
+            return result.ConcatItem().AsQueryable().OrderBy(SqlField.PrimaryKey).Take(pageSize).AsQueryable();
         }
 
         public IEnumerable<T> GetByAscCurrentPage(int pageSize, T param, string and = null, string returnFields = null)
         {
-            return default;
+            var taskList = TableList.Select(s =>
+            {
+                return Task.Run(() =>
+                {
+                    return s.GetByAscCurrentPage(pageSize, param, and, returnFields);
+                });
+            });
+            var result = Task.WhenAll(taskList).Result;
+            return result.ConcatItem().AsQueryable().OrderBy(SqlField.PrimaryKey).Take(pageSize).AsQueryable();
         }
 
         public IEnumerable<T> GetByAscNextPage(int pageSize, T param, string and = null, string returnFields = null)
         {
-            return default;
+            var taskList = TableList.Select(s =>
+            {
+                return Task.Run(() =>
+                {
+                    return s.GetByAscNextPage(pageSize, param, and, returnFields);
+                });
+            });
+            var result = Task.WhenAll(taskList).Result;
+            return result.ConcatItem().AsQueryable().OrderBy(SqlField.PrimaryKey).Take(pageSize).AsQueryable();
         }
 
         public IEnumerable<T> GetByAscLastPage(int pageSize, object param = null, string and = null, string returnFields = null)
         {
-            return default;
+            var taskList = TableList.Select(s =>
+            {
+                return Task.Run(() =>
+                {
+                    return s.GetByAscLastPage(pageSize, param, and, returnFields);
+                });
+            });
+            var result = Task.WhenAll(taskList).Result;
+            return result.ConcatItem().AsQueryable().OrderBy(SqlField.PrimaryKey).Take(pageSize).AsQueryable();
         }
 
         public IEnumerable<T> GetByDescFirstPage(int pageSize, object param = null, string and = null, string returnFields = null)
         {
-            return default;
+            var taskList = TableList.Select(s =>
+            {
+                return Task.Run(() =>
+                {
+                    return s.GetByDescFirstPage(pageSize, param, and, returnFields);
+                });
+            });
+            var result = Task.WhenAll(taskList).Result;
+            return result.ConcatItem().AsQueryable().OrderBy(SqlField.PrimaryKey + " DESC").Take(pageSize).AsQueryable();
         }
 
         public IEnumerable<T> GetByDescPrevPage(int pageSize, T param, string and = null, string returnFields = null)
         {
-            return default;
+            var taskList = TableList.Select(s =>
+            {
+                return Task.Run(() =>
+                {
+                    return s.GetByDescPrevPage(pageSize, param, and, returnFields);
+                });
+            });
+            var result = Task.WhenAll(taskList).Result;
+            return result.ConcatItem().AsQueryable().OrderBy(SqlField.PrimaryKey + " DESC").Take(pageSize).AsQueryable();
         }
 
         public IEnumerable<T> GetByDescCurrentPage(int pageSize, T param, string and = null, string returnFields = null)
         {
-            return default;
+            var taskList = TableList.Select(s =>
+            {
+                return Task.Run(() =>
+                {
+                    return s.GetByDescCurrentPage(pageSize, param, and, returnFields);
+                });
+            });
+            var result = Task.WhenAll(taskList).Result;
+            return result.ConcatItem().AsQueryable().OrderBy(SqlField.PrimaryKey + " DESC").Take(pageSize).AsQueryable();
         }
 
         public IEnumerable<T> GetByDescNextPage(int pageSize, T param, string and = null, string returnFields = null)
         {
-            return default;
+            var taskList = TableList.Select(s =>
+            {
+                return Task.Run(() =>
+                {
+                    return s.GetByDescNextPage(pageSize, param, and, returnFields);
+                });
+            });
+            var result = Task.WhenAll(taskList).Result;
+            return result.ConcatItem().AsQueryable().OrderBy(SqlField.PrimaryKey + " DESC").Take(pageSize).AsQueryable();
         }
 
         public IEnumerable<T> GetByDescLastPage(int pageSize, object param = null, string and = null, string returnFields = null)
         {
-            return default;
+            var taskList = TableList.Select(s =>
+            {
+                return Task.Run(() =>
+                {
+                    return s.GetByDescLastPage(pageSize, param, and, returnFields);
+                });
+            });
+            var result = Task.WhenAll(taskList).Result;
+            return result.ConcatItem().AsQueryable().OrderBy(SqlField.PrimaryKey + " DESC").Take(pageSize).AsQueryable();
         }
 
     }
