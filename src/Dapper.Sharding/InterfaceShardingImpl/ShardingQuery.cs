@@ -156,7 +156,7 @@ namespace Dapper.Sharding
                 });
             });
             var result = Task.WhenAll(taskList).Result;
-            return result.FirstOrDefault();
+            return result.FirstOrDefault(f => f != null);
         }
 
         public IEnumerable<T> GetByIds(object ids, string returnFields = null)
@@ -199,9 +199,10 @@ namespace Dapper.Sharding
             {
                 orderby = SqlField.PrimaryKey;
             }
+
             if (limit != 0)
             {
-                result.ConcatItem().AsQueryable().OrderBy(orderby).Take(limit).AsEnumerable();
+                return result.ConcatItem().AsQueryable().OrderBy(orderby).Take(limit).AsEnumerable();
             }
             return result.ConcatItem().AsQueryable().OrderBy(orderby).AsEnumerable();
         }
@@ -216,7 +217,7 @@ namespace Dapper.Sharding
                 });
             });
             var result = Task.WhenAll(taskList).Result;
-            return result.FirstOrDefault();
+            return result.FirstOrDefault(f => f != null);
         }
 
         public IEnumerable<T> GetBySkipTake(int skip, int take, string where = null, object param = null, string returnFields = null, string orderby = null)
@@ -276,7 +277,7 @@ namespace Dapper.Sharding
                 });
             });
             var result = Task.WhenAll(taskList).Result;
-            return result.ConcatItem().AsQueryable().OrderBy(SqlField.PrimaryKey).Take(pageSize).AsQueryable();
+            return result.ConcatItem().AsQueryable().OrderBy(SqlField.PrimaryKey + " DESC").Take(pageSize).OrderBy(SqlField.PrimaryKey).AsQueryable();
         }
 
         public IEnumerable<T> GetByAscCurrentPage(int pageSize, T param, string and = null, string returnFields = null)
@@ -315,7 +316,7 @@ namespace Dapper.Sharding
                 });
             });
             var result = Task.WhenAll(taskList).Result;
-            return result.ConcatItem().AsQueryable().OrderBy(SqlField.PrimaryKey).Take(pageSize).AsQueryable();
+            return result.ConcatItem().AsQueryable().OrderBy(SqlField.PrimaryKey + " DESC").Take(pageSize).OrderBy(SqlField.PrimaryKey).AsQueryable();
         }
 
         public IEnumerable<T> GetByDescFirstPage(int pageSize, object param = null, string and = null, string returnFields = null)
@@ -341,7 +342,7 @@ namespace Dapper.Sharding
                 });
             });
             var result = Task.WhenAll(taskList).Result;
-            return result.ConcatItem().AsQueryable().OrderBy(SqlField.PrimaryKey + " DESC").Take(pageSize).AsQueryable();
+            return result.ConcatItem().AsQueryable().OrderBy(SqlField.PrimaryKey).Take(pageSize).OrderBy(SqlField.PrimaryKey + " DESC").AsQueryable();
         }
 
         public IEnumerable<T> GetByDescCurrentPage(int pageSize, T param, string and = null, string returnFields = null)
@@ -380,7 +381,8 @@ namespace Dapper.Sharding
                 });
             });
             var result = Task.WhenAll(taskList).Result;
-            return result.ConcatItem().AsQueryable().OrderBy(SqlField.PrimaryKey + " DESC").Take(pageSize).AsQueryable();
+            return result.ConcatItem().AsQueryable().OrderBy(SqlField.PrimaryKey).Take(pageSize).OrderBy(SqlField.PrimaryKey + " DESC").AsQueryable();
+
         }
 
     }

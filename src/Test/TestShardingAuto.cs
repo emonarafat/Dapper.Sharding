@@ -29,16 +29,16 @@ namespace Test
         [Test]
         public void InsertTeacher()
         {
-            //for (int i = 0; i < 100; i++)
-            //{
-            //    Factory.ShardingAutoTeacher.Insert(new Teacher() { Id = i, Name = "李四" + i, Age = i });
-            //}
-
-            //snowflake
             for (int i = 0; i < 100; i++)
             {
-                Factory.ShardingAutoTeacher.Insert(new Teacher() { Name = "李四" + i, Age = i });
+                Factory.ShardingAutoTeacher.Insert(new Teacher() { Id = i, Name = "李四" + i, Age = i });
             }
+
+            //snowflake
+            //for (int i = 0; i < 100; i++)
+            //{
+            //    Factory.ShardingAutoTeacher.Insert(new Teacher() { Name = "李四" + i, Age = i });
+            //}
         }
 
     }
