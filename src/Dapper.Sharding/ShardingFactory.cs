@@ -2,7 +2,7 @@
 {
     public class ShardingFactory
     {
-        public static void SetSnowflakeWorker(long workerId, long datacenterId)
+        public static void SetSnowflakeWorker(long workerId, long datacenterId,long starttime = 0)
         {
             SnowflakeId.worker = new IdWorker(workerId, datacenterId);
         }

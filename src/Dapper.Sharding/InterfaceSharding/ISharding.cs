@@ -8,43 +8,35 @@ namespace Dapper.Sharding
 {
     public abstract class ISharding<T>
     {
-        public ISharding(params ITable<T>[] list)
+        public ISharding(ITable<T>[] list)
         {
             if (list[0].SqlField.IsIdentity)
             {
                 throw new Exception("auto increment of primary key is not allowed");
             }
             TableList = list;
-            KeyName = list[0].SqlField.PrimaryKey;
-            KeyType = list[0].SqlField.PrimaryKeyType;
+            KeyName = TableList[0].SqlField.PrimaryKey;
+            KeyType = TableList[0].SqlField.PrimaryKeyType;
+            Query = new ShardingQuery<T>(TableList);
         }
 
-        public ITable<T>[] TableList { get; }
-
-        #region method common
+        #region base
 
         public string KeyName { get; }
 
         public Type KeyType { get; }
 
-        public ITable<T> GetTableById(string id)
-        {
-            return TableList[ShardingUtils.Mod(id, TableList.Length)];
-        }
+        public ITable<T>[] TableList { get; }
 
-        public ITable<T> GetTableById(object id)
-        {
-            return TableList[ShardingUtils.Mod(id, TableList.Length)];
-        }
+        public ShardingQuery<T> Query { get; }
 
-        public ITable<T> GetTableByModel(T model)
-        {
-            return TableList[ShardingUtils.Mod(model, KeyName, KeyType, TableList.Length)];
-        }
+        #endregion
 
-        public ITable<T> GetTableByModelAndInitId(T model)
+        #region method common
+
+        public ShardingTran<T> BeginTran()
         {
-            return TableList[ShardingUtils.ModAndInitId(model, KeyName, KeyType, TableList.Length)];
+            return new ShardingTran<T>(this);
         }
 
         public int UpdateByWhere(T model, string where)
@@ -72,118 +64,22 @@ namespace Dapper.Sharding
             return 0;
         }
 
-        public long Count()
+        public void Truncate()
         {
-            var taskList = new List<Task<long>>();
-            foreach (var item in TableList)
-            {
-                var task = Task.Run(() =>
-                {
-                    return item.Count();
-                });
-                taskList.Add(task);
-            }
-            return Task.WhenAll(taskList).Result.Sum();
-        }
 
-        public long Count(string where, object param = null)
-        {
-            return 0;
-        }
-
-        public TValue Min<TValue>(string field, string where = null, object param = null)
-        {
-            return default;
-        }
-
-        public TValue Max<TValue>(string field, string where = null, object param = null)
-        {
-            return default;
-        }
-
-        public TValue Sum<TValue>(string field, string where = null, object param = null)
-        {
-            return default;
-        }
-
-        public TValue Avg<TValue>(string field, string where = null, object param = null)
-        {
-            return default;
-        }
-
-        public IEnumerable<T> GetAll(string returnFields = null, string orderBy = null)
-        {
-            return default;
-        }
-
-        public IEnumerable<T> GetByIdsWithField(object ids, string field, string returnFields = null)
-        {
-            return default;
-        }
-
-        public IEnumerable<T> GetByWhere(string where, object param = null, string returnFields = null)
-        {
-            return default;
-        }
-
-        public T GetByWhereFirst(string where, object param = null, string returnFields = null)
-        {
-            return default;
-        }
-
-        public IEnumerable<T> GetByAscFirstPage(int pageSize, object param = null, string and = null, string returnFields = null)
-        {
-            return default;
-        }
-
-        public IEnumerable<T> GetByAscPrevPage(int pageSize, T param, string and = null, string returnFields = null)
-        {
-            return default;
-        }
-
-        public IEnumerable<T> GetByAscCurrentPage(int pageSize, T param, string and = null, string returnFields = null)
-        {
-            return default;
-        }
-
-        public IEnumerable<T> GetByAscNextPage(int pageSize, T param, string and = null, string returnFields = null)
-        {
-            return default;
-        }
-
-        public IEnumerable<T> GetByAscLastPage(int pageSize, object param = null, string and = null, string returnFields = null)
-        {
-            return default;
-        }
-
-        public IEnumerable<T> GetByDescFirstPage(int pageSize, object param = null, string and = null, string returnFields = null)
-        {
-            return default;
-        }
-
-        public IEnumerable<T> GetByDescPrevPage(int pageSize, T param, string and = null, string returnFields = null)
-        {
-            return default;
-        }
-
-        public IEnumerable<T> GetByDescCurrentPage(int pageSize, T param, string and = null, string returnFields = null)
-        {
-            return default;
-        }
-
-        public IEnumerable<T> GetByDescNextPage(int pageSize, T param, string and = null, string returnFields = null)
-        {
-            return default;
-        }
-
-        public IEnumerable<T> GetByDescLastPage(int pageSize, object param = null, string and = null, string returnFields = null)
-        {
-            return default;
         }
 
         #endregion
 
         #region method abstract
+
+        public abstract ITable<T> GetTableById(string id);
+
+        public abstract ITable<T> GetTableById(object id);
+
+        public abstract ITable<T> GetTableByModel(T model);
+
+        public abstract ITable<T> GetTableByModelAndInitId(T model);
 
         public abstract bool Insert(T model);
 

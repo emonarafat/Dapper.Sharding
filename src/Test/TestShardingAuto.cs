@@ -13,7 +13,7 @@ namespace Test
         [Test]
         public void Count()
         {
-            var count = Factory.ShardingAuto.Count();
+            var count = Factory.ShardingAuto.Query.Count();
             Console.WriteLine(count);
         }
 
@@ -39,6 +39,20 @@ namespace Test
             //{
             //    Factory.ShardingAutoTeacher.Insert(new Teacher() { Name = "李四" + i, Age = i });
             //}
+        }
+
+        public void Tran()
+        {
+            var tran = Factory.ShardingAutoTeacher.BeginTran();
+            try
+            {
+                tran.Commit();
+            }
+            catch
+            {
+                tran.Rollback();
+            }
+               
         }
 
     }

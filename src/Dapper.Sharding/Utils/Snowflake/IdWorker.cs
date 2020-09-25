@@ -12,8 +12,8 @@ namespace Dapper.Sharding
 {
     internal class IdWorker
     {
-        //基准时间
-        public const long Twepoch = 1288834974657L;
+        //基准时间（2020-09-01）
+        public const long Twepoch = 1598889600000L;
         //机器标识位数
         const int WorkerIdBits = 5;
         //数据标志位数

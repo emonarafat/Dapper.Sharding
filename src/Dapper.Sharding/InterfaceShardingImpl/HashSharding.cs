@@ -8,6 +8,31 @@ namespace Dapper.Sharding
 {
     internal class HashSharding<T> : ISharding<T>
     {
+        public HashSharding(ITable<T>[] tableList) : base(tableList)
+        {
+
+        }
+
+        public override ITable<T> GetTableById(string id)
+        {
+            return TableList[ShardingUtils.Mod(id, TableList.Length)];
+        }
+
+        public override ITable<T> GetTableById(object id)
+        {
+            return TableList[ShardingUtils.Mod(id, TableList.Length)];
+        }
+
+        public override ITable<T> GetTableByModel(T model)
+        {
+            return TableList[ShardingUtils.Mod(model, KeyName, KeyType, TableList.Length)];
+        }
+
+        public override ITable<T> GetTableByModelAndInitId(T model)
+        {
+            return TableList[ShardingUtils.ModAndInitId(model, KeyName, KeyType, TableList.Length)];
+        }
+
         public override bool Delete(object id)
         {
             return GetTableById(id).Delete(id);
