@@ -12,9 +12,9 @@ namespace Dapper.Sharding
 
         }
 
-        public override ITable<T> GetTableById(string id)
+        public override ITable<T> GetTableByIdForAutoSharding(object id)
         {
-            return TableList[ShardingUtils.Mod(id, TableList.Length)];
+            return GetTableById(id);
         }
 
         public override ITable<T> GetTableById(object id)
@@ -196,5 +196,6 @@ namespace Dapper.Sharding
                 throw ex;
             }
         }
+
     }
 }

@@ -16,10 +16,9 @@ namespace Dapper.Sharding
             _rangeList = dict.Keys.AsEnumerable().OrderBy(b => b).AsEnumerable();
         }
 
-        public override ITable<T> GetTableById(string id)
+        public override ITable<T> GetTableByIdForAutoSharding(object id)
         {
-            var range = _rangeList.First(f => f <= Convert.ToInt64(id));
-            return _dict[range];
+            return GetTableById(id);
         }
 
         public override ITable<T> GetTableById(object id)
@@ -213,5 +212,6 @@ namespace Dapper.Sharding
                 throw ex;
             }
         }
+
     }
 }

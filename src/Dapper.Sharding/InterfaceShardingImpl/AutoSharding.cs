@@ -13,9 +13,24 @@ namespace Dapper.Sharding
 
         }
 
-        public override ITable<T> GetTableById(string id)
+        public override ITable<T> GetTableByIdForAutoSharding(object id)
         {
-            return TableList[ShardingUtils.Mod(id, TableList.Length)];
+            var taskList = TableList.Select(s =>
+            {
+                return Task.Run(() =>
+                {
+                    return s.Exists(id);
+                });
+            });
+            var result = Task.WhenAll(taskList).Result;
+            for (int i = 0; i < TableList.Length; i++)
+            {
+                if (result[i])
+                {
+                    return TableList[i];
+                }
+            }
+            return null;
         }
 
         public override ITable<T> GetTableById(object id)
@@ -134,12 +149,28 @@ namespace Dapper.Sharding
 
         public override bool InsertIfExistsUpdate(T model, string fields = null)
         {
-            throw new NotImplementedException();
+            var accessor = TypeAccessor.Create(typeof(T));
+            var id = accessor[model, KeyName];
+            if (Exists(id))
+            {
+                if (fields == null)
+                    return Update(model);
+                else
+                    return UpdateInclude(model, fields);
+            }
+            return Insert(model);
         }
 
         public override bool InsertIfNoExists(T model)
         {
-            throw new NotImplementedException();
+            var accessor = TypeAccessor.Create(typeof(T));
+            var id = accessor[model, KeyName];
+            if (!Exists(id))
+            {
+                return Insert(model);
+            }
+            return false;
+
         }
 
         public override bool Update(T model)

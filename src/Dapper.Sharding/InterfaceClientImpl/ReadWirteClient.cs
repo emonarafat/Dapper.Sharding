@@ -2,7 +2,6 @@
 {
     public class ReadWirteClient
     {
-
         public ReadWirteClient(IClient writeClient, params IClient[] readClientList)
         {
             WriteClient = writeClient;
@@ -14,15 +13,6 @@
         private IClient WriteClient { get; }
         private readonly IClient[] _readClientList;
         private BalanceRound<IClient> _balance;
-
-        public IClient GetClient(bool readOnly = false)
-        {
-            if (!readOnly)
-            {
-                return WriteClient;
-            }
-            return GetReadClient();
-        }
 
         public IClient GetReadClient()
         {
@@ -55,6 +45,5 @@
         {
             return GetWriteDataBase(databaseName).GetTable<T>(name);
         }
-
     }
 }

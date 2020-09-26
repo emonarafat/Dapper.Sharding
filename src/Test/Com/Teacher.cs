@@ -13,7 +13,7 @@ namespace Test.Com
         [Column("主键Id")]
         public long Id { get; set; }
 
-        [Column("名字", 4)]
+        [Column("名字", 100)]
         public string Name { get; set; }
 
         public int Age { get; set; }

@@ -1,18 +1,9 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace Dapper.Sharding
 {
     public class ShardingUtils
     {
-        public static int Mod(string id, int count)
-        {
-            return HashBloomFilter.BKDRHash(id) % count;
-        }
-
         public static int Mod(object id, int count)
         {
             string key;

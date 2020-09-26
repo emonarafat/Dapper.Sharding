@@ -1,8 +1,10 @@
-﻿namespace Dapper.Sharding
+﻿using System.Collections.Generic;
+
+namespace Dapper.Sharding
 {
     public class ShardingFactory
     {
-        public static void SetSnowflakeWorker(long workerId, long datacenterId,long starttime = 0)
+        public static void SetSnowflakeWorker(long workerId, long datacenterId)
         {
             SnowflakeId.worker = new IdWorker(workerId, datacenterId);
         }
@@ -32,14 +34,30 @@
             return new ReadWirteClient(writeClient, readClientList);
         }
 
+        public static ShardingQuery<T> CreateShardingQuery<T>(params ITable<T>[] tableList)
+        {
+            return new ShardingQuery<T>(tableList);
+        }
+
         public static ISharding<T> CreateShardingAuto<T>(params ITable<T>[] tableList)
         {
             return new AutoSharding<T>(tableList);
         }
 
-        public static ShardingQuery<T> CreateShardingQuery<T>(params ITable<T>[] tableList)
+        public static ISharding<T> CreateShardingHash<T>(params ITable<T>[] tableList)
         {
-            return new ShardingQuery<T>(tableList);
+            return new HashSharding<T>(tableList);
         }
+
+        public static ISharding<T> CreateShardingRange<T>(Dictionary<long, ITable<T>> dict)
+        {
+            return new RangeSharding<T>(dict);
+        }
+
+        public static ReadWirteSharding<T> CreateReadWirteSharding<T>(ISharding<T> write, params ISharding<T>[] readList)
+        {
+            return new ReadWirteSharding<T>(write, readList);
+        }
+
     }
 }

@@ -175,7 +175,7 @@ namespace Dapper.Sharding
 
         #region method abstract
 
-        public abstract ITable<T> GetTableById(string id);
+        public abstract ITable<T> GetTableByIdForAutoSharding(object id);
 
         public abstract ITable<T> GetTableById(object id);
 
