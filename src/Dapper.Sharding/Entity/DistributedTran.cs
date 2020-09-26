@@ -1,35 +1,21 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Data;
+using System.Linq;
 
 namespace Dapper.Sharding
 {
-    public class ShardingTran<T>
+    public class DistributedTran
     {
-
-        public ShardingTran(ISharding<T> sharding)
-        {
-            _sharding = sharding;
-            var tb = _sharding.TableList[0];
-            keyName = tb.SqlField.PrimaryKey;
-            keyType = tb.SqlField.PrimaryKeyType;
-        }
-
-        private string keyName { get; }
-
-        private Type keyType { get; }
-
         private List<IDbConnection> connList = new List<IDbConnection>();
 
         private List<IDbTransaction> tranList = new List<IDbTransaction>();
 
-        private Dictionary<ITable<T>, ITable<T>> dict = new Dictionary<ITable<T>, ITable<T>>();
-
-        private ISharding<T> _sharding;
+        private Dictionary<object, object> dict = new Dictionary<object, object>();
 
         private object _lock = new object();
 
-        private void CreateTranTable(ITable<T> table)
+        public ITable<T> GetTranTable<T>(ITable<T> table)
         {
             if (!dict.ContainsKey(table))
             {
@@ -64,56 +50,7 @@ namespace Dapper.Sharding
                     }
                 }
             }
-        }
-
-        public ITable<T> GetTable(object id)
-        {
-            var table = _sharding.GetTableById(id);
-            CreateTranTable(table);
-            return dict[table];
-        }
-
-        public ITable<T> GetTable(T model)
-        {
-            var accessor = TypeAccessor.Create(typeof(T));
-            var id = accessor[model, keyName];
-            return GetTable(id);
-        }
-
-        public ITable<T> GetTableAndInitId(T model)
-        {
-            var accessor = TypeAccessor.Create(typeof(T));
-            var id = accessor[model, keyName];
-
-            if (keyType == typeof(string))
-            {
-                var key = (string)id;
-                if (string.IsNullOrEmpty(key))
-                {
-                    key = ObjectId.GenerateNewIdAsString();
-                    accessor[model, keyName] = key;
-                    id = key;
-                }
-            }
-            else if (keyType == typeof(long))
-            {
-                if ((long)id == 0)
-                {
-                    var newId = SnowflakeId.GenerateNewId();
-                    accessor[model, keyName] = newId;
-                    id = newId;
-                }
-            }
-            return GetTable(id);
-        }
-
-        public List<ITable<T>> GetTableList()
-        {
-            foreach (var item in _sharding.TableList)
-            {
-                CreateTranTable(item);
-            }
-            return dict.Values.AsList();
+            return (ITable<T>)dict[table];
         }
 
         private void Close()
@@ -158,6 +95,5 @@ namespace Dapper.Sharding
             }
             Close();
         }
-
     }
 }

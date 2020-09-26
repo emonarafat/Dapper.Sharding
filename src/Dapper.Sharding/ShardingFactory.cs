@@ -29,6 +29,11 @@ namespace Dapper.Sharding
             return null;
         }
 
+        public static DistributedTran CreateDistributedTran()
+        {
+            return new DistributedTran();
+        }
+
         public static ReadWirteClient CreateReadWriteClient(IClient writeClient, params IClient[] readClientList)
         {
             return new ReadWirteClient(writeClient, readClientList);
