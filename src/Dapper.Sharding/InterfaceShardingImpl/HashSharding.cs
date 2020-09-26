@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
 using System.Threading.Tasks;
 
 namespace Dapper.Sharding
@@ -40,7 +39,25 @@ namespace Dapper.Sharding
 
         public override int DeleteByIds(object ids)
         {
-            throw new NotImplementedException();
+            if (CommonUtil.ObjectIsEmpty(ids))
+                return 0;
+            var idsList = CommonUtil.GetMultiExec(ids);
+            var tran = BeginTran();
+            try
+            {
+                int count = 0;
+                foreach (var id in idsList)
+                {
+                    count += tran.GetTable(id).Delete(id) ? 1 : 0;
+                }
+                tran.Commit();
+                return count;
+            }
+            catch (Exception ex)
+            {
+                tran.Rollback();
+                throw ex;
+            }
         }
 
         public override bool Exists(object id)
@@ -55,7 +72,19 @@ namespace Dapper.Sharding
 
         public override IEnumerable<T> GetByIds(object ids, string returnFields = null)
         {
-            throw new NotImplementedException();
+            if (CommonUtil.ObjectIsEmpty(ids))
+                return Enumerable.Empty<T>();
+            var dict = CreateTableDictByIds(ids);
+
+            var taskList = dict.Select(s =>
+            {
+                return Task.Run(() =>
+                {
+                    return s.Key.GetByIds(s.Value, returnFields);
+                });
+            });
+            var result = Task.WhenAll(taskList).Result;
+            return result.ConcatItem();
         }
 
         public override bool Insert(T model)
@@ -75,7 +104,22 @@ namespace Dapper.Sharding
 
         public override int InsertMany(IEnumerable<T> modelList)
         {
-            throw new NotImplementedException();
+            var tran = BeginTran();
+            try
+            {
+                int count = 0;
+                foreach (var model in modelList)
+                {
+                    count += tran.GetTable(model).Insert(model) ? 1 : 0;
+                }
+                tran.Commit();
+                return count;
+            }
+            catch (Exception ex)
+            {
+                tran.Rollback();
+                throw ex;
+            }
         }
 
         public override bool Update(T model)
@@ -90,7 +134,22 @@ namespace Dapper.Sharding
 
         public override int UpdateExcludeMany(IEnumerable<T> modelList, string fields)
         {
-            throw new NotImplementedException();
+            var tran = BeginTran();
+            try
+            {
+                int count = 0;
+                foreach (var model in modelList)
+                {
+                    count += tran.GetTable(model).UpdateExclude(model, fields) ? 1 : 0;
+                }
+                tran.Commit();
+                return count;
+            }
+            catch (Exception ex)
+            {
+                tran.Rollback();
+                throw ex;
+            }
         }
 
         public override bool UpdateInclude(T model, string fields)
@@ -100,12 +159,42 @@ namespace Dapper.Sharding
 
         public override int UpdateIncludeMany(IEnumerable<T> modelList, string fields)
         {
-            throw new NotImplementedException();
+            var tran = BeginTran();
+            try
+            {
+                int count = 0;
+                foreach (var model in modelList)
+                {
+                    count += tran.GetTable(model).UpdateInclude(model, fields) ? 1 : 0;
+                }
+                tran.Commit();
+                return count;
+            }
+            catch (Exception ex)
+            {
+                tran.Rollback();
+                throw ex;
+            }
         }
 
         public override int UpdateMany(IEnumerable<T> modelList)
         {
-            throw new NotImplementedException();
+            var tran = BeginTran();
+            try
+            {
+                int count = 0;
+                foreach (var model in modelList)
+                {
+                    count += tran.GetTable(model).Update(model) ? 1 : 0;
+                }
+                tran.Commit();
+                return count;
+            }
+            catch (Exception ex)
+            {
+                tran.Rollback();
+                throw ex;
+            }
         }
     }
 }

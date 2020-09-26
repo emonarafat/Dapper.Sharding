@@ -35,27 +35,75 @@ namespace Dapper.Sharding
 
         public override bool Delete(object id)
         {
-            throw new NotImplementedException();
+            var taskList = TableList.Select(s =>
+            {
+                return Task.Run(() =>
+                {
+                    return s.Delete(id);
+                });
+            });
+            var result = Task.WhenAll(taskList).Result;
+            return result.Any(a => a == true);
         }
 
         public override int DeleteByIds(object ids)
         {
-            throw new NotImplementedException();
+            var tran = BeginTran();
+            try
+            {
+                int count = 0;
+                var tables = tran.GetTableList();
+                foreach (var tb in tables)
+                {
+                    count += tb.DeleteByIds(ids);
+                }
+                tran.Commit();
+                return count;
+            }
+            catch (Exception ex)
+            {
+                tran.Rollback();
+                throw ex;
+            }
         }
 
         public override bool Exists(object id)
         {
-            throw new NotImplementedException();
+            var taskList = TableList.Select(s =>
+            {
+                return Task.Run(() =>
+                {
+                    return s.Exists(id);
+                });
+            });
+            var result = Task.WhenAll(taskList).Result;
+            return result.Any(a => a == true);
         }
 
         public override T GetById(object id, string returnFields = null)
         {
-            throw new NotImplementedException();
+            var taskList = TableList.Select(s =>
+            {
+                return Task.Run(() =>
+                {
+                    return s.GetById(id, returnFields);
+                });
+            });
+            var result = Task.WhenAll(taskList).Result;
+            return result.FirstOrDefault(f => f != null);
         }
 
         public override IEnumerable<T> GetByIds(object ids, string returnFields = null)
         {
-            throw new NotImplementedException();
+            var taskList = TableList.Select(s =>
+            {
+                return Task.Run(() =>
+                {
+                    return s.GetByIds(ids, returnFields);
+                });
+            });
+            var result = Task.WhenAll(taskList).Result;
+            return result.ConcatItem();
         }
 
         public override bool Insert(T model)
@@ -65,7 +113,23 @@ namespace Dapper.Sharding
 
         public override int InsertMany(IEnumerable<T> modelList)
         {
-            throw new NotImplementedException();
+            var tran = BeginTran();
+            try
+            {
+                int count = 0;
+                foreach (var item in modelList)
+                {
+                    var tb = tran.GetTableAndInitId(item);
+                    count += tb.Insert(item) ? 1 : 0;
+                }
+                tran.Commit();
+                return count;
+            }
+            catch (Exception ex)
+            {
+                tran.Rollback();
+                throw ex;
+            }
         }
 
         public override bool InsertIfExistsUpdate(T model, string fields = null)
@@ -80,32 +144,128 @@ namespace Dapper.Sharding
 
         public override bool Update(T model)
         {
-            throw new NotImplementedException();
+            var tran = BeginTran();
+            try
+            {
+                int count = 0;
+                var tables = tran.GetTableList();
+                foreach (var tb in tables)
+                {
+                    count += tb.Update(model) ? 1 : 0;
+                }
+                tran.Commit();
+                return count > 0;
+            }
+            catch (Exception ex)
+            {
+                tran.Rollback();
+                throw ex;
+            }
         }
 
         public override bool UpdateExclude(T model, string fields)
         {
-            throw new NotImplementedException();
+            var tran = BeginTran();
+            try
+            {
+                int count = 0;
+                var tables = tran.GetTableList();
+                foreach (var tb in tables)
+                {
+                    count += tb.UpdateExclude(model, fields) ? 1 : 0;
+                }
+                tran.Commit();
+                return count > 0;
+            }
+            catch (Exception ex)
+            {
+                tran.Rollback();
+                throw ex;
+            }
         }
 
         public override int UpdateExcludeMany(IEnumerable<T> modelList, string fields)
         {
-            throw new NotImplementedException();
+            var tran = BeginTran();
+            try
+            {
+                int count = 0;
+                var tables = tran.GetTableList();
+                foreach (var tb in tables)
+                {
+                    count += tb.UpdateExcludeMany(modelList, fields);
+                }
+                tran.Commit();
+                return count;
+            }
+            catch (Exception ex)
+            {
+                tran.Rollback();
+                throw ex;
+            }
         }
 
         public override bool UpdateInclude(T model, string fields)
         {
-            throw new NotImplementedException();
+            var tran = BeginTran();
+            try
+            {
+                int count = 0;
+                var tables = tran.GetTableList();
+                foreach (var tb in tables)
+                {
+                    count += tb.UpdateInclude(model, fields) ? 1 : 0;
+                }
+                tran.Commit();
+                return count > 0;
+            }
+            catch (Exception ex)
+            {
+                tran.Rollback();
+                throw ex;
+            }
         }
 
         public override int UpdateIncludeMany(IEnumerable<T> modelList, string fields)
         {
-            throw new NotImplementedException();
+            var tran = BeginTran();
+            try
+            {
+                int count = 0;
+                var tables = tran.GetTableList();
+                foreach (var tb in tables)
+                {
+                    count += tb.UpdateIncludeMany(modelList, fields);
+                }
+                tran.Commit();
+                return count;
+            }
+            catch (Exception ex)
+            {
+                tran.Rollback();
+                throw ex;
+            }
         }
 
         public override int UpdateMany(IEnumerable<T> modelList)
         {
-            throw new NotImplementedException();
+            var tran = BeginTran();
+            try
+            {
+                int count = 0;
+                var tables = tran.GetTableList();
+                foreach (var tb in tables)
+                {
+                    count += tb.UpdateMany(modelList);
+                }
+                tran.Commit();
+                return count;
+            }
+            catch (Exception ex)
+            {
+                tran.Rollback();
+                throw ex;
+            }
         }
     }
 }

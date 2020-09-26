@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
 using System.Threading.Tasks;
 
 namespace Dapper.Sharding
@@ -39,34 +38,137 @@ namespace Dapper.Sharding
             return new ShardingTran<T>(this);
         }
 
+        public Dictionary<ITable<T>, List<object>> CreateTableDictByIds(object ids)
+        {
+            var dict = new Dictionary<ITable<T>, List<object>>();
+            var idsList = CommonUtil.GetMultiExec(ids);
+            foreach (var id in idsList)
+            {
+                var table = GetTableById(id);
+                if (!dict.ContainsKey(table))
+                {
+                    dict.Add(table, new List<object>());
+                }
+                dict[table].Add(id);
+            }
+            return dict;
+        }
+
         public int UpdateByWhere(T model, string where)
         {
-            return 0;
+            var tran = BeginTran();
+            try
+            {
+                int count = 0;
+                var tables = tran.GetTableList();
+                foreach (var tb in tables)
+                {
+                    count += tb.UpdateByWhere(model, where);
+                }
+                tran.Commit();
+                return count;
+            }
+            catch (Exception ex)
+            {
+                tran.Rollback();
+                throw ex;
+            }
         }
 
         public int UpdateByWhereInclude(T model, string where, string fields)
         {
-            return 0;
+            var tran = BeginTran();
+            try
+            {
+                int count = 0;
+                var tables = tran.GetTableList();
+                foreach (var tb in tables)
+                {
+                    count += tb.UpdateByWhereInclude(model, where, fields);
+                }
+                tran.Commit();
+                return count;
+            }
+            catch (Exception ex)
+            {
+                tran.Rollback();
+                throw ex;
+            }
         }
 
         public int UpdateByWhereExclude(T model, string where, string fields)
         {
-            return 0;
+            var tran = BeginTran();
+            try
+            {
+                int count = 0;
+                var tables = tran.GetTableList();
+                foreach (var tb in tables)
+                {
+                    count += tb.UpdateByWhereExclude(model, where, fields);
+                }
+                tran.Commit();
+                return count;
+            }
+            catch (Exception ex)
+            {
+                tran.Rollback();
+                throw ex;
+            }
         }
 
         public int DeleteByWhere(string where, object param = null)
         {
-            return 0;
+            var tran = BeginTran();
+            try
+            {
+                int count = 0;
+                var tables = tran.GetTableList();
+                foreach (var tb in tables)
+                {
+                    count += tb.DeleteByWhere(where, param);
+                }
+                tran.Commit();
+                return count;
+            }
+            catch (Exception ex)
+            {
+                tran.Rollback();
+                throw ex;
+            }
         }
 
         public int DeleteAll()
         {
-            return 0;
+            var tran = BeginTran();
+            try
+            {
+                int count = 0;
+                var tables = tran.GetTableList();
+                foreach (var tb in tables)
+                {
+                    count += tb.DeleteAll();
+                }
+                tran.Commit();
+                return count;
+            }
+            catch (Exception ex)
+            {
+                tran.Rollback();
+                throw ex;
+            }
         }
 
         public void Truncate()
         {
-
+            var taskList = TableList.Select(s =>
+            {
+                return Task.Run(() =>
+                {
+                    s.Truncate();
+                });
+            });
+            Task.WhenAll(taskList).Wait();
         }
 
         #endregion
