@@ -4,7 +4,7 @@ namespace Dapper.Sharding
 {
     public class ShardingFactory
     {
-        public static void SetSnowflakeWorker(long workerId, long datacenterId)
+        public static void SetSnowFlakeWorker(long workerId, long datacenterId)
         {
             SnowflakeId.worker = new IdWorker(workerId, datacenterId);
         }
@@ -64,5 +64,14 @@ namespace Dapper.Sharding
             return new ReadWirteSharding<T>(write, readList);
         }
 
+        public static string NextObjectId()
+        {
+            return ObjectId.GenerateNewIdAsString();
+        }
+
+        public static long NextSnowFlakeId()
+        {
+            return SnowflakeId.GenerateNewId();
+        }
     }
 }
