@@ -1,6 +1,7 @@
 ﻿using NUnit.Framework;
 using System;
 using System.Collections.Generic;
+using System.ComponentModel;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -27,18 +28,20 @@ namespace Test
         }
 
         [Test]
-        public void InsertTeacher()
+        public void InsertMany()
         {
+            List<Teacher> list = new List<Teacher>();
             for (int i = 0; i < 100; i++)
             {
-                Factory.ShardingAutoTeacher.Insert(new Teacher() { Id = i, Name = "李四" + i, Age = i });
+                list.Add(new Teacher() { Id = i + 1, Name = "李四" + i, Age = i + 1 });
             }
 
             //snowflake
             //for (int i = 0; i < 100; i++)
             //{
-            //    Factory.ShardingAutoTeacher.Insert(new Teacher() { Name = "李四" + i, Age = i });
+            //    list.Add(new Teacher() { Id = 0, Name = "李四" + i, Age = i + 1 });
             //}
+            Factory.ShardingAutoTeacher.InsertMany(list);
         }
 
         public void Tran()
@@ -52,7 +55,7 @@ namespace Test
             {
                 tran.Rollback();
             }
-               
+
         }
 
     }
