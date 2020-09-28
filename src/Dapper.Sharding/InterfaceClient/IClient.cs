@@ -5,40 +5,92 @@ using System.Threading.Tasks;
 
 namespace Dapper.Sharding
 {
-    public interface IClient
+    public abstract class IClient
     {
-        LockManager Locker { get; }
+        public IClient()
+        {
 
-        ConcurrentDictionary<string, IDatabase> DataBaseCache { get; }
+        }
 
-        string ConnectionString { get; }
+        public IClient(DataBaseType dbType, string connectionString)
+        {
+            DbType = dbType;
+            ConnectionString = connectionString;
+        }
 
-        IDbConnection GetConn();
+        #region protected method
 
-        Task<IDbConnection> GetConnAsync();
+        protected LockManager Locker { get; } = new LockManager();
 
-        void CreateDatabase(string name);
+        protected ConcurrentDictionary<string, IDatabase> DataBaseCache { get; } = new ConcurrentDictionary<string, IDatabase>();
 
-        void DropDatabase(string name);
+        protected abstract IDatabase CreateIDatabase(string name);
 
-        IEnumerable<string> ShowDatabases();
+        #endregion
 
-        IEnumerable<string> ShowDatabasesExcludeSystem();
+        #region common method
 
-        bool ExistsDatabase(string name);
+        public DataBaseType DbType { get; }
 
-        IDatabase GetDatabase(string name);
+        public string ConnectionString { get; }
 
-        string Charset { get; set; }
+        public string Charset { get; set; }
 
-        bool AutoCreateDatabase { get; set; }
+        public bool AutoCreateDatabase { get; set; } = true;
 
-        bool AutoCreateTable { get; set; }
+        public bool AutoCreateTable { get; set; } = true;
 
-        bool AutoCompareTableColumn { get; set; }
+        public bool AutoCompareTableColumn { get; set; } = false;
 
-        DataBaseType DbType { get; }
+        public IDatabase GetDatabase(string name)
+        {
+            var lowerName = name.ToLower();
+            if (!DataBaseCache.ContainsKey(lowerName))
+            {
+                lock (Locker.GetObject(lowerName))
+                {
+                    if (!DataBaseCache.ContainsKey(lowerName))
+                    {
+                        if (AutoCreateDatabase)
+                        {
+                            CreateDatabase(name);
+                        }
+                        DataBaseCache.TryAdd(lowerName, CreateIDatabase(name));
+                    }
+                }
+            }
+            return DataBaseCache[lowerName];
+        }
 
-        void ClearCache();
+        public void ClearCache()
+        {
+            foreach (var item in DataBaseCache.Keys)
+            {
+                GetDatabase(item).TableCache.Clear();
+            }
+            DataBaseCache.Clear();
+        }
+
+        #endregion
+
+        #region abstract method
+
+        public abstract IDbConnection GetConn();
+
+        public abstract Task<IDbConnection> GetConnAsync();
+
+        public abstract void CreateDatabase(string name);
+
+        public abstract void DropDatabase(string name);
+
+        public abstract IEnumerable<string> ShowDatabases();
+
+        public abstract IEnumerable<string> ShowDatabasesExcludeSystem();
+
+        public abstract bool ExistsDatabase(string name);
+
+
+        #endregion
+
     }
 }

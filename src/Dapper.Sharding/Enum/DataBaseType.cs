@@ -7,7 +7,7 @@
         SqlServer2008 = 3,
         SqlServer2012 = 4,
         Postgresql = 5,
-        Oracel = 6
+        Oracle = 6
         
     }
 }

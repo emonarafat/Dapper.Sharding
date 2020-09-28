@@ -16,5 +16,7 @@ namespace Dapper.Sharding
         public List<ColumnEntity> ColumnList { get; set; }
 
         public List<IndexEntity> IndexList { get; set; }
+
+        public List<string> IgnoreColumnList { get; set; }
     }
 }

@@ -1,76 +1,61 @@
 ﻿using System;
-using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Data;
-using System.Linq;
-using System.Text;
 using System.Threading.Tasks;
 
 namespace Dapper.Sharding
 {
     internal class SQLiteClient : IClient
     {
-        public SQLiteClient(string connectionString)
+        public SQLiteClient(string connectionString) : base(DataBaseType.Sqlite, connectionString)
         {
-            ConnectionString = connectionString;
+
         }
 
-        public LockManager Locker => throw new NotImplementedException();
+        #region protected method
 
-        public ConcurrentDictionary<string, IDatabase> DataBaseCache => throw new NotImplementedException();
-
-        public string ConnectionString { get; }
-
-        public string Charset { get => throw new NotImplementedException(); set => throw new NotImplementedException(); }
-        public bool AutoCreateDatabase { get => throw new NotImplementedException(); set => throw new NotImplementedException(); }
-        public bool AutoCreateTable { get => throw new NotImplementedException(); set => throw new NotImplementedException(); }
-        public bool AutoCompareTableColumn { get => throw new NotImplementedException(); set => throw new NotImplementedException(); }
-
-        public DataBaseType DbType => throw new NotImplementedException();
-
-        public void ClearCache()
+        protected override IDatabase CreateIDatabase(string name)
         {
             throw new NotImplementedException();
         }
 
-        public void CreateDatabase(string name)
+        #endregion
+
+        public override void CreateDatabase(string name)
         {
             throw new NotImplementedException();
         }
 
-        public void DropDatabase(string name)
+        public override void DropDatabase(string name)
         {
             throw new NotImplementedException();
         }
 
-        public bool ExistsDatabase(string name)
+        public override bool ExistsDatabase(string name)
         {
             throw new NotImplementedException();
         }
 
-        public IDbConnection GetConn()
+        public override IDbConnection GetConn()
         {
             throw new NotImplementedException();
         }
 
-        public Task<IDbConnection> GetConnAsync()
+        public override Task<IDbConnection> GetConnAsync()
         {
             throw new NotImplementedException();
         }
 
-        public IDatabase GetDatabase(string name)
+        public override IEnumerable<string> ShowDatabases()
         {
             throw new NotImplementedException();
         }
 
-        public IEnumerable<string> ShowDatabases()
+        public override IEnumerable<string> ShowDatabasesExcludeSystem()
         {
             throw new NotImplementedException();
         }
 
-        public IEnumerable<string> ShowDatabasesExcludeSystem()
-        {
-            throw new NotImplementedException();
-        }
+
     }
 }

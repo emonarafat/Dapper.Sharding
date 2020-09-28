@@ -1,5 +1,4 @@
 ﻿using MySqlConnector;
-using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Data;
 using System.Linq;
@@ -10,35 +9,21 @@ namespace Dapper.Sharding
     internal class MySqlClient : IClient
     {
 
-        public MySqlClient(string connectionString)
+        public MySqlClient(string connectionString) : base(DataBaseType.MySql, connectionString)
         {
-            ConnectionString = connectionString;
-            Locker = new LockManager();
-            DataBaseCache = new ConcurrentDictionary<string, IDatabase>();
             Charset = "utf8";
-            AutoCreateDatabase = true;
-            AutoCreateTable = true;
-            AutoCompareTableColumn = false;
-            DbType = DataBaseType.MySql;
         }
 
-        public LockManager Locker { get; }
+        #region protected method
 
-        public ConcurrentDictionary<string, IDatabase> DataBaseCache { get; }
+        protected override IDatabase CreateIDatabase(string name)
+        {
+            return new MySqlDatabase(name, this);
+        }
 
-        public bool AutoCreateDatabase { get; set; }
+        #endregion
 
-        public bool AutoCreateTable { get; set; }
-
-        public string Charset { get; set; }
-
-        public bool AutoCompareTableColumn { get; set; }
-
-        public DataBaseType DbType { get; }
-
-        public string ConnectionString { get; }
-
-        public IDbConnection GetConn()
+        public override IDbConnection GetConn()
         {
             var conn = new MySqlConnection(ConnectionString);
             if (conn.State != ConnectionState.Open)
@@ -46,15 +31,15 @@ namespace Dapper.Sharding
             return conn;
         }
 
-        public async Task<IDbConnection> GetConnAsync()
+        public override async Task<IDbConnection> GetConnAsync()
         {
             var conn = new MySqlConnection(ConnectionString);
             if (conn.State != ConnectionState.Open)
-              await conn.OpenAsync();
+                await conn.OpenAsync();
             return conn;
         }
 
-        public void CreateDatabase(string name)
+        public override void CreateDatabase(string name)
         {
             using (var conn = GetConn())
             {
@@ -62,7 +47,7 @@ namespace Dapper.Sharding
             }
         }
 
-        public void DropDatabase(string name)
+        public override void DropDatabase(string name)
         {
             using (var conn = GetConn())
             {
@@ -71,7 +56,7 @@ namespace Dapper.Sharding
             DataBaseCache.TryRemove(name.ToLower(), out _);
         }
 
-        public IEnumerable<string> ShowDatabases()
+        public override IEnumerable<string> ShowDatabases()
         {
             using (var conn = GetConn())
             {
@@ -79,46 +64,17 @@ namespace Dapper.Sharding
             }
         }
 
-        public IEnumerable<string> ShowDatabasesExcludeSystem()
+        public override IEnumerable<string> ShowDatabasesExcludeSystem()
         {
             return ShowDatabases().Where(w => w != "mysql" && w != "information_schema" && w != "performance_schema" && w != "sys");
         }
 
-        public bool ExistsDatabase(string name)
+        public override bool ExistsDatabase(string name)
         {
             using (var conn = GetConn())
             {
                 return !string.IsNullOrEmpty(conn.QueryFirstOrDefault<string>($"SHOW DATABASES LIKE '{name}'"));
             }
-        }
-
-        public IDatabase GetDatabase(string name)
-        {
-            var lowerName = name.ToLower();
-            if (!DataBaseCache.ContainsKey(lowerName))
-            {
-                lock (Locker.GetObject(lowerName))
-                {
-                    if (!DataBaseCache.ContainsKey(lowerName))
-                    {
-                        if (AutoCreateDatabase)
-                        {
-                            CreateDatabase(name);
-                        }
-                        DataBaseCache.TryAdd(lowerName, new MySqlDatabase(name, this));
-                    }
-                }
-            }
-            return DataBaseCache[lowerName];
-        }
-
-        public void ClearCache()
-        {
-            foreach (var item in DataBaseCache.Keys)
-            {
-                GetDatabase(item).TableCache.Clear();
-            }
-            DataBaseCache.Clear();
         }
 
     }

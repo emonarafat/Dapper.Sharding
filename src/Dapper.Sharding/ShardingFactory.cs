@@ -23,7 +23,7 @@ namespace Dapper.Sharding
                     return new SQLiteClient(connectionString);
                 case DataBaseType.Postgresql:
                     return new PostgreClient(connectionString);
-                case DataBaseType.Oracel:
+                case DataBaseType.Oracle:
                     return new OracleClient(connectionString);
             }
             return null;

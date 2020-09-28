@@ -10,44 +10,21 @@ namespace Dapper.Sharding
 {
     internal class SqlServerClient : IClient
     {
-        public SqlServerClient(string connectionString, DataBaseType dbType)
+        public SqlServerClient(string connectionString, DataBaseType dbType) : base(dbType, connectionString)
         {
-            ConnectionString = connectionString;
-            Locker = new LockManager();
-            DataBaseCache = new ConcurrentDictionary<string, IDatabase>();
-            Charset = "utf8";
-            AutoCreateDatabase = true;
-            AutoCreateTable = true;
-            AutoCompareTableColumn = false;
-            DbType = dbType;
+
         }
 
-        public LockManager Locker { get; }
+        #region protected method
 
-        public ConcurrentDictionary<string, IDatabase> DataBaseCache { get; }
-
-        public string ConnectionString { get; }
-
-        public string Charset { get; set; }
-
-        public bool AutoCreateDatabase { get; set; }
-
-        public bool AutoCreateTable { get; set; }
-
-        public bool AutoCompareTableColumn { get; set; }
-
-        public DataBaseType DbType { get; }
-
-        public void ClearCache()
+        protected override IDatabase CreateIDatabase(string name)
         {
-            foreach (var item in DataBaseCache.Keys)
-            {
-                GetDatabase(item).TableCache.Clear();
-            }
-            DataBaseCache.Clear();
+            return null;
         }
 
-        public void CreateDatabase(string name)
+        #endregion
+
+        public override void CreateDatabase(string name)
         {
             using (var conn = GetConn())
             {
@@ -55,7 +32,7 @@ namespace Dapper.Sharding
             }
         }
 
-        public void DropDatabase(string name)
+        public override void DropDatabase(string name)
         {
             using (var conn = GetConn())
             {
@@ -64,7 +41,7 @@ namespace Dapper.Sharding
             DataBaseCache.TryRemove(name.ToLower(), out _);
         }
 
-        public bool ExistsDatabase(string name)
+        public override bool ExistsDatabase(string name)
         {
             using (var conn = GetConn())
             {
@@ -72,7 +49,7 @@ namespace Dapper.Sharding
             }
         }
 
-        public IDbConnection GetConn()
+        public override IDbConnection GetConn()
         {
             //var conn = new SqlConnection(ConnectionString);
             //if (conn.State != ConnectionState.Open)
@@ -81,32 +58,12 @@ namespace Dapper.Sharding
             return null;
         }
 
-        public Task<IDbConnection> GetConnAsync()
+        public override Task<IDbConnection> GetConnAsync()
         {
             throw new NotImplementedException();
         }
 
-        public IDatabase GetDatabase(string name)
-        {
-            var lowerName = name.ToLower();
-            if (!DataBaseCache.ContainsKey(lowerName))
-            {
-                lock (Locker.GetObject(lowerName))
-                {
-                    if (!DataBaseCache.ContainsKey(lowerName))
-                    {
-                        if (AutoCreateDatabase)
-                        {
-                            CreateDatabase(name);
-                        }
-                        //DataBaseCache.TryAdd(lowerName, new SqlServerDatabase(name, this));
-                    }
-                }
-            }
-            return DataBaseCache[lowerName];
-        }
-
-        public IEnumerable<string> ShowDatabases()
+        public override IEnumerable<string> ShowDatabases()
         {
             using (var conn = GetConn())
             {
@@ -114,9 +71,11 @@ namespace Dapper.Sharding
             }
         }
 
-        public IEnumerable<string> ShowDatabasesExcludeSystem()
+        public override IEnumerable<string> ShowDatabasesExcludeSystem()
         {
             return ShowDatabases().Where(w => w != "master" && w != "tempdb" && w != "model" && w != "msdb" && w.ToLower() != "resource");
         }
+
+
     }
 }

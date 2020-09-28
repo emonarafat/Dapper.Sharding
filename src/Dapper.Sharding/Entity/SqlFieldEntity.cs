@@ -22,6 +22,8 @@ namespace Dapper.Sharding
             AllFieldsExceptKey = CommonUtil.GetFieldsStr(AllFieldExceptKeyList, leftChar, rightChart);
             AllFieldsAtExceptKey = CommonUtil.GetFieldsAtStr(AllFieldExceptKeyList, symbol);
             AllFieldsAtEqExceptKey = CommonUtil.GetFieldsAtEqStr(AllFieldExceptKeyList, leftChar, rightChart, symbol);
+
+            IgnoreFieldList = entity.IgnoreColumnList;
         }
 
         public string PrimaryKey { get; }
@@ -33,6 +35,8 @@ namespace Dapper.Sharding
         public IEnumerable<string> AllFieldList { get; }
 
         public IEnumerable<string> AllFieldExceptKeyList { get; }
+
+        public IEnumerable<string> IgnoreFieldList { get; set; }
 
         //保留主键
         public string AllFields { get; }//所有列逗号分隔[name],[sex]

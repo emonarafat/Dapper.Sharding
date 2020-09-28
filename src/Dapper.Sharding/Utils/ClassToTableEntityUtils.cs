@@ -1,6 +1,4 @@
-﻿using System;
-using System.Collections.Concurrent;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Linq;
 
 namespace Dapper.Sharding
@@ -12,6 +10,7 @@ namespace Dapper.Sharding
             var entity = new TableEntity();
             entity.ColumnList = new List<ColumnEntity>();
             entity.IndexList = new List<IndexEntity>();
+            entity.IgnoreColumnList = new List<string>();
             var t = typeof(T);
             var tableAttr = t.GetCustomAttributes(false).First(f => f is TableAttribute) as TableAttribute;
             entity.PrimaryKey = tableAttr.PrimaryKey;
@@ -31,7 +30,10 @@ namespace Dapper.Sharding
             {
                 var ignoreAttr = pro.GetCustomAttributes(false).FirstOrDefault(f => f is IgnoreAttribute);
                 if (ignoreAttr != null)
+                {
+                    entity.IgnoreColumnList.Add(pro.Name);
                     continue;
+                }
                 var column = new ColumnEntity();
                 column.Name = pro.Name;
                 column.CsType = pro.PropertyType;
@@ -51,6 +53,6 @@ namespace Dapper.Sharding
 
             return entity;
         }
-    
+
     }
 }
