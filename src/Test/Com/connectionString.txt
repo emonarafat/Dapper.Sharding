@@ -12,4 +12,7 @@ data source=C:\Users\Administrator\Desktop\1.db;max pool size=100
 server=127.0.0.1;port=5432;uid=postgres;pwd=123;database=test;maxpoolsize=100
 
 5、Oracle
+data source=127.0.0.1:1521/xe;user id=sys;password=123;dba privilege=sysdba
+
 data source=127.0.0.1:1521/xe;user id=test;password=123456;max pool size=100
+
