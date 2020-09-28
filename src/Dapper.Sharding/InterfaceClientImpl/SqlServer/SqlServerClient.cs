@@ -17,7 +17,7 @@ namespace Dapper.Sharding
 
         #region protected method
 
-        protected override IDatabase CreateIDatabase(string name)
+        protected override IDatabase GetIDatabase(string name)
         {
             return null;
         }
