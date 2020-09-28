@@ -10,23 +10,17 @@ namespace Dapper.Sharding
 {
     internal class MySqlDatabase : IDatabase
     {
-        public MySqlDatabase(string name, MySqlClient client)
+        public MySqlDatabase(string name, MySqlClient client) : base(name, client)
         {
-            Name = name;
-            Client = client;
-            Locker = new LockManager();
-            TableCache = new ConcurrentDictionary<string, object>();
+
         }
 
-        public string Name { get; }
+        protected override ITable<T> GetITable<T>(string name)
+        {
+            return new MySqlTable<T>(name, this);
+        }
 
-        public IClient Client { get; }
-
-        public LockManager Locker { get; }
-
-        public ConcurrentDictionary<string, object> TableCache { get; }
-
-        public IDbConnection GetConn()
+        public override IDbConnection GetConn()
         {
             var conn = Client.GetConn();
             if (conn.Database != Name)
@@ -34,8 +28,7 @@ namespace Dapper.Sharding
             return conn;
         }
 
-
-        public async Task<IDbConnection> GetConnAsync()
+        public override async Task<IDbConnection> GetConnAsync()
         {
             var conn = await Client.GetConnAsync();
             if (conn.Database != Name)
@@ -43,62 +36,32 @@ namespace Dapper.Sharding
             return conn;
         }
 
-        public void Using(Action<IDbConnection> action)
+        public override void SetCharset(string chartset)
         {
             using (var conn = GetConn())
-            {
-                action(conn);
-            }
-        }
-
-        public void UsingTran(Action<IDbConnection, IDbTransaction> action)
-        {
-            using (var conn = GetConn())
-            {
-                using (var tran = conn.BeginTransaction())
-                {
-                    action(conn, tran);
-                }
-            }
-        }
-
-        public void SetCharset(string chartset)
-        {
-            Using(conn =>
             {
                 conn.Execute($"ALTER DATABASE `{Name}` DEFAULT CHARACTER SET {chartset} COLLATE {chartset}_general_ci");
-            });
-        }
-
-        public void CreateTable<T>(string name)
-        {
-            using (var conn = GetConn())
-            {
-                var script = ShowTableScript<T>(name);
-                conn.Execute(script);
             }
         }
 
-        public void DropTable(string name)
+        public override void DropTable(string name)
         {
-            Using(conn =>
+            using (var conn = GetConn())
             {
                 conn.Execute($"DROP TABLE IF EXISTS `{name}`");
-            });
+            }
             TableCache.TryRemove(name.ToLower(), out _);
         }
 
-        public void TruncateTable(string name)
+        public override void TruncateTable(string name)
         {
-            Using(conn =>
+            using (var conn = GetConn())
             {
                 conn.Execute($"TRUNCATE TABLE `{name}`");
-            });
-
+            }
         }
 
-
-        public IEnumerable<string> ShowTableList()
+        public override IEnumerable<string> GetTableList()
         {
             using (var conn = GetConn())
             {
@@ -106,7 +69,15 @@ namespace Dapper.Sharding
             }
         }
 
-        public bool ExistsTable(string name)
+        public override IEnumerable<string> GetTableColumnList(string name)
+        {
+            using (var conn = GetConn())
+            {
+                return conn.Query<string>($"SELECT COLUMN_NAME FROM information_schema.COLUMNS WHERE TABLE_SCHEMA='{Name}' AND TABLE_NAME='{name}'");
+            }
+        }
+
+        public override bool ExistsTable(string name)
         {
             using (var conn = GetConn())
             {
@@ -114,7 +85,7 @@ namespace Dapper.Sharding
             }
         }
 
-        public string ShowTableScript<T>(string name)
+        public override string GetTableScript<T>(string name)
         {
             var tableEntity = ClassToTableEntityUtils.Get<T>();
             var sb = new StringBuilder();
@@ -173,24 +144,13 @@ namespace Dapper.Sharding
             return sb.ToString();
         }
 
-        public dynamic ShowTableStatus(string name)
+        public override TableEntity GetTableEntityFromDatabase(string name)
         {
+            dynamic data;
             using (var conn = GetConn())
             {
-                return conn.QueryFirstOrDefault($"SHOW TABLE STATUS LIKE '{name}'");
+                data = conn.QueryFirstOrDefault($"SHOW TABLE STATUS LIKE '{name}'");
             }
-        }
-
-        public IEnumerable<dynamic> ShowTableStatusList()
-        {
-            using (var conn = GetConn())
-            {
-                return conn.Query("SHOW TABLE STATUS");
-            }
-        }
-
-        public TableEntity StatusToTableEntity(dynamic data)
-        {
             var entity = new TableEntity();
             if (data.Auto_increment != null)
             {
@@ -214,94 +174,12 @@ namespace Dapper.Sharding
             }
 
             return entity;
+
         }
 
-        public ITableManager GetTableManager(string name)
+        public override ITableManager GetTableManager(string name)
         {
             return new MySqlTableManager(name, this);
-        }
-
-        public TableEntity GetTableEntityFromDatabase(string name)
-        {
-            return StatusToTableEntity(ShowTableStatus(name));
-        }
-
-        public List<TableEntity> GetTableEnityListFromDatabase()
-        {
-            var list = new List<TableEntity>();
-            var statusList = ShowTableStatusList();
-            foreach (var item in statusList)
-            {
-                list.Add(StatusToTableEntity(item));
-            }
-            return list;
-        }
-
-        public void GeneratorClassFile(string savePath, string tableList = "*", string nameSpace = "Model", string Suffix = "Table", bool partialClass = false)
-        {
-            this.CreateFiles(savePath, tableList, nameSpace, Suffix, partialClass);
-        }
-
-        public void CompareTableColumn<T>(string name, IEnumerable<string> dbColumns)
-        {
-            var tableEntity = ClassToTableEntityUtils.Get<T>();
-            var manager = GetTableManager(name);
-
-            foreach (var item in tableEntity.ColumnList)
-            {
-                if (!dbColumns.Any(a => a.ToLower().Equals(item.Name.ToLower())))
-                {
-                    manager.AddColumn(item.Name, item.CsType, item.Length, item.Comment);
-                }
-            }
-
-            foreach (var item in dbColumns)
-            {
-                if (!tableEntity.ColumnList.Any(a => a.Name.ToLower().Equals(item.ToLower())))
-                {
-                    manager.DropColumn(item);
-                }
-            }
-        }
-
-        public ITable<T> GetTable<T>(string name)
-        {
-            var lowerName = name.ToLower();
-            if (!TableCache.ContainsKey(lowerName))
-            {
-                lock (Locker.GetObject(lowerName))
-                {
-                    if (!TableCache.ContainsKey(lowerName))
-                    {
-                        if (Client.AutoCreateTable)
-                        {
-                            #region 创建、比对表
-
-                            if (!ExistsTable(name))
-                            {
-                                CreateTable<T>(name);
-                            }
-                            else
-                            {
-                                if (Client.AutoCompareTableColumn)
-                                {
-                                    IEnumerable<string> dbColumns;
-
-                                    using (var conn2 = GetConn())
-                                    {
-                                        dbColumns = conn2.Query<string>($"SELECT COLUMN_NAME FROM information_schema.COLUMNS WHERE TABLE_SCHEMA='{Name}' AND TABLE_NAME='{name}'");
-                                    }
-                                    CompareTableColumn<T>(name, dbColumns);
-                                }
-                            }
-
-                            #endregion
-                        }
-                        TableCache.TryAdd(lowerName, new MySqlTable<T>(name, this));
-                    }
-                }
-            }
-            return (ITable<T>)TableCache[lowerName];
         }
 
     }

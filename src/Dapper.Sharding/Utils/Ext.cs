@@ -77,11 +77,11 @@ namespace Dapper.Sharding
             IEnumerable<string> list;
             if (tableList == "*")
             {
-                list = database.ShowTableList();
+                list = database.GetTableList();
             }
             else if (tableList.Contains(","))
             {
-                list = tableList.Split(',').ToList(); ;
+                list = tableList.Split(',').ToList();
             }
             else
             {

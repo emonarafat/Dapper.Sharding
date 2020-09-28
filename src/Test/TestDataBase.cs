@@ -31,7 +31,7 @@ namespace Test
         [Test]
         public void ShowTableList()
         {
-            var data = Factory.Db.ShowTableList();
+            var data = Factory.Db.GetTableList();
             Assert.Pass(JsonConvert.SerializeObject(data));
         }
 
@@ -45,35 +45,16 @@ namespace Test
         [Test]
         public void ShowTableScript()
         {
-            Console.WriteLine(Factory.Db.ShowTableScript<People>("People"));
+            Console.WriteLine(Factory.Db.GetTableScript<People>("People"));
             Console.WriteLine("\r\n");
             Console.WriteLine("\r\n");
-            Console.WriteLine(Factory.Db.ShowTableScript<Student>("sss"));
-        }
-
-        [Test]
-        public void ShowTableStatus()
-        {
-            object data = Factory.Db.ShowTableStatus("People");
-            Console.WriteLine(JsonConvert.SerializeObject(data));
-        }
-
-        [Test]
-        public void ShowTableStatusList()
-        {
-            Console.WriteLine(JsonConvert.SerializeObject(Factory.Db.ShowTableStatusList()));
+            Console.WriteLine(Factory.Db.GetTableScript<Student>("sss"));
         }
 
         [Test]
         public void GetTableEntityFromDatabase()
         {
             Console.WriteLine(JsonConvert.SerializeObject(Factory.Db.GetTableEntityFromDatabase("People")));
-        }
-
-        [Test]
-        public void GetTableEnityListFromDatabase()
-        {
-            Console.WriteLine(JsonConvert.SerializeObject(Factory.Db.GetTableEnityListFromDatabase()));
         }
 
         [Test]

@@ -2,59 +2,151 @@
 using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Data;
+using System.Linq;
 using System.Threading.Tasks;
 
 namespace Dapper.Sharding
 {
-    public interface IDatabase
+    public abstract class IDatabase
     {
-        string Name { get; }
+        public IDatabase(string name, IClient client)
+        {
+            Name = name;
+            Client = client;
+        }
 
-        LockManager Locker { get; }
+        #region protected method
 
-        ConcurrentDictionary<string, object> TableCache { get; }
+        protected LockManager Locker { get; } = new LockManager();
 
-        IClient Client { get; }
+        protected ConcurrentDictionary<string, object> TableCache { get; } = new ConcurrentDictionary<string, object>();
 
-        IDbConnection GetConn();
+        protected abstract ITable<T> GetITable<T>(string name);
 
-        Task<IDbConnection> GetConnAsync();
+        #endregion
 
-        void Using(Action<IDbConnection> action);
+        #region public method
 
-        void UsingTran(Action<IDbConnection, IDbTransaction> action);
+        public string Name { get; }
 
-        void SetCharset(string chartset);
+        public IClient Client { get; }
 
-        void CreateTable<T>(string name);
+        public void Using(Action<IDbConnection> action)
+        {
+            using (var conn = GetConn())
+            {
+                action(conn);
+            }
+        }
 
-        void DropTable(string name);
+        public void UsingTran(Action<IDbConnection, IDbTransaction> action)
+        {
+            using (var conn = GetConn())
+            {
+                using (var tran = conn.BeginTransaction())
+                {
+                    action(conn, tran);
+                }
+            }
+        }
 
-        void TruncateTable(string name);
+        public void CreateTable<T>(string name)
+        {
+            var script = GetTableScript<T>(name);
+            using (var conn = GetConn())
+            {
+                conn.Execute(script);
+            }
+        }
 
-        IEnumerable<string> ShowTableList();
+        public ITable<T> GetTable<T>(string name)
+        {
+            var lowerName = name.ToLower();
+            if (!TableCache.ContainsKey(lowerName))
+            {
+                lock (Locker.GetObject(lowerName))
+                {
+                    if (!TableCache.ContainsKey(lowerName))
+                    {
+                        if (Client.AutoCreateTable)
+                        {
+                            #region 创建、比对表
 
-        bool ExistsTable(string name);
+                            if (!ExistsTable(name))
+                            {
+                                CreateTable<T>(name);
+                            }
+                            else
+                            {
+                                if (Client.AutoCompareTableColumn)
+                                {
+                                    var dbColumns = GetTableColumnList(name);
+                                    var tableEntity = ClassToTableEntityUtils.Get<T>();
+                                    var manager = GetTableManager(name);
 
-        string ShowTableScript<T>(string name);
+                                    foreach (var item in tableEntity.ColumnList)
+                                    {
+                                        if (!dbColumns.Any(a => a.ToLower().Equals(item.Name.ToLower())))
+                                        {
+                                            manager.AddColumn(item.Name, item.CsType, item.Length, item.Comment);
+                                        }
+                                    }
 
-        dynamic ShowTableStatus(string name);
+                                    foreach (var item in dbColumns)
+                                    {
+                                        if (!tableEntity.ColumnList.Any(a => a.Name.ToLower().Equals(item.ToLower())))
+                                        {
+                                            manager.DropColumn(item);
+                                        }
+                                    }
+                                }
+                            }
 
-        IEnumerable<dynamic> ShowTableStatusList();
+                            #endregion
+                        }
+                        TableCache.TryAdd(lowerName, GetTable<T>(name));
+                    }
+                }
+            }
+            return (ITable<T>)TableCache[lowerName];
+        }
 
-        TableEntity StatusToTableEntity(dynamic data);
+        public void GeneratorClassFile(string savePath, string tableList = "*", string nameSpace = "Model", string Suffix = "Table", bool partialClass = false)
+        {
+            this.CreateFiles(savePath, tableList, nameSpace, Suffix, partialClass);
+        }
 
-        ITableManager GetTableManager(string name);
 
-        TableEntity GetTableEntityFromDatabase(string name);
+        #endregion
 
-        List<TableEntity> GetTableEnityListFromDatabase();
+        #region abstract method
 
-        void GeneratorClassFile(string savePath, string tableName = "*", string nameSpace = "Model", string Suffix = "Table", bool partialClass = false);
+        public abstract IDbConnection GetConn();
 
-        void CompareTableColumn<T>(string name, IEnumerable<string> dbColumns);
+        public abstract Task<IDbConnection> GetConnAsync();
 
-        ITable<T> GetTable<T>(string name);
+        public abstract void SetCharset(string chartset);
+
+        public abstract void DropTable(string name);
+
+        public abstract void TruncateTable(string name);
+
+        public abstract IEnumerable<string> GetTableList();
+
+        public abstract IEnumerable<string> GetTableColumnList(string name);
+
+        public abstract bool ExistsTable(string name);
+
+        public abstract string GetTableScript<T>(string name);
+
+        public abstract TableEntity GetTableEntityFromDatabase(string name);
+
+        public abstract ITableManager GetTableManager(string name);
+
+        #endregion
+
+
+
 
     }
 }
