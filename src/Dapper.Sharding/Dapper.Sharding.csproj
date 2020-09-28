@@ -9,6 +9,12 @@
 	</PropertyGroup>
 
 	<ItemGroup>
+	  <Compile Remove="_netcore\**" />
+	  <EmbeddedResource Remove="_netcore\**" />
+	  <None Remove="_netcore\**" />
+	</ItemGroup>
+
+	<ItemGroup>
 		<None Remove="DbTypeMap.xml" />
 	</ItemGroup>
 
@@ -18,6 +24,8 @@
 	<ItemGroup>
 		<PackageReference Include="Dapper" Version="2.0.35" />
 		<PackageReference Include="MySqlConnector" Version="1.0.1" />
+		<PackageReference Include="Npgsql" Version="4.1.4" />
+		<PackageReference Include="Oracle.ManagedDataAccess.Core" Version="2.19.90" />
 		<PackageReference Include="System.Data.SQLite.Core" Version="1.0.113.1" />
 	</ItemGroup>
 	<ItemGroup Condition="'$(TargetFramework)'=='net472'">
