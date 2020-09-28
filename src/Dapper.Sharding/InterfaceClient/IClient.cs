@@ -7,10 +7,6 @@ namespace Dapper.Sharding
 {
     public abstract class IClient
     {
-        public IClient()
-        {
-
-        }
 
         public IClient(DataBaseType dbType, string connectionString)
         {
@@ -20,11 +16,11 @@ namespace Dapper.Sharding
 
         #region protected method
 
-        private LockManager Locker { get; } = new LockManager();
+        protected LockManager Locker { get; } = new LockManager();
 
         protected ConcurrentDictionary<string, IDatabase> DataBaseCache { get; } = new ConcurrentDictionary<string, IDatabase>();
 
-        protected abstract IDatabase GetIDatabase(string name);
+        protected abstract IDatabase CreateIDatabase(string name);
 
         #endregion
 
@@ -42,7 +38,7 @@ namespace Dapper.Sharding
 
         public bool AutoCompareTableColumn { get; set; } = false;
 
-        public IDatabase GetDatabase(string name)
+        public virtual IDatabase GetDatabase(string name)
         {
             var lowerName = name.ToLower();
             if (!DataBaseCache.ContainsKey(lowerName))
@@ -55,7 +51,7 @@ namespace Dapper.Sharding
                         {
                             CreateDatabase(name);
                         }
-                        DataBaseCache.TryAdd(lowerName, GetIDatabase(name));
+                        DataBaseCache.TryAdd(lowerName, CreateIDatabase(name));
                     }
                 }
             }

@@ -9,6 +9,11 @@ namespace Dapper.Sharding
 {
     public abstract class IDatabase
     {
+        public IDatabase()
+        {
+            
+        }
+
         public IDatabase(string name, IClient client)
         {
             Name = name;
