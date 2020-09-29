@@ -14,7 +14,7 @@ namespace Dapper.Sharding
             ConnectionString = ConnectionStringBuilder.BuilderMySql(client.Config, name);
         }
 
-        protected override ITable<T> GetITable<T>(string name)
+        protected override ITable<T> CreateITable<T>(string name)
         {
             return new MySqlTable<T>(name, this);
         }

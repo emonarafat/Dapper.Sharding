@@ -49,15 +49,10 @@ namespace Dapper.Sharding
             CreateIndex(name, columns, indexType);
         }
 
-        public IEnumerable<dynamic> ShowIndexList()
-        {
-            return DpEntity.Query($"SHOW INDEX FROM `{Name}`");
-        }
-
         public List<IndexEntity> GetIndexEntityList()
         {
             var list = new List<IndexEntity>();
-            var indexList = ShowIndexList();
+            var indexList = DpEntity.Query($"SHOW INDEX FROM `{Name}`");
             var groupNames = indexList.Select(s => s.Key_name).Distinct();
 
             foreach (var g in groupNames)
@@ -114,18 +109,12 @@ namespace Dapper.Sharding
             return list;
         }
 
-        public IEnumerable<dynamic> ShowColumnList()
-        {
-            return DpEntity.Query($"SHOW FULL COLUMNS FROM `{Name}`");
-        }
-
         public List<ColumnEntity> GetColumnEntityList()
         {
             var list = new List<ColumnEntity>();
-            var columnList = ShowColumnList();
+            var columnList = DpEntity.Query($"SHOW FULL COLUMNS FROM `{Name}`");
             foreach (var item in columnList)
             {
-
                 ColumnEntity model = new ColumnEntity();
                 model.Name = ((string)item.Field).FirstCharToUpper(); //列名
 

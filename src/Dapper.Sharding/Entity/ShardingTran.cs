@@ -43,7 +43,7 @@ namespace Dapper.Sharding
                         {
                             conn = table.DataBase.GetConn();
                             tran = conn.BeginTransaction();
-                            var tranTable = table.BeginTran(conn, tran);
+                            ITable<T> tranTable = null; //table.BeginTran(conn, tran);
                             dict.Add(table, tranTable);
                             connList.Add(conn);
                             tranList.Add(tran);

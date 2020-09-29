@@ -5,7 +5,7 @@ using System.Linq;
 
 namespace Dapper.Sharding
 {
-    public class DistributedTran
+    public class DistributedTransaction
     {
         private List<IDbConnection> connList = new List<IDbConnection>();
 
@@ -14,6 +14,8 @@ namespace Dapper.Sharding
         private Dictionary<object, object> dict = new Dictionary<object, object>();
 
         private object _lock = new object();
+
+        public int? CommandTimeout = null;
 
         public ITable<T> GetTranTable<T>(ITable<T> table)
         {
@@ -29,12 +31,12 @@ namespace Dapper.Sharding
                         {
                             conn = table.DataBase.GetConn();
                             tran = conn.BeginTransaction();
-                            var tranTable = table.BeginTran(conn, tran);
+                            ITable<T> tranTable = null; //table.BeginTran(conn, tran);
                             dict.Add(table, tranTable);
                             connList.Add(conn);
                             tranList.Add(tran);
                         }
-                        catch(Exception ex)
+                        catch (Exception ex)
                         {
                             if (conn != null && conn.State == ConnectionState.Open)
                             {

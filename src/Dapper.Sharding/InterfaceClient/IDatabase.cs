@@ -9,11 +9,6 @@ namespace Dapper.Sharding
 {
     public abstract class IDatabase
     {
-        public IDatabase()
-        {
-
-        }
-
         public IDatabase(string name, IClient client)
         {
             Name = name;
@@ -26,7 +21,7 @@ namespace Dapper.Sharding
 
         protected ConcurrentDictionary<string, object> TableCache { get; } = new ConcurrentDictionary<string, object>();
 
-        protected abstract ITable<T> GetITable<T>(string name);
+        protected abstract ITable<T> CreateITable<T>(string name);
 
         #endregion
 
@@ -44,6 +39,14 @@ namespace Dapper.Sharding
             }
         }
 
+        public TResult Using<TResult>(Func<IDbConnection, TResult> func)
+        {
+            using (var conn = GetConn())
+            {
+                return func(conn);
+            }
+        }
+
         public void UsingTran(Action<IDbConnection, IDbTransaction> action)
         {
             using (var conn = GetConn())
@@ -51,6 +54,17 @@ namespace Dapper.Sharding
                 using (var tran = conn.BeginTransaction())
                 {
                     action(conn, tran);
+                }
+            }
+        }
+
+        public TResult UsingTran<TResult>(Func<IDbConnection, IDbTransaction, TResult> func)
+        {
+            using (var conn = GetConn())
+            {
+                using (var tran = conn.BeginTransaction())
+                {
+                    return func(conn, tran);
                 }
             }
         }
@@ -109,7 +123,7 @@ namespace Dapper.Sharding
 
                             #endregion
                         }
-                        TableCache.TryAdd(lowerName, GetITable<T>(name));
+                        TableCache.TryAdd(lowerName, CreateITable<T>(name));
                     }
                 }
             }

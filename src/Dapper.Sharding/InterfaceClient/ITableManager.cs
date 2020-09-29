@@ -20,11 +20,7 @@ namespace Dapper.Sharding
 
         void AlertIndex(string name, string columns, IndexType indexType);
 
-        IEnumerable<dynamic> ShowIndexList();
-
         List<IndexEntity> GetIndexEntityList();
-
-        IEnumerable<dynamic> ShowColumnList();
 
         List<ColumnEntity> GetColumnEntityList();
 

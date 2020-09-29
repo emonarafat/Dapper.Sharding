@@ -78,7 +78,7 @@ namespace Dapper.Sharding
             throw new NotImplementedException();
         }
 
-        protected override ITable<T> GetITable<T>(string name)
+        protected override ITable<T> CreateITable<T>(string name)
         {
             throw new NotImplementedException();
         }

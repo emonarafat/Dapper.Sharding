@@ -18,9 +18,11 @@
 
         public string Oracle_ServiceName { get; set; }
 
-        public string Oracle_SysUserId{ get; set; }
+        public string Oracle_SysUserId { get; set; }
 
         public string Oracle_SysPassword { get; set; }
+
+        public string Oracle_DatabaseDirectory { get; set; }
 
         public int Oracle_TableSpace_Mb { get; set; }
 

@@ -32,23 +32,9 @@ namespace Test
         }
 
         [Test]
-        public void ShowIndexList()
-        {
-            var data = Factory.TableManager.ShowIndexList();
-            Console.WriteLine(JsonConvert.SerializeObject(data));
-        }
-
-        [Test]
         public void GetIndexEntityList()
         {
             var data = Factory.TableManager.GetIndexEntityList();
-            Console.WriteLine(JsonConvert.SerializeObject(data));
-        }
-
-        [Test]
-        public void ShowColumnList()
-        {
-            var data = Factory.TableManager.ShowColumnList();
             Console.WriteLine(JsonConvert.SerializeObject(data));
         }
 
