@@ -120,7 +120,8 @@ namespace Dapper.Sharding
                 {
                     if (!OracleDict.Keys.Contains(typeHandle))
                     {
-                        OracleDict[typeHandle] = new SqlFieldEntity(ClassToTableEntityUtils.Get<T>(), "\"", "\"", ":");
+                        //OracleDict[typeHandle] = new SqlFieldEntity(ClassToTableEntityUtils.Get<T>(), "\"", "\"", ":");
+                        OracleDict[typeHandle] = new SqlFieldEntity(ClassToTableEntityUtils.Get<T>(), "", "", ":");
                     }
                 }
             }
