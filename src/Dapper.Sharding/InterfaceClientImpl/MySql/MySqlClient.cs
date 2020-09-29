@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Data;
 using System.Linq;
+using System.Text;
 using System.Threading.Tasks;
 
 namespace Dapper.Sharding
@@ -9,9 +10,10 @@ namespace Dapper.Sharding
     internal class MySqlClient : IClient
     {
 
-        public MySqlClient(string connectionString) : base(DataBaseType.MySql, connectionString)
+        public MySqlClient(DataBaseConfig config) : base(DataBaseType.MySql, config)
         {
             Charset = "utf8";
+            ConnectionString = ConnectionStringBuilder.BuilderMySql(config);
         }
 
         #region protected method
@@ -22,6 +24,9 @@ namespace Dapper.Sharding
         }
 
         #endregion
+
+        public override string ConnectionString { get; }
+
 
         public override IDbConnection GetConn()
         {

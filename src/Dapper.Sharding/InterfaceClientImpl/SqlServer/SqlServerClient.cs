@@ -10,10 +10,14 @@ namespace Dapper.Sharding
 {
     internal class SqlServerClient : IClient
     {
-        public SqlServerClient(string connectionString, DataBaseType dbType) : base(dbType, connectionString)
-        {
 
+        public SqlServerClient(DataBaseConfig config, DataBaseType dbType) : base(dbType, config)
+        {
+            ConnectionString = ConnectionStringBuilder.BuilderSqlServer(config);
         }
+
+        public override string ConnectionString { get; }
+
 
         #region protected method
 

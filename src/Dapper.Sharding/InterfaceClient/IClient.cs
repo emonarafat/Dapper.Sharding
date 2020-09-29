@@ -8,10 +8,10 @@ namespace Dapper.Sharding
     public abstract class IClient
     {
 
-        public IClient(DataBaseType dbType, string connectionString)
+        public IClient(DataBaseType dbType, DataBaseConfig config)
         {
             DbType = dbType;
-            ConnectionString = connectionString;
+            Config = config;
         }
 
         #region protected method
@@ -21,6 +21,7 @@ namespace Dapper.Sharding
         protected ConcurrentDictionary<string, IDatabase> DataBaseCache { get; } = new ConcurrentDictionary<string, IDatabase>();
 
         protected abstract IDatabase CreateIDatabase(string name);
+        
 
         #endregion
 
@@ -28,7 +29,7 @@ namespace Dapper.Sharding
 
         public DataBaseType DbType { get; }
 
-        public string ConnectionString { get; }
+        public DataBaseConfig Config { get; }
 
         public string Charset { get; set; }
 
@@ -66,6 +67,8 @@ namespace Dapper.Sharding
         #endregion
 
         #region abstract method
+
+        public abstract string ConnectionString { get; }
 
         public abstract IDbConnection GetConn();
 

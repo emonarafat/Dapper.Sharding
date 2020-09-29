@@ -9,22 +9,22 @@ namespace Dapper.Sharding
             SnowflakeId.worker = new IdWorker(workerId, datacenterId);
         }
 
-        public static IClient CreateClient(DataBaseType dbType, string connectionString)
+        public static IClient CreateClient(DataBaseType dbType, DataBaseConfig config)
         {
             switch (dbType)
             {
                 case DataBaseType.MySql:
-                    return new MySqlClient(connectionString);
+                    return new MySqlClient(config);
                 case DataBaseType.SqlServer2008:
-                    return new SqlServerClient(connectionString, DataBaseType.SqlServer2008);
+                    return new SqlServerClient(config, DataBaseType.SqlServer2008);
                 case DataBaseType.SqlServer2012:
-                    return new SqlServerClient(connectionString, DataBaseType.SqlServer2012);
+                    return new SqlServerClient(config, DataBaseType.SqlServer2012);
                 case DataBaseType.Sqlite:
-                    return new SQLiteClient(connectionString);
+                    return new SQLiteClient(config);
                 case DataBaseType.Postgresql:
-                    return new PostgreClient(connectionString);
+                    return new PostgreClient(config);
                 case DataBaseType.Oracle:
-                    return new OracleClient(connectionString);
+                    return new OracleClient(config);
             }
             return null;
         }

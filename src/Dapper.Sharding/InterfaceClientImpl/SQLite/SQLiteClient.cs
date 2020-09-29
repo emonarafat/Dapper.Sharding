@@ -10,10 +10,14 @@ namespace Dapper.Sharding
 {
     internal class SQLiteClient : IClient
     {
-        public SQLiteClient(string connectionString) : base(DataBaseType.Sqlite, connectionString)
-        {
 
+
+        public SQLiteClient(DataBaseConfig config) : base(DataBaseType.Sqlite, config)
+        {
+            ConnectionString = config.Server;
         }
+
+        public override string ConnectionString { get; }
 
         #region protected method
 

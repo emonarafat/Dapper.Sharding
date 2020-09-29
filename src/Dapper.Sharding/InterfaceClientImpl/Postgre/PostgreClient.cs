@@ -10,10 +10,13 @@ namespace Dapper.Sharding
 {
     internal class PostgreClient : IClient
     {
-        public PostgreClient(string connectionString) : base(DataBaseType.Postgresql, connectionString)
-        {
 
+        public PostgreClient(DataBaseConfig config) : base(DataBaseType.Postgresql, config)
+        {
+            ConnectionString = ConnectionStringBuilder.BuilderPostgresql(config);
         }
+
+        public override string ConnectionString { get; }
 
         #region protected method
 

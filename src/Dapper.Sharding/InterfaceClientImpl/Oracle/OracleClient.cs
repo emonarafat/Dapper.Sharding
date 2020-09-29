@@ -1,19 +1,20 @@
 ﻿using System;
-using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Data;
-using System.Linq;
-using System.Text;
 using System.Threading.Tasks;
 
 namespace Dapper.Sharding
 {
     internal class OracleClient : IClient
     {
-        public OracleClient(string connectionString) : base(DataBaseType.Oracle, connectionString)
-        {
 
+        public OracleClient(DataBaseConfig config) : base(DataBaseType.Oracle, config)
+        {
+            ConnectionString = ConnectionStringBuilder.BuilderOracleSysdba(config);
         }
+
+        public override string ConnectionString { get; }
+
 
         #region protected method
 
