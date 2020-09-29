@@ -95,7 +95,8 @@ namespace Dapper.Sharding
                 {
                     if (!PostgreDict.Keys.Contains(typeHandle))
                     {
-                        PostgreDict[typeHandle] = new SqlFieldEntity(ClassToTableEntityUtils.Get<T>(), "\"", "\"", "@");
+                        //PostgreDict[typeHandle] = new SqlFieldEntity(ClassToTableEntityUtils.Get<T>(), "\"", "\"", "@");
+	        PostgreDict[typeHandle] = new SqlFieldEntity(ClassToTableEntityUtils.Get<T>(), "", "", "@");
                     }
                 }
             }
