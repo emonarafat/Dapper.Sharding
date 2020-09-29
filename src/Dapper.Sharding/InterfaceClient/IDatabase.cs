@@ -11,7 +11,7 @@ namespace Dapper.Sharding
     {
         public IDatabase()
         {
-            
+
         }
 
         public IDatabase(string name, IClient client)
@@ -109,7 +109,7 @@ namespace Dapper.Sharding
 
                             #endregion
                         }
-                        TableCache.TryAdd(lowerName, GetTable<T>(name));
+                        TableCache.TryAdd(lowerName, GetITable<T>(name));
                     }
                 }
             }
@@ -125,6 +125,8 @@ namespace Dapper.Sharding
         #endregion
 
         #region abstract method
+
+        public abstract string ConnectionString { get; }
 
         public abstract IDbConnection GetConn();
 

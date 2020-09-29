@@ -1,5 +1,4 @@
-﻿using System;
-using System.Collections.Concurrent;
+﻿using MySqlConnector;
 using System.Collections.Generic;
 using System.Data;
 using System.Linq;
@@ -12,7 +11,7 @@ namespace Dapper.Sharding
     {
         public MySqlDatabase(string name, MySqlClient client) : base(name, client)
         {
-
+            ConnectionString = ConnectionStringBuilder.BuilderMySql(client.Config, name);
         }
 
         protected override ITable<T> GetITable<T>(string name)
@@ -20,19 +19,21 @@ namespace Dapper.Sharding
             return new MySqlTable<T>(name, this);
         }
 
+        public override string ConnectionString { get; }
+
         public override IDbConnection GetConn()
         {
-            var conn = Client.GetConn();
-            if (conn.Database != Name)
-                conn.ChangeDatabase(Name);
+            var conn = new MySqlConnection(ConnectionString);
+            if (conn.State != ConnectionState.Open)
+                conn.Open();
             return conn;
         }
 
         public override async Task<IDbConnection> GetConnAsync()
         {
-            var conn = await Client.GetConnAsync();
-            if (conn.Database != Name)
-                conn.ChangeDatabase(Name);
+            var conn = new MySqlConnection(ConnectionString);
+            if (conn.State != ConnectionState.Open)
+                await conn.OpenAsync();
             return conn;
         }
 

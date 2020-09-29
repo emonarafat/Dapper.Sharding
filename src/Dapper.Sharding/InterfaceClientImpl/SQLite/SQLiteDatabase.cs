@@ -3,8 +3,6 @@ using System.Collections.Generic;
 using System.Data;
 using System.Data.SQLite;
 using System.IO;
-using System.Linq;
-using System.Text;
 using System.Threading.Tasks;
 
 namespace Dapper.Sharding
@@ -13,10 +11,11 @@ namespace Dapper.Sharding
     {
         public SQLiteDatabase(string name, SQLiteClient client) : base(name, client)
         {
-            _connectionString = $"datasource={Path.Combine(client.ConnectionString, name)}";
+            ConnectionString = $"data source={Path.Combine(client.Config.Server, name)}";
         }
 
-        private string _connectionString { get; }
+        public override string ConnectionString { get; }
+
 
         public override void DropTable(string name)
         {
@@ -30,7 +29,7 @@ namespace Dapper.Sharding
 
         public override IDbConnection GetConn()
         {
-            var conn = new SQLiteConnection(_connectionString);
+            var conn = new SQLiteConnection(ConnectionString);
             if (conn.State != ConnectionState.Open)
                 conn.Open();
             return conn;
@@ -38,7 +37,7 @@ namespace Dapper.Sharding
 
         public override async Task<IDbConnection> GetConnAsync()
         {
-            var conn = new SQLiteConnection(_connectionString);
+            var conn = new SQLiteConnection(ConnectionString);
             if (conn.State != ConnectionState.Open)
                 await conn.OpenAsync();
             return conn;

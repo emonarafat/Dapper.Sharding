@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace Dapper.Sharding
 {
-    internal class ConnectionStringBuilder
+    public class ConnectionStringBuilder
     {
         public static string BuilderMySql(DataBaseConfig config, string databaseName = null)
         {
