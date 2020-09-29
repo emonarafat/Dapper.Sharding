@@ -10,10 +10,10 @@ namespace Test.Com
     [Table("Id", false, "老师表")]
     public class Teacher
     {
-        [Column("主键Id")]
+        [Column(20, "主键Id")]
         public long Id { get; set; }
 
-        [Column("名字", 100)]
+        [Column(100, "名字")]
         public string Name { get; set; }
 
         public int Age { get; set; }

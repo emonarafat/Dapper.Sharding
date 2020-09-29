@@ -124,7 +124,7 @@ namespace Dapper.Sharding
                 sb.AppendLine();
                 foreach (var item in entity.ColumnList)
                 {
-                    sb.Append($"        [Column(\"{item.Comment}\", {item.Length})]");
+                    sb.Append($"        [Column({item.Length}, \"{item.Comment}\")]");
                     sb.AppendLine();
                     sb.Append("        public " + item.CsStringType + " " + item.Name + " { get; set; }");
                     sb.AppendLine();

@@ -10,13 +10,13 @@ namespace Test
     [Table("Id", false, "学生表")]
     public class Student
     {
-        [Column("主键id", 24)]
+        [Column(24, "主键id")]
         public string Id { get; set; }
 
-        [Column("名字", 50)]
+        [Column(50, "名字")]
         public string Name { get; set; }
 
-        [Column("年龄")]
+        [Column(20, "年龄")]
         public long Age { get; set; }
 
     }

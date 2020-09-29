@@ -12,22 +12,22 @@ namespace Test
     [Table("Id", true, "人类表")]
     public class People
     {
-        [Column("主键id")]
+        [Column(11, "主键id")]
         public int Id { get; set; }
 
-        [Column("名字", 50)]
+        [Column(50, "名字")]
         public string Name { get; set; }
 
-        [Column("年龄")]
+        [Column(20, "年龄")]
         public long Age { get; set; }
 
-        [Column("长文章", -1)]
+        [Column(-1, "长文章")]
         public string Text { get; set; }
 
-        [Column("超级长文章", -2)]
+        [Column(-2, "超级长文章")]
         public string LongText { get; set; }
 
-        [Column("金钱一", 18.2)]
+        [Column(18.2, "金钱一")]
         public decimal Money { get; set; }
 
         public float Money2 { get; set; }
