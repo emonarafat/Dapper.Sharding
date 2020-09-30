@@ -78,14 +78,6 @@ namespace Test
             }
         }
 
-        public static ISharding<Student> ShardingAuto
-        {
-            get
-            {
-                return ShardingFactory.CreateShardingAuto(studentTableList);
-            }
-        }
-
         public static ShardingQuery<Student> ShardingQuery
         {
             get
@@ -108,14 +100,6 @@ namespace Test
                     Db2.GetTable<Teacher>("t5"),
                     Db2.GetTable<Teacher>("t6")
                 };
-            }
-        }
-
-        public static ISharding<Teacher> ShardingAutoTeacher
-        {
-            get
-            {
-                return ShardingFactory.CreateShardingAuto(teacherTableList);
             }
         }
 

@@ -36,12 +36,12 @@
             return GetWriteClient().GetDatabase(name);
         }
 
-        public ITable<T> GetReadTable<T>(string name, string databaseName)
+        public ITable<T> GetReadTable<T>(string name, string databaseName) where T : class
         {
             return GetReadDatabase(databaseName).GetTable<T>(name);
         }
 
-        public ITable<T> GetWriteTable<T>(string name, string databaseName)
+        public ITable<T> GetWriteTable<T>(string name, string databaseName) where T : class
         {
             return GetWriteDataBase(databaseName).GetTable<T>(name);
         }

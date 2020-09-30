@@ -30,4 +30,9 @@
 	<ItemGroup Condition="'$(TargetFramework)'=='net472'">
 		<Reference Include="Microsoft.CSharp" />
 	</ItemGroup>
+	<ItemGroup>
+	  <Reference Include="Z.Dapper.Plus">
+	    <HintPath>..\..\Lib\Z.Dapper.Plus.3.0.20-Crack\net45\Z.Dapper.Plus.dll</HintPath>
+	  </Reference>
+	</ItemGroup>
 </Project>

@@ -4,7 +4,7 @@ using System.Threading.Tasks;
 
 namespace Dapper.Sharding
 {
-    public class ShardingQuery<T>
+    public class ShardingQuery<T> where T : class
     {
         public ShardingQuery(params ITable<T>[] tableList)
         {

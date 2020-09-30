@@ -1,5 +1,6 @@
 ﻿using System.Collections.Generic;
 using System.Data;
+using Z.Dapper.Plus;
 
 namespace Dapper.Sharding
 {
@@ -129,5 +130,23 @@ namespace Dapper.Sharding
                 return Conn.QueryFirstOrDefault<T>(sql, param, Tran, commandTimeout: CommandTimeout);
             }
         }
+
+        public void BulkInsert<T>(string tableName, IEnumerable<T> modelList) where T : class
+        {
+            DapperPlusUtils.Map<T>(tableName);
+
+            if (Conn == null)
+            {
+                using (var cnn = DataBase.GetConn())
+                {
+                    cnn.BulkInsert(tableName, modelList);
+                }
+            }
+            else
+            {
+                Tran.BulkInsert(tableName, modelList);
+            }
+        }
+
     }
 }

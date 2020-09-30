@@ -66,27 +66,22 @@ namespace Dapper.Sharding
             return new ReadWirteClient(writeClient, readClientList);
         }
 
-        public static ShardingQuery<T> CreateShardingQuery<T>(params ITable<T>[] tableList)
+        public static ShardingQuery<T> CreateShardingQuery<T>(params ITable<T>[] tableList) where T : class
         {
             return new ShardingQuery<T>(tableList);
         }
 
-        public static ISharding<T> CreateShardingAuto<T>(params ITable<T>[] tableList)
-        {
-            return new AutoSharding<T>(tableList);
-        }
-
-        public static ISharding<T> CreateShardingHash<T>(params ITable<T>[] tableList)
+        public static ISharding<T> CreateShardingHash<T>(params ITable<T>[] tableList) where T : class
         {
             return new HashSharding<T>(tableList);
         }
 
-        public static ISharding<T> CreateShardingRange<T>(Dictionary<long, ITable<T>> dict)
+        public static ISharding<T> CreateShardingRange<T>(Dictionary<long, ITable<T>> dict) where T : class
         {
             return new RangeSharding<T>(dict);
         }
 
-        public static ReadWirteSharding<T> CreateReadWirteSharding<T>(ISharding<T> write, params ISharding<T>[] readList)
+        public static ReadWirteSharding<T> CreateReadWirteSharding<T>(ISharding<T> write, params ISharding<T>[] readList) where T : class
         {
             return new ReadWirteSharding<T>(write, readList);
         }

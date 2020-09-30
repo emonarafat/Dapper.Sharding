@@ -4,7 +4,7 @@ using System.Data;
 
 namespace Dapper.Sharding
 {
-    public class ShardingTran<T>
+    public class ShardingTran<T> where T : class
     {
 
         public ShardingTran(ISharding<T> sharding)

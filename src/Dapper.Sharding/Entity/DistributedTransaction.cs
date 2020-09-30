@@ -1,15 +1,14 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Data;
-using System.Linq;
 
 namespace Dapper.Sharding
 {
     public class DistributedTransaction
     {
-        private List<IDbConnection> connList = new List<IDbConnection>();
+        private Dictionary<IDatabase, IDbConnection> dictConn = new Dictionary<IDatabase, IDbConnection>();
 
-        private List<IDbTransaction> tranList = new List<IDbTransaction>();
+        private Dictionary<IDatabase, IDbTransaction> dictTran = new Dictionary<IDatabase, IDbTransaction>();
 
         private Dictionary<object, object> dict = new Dictionary<object, object>();
 
@@ -17,7 +16,7 @@ namespace Dapper.Sharding
 
         public int? CommandTimeout = null;
 
-        public ITable<T> GetTranTable<T>(ITable<T> table)
+        public ITable<T> GetTranTable<T>(ITable<T> table) where T : class
         {
             if (!dict.ContainsKey(table))
             {
@@ -25,26 +24,52 @@ namespace Dapper.Sharding
                 {
                     if (!dict.ContainsKey(table))
                     {
+                        #region database conn tran cache
+
+                        var db = table.DataBase;
                         IDbConnection conn = null;
                         IDbTransaction tran = null;
+
+                        //不存在此db的conn进行添加
+                        if (!dictConn.ContainsKey(db))
+                        {
+                            conn = db.GetConn();
+                            tran = conn.BeginTransaction();
+                            dictConn.Add(db, conn);
+                            dictTran.Add(db, tran);
+                        }
+                        else //直接取出来
+                        {
+                            conn = dictConn[db];
+                            tran = dictTran[db];
+                        }
+
+                        #endregion
+
                         try
                         {
-                            conn = table.DataBase.GetConn();
-                            tran = conn.BeginTransaction();
-                            ITable<T> tranTable = null; //table.BeginTran(conn, tran);
+                            ITable<T> tranTable = table.CreateTranTable(conn, tran, CommandTimeout);
                             dict.Add(table, tranTable);
-                            connList.Add(conn);
-                            tranList.Add(tran);
                         }
                         catch (Exception ex)
                         {
                             if (conn != null && conn.State == ConnectionState.Open)
                             {
-                                conn.Dispose();
+                                try
+                                {
+                                    conn.Dispose();
+                                }
+                                catch { }
+
                             }
                             if (tran != null)
                             {
-                                tran.Dispose();
+                                try
+                                {
+                                    tran.Dispose();
+                                }
+                                catch { }
+
                             }
                             Close();
                             throw ex;
@@ -57,7 +82,7 @@ namespace Dapper.Sharding
 
         private void Close()
         {
-            foreach (var item in tranList)
+            foreach (var item in dictTran.Values)
             {
                 try
                 {
@@ -66,7 +91,7 @@ namespace Dapper.Sharding
                 catch { }
             }
 
-            foreach (var item in connList)
+            foreach (var item in dictConn.Values)
             {
                 try
                 {
@@ -78,7 +103,7 @@ namespace Dapper.Sharding
 
         public void Commit()
         {
-            foreach (var item in tranList)
+            foreach (var item in dictTran.Values)
             {
                 item.Commit();
             }
@@ -87,7 +112,7 @@ namespace Dapper.Sharding
 
         public void Rollback()
         {
-            foreach (var item in tranList)
+            foreach (var item in dictTran.Values)
             {
                 try
                 {

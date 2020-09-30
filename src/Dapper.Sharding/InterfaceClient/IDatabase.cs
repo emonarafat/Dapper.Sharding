@@ -21,7 +21,7 @@ namespace Dapper.Sharding
 
         protected ConcurrentDictionary<string, object> TableCache { get; } = new ConcurrentDictionary<string, object>();
 
-        protected abstract ITable<T> CreateITable<T>(string name);
+        protected abstract ITable<T> CreateITable<T>(string name) where T : class;
 
         #endregion
 
@@ -78,7 +78,7 @@ namespace Dapper.Sharding
             }
         }
 
-        public ITable<T> GetTable<T>(string name)
+        public ITable<T> GetTable<T>(string name) where T : class
         {
             var lowerName = name.ToLower();
             if (!TableCache.ContainsKey(lowerName))

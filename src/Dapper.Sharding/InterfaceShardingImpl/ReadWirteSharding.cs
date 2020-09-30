@@ -1,6 +1,6 @@
 ﻿namespace Dapper.Sharding
 {
-    public class ReadWirteSharding<T>
+    public class ReadWirteSharding<T> where T : class
     {
         public ReadWirteSharding(ISharding<T> writeSharding, params ISharding<T>[] readShardingList)
         {

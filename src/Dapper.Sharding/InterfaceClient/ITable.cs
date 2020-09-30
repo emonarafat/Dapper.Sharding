@@ -3,7 +3,7 @@ using System.Data;
 
 namespace Dapper.Sharding
 {
-    public interface ITable<T>
+    public interface ITable<T> where T : class
     {
         string Name { get; }
 
@@ -13,11 +13,11 @@ namespace Dapper.Sharding
 
         SqlFieldEntity SqlField { get; }
 
-        ITable<T> BeginTran(IDbConnection conn, IDbTransaction tran, int? commandTimeout = null);
+        ITable<T> CreateTranTable(IDbConnection conn, IDbTransaction tran, int? commandTimeout = null);
 
         bool Insert(T model);
 
-        int InsertMany(IEnumerable<T> modelList);
+        void BulkInsert(IEnumerable<T> modelList);
 
         bool InsertIdentity(T model);
 

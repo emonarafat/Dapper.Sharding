@@ -1,9 +1,6 @@
 ﻿using NUnit.Framework;
 using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using Test.Com;
 
 namespace Test
@@ -16,7 +13,7 @@ namespace Test
             Factory.Db.UsingTran((conn, tran) =>
             {
                 var table = Factory.peopleTable;
-                var tableTran = table.BeginTran(conn, tran);
+                var tableTran = table.CreateTranTable(conn, tran);
                 try
                 {
                     var p = new People

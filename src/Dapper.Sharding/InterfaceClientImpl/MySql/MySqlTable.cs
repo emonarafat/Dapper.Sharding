@@ -5,7 +5,7 @@ using System.Threading.Tasks;
 
 namespace Dapper.Sharding
 {
-    internal class MySqlTable<T> : ITable<T>
+    internal class MySqlTable<T> : ITable<T> where T : class
     {
         public MySqlTable(string name, IDatabase database, IDbConnection conn = null, IDbTransaction tran = null, int? commandTimeout = null)
         {
@@ -23,7 +23,7 @@ namespace Dapper.Sharding
 
         public DapperEntity DpEntity { get; }
 
-        public ITable<T> BeginTran(IDbConnection conn, IDbTransaction tran, int? commandTimeout = null)
+        public ITable<T> CreateTranTable(IDbConnection conn, IDbTransaction tran, int? commandTimeout = null)
         {
             return new MySqlTable<T>(Name, DataBase, conn, tran, commandTimeout);
         }
@@ -70,16 +70,9 @@ namespace Dapper.Sharding
             }
         }
 
-        public int InsertMany(IEnumerable<T> modelList)
+        public void BulkInsert(IEnumerable<T> modelList)
         {
-            if (SqlField.IsIdentity)
-            {
-                return DpEntity.Execute($"INSERT INTO `{Name}` ({SqlField.AllFieldsExceptKey})VALUES({SqlField.AllFieldsAtExceptKey})", modelList);
-            }
-            else
-            {
-                return DpEntity.Execute($"INSERT INTO `{Name}` ({SqlField.AllFields})VALUES({SqlField.AllFieldsAt})", modelList);
-            }
+            DpEntity.BulkInsert(Name, modelList);
         }
 
         public bool InsertIdentity(T model)
