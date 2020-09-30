@@ -30,35 +30,9 @@ namespace Dapper.Sharding
             return null;
         }
 
-        public static void BeginTran(Action<DistributedTransaction> action)
+        public static DistributedTransaction CreateDistributedTransaction()
         {
-            var tran = new DistributedTransaction();
-            try
-            {
-                action(tran);
-                tran.Commit();
-            }
-            catch (Exception ex)
-            {
-                tran.Rollback();
-                throw ex;
-            }
-        }
-
-        public static TResult BeginTran<TResult>(Func<DistributedTransaction, TResult> func)
-        {
-            var tran = new DistributedTransaction();
-            try
-            {
-                var data = func(tran);
-                tran.Commit();
-                return data;
-            }
-            catch (Exception ex)
-            {
-                tran.Rollback();
-                throw ex;
-            }
+            return new DistributedTransaction();         
         }
 
         public static ReadWirteClient CreateReadWriteClient(IClient writeClient, params IClient[] readClientList)

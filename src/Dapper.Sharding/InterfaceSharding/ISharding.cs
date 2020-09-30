@@ -1,13 +1,14 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Runtime.InteropServices;
 using System.Threading.Tasks;
 
 namespace Dapper.Sharding
 {
     public abstract class ISharding<T> where T : class
     {
-        public ISharding(ITable<T>[] list)
+        public ISharding(ITable<T>[] list, DistributedTransaction tran = null)
         {
             if (list[0].SqlField.IsIdentity)
             {
@@ -17,6 +18,7 @@ namespace Dapper.Sharding
             KeyName = TableList[0].SqlField.PrimaryKey;
             KeyType = TableList[0].SqlField.PrimaryKeyType;
             Query = new ShardingQuery<T>(TableList);
+            DistributedTran = tran;
         }
 
         #region base
@@ -29,134 +31,159 @@ namespace Dapper.Sharding
 
         public ShardingQuery<T> Query { get; }
 
+        private DistributedTransaction DistributedTran { get; }
+
+        private void Wrap(Action<DistributedTransaction> action)
+        {
+            if (DistributedTran == null)
+            {
+                var tran = new DistributedTransaction();
+                try
+                {
+                    action(tran);
+                    tran.Commit();
+                }
+                catch (Exception ex)
+                {
+                    tran.Rollback();
+                    throw ex;
+                }
+
+            }
+            else
+            {
+                action(DistributedTran);
+            }
+        }
+
+        private TResult Wrap<TResult>(Func<DistributedTransaction, TResult> func)
+        {
+            if (DistributedTran == null)
+            {
+                var tran = new DistributedTransaction();
+                TResult result;
+                try
+                {
+                    result = func(tran);
+                    tran.Commit();
+                }
+                catch (Exception ex)
+                {
+                    tran.Rollback();
+                    throw ex;
+                }
+                return result;
+            }
+            return func(DistributedTran);
+        }
+
         #endregion
 
         #region method common
 
-        public ShardingTran<T> BeginTran()
-        {
-            return new ShardingTran<T>(this);
-        }
-
-        public Dictionary<ITable<T>, List<object>> CreateTableDictByIds(object ids)
+        public Dictionary<ITable<T>, List<object>> GetTableByGroupIds(object ids)
         {
             var dict = new Dictionary<ITable<T>, List<object>>();
             var idsList = CommonUtil.GetMultiExec(ids);
-            foreach (var id in idsList)
+            if (idsList != null)
             {
-                var table = GetTableById(id);
+                foreach (var id in idsList)
+                {
+                    var table = GetTableById(id);
+                    if (!dict.ContainsKey(table))
+                    {
+                        dict.Add(table, new List<object>());
+                    }
+                    dict[table].Add(id);
+                }
+            }
+            return dict;
+        }
+
+        public Dictionary<ITable<T>, List<T>> GetTableByGroupModelList(IEnumerable<T> modelList)
+        {
+            var dict = new Dictionary<ITable<T>, List<T>>();
+            foreach (var item in modelList)
+            {
+                var table = GetTableByModel(item);
                 if (!dict.ContainsKey(table))
                 {
-                    dict.Add(table, new List<object>());
+                    dict.Add(table, new List<T>());
                 }
-                dict[table].Add(id);
+                dict[table].Add(item);
             }
             return dict;
         }
 
         public int UpdateByWhere(T model, string where)
         {
-            var tran = BeginTran();
-            try
+            return Wrap(tran =>
             {
                 int count = 0;
-                var tables = tran.GetTableList();
-                foreach (var tb in tables)
+                foreach (var item in TableList)
                 {
+                    var tb = tran.GetTranTable(item);
                     count += tb.UpdateByWhere(model, where);
                 }
-                tran.Commit();
                 return count;
-            }
-            catch (Exception ex)
-            {
-                tran.Rollback();
-                throw ex;
-            }
+            });
         }
 
         public int UpdateByWhereInclude(T model, string where, string fields)
         {
-            var tran = BeginTran();
-            try
+            return Wrap(tran =>
             {
                 int count = 0;
-                var tables = tran.GetTableList();
-                foreach (var tb in tables)
+                foreach (var item in TableList)
                 {
+                    var tb = tran.GetTranTable(item);
                     count += tb.UpdateByWhereInclude(model, where, fields);
                 }
-                tran.Commit();
                 return count;
-            }
-            catch (Exception ex)
-            {
-                tran.Rollback();
-                throw ex;
-            }
+            });
+
         }
 
         public int UpdateByWhereExclude(T model, string where, string fields)
         {
-            var tran = BeginTran();
-            try
+            return Wrap(tran =>
             {
                 int count = 0;
-                var tables = tran.GetTableList();
-                foreach (var tb in tables)
+                foreach (var item in TableList)
                 {
+                    var tb = tran.GetTranTable(item);
                     count += tb.UpdateByWhereExclude(model, where, fields);
                 }
-                tran.Commit();
                 return count;
-            }
-            catch (Exception ex)
-            {
-                tran.Rollback();
-                throw ex;
-            }
+            });
         }
 
         public int DeleteByWhere(string where, object param = null)
         {
-            var tran = BeginTran();
-            try
+            return Wrap(tran =>
             {
                 int count = 0;
-                var tables = tran.GetTableList();
-                foreach (var tb in tables)
+                foreach (var item in TableList)
                 {
+                    var tb = tran.GetTranTable(item);
                     count += tb.DeleteByWhere(where, param);
                 }
-                tran.Commit();
                 return count;
-            }
-            catch (Exception ex)
-            {
-                tran.Rollback();
-                throw ex;
-            }
+            });
         }
 
         public int DeleteAll()
         {
-            var tran = BeginTran();
-            try
+            return Wrap(tran =>
             {
                 int count = 0;
-                var tables = tran.GetTableList();
-                foreach (var tb in tables)
+                foreach (var item in TableList)
                 {
+                    var tb = tran.GetTranTable(item);
                     count += tb.DeleteAll();
                 }
-                tran.Commit();
                 return count;
-            }
-            catch (Exception ex)
-            {
-                tran.Rollback();
-                throw ex;
-            }
+            });
         }
 
         public void Truncate()
@@ -184,23 +211,17 @@ namespace Dapper.Sharding
         {
             if (CommonUtil.ObjectIsEmpty(ids))
                 return 0;
-            var idsList = CommonUtil.GetMultiExec(ids);
-            var tran = BeginTran();
-            try
+            return Wrap(tran =>
             {
                 int count = 0;
-                foreach (var id in idsList)
+                var dict = GetTableByGroupIds(ids);
+                foreach (var item in dict)
                 {
-                    count += tran.GetTable(id).Delete(id) ? 1 : 0;
+                    var tb = tran.GetTranTable(item.Key);
+                    count += tb.DeleteByIds(item.Value);
                 }
-                tran.Commit();
                 return count;
-            }
-            catch (Exception ex)
-            {
-                tran.Rollback();
-                throw ex;
-            }
+            });
         }
 
         public bool Exists(object id)
@@ -217,8 +238,7 @@ namespace Dapper.Sharding
         {
             if (CommonUtil.ObjectIsEmpty(ids))
                 return Enumerable.Empty<T>();
-            var dict = CreateTableDictByIds(ids);
-
+            var dict = GetTableByGroupIds(ids);
             var taskList = dict.Select(s =>
             {
                 return Task.Run(() =>
@@ -245,100 +265,93 @@ namespace Dapper.Sharding
             return GetTableByModel(model).InsertIdentityIfNoExists(model);
         }
 
-        public int InsertMany(IEnumerable<T> modelList)
+        public void BulkInsert(IEnumerable<T> modelList)
         {
-            var tran = BeginTran();
-            try
+            Wrap(tran =>
             {
-                int count = 0;
-                foreach (var model in modelList)
+                var dict = GetTableByGroupModelList(modelList);
+                foreach (var item in dict)
                 {
-                    count += tran.GetTable(model).Insert(model) ? 1 : 0;
+                    var tb = tran.GetTranTable(item.Key);
+                    tb.BulkInsert(item.Value);
                 }
-                tran.Commit();
-                return count;
-            }
-            catch (Exception ex)
-            {
-                tran.Rollback();
-                throw ex;
-            }
+            });
         }
 
-        public bool Update(T model)
-        {
-            return GetTableByModel(model).Update(model);
-        }
+        //public bool Update(T model)
+        //{
+        //    return GetTableByModel(model).Update(model);
+        //}
 
-        public bool UpdateExclude(T model, string fields)
-        {
-            return GetTableByModel(model).UpdateExclude(model, fields);
-        }
+        //public bool UpdateExclude(T model, string fields)
+        //{
+        //    return GetTableByModel(model).UpdateExclude(model, fields);
+        //}
 
-        public int UpdateExcludeMany(IEnumerable<T> modelList, string fields)
-        {
-            var tran = BeginTran();
-            try
-            {
-                int count = 0;
-                foreach (var model in modelList)
-                {
-                    count += tran.GetTable(model).UpdateExclude(model, fields) ? 1 : 0;
-                }
-                tran.Commit();
-                return count;
-            }
-            catch (Exception ex)
-            {
-                tran.Rollback();
-                throw ex;
-            }
-        }
+        //public int UpdateExcludeMany(IEnumerable<T> modelList, string fields)
+        //{
+        //    var tran = BeginTran();
+        //    try
+        //    {
+        //        int count = 0;
+        //        foreach (var model in modelList)
+        //        {
+        //            count += tran.GetTable(model).UpdateExclude(model, fields) ? 1 : 0;
+        //        }
+        //        tran.Commit();
+        //        return count;
+        //    }
+        //    catch (Exception ex)
+        //    {
+        //        tran.Rollback();
+        //        throw ex;
+        //    }
+        //}
 
-        public bool UpdateInclude(T model, string fields)
-        {
-            return GetTableByModel(model).UpdateInclude(model, fields);
-        }
+        //public bool UpdateInclude(T model, string fields)
+        //{
+        //    return GetTableByModel(model).UpdateInclude(model, fields);
+        //}
 
-        public int UpdateIncludeMany(IEnumerable<T> modelList, string fields)
-        {
-            var tran = BeginTran();
-            try
-            {
-                int count = 0;
-                foreach (var model in modelList)
-                {
-                    count += tran.GetTable(model).UpdateInclude(model, fields) ? 1 : 0;
-                }
-                tran.Commit();
-                return count;
-            }
-            catch (Exception ex)
-            {
-                tran.Rollback();
-                throw ex;
-            }
-        }
+        //public int UpdateIncludeMany(IEnumerable<T> modelList, string fields)
+        //{
+        //    var tran = BeginTran();
+        //    try
+        //    {
+        //        int count = 0;
+        //        foreach (var model in modelList)
+        //        {
+        //            count += tran.GetTable(model).UpdateInclude(model, fields) ? 1 : 0;
+        //        }
+        //        tran.Commit();
+        //        return count;
+        //    }
+        //    catch (Exception ex)
+        //    {
+        //        tran.Rollback();
+        //        throw ex;
+        //    }
+        //}
 
-        public int UpdateMany(IEnumerable<T> modelList)
-        {
-            var tran = BeginTran();
-            try
-            {
-                int count = 0;
-                foreach (var model in modelList)
-                {
-                    count += tran.GetTable(model).Update(model) ? 1 : 0;
-                }
-                tran.Commit();
-                return count;
-            }
-            catch (Exception ex)
-            {
-                tran.Rollback();
-                throw ex;
-            }
-        }
+        //public int UpdateMany(IEnumerable<T> modelList)
+        //{
+        //    var tran = BeginTran();
+        //    try
+        //    {
+        //        int count = 0;
+        //        foreach (var model in modelList)
+        //        {
+        //            count += tran.GetTable(model).Update(model) ? 1 : 0;
+        //        }
+        //        tran.Commit();
+        //        return count;
+        //    }
+        //    catch (Exception ex)
+        //    {
+        //        tran.Rollback();
+        //        throw ex;
+        //    }
+        //}
 
         #endregion
 
@@ -347,6 +360,8 @@ namespace Dapper.Sharding
         public abstract ITable<T> GetTableById(object id);
 
         public abstract ITable<T> GetTableByModel(T model);
+
+        public abstract ISharding<T> CreateTranSharding(DistributedTransaction tran);
 
         #endregion
 

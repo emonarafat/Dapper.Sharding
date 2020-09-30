@@ -1,4 +1,5 @@
 ﻿using Dapper.Sharding;
+using System.Collections.Generic;
 using Test.Com;
 
 namespace Test
@@ -62,44 +63,21 @@ namespace Test
             }
         }
 
-        public static ITable<Student>[] studentTableList
-        {
-            get
-            {
-                return new ITable<Student>[]
-                {
-                    Db.GetTable<Student>("s1"),
-                    Db.GetTable<Student>("s2"),
-                    Db.GetTable<Student>("s3"),
-                    Db2.GetTable<Student>("s4"),
-                    Db2.GetTable<Student>("s5"),
-                    Db2.GetTable<Student>("s6")
-                };
-            }
-        }
 
         public static ShardingQuery<Student> ShardingQuery
         {
             get
             {
-                return new ShardingQuery<Student>(studentTableList);
-            }
-        }
-
-
-        public static ITable<Teacher>[] teacherTableList
-        {
-            get
-            {
-                return new ITable<Teacher>[]
-                {
-                    Db.GetTable<Teacher>("t1"),
-                    Db.GetTable<Teacher>("t2"),
-                    Db.GetTable<Teacher>("t3"),
-                    Db2.GetTable<Teacher>("t4"),
-                    Db2.GetTable<Teacher>("t5"),
-                    Db2.GetTable<Teacher>("t6")
-                };
+                var list = new ITable<Student>[]
+                  {
+                        Db.GetTable<Student>("s1"),
+                        Db.GetTable<Student>("s2"),
+                        Db.GetTable<Student>("s3"),
+                        Db2.GetTable<Student>("s4"),
+                        Db2.GetTable<Student>("s5"),
+                        Db2.GetTable<Student>("s6")
+                  };
+                return new ShardingQuery<Student>(list);
             }
         }
 
@@ -107,9 +85,51 @@ namespace Test
         {
             get
             {
-                return ShardingFactory.CreateShardingQuery(teacherTableList);
+                var list = new ITable<Teacher>[]
+                  {
+                        Db.GetTable<Teacher>("s1"),
+                        Db.GetTable<Teacher>("s2"),
+                        Db.GetTable<Teacher>("s3"),
+                        Db2.GetTable<Teacher>("s4"),
+                        Db2.GetTable<Teacher>("s5"),
+                        Db2.GetTable<Teacher>("s6")
+                  };
+                return ShardingFactory.CreateShardingQuery(list);
             }
         }
 
+        public static ISharding<Student> ShardingHash
+        {
+            get
+            {
+                var list = new ITable<Student>[]
+                  {
+                        Db.GetTable<Student>("s1"),
+                        Db.GetTable<Student>("s2"),
+                        Db.GetTable<Student>("s3"),
+                        Db2.GetTable<Student>("s4"),
+                        Db2.GetTable<Student>("s5"),
+                        Db2.GetTable<Student>("s6")
+                  };
+                return ShardingFactory.CreateShardingHash(list);
+            }
+        }
+
+        public static ISharding<Teacher> ShardingRange
+        {
+            get
+            {
+                var dict = new Dictionary<long, ITable<Teacher>>()
+                {
+                    {20000, Db.GetTable<Teacher>("t1") },
+                    {40000, Db.GetTable<Teacher>("t2") },
+                    {60000, Db.GetTable<Teacher>("t3") },
+                    {80000, Db2.GetTable<Teacher>("t4") },
+                    {90000, Db2.GetTable<Teacher>("t5") },
+                    {100000, Db2.GetTable<Teacher>("t6") },
+                };
+                return ShardingFactory.CreateShardingRange(dict);
+            }
+        }
     }
 }

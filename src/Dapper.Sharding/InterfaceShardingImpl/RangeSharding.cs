@@ -1,7 +1,5 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Linq;
-using System.Threading.Tasks;
 
 namespace Dapper.Sharding
 {
@@ -10,15 +8,22 @@ namespace Dapper.Sharding
         private Dictionary<long, ITable<T>> _dict;
         private IEnumerable<long> _rangeList;
 
-        public RangeSharding(Dictionary<long, ITable<T>> dict) : base(dict.Values.ToArray())
+        public RangeSharding(Dictionary<long, ITable<T>> dict, DistributedTransaction tran = null) : base(dict.Values.ToArray(), tran)
         {
             _dict = dict;
             _rangeList = dict.Keys.AsEnumerable().OrderBy(b => b).AsEnumerable();
         }
 
+        public override ISharding<T> CreateTranSharding(DistributedTransaction tran)
+        {
+            return new RangeSharding<T>(_dict, tran);
+        }
+
         public override ITable<T> GetTableById(object id)
         {
-            var range = _rangeList.First(f => f <= (long)id);
+            var range = _rangeList.FirstOrDefault(f => (long)id <= f);
+            if (range == 0)
+                range = _rangeList.First();
             return _dict[range];
         }
 
@@ -26,7 +31,9 @@ namespace Dapper.Sharding
         {
             var accessor = TypeAccessor.Create(typeof(T));
             var id = (long)accessor[model, KeyName];
-            var range = _rangeList.First(f => f <= id);
+            var range = _rangeList.FirstOrDefault(f => id <= f);
+            if (range == 0)
+                range = _rangeList.First();
             return _dict[range];
         }
     }

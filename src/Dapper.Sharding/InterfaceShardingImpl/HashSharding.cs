@@ -1,15 +1,15 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
-
-namespace Dapper.Sharding
+﻿namespace Dapper.Sharding
 {
     internal class HashSharding<T> : ISharding<T> where T : class
     {
-        public HashSharding(ITable<T>[] tableList) : base(tableList)
+        public HashSharding(ITable<T>[] tableList, DistributedTransaction tran = null) : base(tableList, tran)
         {
 
+        }
+
+        public override ISharding<T> CreateTranSharding(DistributedTransaction tran)
+        {
+            return new HashSharding<T>(TableList, tran);
         }
 
         public override ITable<T> GetTableById(object id)
