@@ -115,7 +115,8 @@ namespace Dapper.Sharding
                 if (fields != null)
                 {
                     var ignoreFileds = SqlField.AllFieldExceptKeyList.Except(fields).ToList();
-                    opt.IgnoreOnUpdateNames = ignoreFileds;
+                    opt.IgnoreOnMergeUpdateNames = ignoreFileds;
+                    opt.MergeKeepIdentity = true;
                 }
             });
         }
@@ -127,7 +128,8 @@ namespace Dapper.Sharding
                 if (fields != null)
                 {
                     var ignoreFileds = SqlField.AllFieldExceptKeyList.Except(fields).ToList();
-                    opt.IgnoreOnUpdateNames = ignoreFileds;
+                    opt.IgnoreOnMergeUpdateNames = ignoreFileds;
+                    opt.MergeKeepIdentity = true;
                 }
             });
         }
@@ -139,6 +141,7 @@ namespace Dapper.Sharding
                 if (fields != null)
                 {
                     opt.IgnoreOnUpdateNames = fields;
+                    opt.MergeKeepIdentity = true;
                 }
             });
         }
@@ -150,6 +153,7 @@ namespace Dapper.Sharding
                 if (fields != null)
                 {
                     opt.IgnoreOnUpdateNames = fields;
+                    opt.MergeKeepIdentity = true;
                 }
             });
         }
