@@ -21,13 +21,12 @@ namespace Test
             //}
             //Factory.ShardingHash.BulkInsert(list);
 
-            var list2 = new List<Teacher>();
-            for (int i = 0; i < 100000; i++)
-            {
-                list2.Add(new Teacher { Id = i, Name = "李四" + i, Age = i });
-            }
-            Factory.ShardingRange.BulkInsert(list2);
-
+            //var list2 = new List<Teacher>();
+            //for (int i = 0; i < 100000; i++)
+            //{
+            //    list2.Add(new Teacher { Id = i, Name = "李四" + i, Age = i });
+            //}
+            //Factory.ShardingRange.BulkInsert(list2);
         }
     }
 }

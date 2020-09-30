@@ -7,28 +7,14 @@ namespace Dapper.Sharding
 {
     internal class MySqlTable<T> : ITable<T> where T : class
     {
-        public MySqlTable(string name, IDatabase database, IDbConnection conn = null, IDbTransaction tran = null, int? commandTimeout = null)
+        public MySqlTable(string name, IDatabase database, IDbConnection conn = null, IDbTransaction tran = null, int? commandTimeout = null) : base(name, database, SqlFieldCacheUtils.GetMySqlFieldEntity<T>(), new DapperEntity(name, database, conn, tran, commandTimeout))
         {
-            Name = name;
-            DataBase = database;
-            SqlField = SqlFieldCacheUtils.GetMySqlFieldEntity<T>();
-            DpEntity = new DapperEntity(database, conn, tran, commandTimeout);
+
         }
 
-        public string Name { get; }
+        #region virtual
 
-        public IDatabase DataBase { get; }
-
-        public SqlFieldEntity SqlField { get; }
-
-        public DapperEntity DpEntity { get; }
-
-        public ITable<T> CreateTranTable(IDbConnection conn, IDbTransaction tran, int? commandTimeout = null)
-        {
-            return new MySqlTable<T>(Name, DataBase, conn, tran, commandTimeout);
-        }
-
-        public bool Insert(T model)
+        public override bool Insert(T model)
         {
             var accessor = TypeAccessor.Create(typeof(T));
             if (SqlField.IsIdentity)
@@ -54,129 +40,58 @@ namespace Dapper.Sharding
             }
         }
 
-        public void BulkInsert(IEnumerable<T> modelList)
-        {
-            DpEntity.BulkInsert(Name, modelList);
-        }
-
-        public bool InsertIdentity(T model)
+        public override bool InsertIdentity(T model)
         {
             return DpEntity.Execute($"INSERT INTO `{Name}` ({SqlField.AllFields})VALUES({SqlField.AllFieldsAt})", model) > 0;
         }
 
-        public int InsertIdentityMany(IEnumerable<T> modelList)
-        {
-            return DpEntity.Execute($"INSERT INTO `{Name}` ({SqlField.AllFields})VALUES({SqlField.AllFieldsAt})", modelList);
-        }
-
-        public bool InsertIfNoExists(T model)
-        {
-            if (!Exists(model))
-            {
-                return Insert(model);
-            }
-            return false;
-        }
-
-        public bool InsertIfExistsUpdate(T model, string fields = null)
-        {
-            if (Exists(model))
-            {
-                if (fields == null)
-                    return Update(model);
-                else
-                    return UpdateInclude(model, fields);
-            }
-            else
-            {
-                return Insert(model);
-            }
-        }
-
-        public bool InsertIdentityIfNoExists(T model)
-        {
-            if (!Exists(model))
-            {
-                return InsertIdentity(model);
-            }
-            return false;
-        }
-
-        public bool InsertIdentityIfExistsUpdate(T model, string fields = null)
-        {
-            if (Exists(model))
-            {
-                if (fields == null)
-                    return Update(model);
-                else
-                    return UpdateInclude(model, fields);
-            }
-            else
-            {
-                return InsertIdentity(model);
-            }
-        }
-
-        public bool Update(T model)
+        public override bool Update(T model)
         {
             return DpEntity.Execute($"UPDATE `{Name}` SET {SqlField.AllFieldsAtEqExceptKey} WHERE `{SqlField.PrimaryKey}`=@{SqlField.PrimaryKey}", model) > 0;
         }
 
-        public int UpdateMany(IEnumerable<T> modelList)
+        public override bool Update(T model, List<string> fields)
         {
-            return DpEntity.Execute($"UPDATE `{Name}` SET {SqlField.AllFieldsAtEqExceptKey} WHERE `{SqlField.PrimaryKey}`=@{SqlField.PrimaryKey}", modelList);
+            string updatefields = CommonUtil.GetFieldsAtEqStr(fields, "`", "`");
+            return DpEntity.Execute($"UPDATE `{Name}` SET {updatefields} WHERE `{SqlField.PrimaryKey}`=@{SqlField.PrimaryKey}", model) > 0;
         }
 
-        public bool UpdateInclude(T model, string fields)
+        public override bool UpdateIgnore(T model, List<string> fields)
         {
-            fields = CommonUtil.GetFieldsAtEqStr(fields.Split(','), "`", "`");
-            return DpEntity.Execute($"UPDATE `{Name}` SET {fields} WHERE `{SqlField.PrimaryKey}`=@{SqlField.PrimaryKey}", model) > 0;
+            string updateFields = CommonUtil.GetFieldsAtEqStr(SqlField.AllFieldExceptKeyList.Except(fields), "`", "`");
+            return DpEntity.Execute($"UPDATE `{Name}` SET {updateFields} WHERE `{SqlField.PrimaryKey}`=@{SqlField.PrimaryKey}", model) > 0;
         }
 
-        public int UpdateIncludeMany(IEnumerable<T> modelList, string fields)
+        #endregion
+
+        public override ITable<T> CreateTranTable(IDbConnection conn, IDbTransaction tran, int? commandTimeout = null)
         {
-            fields = CommonUtil.GetFieldsAtEqStr(fields.Split(','), "`", "`");
-            return DpEntity.Execute($"UPDATE `{Name}` SET {fields} WHERE `{SqlField.PrimaryKey}`=@{SqlField.PrimaryKey}", modelList);
+            return new MySqlTable<T>(Name, DataBase, conn, tran, commandTimeout);
         }
 
-        public bool UpdateExclude(T model, string fields)
-        {
-            var excludeFields = fields.Split(',').AsEnumerable();
-            fields = CommonUtil.GetFieldsAtEqStr(SqlField.AllFieldExceptKeyList.Except(excludeFields), "`", "`");
-            return DpEntity.Execute($"UPDATE `{Name}` SET {fields} WHERE `{SqlField.PrimaryKey}`=@{SqlField.PrimaryKey}", model) > 0;
-        }
-
-        public int UpdateExcludeMany(IEnumerable<T> modelList, string fields)
-        {
-            var excludeFields = fields.Split(',').AsEnumerable();
-            fields = CommonUtil.GetFieldsAtEqStr(SqlField.AllFieldExceptKeyList.Except(excludeFields), "`", "`");
-            return DpEntity.Execute($"UPDATE `{Name}` SET {fields} WHERE `{SqlField.PrimaryKey}`=@{SqlField.PrimaryKey}", modelList);
-        }
-
-        public int UpdateByWhere(T model, string where)
+        public override int UpdateByWhere(T model, string where)
         {
             return DpEntity.Execute($"UPDATE `{Name}` SET {SqlField.AllFieldsAtEqExceptKey} {where}", model);
         }
 
-        public int UpdateByWhereInclude(T model, string where, string fields)
+        public override int UpdateByWhere(T model, string where, List<string> fields)
         {
-            fields = CommonUtil.GetFieldsAtEqStr(fields.Split(','), "`", "`");
-            return DpEntity.Execute($"UPDATE `{Name}` SET {fields} {where}", model);
+            string updatefields = CommonUtil.GetFieldsAtEqStr(fields, "`", "`");
+            return DpEntity.Execute($"UPDATE `{Name}` SET {updatefields} {where}", model);
         }
 
-        public int UpdateByWhereExclude(T model, string where, string fields)
+        public override int UpdateByWhereIgnore(T model, string where, List<string> fields)
         {
-            var excludeFields = fields.Split(',').AsEnumerable();
-            fields = CommonUtil.GetFieldsAtEqStr(SqlField.AllFieldExceptKeyList.Except(excludeFields), "`", "`");
-            return DpEntity.Execute($"UPDATE `{Name}` SET {fields} {where}", model);
+            string updatefields = CommonUtil.GetFieldsAtEqStr(SqlField.AllFieldExceptKeyList.Except(fields), "`", "`");
+            return DpEntity.Execute($"UPDATE `{Name}` SET {updatefields} {where}", model);
         }
 
-        public bool Delete(object id)
+        public override bool Delete(object id)
         {
             return DpEntity.Execute($"DELETE FROM `{Name}` WHERE `{SqlField.PrimaryKey}`=@id", new { id }) > 0;
         }
 
-        public int DeleteByIds(object ids)
+        public override int DeleteByIds(object ids)
         {
             if (CommonUtil.ObjectIsEmpty(ids))
                 return 0;
@@ -185,78 +100,78 @@ namespace Dapper.Sharding
             return DpEntity.Execute($"DELETE FROM `{Name}` WHERE `{SqlField.PrimaryKey}` IN @ids", dpar);
         }
 
-        public int DeleteByWhere(string where, object param)
+        public override int DeleteByWhere(string where, object param)
         {
             return DpEntity.Execute($"DELETE FROM `{Name}` " + where, param);
         }
 
-        public int DeleteAll()
+        public override int DeleteAll()
         {
             return DpEntity.Execute($"DELETE FROM `{Name}`");
         }
 
-        public void Truncate()
+        public override void Truncate()
         {
             DataBase.TruncateTable(Name);
         }
 
-        public bool Exists(object id)
+        public override bool Exists(object id)
         {
             return DpEntity.ExecuteScalar($"SELECT 1 FROM `{Name}` WHERE `{SqlField.PrimaryKey}`=@id", new { id }) != null;
         }
 
-        public long Count()
+        public override long Count()
         {
             return DpEntity.ExecuteScalar<long>($"SELECT COUNT(1) FROM `{Name}`");
         }
 
-        public long Count(string where, object param = null)
+        public override long Count(string where, object param = null)
         {
             return DpEntity.ExecuteScalar<long>($"SELECT COUNT(1) FROM `{Name}` {where}", param);
         }
 
-        public TValue Min<TValue>(string field, string where = null, object param = null)
+        public override TValue Min<TValue>(string field, string where = null, object param = null)
         {
             return DpEntity.ExecuteScalar<TValue>($"SELECT MIN(`{field}`) FROM `{Name}` {where}", param);
         }
 
-        public TValue Max<TValue>(string field, string where = null, object param = null)
+        public override TValue Max<TValue>(string field, string where = null, object param = null)
         {
             return DpEntity.ExecuteScalar<TValue>($"SELECT MAX(`{field}`) FROM `{Name}` {where}", param);
         }
 
-        public TValue Sum<TValue>(string field, string where = null, object param = null)
+        public override TValue Sum<TValue>(string field, string where = null, object param = null)
         {
             return DpEntity.ExecuteScalar<TValue>($"SELECT SUM(`{field}`) FROM `{Name}` {where}", param);
         }
 
-        public TValue Avg<TValue>(string field, string where = null, object param = null)
+        public override TValue Avg<TValue>(string field, string where = null, object param = null)
         {
             return DpEntity.ExecuteScalar<TValue>($"SELECT AVG(`{field}`) FROM `{Name}` {where}", param);
         }
 
-        public IEnumerable<T> GetAll(string returnFields = null, string orderby = null)
+        public override IEnumerable<T> GetAll(string returnFields = null, string orderby = null)
         {
             if (string.IsNullOrEmpty(returnFields))
                 returnFields = SqlField.AllFields;
             return DpEntity.Query<T>($"SELECT {returnFields} FROM `{Name}` {orderby.SetOrderBy(SqlField.PrimaryKey)}");
         }
 
-        public T GetById(object id, string returnFields = null)
+        public override T GetById(object id, string returnFields = null)
         {
             if (string.IsNullOrEmpty(returnFields))
                 returnFields = SqlField.AllFields;
             return DpEntity.QueryFirstOrDefault<T>($"SELECT {returnFields} FROM `{Name}` WHERE `{SqlField.PrimaryKey}`=@id", new { id });
         }
 
-        public T GetByIdForUpdate(object id, string returnFields = null)
+        public override T GetByIdForUpdate(object id, string returnFields = null)
         {
             if (string.IsNullOrEmpty(returnFields))
                 returnFields = SqlField.AllFields;
             return DpEntity.QueryFirstOrDefault<T>($"SELECT {returnFields} FROM `{Name}` WHERE `{SqlField.PrimaryKey}`=@id FOR UPDATE", new { id });
         }
 
-        public IEnumerable<T> GetByIds(object ids, string returnFields = null)
+        public override IEnumerable<T> GetByIds(object ids, string returnFields = null)
         {
             if (CommonUtil.ObjectIsEmpty(ids))
                 return Enumerable.Empty<T>();
@@ -267,7 +182,7 @@ namespace Dapper.Sharding
             return DpEntity.Query<T>($"SELECT {returnFields} FROM `{Name}` WHERE `{SqlField.PrimaryKey}` IN @ids", dpar);
         }
 
-        public IEnumerable<T> GetByIdsForUpdate(object ids, string returnFields = null)
+        public override IEnumerable<T> GetByIdsForUpdate(object ids, string returnFields = null)
         {
             if (CommonUtil.ObjectIsEmpty(ids))
                 return Enumerable.Empty<T>();
@@ -278,7 +193,7 @@ namespace Dapper.Sharding
             return DpEntity.Query<T>($"SELECT {returnFields} FROM `{Name}` WHERE `{SqlField.PrimaryKey}` IN @ids FOR UPDATE", dpar);
         }
 
-        public IEnumerable<T> GetByIdsWithField(object ids, string field, string returnFields = null)
+        public override IEnumerable<T> GetByIdsWithField(object ids, string field, string returnFields = null)
         {
             if (CommonUtil.ObjectIsEmpty(ids))
                 return Enumerable.Empty<T>();
@@ -289,7 +204,7 @@ namespace Dapper.Sharding
             return DpEntity.Query<T>($"SELECT {returnFields} FROM `{Name}` WHERE `{field}` IN @ids", dpar);
         }
 
-        public IEnumerable<T> GetByWhere(string where, object param = null, string returnFields = null, string orderby = null, int limit = 0)
+        public override IEnumerable<T> GetByWhere(string where, object param = null, string returnFields = null, string orderby = null, int limit = 0)
         {
             if (string.IsNullOrEmpty(returnFields))
                 returnFields = SqlField.AllFields;
@@ -301,109 +216,84 @@ namespace Dapper.Sharding
             return DpEntity.Query<T>($"SELECT {returnFields} FROM `{Name}` {where} {orderby.SetOrderBy(SqlField.PrimaryKey)} {limitStr}", param);
         }
 
-        public T GetByWhereFirst(string where, object param = null, string returnFields = null)
+        public override T GetByWhereFirst(string where, object param = null, string returnFields = null)
         {
             if (string.IsNullOrEmpty(returnFields))
                 returnFields = SqlField.AllFields;
             return DpEntity.QueryFirstOrDefault<T>($"SELECT {returnFields} FROM `{Name}` {where} LIMIT 1", param);
         }
 
-        public IEnumerable<T> GetBySkipTake(int skip, int take, string where = null, object param = null, string returnFields = null, string orderby = null)
+        public override IEnumerable<T> GetBySkipTake(int skip, int take, string where = null, object param = null, string returnFields = null, string orderby = null)
         {
             if (string.IsNullOrEmpty(returnFields))
                 returnFields = SqlField.AllFields;
             return DpEntity.Query<T>($"SELECT {returnFields} FROM `{Name}` {where} {orderby.SetOrderBy(SqlField.PrimaryKey)} LIMIT {skip},{take}", param);
         }
 
-        public IEnumerable<T> GetByPage(int page, int pageSize, string where = null, object param = null, string returnFields = null, string orderby = null)
-        {
-            int skip = 0;
-            if (page > 0)
-            {
-                skip = (page - 1) * pageSize;
-            }
-            return GetBySkipTake(skip, pageSize, where, param, returnFields, orderby);
-        }
-
-        public IEnumerable<T> GetByPageAndCount(int page, int pageSize, out long count, string where = null, object param = null, string returnFields = null, string orderby = null)
-        {
-            var task1 = Task.Run(() =>
-            {
-                return Count(where, param);
-            });
-            var task2 = Task.Run(() =>
-            {
-                return GetByPage(page, pageSize, where, param, returnFields, orderby);
-            });
-            Task.WhenAll(task1, task2).Wait();
-            count = task1.Result;
-            return task2.Result;
-        }
-
-        public IEnumerable<T> GetByAscFirstPage(int pageSize, object param = null, string and = null, string returnFields = null)
+        public override IEnumerable<T> GetByAscFirstPage(int pageSize, object param = null, string and = null, string returnFields = null)
         {
             if (string.IsNullOrEmpty(returnFields))
                 returnFields = SqlField.AllFields;
             return DpEntity.Query<T>($"SELECT {returnFields} FROM `{Name}` AS A WHERE 1=1 {and} ORDER BY `{SqlField.PrimaryKey}` LIMIT {pageSize}", param);
         }
 
-        public IEnumerable<T> GetByAscPrevPage(int pageSize, T param, string and = null, string returnFields = null)
+        public override IEnumerable<T> GetByAscPrevPage(int pageSize, T param, string and = null, string returnFields = null)
         {
             if (string.IsNullOrEmpty(returnFields))
                 returnFields = SqlField.AllFields;
             return DpEntity.Query<T>($"SELECT * FROM (SELECT {returnFields} FROM `{Name}` AS A WHERE `{SqlField.PrimaryKey}`<@{SqlField.PrimaryKey} {and} ORDER BY `{SqlField.PrimaryKey}` DESC LIMIT {pageSize}) AS B ORDER BY `{SqlField.PrimaryKey}`", param);
         }
 
-        public IEnumerable<T> GetByAscCurrentPage(int pageSize, T param, string and = null, string returnFields = null)
+        public override IEnumerable<T> GetByAscCurrentPage(int pageSize, T param, string and = null, string returnFields = null)
         {
             if (string.IsNullOrEmpty(returnFields))
                 returnFields = SqlField.AllFields;
             return DpEntity.Query<T>($"SELECT {returnFields} FROM `{Name}` AS A WHERE `{SqlField.PrimaryKey}`>=@{SqlField.PrimaryKey} {and} ORDER BY `{SqlField.PrimaryKey}` LIMIT {pageSize}", param);
         }
 
-        public IEnumerable<T> GetByAscNextPage(int pageSize, T param, string and = null, string returnFields = null)
+        public override IEnumerable<T> GetByAscNextPage(int pageSize, T param, string and = null, string returnFields = null)
         {
             if (string.IsNullOrEmpty(returnFields))
                 returnFields = SqlField.AllFields;
             return DpEntity.Query<T>($"SELECT {returnFields} FROM `{Name}` AS A WHERE `{SqlField.PrimaryKey}`>@{SqlField.PrimaryKey} {and} ORDER BY `{SqlField.PrimaryKey}` LIMIT {pageSize}", param);
         }
 
-        public IEnumerable<T> GetByAscLastPage(int pageSize, object param = null, string and = null, string returnFields = null)
+        public override IEnumerable<T> GetByAscLastPage(int pageSize, object param = null, string and = null, string returnFields = null)
         {
             if (string.IsNullOrEmpty(returnFields))
                 returnFields = SqlField.AllFields;
             return DpEntity.Query<T>($"SELECT * FROM (SELECT {returnFields} FROM `{Name}` AS A WHERE 1=1 {and} ORDER BY `{SqlField.PrimaryKey}` DESC LIMIT {pageSize}) AS B ORDER BY `{SqlField.PrimaryKey}`", param);
         }
 
-        public IEnumerable<T> GetByDescFirstPage(int pageSize, object param = null, string and = null, string returnFields = null)
+        public override IEnumerable<T> GetByDescFirstPage(int pageSize, object param = null, string and = null, string returnFields = null)
         {
             if (string.IsNullOrEmpty(returnFields))
                 returnFields = SqlField.AllFields;
             return DpEntity.Query<T>($"SELECT {returnFields} FROM `{Name}` AS A WHERE 1=1 {and} ORDER BY `{SqlField.PrimaryKey}` DESC LIMIT {pageSize}", param);
         }
 
-        public IEnumerable<T> GetByDescPrevPage(int pageSize, T param, string and = null, string returnFields = null)
+        public override IEnumerable<T> GetByDescPrevPage(int pageSize, T param, string and = null, string returnFields = null)
         {
             if (string.IsNullOrEmpty(returnFields))
                 returnFields = SqlField.AllFields;
             return DpEntity.Query<T>($"SELECT * FROM (SELECT {returnFields} FROM `{Name}` AS A WHERE `{SqlField.PrimaryKey}`>@{SqlField.PrimaryKey} {and} ORDER BY `{SqlField.PrimaryKey}` LIMIT {pageSize}) AS B ORDER BY `{SqlField.PrimaryKey}` DESC", param);
         }
 
-        public IEnumerable<T> GetByDescCurrentPage(int pageSize, T param, string and = null, string returnFields = null)
+        public override IEnumerable<T> GetByDescCurrentPage(int pageSize, T param, string and = null, string returnFields = null)
         {
             if (string.IsNullOrEmpty(returnFields))
                 returnFields = SqlField.AllFields;
             return DpEntity.Query<T>($"SELECT {returnFields} FROM `{Name}` AS A WHERE `{SqlField.PrimaryKey}`<=@{SqlField.PrimaryKey} {and} ORDER BY `{SqlField.PrimaryKey}` DESC LIMIT {pageSize}", param);
         }
 
-        public IEnumerable<T> GetByDescNextPage(int pageSize, T param, string and = null, string returnFields = null)
+        public override IEnumerable<T> GetByDescNextPage(int pageSize, T param, string and = null, string returnFields = null)
         {
             if (string.IsNullOrEmpty(returnFields))
                 returnFields = SqlField.AllFields;
             return DpEntity.Query<T>($"SELECT {returnFields} FROM `{Name}` AS A WHERE `{SqlField.PrimaryKey}`<@{SqlField.PrimaryKey} {and} ORDER BY `{SqlField.PrimaryKey}` DESC LIMIT {pageSize}", param);
         }
 
-        public IEnumerable<T> GetByDescLastPage(int pageSize, object param = null, string and = null, string returnFields = null)
+        public override IEnumerable<T> GetByDescLastPage(int pageSize, object param = null, string and = null, string returnFields = null)
         {
             if (string.IsNullOrEmpty(returnFields))
                 returnFields = SqlField.AllFields;

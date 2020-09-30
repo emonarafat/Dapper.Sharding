@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Runtime.InteropServices;
 using System.Threading.Tasks;
 
 namespace Dapper.Sharding
@@ -129,7 +128,7 @@ namespace Dapper.Sharding
             });
         }
 
-        public int UpdateByWhereInclude(T model, string where, string fields)
+        public int UpdateByWhere(T model, string where, List<string> fields)
         {
             return Wrap(tran =>
             {
@@ -137,14 +136,14 @@ namespace Dapper.Sharding
                 foreach (var item in TableList)
                 {
                     var tb = tran.GetTranTable(item);
-                    count += tb.UpdateByWhereInclude(model, where, fields);
+                    count += tb.UpdateByWhere(model, where, fields);
                 }
                 return count;
             });
 
         }
 
-        public int UpdateByWhereExclude(T model, string where, string fields)
+        public int UpdateByWhereIgnore(T model, string where, List<string> fields)
         {
             return Wrap(tran =>
             {
@@ -152,7 +151,7 @@ namespace Dapper.Sharding
                 foreach (var item in TableList)
                 {
                     var tb = tran.GetTranTable(item);
-                    count += tb.UpdateByWhereExclude(model, where, fields);
+                    count += tb.UpdateByWhereIgnore(model, where, fields);
                 }
                 return count;
             });
@@ -255,14 +254,14 @@ namespace Dapper.Sharding
             return GetTableByModel(model).Insert(model);
         }
 
-        public bool InsertIfExistsUpdate(T model, string fields = null)
-        {
-            return GetTableByModel(model).InsertIfExistsUpdate(model, fields);
-        }
+        //public bool InsertIfExistsUpdate(T model, string fields = null)
+        //{
+        //    return GetTableByModel(model).InsertIfExistsUpdate(model, fields);
+        //}
 
-        public bool InsertIfNoExists(T model)
+        public void InsertIfNoExists(T model)
         {
-            return GetTableByModel(model).InsertIdentityIfNoExists(model);
+            GetTableByModel(model).InsertIdentityIfNoExists(model);
         }
 
         public void BulkInsert(IEnumerable<T> modelList)
@@ -273,7 +272,7 @@ namespace Dapper.Sharding
                 foreach (var item in dict)
                 {
                     var tb = tran.GetTranTable(item.Key);
-                    tb.BulkInsert(item.Value);
+                    tb.Insert(item.Value);
                 }
             });
         }

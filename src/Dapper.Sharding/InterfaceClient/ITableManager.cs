@@ -4,46 +4,58 @@ using System.Data;
 
 namespace Dapper.Sharding
 {
-    public interface ITableManager
+    public abstract class ITableManager
     {
-        string Name { get; }
+        public ITableManager(string name, IDatabase database, DapperEntity dpEntity)
+        {
+            Name = name;
+            DataBase = database;
+            DpEntity = dpEntity;
+        }
 
-        IDatabase DataBase { get; }
 
-        DapperEntity DpEntity {get;}
+        #region prototype
 
-        ITableManager BeginTran(IDbConnection conn, IDbTransaction tran, int? commandTimeout = null);
+        public string Name { get; }
 
-        void CreateIndex(string name, string columns, IndexType indexType);
+        public IDatabase DataBase { get; }
 
-        void DropIndex(string name);
+        internal DapperEntity DpEntity { get; }
 
-        void AlertIndex(string name, string columns, IndexType indexType);
+        #endregion
 
-        List<IndexEntity> GetIndexEntityList();
+        public abstract ITableManager CreateTranManager(IDbConnection conn, IDbTransaction tran, int? commandTimeout = null);
 
-        List<ColumnEntity> GetColumnEntityList();
+        public abstract void CreateIndex(string name, string columns, IndexType indexType);
 
-        void ReName(string name);
+        public abstract void DropIndex(string name);
 
-        void SetComment(string comment);
+        public abstract void AlertIndex(string name, string columns, IndexType indexType);
 
-        void SetCharset(string name);
+        public abstract List<IndexEntity> GetIndexEntityList();
 
-        void AddColumn(string name, Type t, double length = 0, string comment = null);
+        public abstract List<ColumnEntity> GetColumnEntityList();
 
-        void DropColumn(string name);
+        public abstract void ReName(string name);
 
-        void AddColumnAfter(string name, string afterName, Type t, double length = 0, string comment = null);
+        public abstract void SetComment(string comment);
 
-        void AddColumnFirst(string name, Type t, double length = 0, string comment = null);
+        public abstract void SetCharset(string name);
 
-        void ModifyColumn(string name, Type t, double length = 0, string comment = null);
+        public abstract void AddColumn(string name, Type t, double length = 0, string comment = null);
 
-        void ModifyColumnFirst(string name, Type t, double length = 0, string comment = null);
+        public abstract void DropColumn(string name);
 
-        void ModifyColumnAfter(string name, string afterName, Type t, double length = 0, string comment = null);
+        public abstract void AddColumnAfter(string name, string afterName, Type t, double length = 0, string comment = null);
 
-        void ModifyColumnName(string oldName, string newName, Type t, double length = 0, string comment = null);
+        public abstract void AddColumnFirst(string name, Type t, double length = 0, string comment = null);
+
+        public abstract void ModifyColumn(string name, Type t, double length = 0, string comment = null);
+
+        public abstract void ModifyColumnFirst(string name, Type t, double length = 0, string comment = null);
+
+        public abstract void ModifyColumnAfter(string name, string afterName, Type t, double length = 0, string comment = null);
+
+        public abstract void ModifyColumnName(string oldName, string newName, Type t, double length = 0, string comment = null);
     }
 }

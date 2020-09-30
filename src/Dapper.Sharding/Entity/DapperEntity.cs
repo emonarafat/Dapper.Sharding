@@ -1,13 +1,16 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Data;
+using Z.BulkOperations;
 using Z.Dapper.Plus;
 
 namespace Dapper.Sharding
 {
     public class DapperEntity
     {
-        public DapperEntity(IDatabase database, IDbConnection conn = null, IDbTransaction tran = null, int? commandTimeout = null)
+        public DapperEntity(string tableName, IDatabase database, IDbConnection conn = null, IDbTransaction tran = null, int? commandTimeout = null)
         {
+            TableName = tableName;
             DataBase = database;
             Conn = conn;
             Tran = tran;
@@ -21,6 +24,8 @@ namespace Dapper.Sharding
         private IDbTransaction Tran { get; }
 
         private int? CommandTimeout { get; }
+
+        public string TableName { get; }
 
         public int Execute(string sql, object param = null)
         {
@@ -131,21 +136,203 @@ namespace Dapper.Sharding
             }
         }
 
-        public void BulkInsert<T>(string tableName, IEnumerable<T> modelList) where T : class
+        #region Bulk
+
+        public void BulkInsert<T>(T model, Action<BulkOperation> action) where T : class
         {
-            var key = DapperPlusUtils.Map<T>(tableName);
+            var key = DapperPlusUtils.Map<T>(TableName);
             if (Conn == null)
             {
                 using (var cnn = DataBase.GetConn())
                 {
-                    cnn.BulkInsert(key, modelList);
+                    cnn.UseBulkOptions(option =>
+                    {
+                        action(option);
+
+                    }).BulkInsert(key, model);
                 }
             }
             else
             {
-                Tran.BulkInsert(key, modelList);
+                Tran.UseBulkOptions(option =>
+                {
+                    action(option);
+
+                }).BulkInsert(key, model);
             }
         }
+
+        public void BulkInsert<T>(IEnumerable<T> modelList, Action<BulkOperation> action) where T : class
+        {
+            var key = DapperPlusUtils.Map<T>(TableName);
+            if (Conn == null)
+            {
+                using (var cnn = DataBase.GetConn())
+                {
+                    cnn.UseBulkOptions(option =>
+                    {
+                        action(option);
+
+                    }).BulkInsert(key, modelList);
+                }
+            }
+            else
+            {
+                Tran.UseBulkOptions(option =>
+                {
+                    action(option);
+
+                }).BulkInsert(key, modelList);
+            }
+        }
+
+        public void BulkUpdate<T>(T model, Action<BulkOperation> action) where T : class
+        {
+            var key = DapperPlusUtils.Map<T>(TableName);
+            if (Conn == null)
+            {
+                using (var cnn = DataBase.GetConn())
+                {
+                    cnn.UseBulkOptions(option =>
+                    {
+                        action(option);
+
+                    }).BulkUpdate(key, model);
+                }
+            }
+            else
+            {
+                Tran.UseBulkOptions(option =>
+                {
+                    action(option);
+
+                }).BulkUpdate(key, model);
+            }
+        }
+
+        public void BulkUpdate<T>(IEnumerable<T> modelList, Action<BulkOperation> action) where T : class
+        {
+            var key = DapperPlusUtils.Map<T>(TableName);
+            if (Conn == null)
+            {
+                using (var cnn = DataBase.GetConn())
+                {
+                    cnn.UseBulkOptions(option =>
+                    {
+                        action(option);
+
+                    }).BulkUpdate(key, modelList);
+                }
+            }
+            else
+            {
+                Tran.UseBulkOptions(option =>
+                {
+                    action(option);
+
+                }).BulkUpdate(key, modelList);
+            }
+        }
+
+        public void BulkDelete<T>(T model, Action<BulkOperation> action) where T : class
+        {
+            var key = DapperPlusUtils.Map<T>(TableName);
+            if (Conn == null)
+            {
+                using (var cnn = DataBase.GetConn())
+                {
+                    cnn.UseBulkOptions(option =>
+                    {
+                        action(option);
+
+                    }).BulkDelete(key, model);
+                }
+            }
+            else
+            {
+                Tran.UseBulkOptions(option =>
+                {
+                    action(option);
+
+                }).BulkDelete(key, model);
+            }
+        }
+
+        public void BulkDelete<T>(IEnumerable<T> modelList, Action<BulkOperation> action) where T : class
+        {
+            var key = DapperPlusUtils.Map<T>(TableName);
+            if (Conn == null)
+            {
+                using (var cnn = DataBase.GetConn())
+                {
+                    cnn.UseBulkOptions(option =>
+                    {
+                        action(option);
+
+                    }).BulkDelete(key, modelList);
+                }
+            }
+            else
+            {
+                Tran.UseBulkOptions(option =>
+                {
+                    action(option);
+
+                }).BulkDelete(key, modelList);
+            }
+        }
+
+        public void BulkMerge<T>(T model, Action<BulkOperation> action) where T : class
+        {
+            var key = DapperPlusUtils.Map<T>(TableName);
+            if (Conn == null)
+            {
+                using (var cnn = DataBase.GetConn())
+                {
+                    cnn.UseBulkOptions(option =>
+                    {
+                        action(option);
+
+                    }).BulkMerge(key, model);
+                }
+            }
+            else
+            {
+                Tran.UseBulkOptions(option =>
+                {
+                    action(option);
+
+                }).BulkMerge(key, model);
+            }
+        }
+
+        public void BulkMerge<T>(IEnumerable<T> modelList, Action<BulkOperation> action) where T : class
+        {
+            var key = DapperPlusUtils.Map<T>(TableName);
+            if (Conn == null)
+            {
+                using (var cnn = DataBase.GetConn())
+                {
+                    cnn.UseBulkOptions(option =>
+                    {
+                        action(option);
+
+                    }).BulkMerge(key, modelList);
+                }
+            }
+            else
+            {
+                Tran.UseBulkOptions(option =>
+                {
+                    action(option);
+
+                }).BulkMerge(key, modelList);
+            }
+        }
+
+        #endregion
+
+
 
     }
 }

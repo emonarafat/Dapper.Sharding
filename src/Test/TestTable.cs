@@ -81,9 +81,9 @@ namespace Test
             var list = new List<Student>();
             for (int i = 0; i < 100000; i++)
             {
-                list.Add(new Student { Id = ShardingFactory.NextObjectId(), Name ="李四"+i,Age = i });
+                list.Add(new Student { Id = ShardingFactory.NextObjectId(), Name = "李四" + i, Age = i });
             }
-            Factory.studentTable.BulkInsert(list);
+            Factory.studentTable.Insert(list);
 
         }
 
@@ -112,8 +112,7 @@ namespace Test
                 new People{ Id = 22,Name = "李白22" },
                 new People{ Id = 23,Name = "李白23" }
             };
-            var data = Factory.peopleTable.InsertIdentityMany(modelList);
-            Console.WriteLine(data);
+            Factory.peopleTable.Insert(modelList);
         }
 
         [Test]
@@ -133,19 +132,18 @@ namespace Test
         }
 
         [Test]
-        public void UpdateMany()
+        public void UpdateList()
         {
             var modelList = new List<People>
             {
-                new People{ Id=22,Name="小黑" },
-                new People{ Id=23,Name="小白" }
+                new People{ Id=1,Name="小黑11" ,Age = 1},
+                new People{ Id=2,Name="小白222",Age = 2 }
             };
-            var data = Factory.peopleTable.UpdateMany(modelList);
-            Console.WriteLine(data);
+            Factory.peopleTable.Update(modelList, new List<string> { "Name" });
         }
 
         [Test]
-        public void UpdateInclude()
+        public void UpdateFields()
         {
             var model = new People
             {
@@ -156,11 +154,11 @@ namespace Test
                 Money = 200M,
                 AddTime = DateTime.Now
             };
-            Factory.peopleTable.UpdateInclude(model, "Money,AddTime");
+            Factory.peopleTable.Update(model, new List<string> { "Money,AddTime" });
         }
 
         [Test]
-        public void UpdateExclude()
+        public void UpdateIgnore()
         {
             var model = new People
             {
@@ -172,7 +170,7 @@ namespace Test
                 AddTime = DateTime.Now
             };
 
-            Factory.peopleTable.UpdateExclude(model, "Name");
+            Factory.peopleTable.UpdateIgnore(model, new List<string> { "Name" });
         }
 
         [Test]
@@ -192,7 +190,7 @@ namespace Test
         }
 
         [Test]
-        public void UpdateByWhereInclude()
+        public void UpdateByWhere2()
         {
             var model = new People
             {
@@ -203,11 +201,11 @@ namespace Test
                 Money = 200M,
                 AddTime = DateTime.Now
             };
-            Factory.peopleTable.UpdateByWhereInclude(model, "WHERE Age=@Age", "Name");
+            Factory.peopleTable.UpdateByWhere(model, "WHERE Age=@Age", new List<string> { "Name" });
         }
 
         [Test]
-        public void UpdateByWhereExclude()
+        public void UpdateByWhere3()
         {
             var model = new People
             {
@@ -219,7 +217,7 @@ namespace Test
                 AddTime = DateTime.Now
             };
 
-            Factory.peopleTable.UpdateByWhereExclude(model, "WHERE Age=@Age", "Name");
+            Factory.peopleTable.UpdateByWhereIgnore(model, "WHERE Age=@Age", new List<string> { "Name" });
         }
 
         [Test]
@@ -239,18 +237,18 @@ namespace Test
         }
 
         [Test]
-        public void InsertIfExistsUpdate()
+        public void Merge()
         {
             var p = new People
             {
-                Id = 12,
-                Name = "asdad",
-                Age = 44,
+                Id = 1,
+                Name = "啊实打实的",
+                Age = 222,
                 AddTime = DateTime.Now,
                 IsAdmin = true,
-                Text = "你好21112222222"
+                Text = "1昂克赛拉的就撒了看得见啊"
             };
-            Factory.peopleTable.InsertIfExistsUpdate(p, "Age");
+            Factory.peopleTable.Merge(p, new List<string> { "Age" });
             Console.WriteLine(p.Id);
         }
 

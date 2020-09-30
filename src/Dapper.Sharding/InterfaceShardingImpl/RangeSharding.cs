@@ -22,8 +22,6 @@ namespace Dapper.Sharding
         public override ITable<T> GetTableById(object id)
         {
             var range = _rangeList.FirstOrDefault(f => (long)id <= f);
-            if (range == 0)
-                range = _rangeList.First();
             return _dict[range];
         }
 
@@ -31,9 +29,7 @@ namespace Dapper.Sharding
         {
             var accessor = TypeAccessor.Create(typeof(T));
             var id = (long)accessor[model, KeyName];
-            var range = _rangeList.FirstOrDefault(f => id <= f);
-            if (range == 0)
-                range = _rangeList.First();
+            var range = _rangeList.First(f => id <= f);
             return _dict[range];
         }
     }
