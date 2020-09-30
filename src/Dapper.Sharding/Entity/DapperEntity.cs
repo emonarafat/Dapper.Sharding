@@ -133,18 +133,17 @@ namespace Dapper.Sharding
 
         public void BulkInsert<T>(string tableName, IEnumerable<T> modelList) where T : class
         {
-            DapperPlusUtils.Map<T>(tableName);
-
+            var key = DapperPlusUtils.Map<T>(tableName);
             if (Conn == null)
             {
                 using (var cnn = DataBase.GetConn())
                 {
-                    cnn.BulkInsert(tableName, modelList);
+                    cnn.BulkInsert(key, modelList);
                 }
             }
             else
             {
-                Tran.BulkInsert(tableName, modelList);
+                Tran.BulkInsert(key, modelList);
             }
         }
 

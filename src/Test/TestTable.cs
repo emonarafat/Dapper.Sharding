@@ -1,4 +1,5 @@
-﻿using NUnit.Framework;
+﻿using Dapper.Sharding;
+using NUnit.Framework;
 using System;
 using System.Collections.Generic;
 using Test.Com;
@@ -68,20 +69,22 @@ namespace Test
         }
 
         [Test]
-        public void InsertMany()
+        public void BulkInsert()
         {
-            var modelList = new List<People>
+            //var modelList = new List<People>();
+            //for (int i = 0; i < 5000; i++)
+            //{
+            //    modelList.Add(new People { Name = "李白" + i });
+            //}
+            //Factory.peopleTable.BulkInsert(modelList);
+
+            var list = new List<Student>();
+            for (int i = 0; i < 100000; i++)
             {
-                new People{ Name = "李白1" },
-                new People{ Name = "李白2" },
-                new People{ Name = "李白3" },
-                new People{ Name = "李白4" },
-                new People{ Name = "李白5" },
-                new People{ Name = "李白6" },
-                new People{ Name = "李白7" }
-            };
-            var data = Factory.peopleTable.InsertMany(modelList);
-            Console.WriteLine(data);
+                list.Add(new Student { Id = ShardingFactory.NextObjectId(), Name ="李四"+i,Age = i });
+            }
+            Factory.studentTable.BulkInsert(list);
+
         }
 
         [Test]

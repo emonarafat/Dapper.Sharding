@@ -29,19 +29,5 @@ namespace Dapper.Sharding
             var range = _rangeList.First(f => f <= id);
             return _dict[range];
         }
-
-        public override ITable<T> GetTableByModelAndInitId(T model)
-        {
-            var accessor = TypeAccessor.Create(typeof(T));
-            var id = (long)accessor[model, KeyName];
-            if (id == 0)
-            {
-                id = SnowflakeId.GenerateNewId();
-                accessor[model, KeyName] = id;
-            }
-            var range = _rangeList.First(f => f <= id);
-            return _dict[range];
-        }
-
     }
 }

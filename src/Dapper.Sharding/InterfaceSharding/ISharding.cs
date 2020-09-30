@@ -232,7 +232,7 @@ namespace Dapper.Sharding
 
         public bool Insert(T model)
         {
-            return GetTableByModelAndInitId(model).Insert(model);
+            return GetTableByModel(model).Insert(model);
         }
 
         public bool InsertIfExistsUpdate(T model, string fields = null)
@@ -347,8 +347,6 @@ namespace Dapper.Sharding
         public abstract ITable<T> GetTableById(object id);
 
         public abstract ITable<T> GetTableByModel(T model);
-
-        public abstract ITable<T> GetTableByModelAndInitId(T model);
 
         #endregion
 

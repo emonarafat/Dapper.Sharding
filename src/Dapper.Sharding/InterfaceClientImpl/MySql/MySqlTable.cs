@@ -49,22 +49,6 @@ namespace Dapper.Sharding
             }
             else
             {
-                if (SqlField.PrimaryKeyType == typeof(string))
-                {
-                    var val = (string)accessor[model, SqlField.PrimaryKey];
-                    if (string.IsNullOrEmpty(val))
-                    {
-                        accessor[model, SqlField.PrimaryKey] = ObjectId.GenerateNewIdAsString();
-                    }
-                }
-                else if (SqlField.PrimaryKeyType == typeof(long))
-                {
-                    var val = (long)accessor[model, SqlField.PrimaryKey];
-                    if (val == 0)
-                    {
-                        accessor[model, SqlField.PrimaryKey] = SnowflakeId.GenerateNewId();
-                    }
-                }
                 var sql = $"INSERT INTO `{Name}` ({SqlField.AllFields})VALUES({SqlField.AllFieldsAt})";
                 return DpEntity.Execute(sql, model) > 0;
             }

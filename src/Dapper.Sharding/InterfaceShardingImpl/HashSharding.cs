@@ -22,10 +22,5 @@ namespace Dapper.Sharding
             return TableList[ShardingUtils.Mod(model, KeyName, KeyType, TableList.Length)];
         }
 
-        public override ITable<T> GetTableByModelAndInitId(T model)
-        {
-            return TableList[ShardingUtils.ModAndInitId(model, KeyName, KeyType, TableList.Length)];
-        }
-
     }
 }
