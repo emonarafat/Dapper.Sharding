@@ -87,12 +87,12 @@ namespace Test
             {
                 var list = new ITable<Teacher>[]
                   {
-                        Db.GetTable<Teacher>("s1"),
-                        Db.GetTable<Teacher>("s2"),
-                        Db.GetTable<Teacher>("s3"),
-                        Db2.GetTable<Teacher>("s4"),
-                        Db2.GetTable<Teacher>("s5"),
-                        Db2.GetTable<Teacher>("s6")
+                        Db.GetTable<Teacher>("t1"),
+                        Db.GetTable<Teacher>("t2"),
+                        Db.GetTable<Teacher>("t3"),
+                        Db2.GetTable<Teacher>("t4"),
+                        Db2.GetTable<Teacher>("t5"),
+                        Db2.GetTable<Teacher>("t6")
                   };
                 return ShardingFactory.CreateShardingQuery(list);
             }
