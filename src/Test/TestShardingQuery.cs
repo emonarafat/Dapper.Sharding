@@ -1,10 +1,6 @@
 ﻿using Newtonsoft.Json;
 using NUnit.Framework;
 using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using Test.Com;
 
 namespace Test
@@ -14,58 +10,58 @@ namespace Test
         [Test]
         public void Exists()
         {
-            var data = Factory.ShardingQuery.Exists("a");
+            var data = Factory.ShardingQueryStudent.Exists("a");
             Console.WriteLine(data);
 
-            var data2 = Factory.ShardingQuery.Exists("5f6b031cd47126c7f4308212");
+            var data2 = Factory.ShardingQueryStudent.Exists("5f6b031cd47126c7f4308212");
             Console.WriteLine(data2);
         }
 
         [Test]
         public void Count()
         {
-            var data = Factory.ShardingQuery.Count();
+            var data = Factory.ShardingQueryStudent.Count();
             Console.WriteLine(data);
 
-            var data2 = Factory.ShardingQuery.Count("WHERE Name=@Name", new { Name = "李四1" });
+            var data2 = Factory.ShardingQueryStudent.Count("WHERE Name=@Name", new { Name = "李四1" });
             Console.WriteLine(data2);
         }
 
         [Test]
         public void Min()
         {
-            var data = Factory.ShardingQuery.Min<long>("Age");
+            var data = Factory.ShardingQueryStudent.Min<long>("Age");
             Console.WriteLine(data);
         }
 
         [Test]
         public void Max()
         {
-            var data = Factory.ShardingQuery.Max<long>("Age");
+            var data = Factory.ShardingQueryStudent.Max<long>("Age");
             Console.WriteLine(data);
         }
 
         [Test]
         public void Sum()
         {
-            var data = Factory.ShardingQuery.SumLong("Age");
+            var data = Factory.ShardingQueryStudent.SumLong("Age");
             Console.WriteLine(data);
 
-            var data2 = Factory.ShardingQuery.SumDecimal("Age");
+            var data2 = Factory.ShardingQueryStudent.SumDecimal("Age");
             Console.WriteLine(data2);
         }
 
         [Test]
         public void Avg()
         {
-            var data = Factory.ShardingQuery.Avg("Age");
+            var data = Factory.ShardingQueryStudent.Avg("Age");
             Console.WriteLine(data);
         }
 
         [Test]
         public void GetAll()
         {
-            var data = Factory.ShardingQuery.GetAll("Age", "Age DESC");
+            var data = Factory.ShardingQueryStudent.GetAll("Age", "Age DESC");
             Console.WriteLine(JsonConvert.SerializeObject(data));
         }
 
@@ -100,7 +96,7 @@ namespace Test
         [Test]
         public void GetByWhereFirst()
         {
-            var data = Factory.ShardingQueryTeacher.GetByWhereFirst("WHERE Age>@Age", new { Age = 0 });
+            var data = Factory.ShardingQueryTeacher.GetByWhereFirst("WHERE Id=@Id", new { Id = "5f7471f0db027f2115ab769c" });
             Console.WriteLine(JsonConvert.SerializeObject(data));
         }
 

@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Data;
 using System.Linq;
 using System.Threading.Tasks;
@@ -300,6 +301,7 @@ namespace Dapper.Sharding
         public abstract IEnumerable<T> GetByDescNextPage(int pageSize, T param, string and = null, string returnFields = null);
 
         public abstract IEnumerable<T> GetByDescLastPage(int pageSize, object param = null, string and = null, string returnFields = null);
+
 
         #endregion
 

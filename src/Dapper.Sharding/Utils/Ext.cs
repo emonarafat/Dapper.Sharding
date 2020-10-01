@@ -8,45 +8,6 @@ namespace Dapper.Sharding
 {
     internal static class Ext
     {
-        #region dapper
-
-        public static DataTable GetDataTable(this IDbConnection conn, string sql, object param = null, IDbTransaction tran = null, int? commandTimeout = null, CommandType? commandType = null)
-        {
-            if (conn.State == ConnectionState.Closed)
-                conn.Open();
-
-            using (IDataReader reader = conn.ExecuteReader(sql, param, tran, commandTimeout, commandType))
-            {
-                DataTable dt = new DataTable();
-                dt.Load(reader);
-                return dt;
-            }
-        }
-
-        public static DataSet GetDataSet(this IDbConnection conn, string sql, object param = null, IDbTransaction tran = null, int? commandTimeout = null, CommandType? commandType = null)
-        {
-            //oracle do no support GetDataSet
-
-            if (conn.State == ConnectionState.Closed)
-                conn.Open();
-            using (IDataReader reader = conn.ExecuteReader(sql, param, tran, commandTimeout, commandType))
-            {
-                DataSet ds = new DataSet();
-                int i = 0;
-                while (!reader.IsClosed)
-                {
-                    i++;
-                    DataTable dt = new DataTable();
-                    dt.TableName = "T" + i;
-                    dt.Load(reader);
-                    ds.Tables.Add(dt);
-                }
-                return ds;
-            }
-        }
-
-        #endregion
-
         #region string
         public static string FirstCharToUpper(this string txt)
         {

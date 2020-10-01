@@ -1,4 +1,5 @@
-﻿using Newtonsoft.Json;
+﻿using Dapper.Sharding;
+using Newtonsoft.Json;
 using NUnit.Framework;
 using System;
 using System.Collections.Generic;
@@ -77,6 +78,7 @@ namespace Test
             Console.WriteLine(JsonConvert.SerializeObject(data1));
 
             var data2 = Factory.peopleTable.GetAll("Id", "Id DESC");
+
             Console.WriteLine(JsonConvert.SerializeObject(data2));
         }
 

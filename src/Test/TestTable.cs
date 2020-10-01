@@ -69,7 +69,7 @@ namespace Test
         }
 
         [Test]
-        public void BulkInsert()
+        public void InsertList()
         {
             //var modelList = new List<People>();
             //for (int i = 0; i < 5000; i++)
@@ -100,7 +100,7 @@ namespace Test
         }
 
         [Test]
-        public void InsertIdentityMany()
+        public void InsertIdentityList()
         {
             var modelList = new List<People>
             {

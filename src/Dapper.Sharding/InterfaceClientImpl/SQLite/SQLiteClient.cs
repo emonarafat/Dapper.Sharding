@@ -10,8 +10,6 @@ namespace Dapper.Sharding
 {
     internal class SQLiteClient : IClient
     {
-
-
         public SQLiteClient(DataBaseConfig config) : base(DataBaseType.Sqlite, config)
         {
             ConnectionString = config.Server;

@@ -36,6 +36,11 @@ namespace Dapper.Sharding
                 return "bigint";
             }
 
+            if (type == typeof(byte))
+            {
+                return "tinyint";
+            }
+
             if (type == typeof(float))
             {
                 return "real";
@@ -99,41 +104,29 @@ namespace Dapper.Sharding
                 if (length == -2)
                     return "longtext";
                 if (length == 0)
-                    length = 24;
+                    length = 50;
                 return $"varchar({length})";
 
             }
 
             if (type == typeof(int) || type == typeof(uint))
             {
-                if (length <= 0)
-                    length = 11;
-                return $"int({length})";
+                return $"int(11)";
             }
 
             if (type == typeof(short) || type == typeof(ushort))
             {
-                if (length <= 0)
-                {
-                    length = 6;
-                }
-                return $"smallint({length})";
+                return $"smallint(6)";
             }
 
             if (type == typeof(byte))
             {
-                if (length <= 0)
-                {
-                    length = 4;
-                }
-                return $"tinyint({length})";
+                return $"tinyint(4)";
             }
 
             if (type == typeof(long) || type == typeof(ulong))
             {
-                if (length <= 0)
-                    length = 20;
-                return $"bigint({length})";
+                return $"bigint(20)";
             }
 
             if (type == typeof(float))
@@ -217,6 +210,11 @@ namespace Dapper.Sharding
             }
 
             if (type == typeof(bool))
+            {
+                return "INTEGER";
+            }
+
+            if (type == typeof(byte))
             {
                 return "INTEGER";
             }

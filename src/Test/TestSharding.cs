@@ -19,7 +19,7 @@ namespace Test
             {
                 list.Add(new Student { Id = ShardingFactory.NextObjectId(), Name = "李四" + i, Age = i });
             }
-            Factory.ShardingHash.BulkInsert(list);
+            Factory.ShardingHash.Insert(list);
 
             //var list2 = new List<Teacher>();
             //for (int i = 0; i < 100000; i++)
