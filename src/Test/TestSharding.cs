@@ -14,12 +14,12 @@ namespace Test
         [Test]
         public void BulkInsert()
         {
-            //var list = new List<Student>();
-            //for (int i = 0; i < 10000; i++)
-            //{
-            //    list.Add(new Student { Id = ShardingFactory.NextObjectId(), Name = "李四" + i, Age = i });
-            //}
-            //Factory.ShardingHash.BulkInsert(list);
+            var list = new List<Student>();
+            for (int i = 0; i < 10000; i++)
+            {
+                list.Add(new Student { Id = ShardingFactory.NextObjectId(), Name = "李四" + i, Age = i });
+            }
+            Factory.ShardingHash.BulkInsert(list);
 
             //var list2 = new List<Teacher>();
             //for (int i = 0; i < 100000; i++)

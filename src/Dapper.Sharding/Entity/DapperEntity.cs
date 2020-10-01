@@ -169,11 +169,24 @@ namespace Dapper.Sharding
             {
                 using (var cnn = DataBase.GetConn())
                 {
-                    cnn.UseBulkOptions(option =>
+                    using (var tr = cnn.BeginTransaction())
                     {
-                        action(option);
+                        try
+                        {
+                            tr.UseBulkOptions(option =>
+                            {
+                                action(option);
 
-                    }).BulkInsert(key, modelList);
+                            }).BulkInsert(key, modelList);
+                            tr.Commit();
+                        }
+                        catch (Exception ex)
+                        {
+                            tr.Rollback();
+                            throw ex;
+                        }
+                    }
+
                 }
             }
             else
@@ -198,6 +211,7 @@ namespace Dapper.Sharding
                         action(option);
 
                     }).BulkUpdate(key, model);
+
                 }
             }
             else
@@ -217,11 +231,24 @@ namespace Dapper.Sharding
             {
                 using (var cnn = DataBase.GetConn())
                 {
-                    cnn.UseBulkOptions(option =>
+                    using (var tr = cnn.BeginTransaction())
                     {
-                        action(option);
+                        try
+                        {
+                            tr.UseBulkOptions(option =>
+                            {
+                                action(option);
 
-                    }).BulkUpdate(key, modelList);
+                            }).BulkUpdate(key, modelList);
+                            tr.Commit();
+                        }
+                        catch (Exception ex)
+                        {
+                            tr.Rollback();
+                            throw ex;
+                        }
+                    }
+
                 }
             }
             else
@@ -265,11 +292,23 @@ namespace Dapper.Sharding
             {
                 using (var cnn = DataBase.GetConn())
                 {
-                    cnn.UseBulkOptions(option =>
+                    using (var tr = cnn.BeginTransaction())
                     {
-                        action(option);
+                        try
+                        {
+                            tr.UseBulkOptions(option =>
+                            {
+                                action(option);
 
-                    }).BulkDelete(key, modelList);
+                            }).BulkDelete(key, modelList);
+                            tr.Commit();
+                        }
+                        catch (Exception ex)
+                        {
+                            tr.Rollback();
+                            throw ex;
+                        }
+                    }
                 }
             }
             else
@@ -313,11 +352,23 @@ namespace Dapper.Sharding
             {
                 using (var cnn = DataBase.GetConn())
                 {
-                    cnn.UseBulkOptions(option =>
+                    using (var tr = cnn.BeginTransaction())
                     {
-                        action(option);
+                        try
+                        {
+                            tr.UseBulkOptions(option =>
+                            {
+                                action(option);
 
-                    }).BulkMerge(key, modelList);
+                            }).BulkMerge(key, modelList);
+                            tr.Commit();
+                        }
+                        catch (Exception ex)
+                        {
+                            tr.Rollback();
+                            throw ex;
+                        }
+                    }
                 }
             }
             else

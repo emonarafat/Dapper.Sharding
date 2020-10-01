@@ -201,6 +201,150 @@ namespace Dapper.Sharding
 
         #region method curd
 
+        public bool Insert(T model)
+        {
+            return GetTableByModel(model).Insert(model);
+        }
+
+        public void Insert(IEnumerable<T> modelList)
+        {
+            Wrap(tran =>
+            {
+                var dict = GetTableByGroupModelList(modelList);
+                foreach (var item in dict)
+                {
+                    var tb = tran.GetTranTable(item.Key);
+                    tb.Insert(item.Value);
+                }
+            });
+        }
+
+        public void InsertIfNoExists(T model)
+        {
+            GetTableByModel(model).InsertIfNoExists(model);
+        }
+
+        public void InsertIfNoExists(IEnumerable<T> modelList)
+        {
+            Wrap(tran =>
+            {
+                var dict = GetTableByGroupModelList(modelList);
+                foreach (var item in dict)
+                {
+                    var tb = tran.GetTranTable(item.Key);
+                    tb.InsertIfNoExists(item.Value);
+                }
+            });
+        }
+
+        public bool InsertIdentity(T model)
+        {
+            return GetTableByModel(model).InsertIdentity(model);
+        }
+
+        public void InsertIdentity(IEnumerable<T> modelList)
+        {
+            Wrap(tran =>
+            {
+                var dict = GetTableByGroupModelList(modelList);
+                foreach (var item in dict)
+                {
+                    var tb = tran.GetTranTable(item.Key);
+                    tb.InsertIdentity(item.Value);
+                }
+            });
+        }
+
+        public bool Update(T model)
+        {
+            return GetTableByModel(model).Update(model);
+        }
+
+        public void Update(IEnumerable<T> modelList)
+        {
+            Wrap(tran =>
+            {
+                var dict = GetTableByGroupModelList(modelList);
+                foreach (var item in dict)
+                {
+                    var tb = tran.GetTranTable(item.Key);
+                    tb.Update(item.Value);
+                }
+            });
+        }
+
+        public bool Update(T model, List<string> fields)
+        {
+            return GetTableByModel(model).Update(model, fields);
+        }
+
+        public void Update(IEnumerable<T> modelList, List<string> fields)
+        {
+            Wrap(tran =>
+            {
+                var dict = GetTableByGroupModelList(modelList);
+                foreach (var item in dict)
+                {
+                    var tb = tran.GetTranTable(item.Key);
+                    tb.Update(item.Value, fields);
+                }
+            });
+        }
+
+        public bool UpdateIgnore(T model, List<string> fields)
+        {
+            return GetTableByModel(model).UpdateIgnore(model, fields);
+        }
+
+        public void UpdateIgnore(IEnumerable<T> modelList, List<string> fields)
+        {
+            Wrap(tran =>
+            {
+                var dict = GetTableByGroupModelList(modelList);
+                foreach (var item in dict)
+                {
+                    var tb = tran.GetTranTable(item.Key);
+                    tb.UpdateIgnore(item.Value, fields);
+                }
+            });
+        }
+
+        public void Merge(T model, List<string> fields)
+        {
+            GetTableByModel(model).Merge(model, fields);
+        }
+
+        public void Merge(IEnumerable<T> modelList, List<string> fields)
+        {
+            Wrap(tran =>
+            {
+                var dict = GetTableByGroupModelList(modelList);
+                foreach (var item in dict)
+                {
+                    var tb = tran.GetTranTable(item.Key);
+                    tb.Merge(item.Value, fields);
+                }
+            });
+        }
+
+        public void MergeIgnore(T model, List<string> fields)
+        {
+            GetTableByModel(model).MergeIgnore(model, fields);
+        }
+
+        public void MergeIgnore(IEnumerable<T> modelList, List<string> fields)
+        {
+            Wrap(tran =>
+            {
+                var dict = GetTableByGroupModelList(modelList);
+                foreach (var item in dict)
+                {
+                    var tb = tran.GetTranTable(item.Key);
+                    tb.MergeIgnore(item.Value, fields);
+                }
+            });
+        }
+
         public bool Delete(object id)
         {
             return GetTableById(id).Delete(id);
@@ -248,109 +392,6 @@ namespace Dapper.Sharding
             var result = Task.WhenAll(taskList).Result;
             return result.ConcatItem();
         }
-
-        public bool Insert(T model)
-        {
-            return GetTableByModel(model).Insert(model);
-        }
-
-        //public bool InsertIfExistsUpdate(T model, string fields = null)
-        //{
-        //    return GetTableByModel(model).InsertIfExistsUpdate(model, fields);
-        //}
-
-        public void InsertIfNoExists(T model)
-        {
-            GetTableByModel(model).InsertIdentityIfNoExists(model);
-        }
-
-        public void BulkInsert(IEnumerable<T> modelList)
-        {
-            Wrap(tran =>
-            {
-                var dict = GetTableByGroupModelList(modelList);
-                foreach (var item in dict)
-                {
-                    var tb = tran.GetTranTable(item.Key);
-                    tb.Insert(item.Value);
-                }
-            });
-        }
-
-        //public bool Update(T model)
-        //{
-        //    return GetTableByModel(model).Update(model);
-        //}
-
-        //public bool UpdateExclude(T model, string fields)
-        //{
-        //    return GetTableByModel(model).UpdateExclude(model, fields);
-        //}
-
-        //public int UpdateExcludeMany(IEnumerable<T> modelList, string fields)
-        //{
-        //    var tran = BeginTran();
-        //    try
-        //    {
-        //        int count = 0;
-        //        foreach (var model in modelList)
-        //        {
-        //            count += tran.GetTable(model).UpdateExclude(model, fields) ? 1 : 0;
-        //        }
-        //        tran.Commit();
-        //        return count;
-        //    }
-        //    catch (Exception ex)
-        //    {
-        //        tran.Rollback();
-        //        throw ex;
-        //    }
-        //}
-
-        //public bool UpdateInclude(T model, string fields)
-        //{
-        //    return GetTableByModel(model).UpdateInclude(model, fields);
-        //}
-
-        //public int UpdateIncludeMany(IEnumerable<T> modelList, string fields)
-        //{
-        //    var tran = BeginTran();
-        //    try
-        //    {
-        //        int count = 0;
-        //        foreach (var model in modelList)
-        //        {
-        //            count += tran.GetTable(model).UpdateInclude(model, fields) ? 1 : 0;
-        //        }
-        //        tran.Commit();
-        //        return count;
-        //    }
-        //    catch (Exception ex)
-        //    {
-        //        tran.Rollback();
-        //        throw ex;
-        //    }
-        //}
-
-        //public int UpdateMany(IEnumerable<T> modelList)
-        //{
-        //    var tran = BeginTran();
-        //    try
-        //    {
-        //        int count = 0;
-        //        foreach (var model in modelList)
-        //        {
-        //            count += tran.GetTable(model).Update(model) ? 1 : 0;
-        //        }
-        //        tran.Commit();
-        //        return count;
-        //    }
-        //    catch (Exception ex)
-        //    {
-        //        tran.Rollback();
-        //        throw ex;
-        //    }
-        //}
 
         #endregion
 

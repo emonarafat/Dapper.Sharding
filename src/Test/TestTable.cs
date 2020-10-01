@@ -79,7 +79,7 @@ namespace Test
             //Factory.peopleTable.BulkInsert(modelList);
 
             var list = new List<Student>();
-            for (int i = 0; i < 100000; i++)
+            for (int i = 0; i < 40000; i++)
             {
                 list.Add(new Student { Id = ShardingFactory.NextObjectId(), Name = "李四" + i, Age = i });
             }
@@ -94,9 +94,9 @@ namespace Test
             var table = new People
             {
                 Id = 11,
-                Name = "自动添加id"
+                Name = "自动添加id11"
             };
-            Factory.peopleTable.InsertIdentity(table);
+            Factory.peopleTable.InsertIdentityIfNoExists(table);
         }
 
         [Test]
@@ -255,7 +255,7 @@ namespace Test
         [Test]
         public void Delete()
         {
-            Factory.peopleTable.Delete(11);
+            Factory.peopleTable.Delete(1);
         }
 
         [Test]
