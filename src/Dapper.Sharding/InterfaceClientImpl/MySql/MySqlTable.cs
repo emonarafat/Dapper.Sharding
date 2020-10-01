@@ -44,14 +44,13 @@ namespace Dapper.Sharding
             return DpEntity.Execute($"INSERT INTO `{Name}` ({SqlField.AllFields})VALUES({SqlField.AllFieldsAt})", model) > 0;
         }
 
-        public override bool Update(T model)
+        public override bool Update(T model, List<string> fields = null)
         {
-            return DpEntity.Execute($"UPDATE `{Name}` SET {SqlField.AllFieldsAtEqExceptKey} WHERE `{SqlField.PrimaryKey}`=@{SqlField.PrimaryKey}", model) > 0;
-        }
-
-        public override bool Update(T model, List<string> fields)
-        {
-            string updatefields = CommonUtil.GetFieldsAtEqStr(fields, "`", "`");
+            string updatefields;
+            if (fields == null)
+                updatefields = SqlField.AllFieldsAtEqExceptKey;
+            else
+                updatefields = CommonUtil.GetFieldsAtEqStr(fields, "`", "`");
             return DpEntity.Execute($"UPDATE `{Name}` SET {updatefields} WHERE `{SqlField.PrimaryKey}`=@{SqlField.PrimaryKey}", model) > 0;
         }
 
@@ -68,14 +67,17 @@ namespace Dapper.Sharding
             return new MySqlTable<T>(Name, DataBase, conn, tran, commandTimeout);
         }
 
-        public override int UpdateByWhere(T model, string where)
+        public override int UpdateByWhere(T model, string where, List<string> fields = null)
         {
-            return DpEntity.Execute($"UPDATE `{Name}` SET {SqlField.AllFieldsAtEqExceptKey} {where}", model);
-        }
-
-        public override int UpdateByWhere(T model, string where, List<string> fields)
-        {
-            string updatefields = CommonUtil.GetFieldsAtEqStr(fields, "`", "`");
+            string updatefields;
+            if (fields != null)
+            {
+                updatefields = CommonUtil.GetFieldsAtEqStr(fields, "`", "`");
+            }
+            else
+            {
+                updatefields = SqlField.AllFieldsAtEqExceptKey;
+            }
             return DpEntity.Execute($"UPDATE `{Name}` SET {updatefields} {where}", model);
         }
 
@@ -298,5 +300,6 @@ namespace Dapper.Sharding
                 returnFields = SqlField.AllFields;
             return DpEntity.Query<T>($"SELECT * FROM (SELECT {returnFields} FROM `{Name}` AS A WHERE 1=1 {and} ORDER BY `{SqlField.PrimaryKey}` LIMIT {pageSize}) AS B ORDER BY `{SqlField.PrimaryKey}` DESC", param);
         }
+
     }
 }

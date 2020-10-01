@@ -31,6 +31,20 @@ namespace Dapper.Sharding
             return result.Any(a => a == true);
         }
 
+        public bool Exists(T model)
+        {
+            var taskList = TableList.Select(s =>
+            {
+                return Task.Run(() =>
+                {
+                    return s.Exists(model);
+                });
+            });
+
+            var result = Task.WhenAll(taskList).Result;
+            return result.Any(a => a == true);
+        }
+
         public long Count()
         {
             var taskList = TableList.Select(s =>

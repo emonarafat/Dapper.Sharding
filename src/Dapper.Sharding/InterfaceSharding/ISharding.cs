@@ -32,7 +32,7 @@ namespace Dapper.Sharding
 
         private DistributedTransaction DistributedTran { get; }
 
-        private void Wrap(Action<DistributedTransaction> action)
+        protected void Wrap(Action<DistributedTransaction> action)
         {
             if (DistributedTran == null)
             {
@@ -55,7 +55,7 @@ namespace Dapper.Sharding
             }
         }
 
-        private TResult Wrap<TResult>(Func<DistributedTransaction, TResult> func)
+        protected TResult Wrap<TResult>(Func<DistributedTransaction, TResult> func)
         {
             if (DistributedTran == null)
             {
@@ -80,7 +80,7 @@ namespace Dapper.Sharding
 
         #region method common
 
-        public Dictionary<ITable<T>, List<object>> GetTableByGroupIds(object ids)
+        public virtual Dictionary<ITable<T>, List<object>> GetTableByGroupIds(object ids)
         {
             var dict = new Dictionary<ITable<T>, List<object>>();
             var idsList = CommonUtil.GetMultiExec(ids);
@@ -99,7 +99,7 @@ namespace Dapper.Sharding
             return dict;
         }
 
-        public Dictionary<ITable<T>, List<T>> GetTableByGroupModelList(IEnumerable<T> modelList)
+        public virtual Dictionary<ITable<T>, List<T>> GetTableByGroupModelList(IEnumerable<T> modelList)
         {
             var dict = new Dictionary<ITable<T>, List<T>>();
             foreach (var item in modelList)
@@ -114,21 +114,7 @@ namespace Dapper.Sharding
             return dict;
         }
 
-        public int UpdateByWhere(T model, string where)
-        {
-            return Wrap(tran =>
-            {
-                int count = 0;
-                foreach (var item in TableList)
-                {
-                    var tb = tran.GetTranTable(item);
-                    count += tb.UpdateByWhere(model, where);
-                }
-                return count;
-            });
-        }
-
-        public int UpdateByWhere(T model, string where, List<string> fields)
+        public int UpdateByWhere(T model, string where, List<string> fields = null)
         {
             return Wrap(tran =>
             {
@@ -140,8 +126,8 @@ namespace Dapper.Sharding
                 }
                 return count;
             });
-
         }
+
 
         public int UpdateByWhereIgnore(T model, string where, List<string> fields)
         {
@@ -201,12 +187,16 @@ namespace Dapper.Sharding
 
         #region method curd
 
-        public bool Insert(T model)
+        public virtual bool Insert(T model)
         {
-            return GetTableByModel(model).Insert(model);
+            return Wrap(tran =>
+            {
+                var tb = tran.GetTranTable(GetTableByModel(model));
+                return tb.Insert(model);
+            });
         }
 
-        public void Insert(IEnumerable<T> modelList)
+        public virtual void Insert(IEnumerable<T> modelList)
         {
             Wrap(tran =>
             {
@@ -219,12 +209,16 @@ namespace Dapper.Sharding
             });
         }
 
-        public void InsertIfNoExists(T model)
+        public virtual void InsertIfNoExists(T model)
         {
-            GetTableByModel(model).InsertIfNoExists(model);
+            Wrap(tran =>
+            {
+                var tb = tran.GetTranTable(GetTableByModel(model));
+                tb.InsertIfNoExists(model);
+            });
         }
 
-        public void InsertIfNoExists(IEnumerable<T> modelList)
+        public virtual void InsertIfNoExists(IEnumerable<T> modelList)
         {
             Wrap(tran =>
             {
@@ -237,12 +231,16 @@ namespace Dapper.Sharding
             });
         }
 
-        public bool InsertIdentity(T model)
+        public virtual bool InsertIdentity(T model)
         {
-            return GetTableByModel(model).InsertIdentity(model);
+            return Wrap(tran =>
+            {
+                var tb = tran.GetTranTable(GetTableByModel(model));
+                return tb.InsertIdentity(model);
+            });
         }
 
-        public void InsertIdentity(IEnumerable<T> modelList)
+        public virtual void InsertIdentity(IEnumerable<T> modelList)
         {
             Wrap(tran =>
             {
@@ -255,12 +253,16 @@ namespace Dapper.Sharding
             });
         }
 
-        public bool Update(T model)
+        public virtual void InsertIdentityIfNoExists(T model)
         {
-            return GetTableByModel(model).Update(model);
+            Wrap(tran =>
+            {
+                var tb = tran.GetTranTable(GetTableByModel(model));
+                tb.InsertIdentityIfNoExists(model);
+            });
         }
 
-        public void Update(IEnumerable<T> modelList)
+        public virtual void InsertIdentityIfNoExists(IEnumerable<T> modelList)
         {
             Wrap(tran =>
             {
@@ -268,17 +270,21 @@ namespace Dapper.Sharding
                 foreach (var item in dict)
                 {
                     var tb = tran.GetTranTable(item.Key);
-                    tb.Update(item.Value);
+                    tb.InsertIdentityIfNoExists(item.Value);
                 }
             });
         }
 
-        public bool Update(T model, List<string> fields)
+        public virtual bool Update(T model, List<string> fields = null)
         {
-            return GetTableByModel(model).Update(model, fields);
+            return Wrap(tran =>
+            {
+                var tb = tran.GetTranTable(GetTableByModel(model));
+                return tb.Update(model, fields);
+            });
         }
 
-        public void Update(IEnumerable<T> modelList, List<string> fields)
+        public virtual void Update(IEnumerable<T> modelList, List<string> fields = null)
         {
             Wrap(tran =>
             {
@@ -291,12 +297,16 @@ namespace Dapper.Sharding
             });
         }
 
-        public bool UpdateIgnore(T model, List<string> fields)
+        public virtual bool UpdateIgnore(T model, List<string> fields)
         {
-            return GetTableByModel(model).UpdateIgnore(model, fields);
+            return Wrap(tran =>
+            {
+                var tb = tran.GetTranTable(GetTableByModel(model));
+                return tb.UpdateIgnore(model, fields);
+            });
         }
 
-        public void UpdateIgnore(IEnumerable<T> modelList, List<string> fields)
+        public virtual void UpdateIgnore(IEnumerable<T> modelList, List<string> fields)
         {
             Wrap(tran =>
             {
@@ -309,12 +319,16 @@ namespace Dapper.Sharding
             });
         }
 
-        public void Merge(T model, List<string> fields)
+        public virtual void Merge(T model, List<string> fields = null)
         {
-            GetTableByModel(model).Merge(model, fields);
+            Wrap(tran =>
+           {
+               var tb = tran.GetTranTable(GetTableByModel(model));
+               tb.Merge(model, fields);
+           });
         }
 
-        public void Merge(IEnumerable<T> modelList, List<string> fields)
+        public virtual void Merge(IEnumerable<T> modelList, List<string> fields = null)
         {
             Wrap(tran =>
             {
@@ -327,12 +341,16 @@ namespace Dapper.Sharding
             });
         }
 
-        public void MergeIgnore(T model, List<string> fields)
+        public virtual void MergeIgnore(T model, List<string> fields)
         {
-            GetTableByModel(model).MergeIgnore(model, fields);
+            Wrap(tran =>
+            {
+                var tb = tran.GetTranTable(GetTableByModel(model));
+                tb.MergeIgnore(model, fields);
+            });
         }
 
-        public void MergeIgnore(IEnumerable<T> modelList, List<string> fields)
+        public virtual void MergeIgnore(IEnumerable<T> modelList, List<string> fields)
         {
             Wrap(tran =>
             {
@@ -345,12 +363,16 @@ namespace Dapper.Sharding
             });
         }
 
-        public bool Delete(object id)
+        public virtual bool Delete(object id)
         {
-            return GetTableById(id).Delete(id);
+            return Wrap(tran =>
+            {
+                var tb = tran.GetTranTable(GetTableById(id));
+                return tb.Delete(id);
+            });
         }
 
-        public int DeleteByIds(object ids)
+        public virtual int DeleteByIds(object ids)
         {
             if (CommonUtil.ObjectIsEmpty(ids))
                 return 0;
@@ -367,17 +389,22 @@ namespace Dapper.Sharding
             });
         }
 
-        public bool Exists(object id)
+        public virtual bool Exists(object id)
         {
             return GetTableById(id).Exists(id);
         }
 
-        public T GetById(object id, string returnFields = null)
+        public virtual bool Exists(T model)
+        {
+            return GetTableByModel(model).Exists(model);
+        }
+
+        public virtual T GetById(object id, string returnFields = null)
         {
             return GetTableById(id).GetById(id, returnFields);
         }
 
-        public IEnumerable<T> GetByIds(object ids, string returnFields = null)
+        public virtual IEnumerable<T> GetByIds(object ids, string returnFields = null)
         {
             if (CommonUtil.ObjectIsEmpty(ids))
                 return Enumerable.Empty<T>();

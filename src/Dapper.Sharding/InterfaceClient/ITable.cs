@@ -30,6 +30,12 @@ namespace Dapper.Sharding
 
         #region public method
 
+        public virtual bool Insert(T model)
+        {
+            DpEntity.BulkInsert(model, opt => { });
+            return true;
+        }
+
         public void Insert(IEnumerable<T> modelList)
         {
             DpEntity.BulkInsert(modelList, opt => { });
@@ -49,6 +55,15 @@ namespace Dapper.Sharding
             {
                 opt.InsertIfNotExists = true;
             });
+        }
+
+        public virtual bool InsertIdentity(T model)
+        {
+            DpEntity.BulkInsert(model, opt =>
+            {
+                opt.InsertKeepIdentity = true;
+            });
+            return true;
         }
 
         public void InsertIdentity(IEnumerable<T> modelList)
@@ -77,18 +92,38 @@ namespace Dapper.Sharding
             });
         }
 
-        public void Update(IEnumerable<T> modelList)
+        public virtual bool Update(T model, List<string> fields = null)
         {
-            DpEntity.BulkUpdate(modelList, opt => { });
+            DpEntity.BulkUpdate(model, opt =>
+            {
+                if (fields != null)
+                {
+                    var ignoreFileds = SqlField.AllFieldExceptKeyList.Except(fields).ToList();
+                    opt.IgnoreOnUpdateNames = ignoreFileds;
+                }
+            });
+            return true;
         }
 
-        public void Update(IEnumerable<T> modelList, List<string> fields)
+        public void Update(IEnumerable<T> modelList, List<string> fields = null)
         {
-            var ignoreFileds = SqlField.AllFieldExceptKeyList.Except(fields).ToList();
             DpEntity.BulkUpdate(modelList, opt =>
             {
-                opt.IgnoreOnUpdateNames = ignoreFileds;
+                if (fields != null)
+                {
+                    var ignoreFileds = SqlField.AllFieldExceptKeyList.Except(fields).ToList();
+                    opt.IgnoreOnUpdateNames = ignoreFileds;
+                }
             });
+        }
+
+        public virtual bool UpdateIgnore(T model, List<string> fields)
+        {
+            DpEntity.BulkUpdate(model, opt =>
+            {
+                opt.IgnoreOnUpdateNames = fields;
+            });
+            return true;
         }
 
         public void UpdateIgnore(IEnumerable<T> modelList, List<string> fields)
@@ -117,8 +152,8 @@ namespace Dapper.Sharding
                 {
                     var ignoreFileds = SqlField.AllFieldExceptKeyList.Except(fields).ToList();
                     opt.IgnoreOnMergeUpdateNames = ignoreFileds;
-                    opt.MergeKeepIdentity = true;
                 }
+                opt.MergeKeepIdentity = true;
             });
         }
 
@@ -130,8 +165,8 @@ namespace Dapper.Sharding
                 {
                     var ignoreFileds = SqlField.AllFieldExceptKeyList.Except(fields).ToList();
                     opt.IgnoreOnMergeUpdateNames = ignoreFileds;
-                    opt.MergeKeepIdentity = true;
                 }
+                opt.MergeKeepIdentity = true;
             });
         }
 
@@ -142,8 +177,8 @@ namespace Dapper.Sharding
                 if (fields != null)
                 {
                     opt.IgnoreOnUpdateNames = fields;
-                    opt.MergeKeepIdentity = true;
                 }
+                opt.MergeKeepIdentity = true;
             });
         }
 
@@ -154,8 +189,8 @@ namespace Dapper.Sharding
                 if (fields != null)
                 {
                     opt.IgnoreOnUpdateNames = fields;
-                    opt.MergeKeepIdentity = true;
                 }
+                opt.MergeKeepIdentity = true;
             });
         }
 
@@ -184,48 +219,11 @@ namespace Dapper.Sharding
             return task2.Result;
         }
 
-        #endregion
-
-        #region virtual method
-
-        public virtual bool Insert(T model)
+        public bool Exists(T model)
         {
-            DpEntity.BulkInsert(model, opt => { });
-            return true;
-        }
-
-        public virtual bool InsertIdentity(T model)
-        {
-            DpEntity.BulkInsert(model, opt =>
-            {
-                opt.InsertKeepIdentity = true;
-            });
-            return true;
-        }
-
-        public virtual bool Update(T model)
-        {
-            DpEntity.BulkUpdate(model, opt => { });
-            return true;
-        }
-
-        public virtual bool Update(T model, List<string> fields)
-        {
-            var ignoreFileds = SqlField.AllFieldExceptKeyList.Except(fields).ToList();
-            DpEntity.BulkUpdate(model, opt =>
-            {
-                opt.IgnoreOnUpdateNames = ignoreFileds;
-            });
-            return true;
-        }
-
-        public virtual bool UpdateIgnore(T model, List<string> fields)
-        {
-            DpEntity.BulkUpdate(model, opt =>
-            {
-                opt.IgnoreOnUpdateNames = fields;
-            });
-            return true;
+            var accessor = TypeAccessor.Create(typeof(T));
+            var id = accessor[model, SqlField.PrimaryKey];
+            return Exists(id);
         }
 
         #endregion
@@ -234,9 +232,7 @@ namespace Dapper.Sharding
 
         public abstract ITable<T> CreateTranTable(IDbConnection conn, IDbTransaction tran, int? commandTimeout = null);
 
-        public abstract int UpdateByWhere(T model, string where);
-
-        public abstract int UpdateByWhere(T model, string where, List<string> fields);
+        public abstract int UpdateByWhere(T model, string where, List<string> fields = null);
 
         public abstract int UpdateByWhereIgnore(T model, string where, List<string> fields);
 

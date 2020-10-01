@@ -54,6 +54,11 @@ namespace Dapper.Sharding
             return new RangeSharding<T>(dict);
         }
 
+        public static ISharding<T> CreateShardingAuto<T>(params ITable<T>[] tableList) where T : class
+        {
+            return new AutoSharding<T>(tableList);
+        }
+
         public static ReadWirteSharding<T> CreateReadWirteSharding<T>(ISharding<T> write, params ISharding<T>[] readList) where T : class
         {
             return new ReadWirteSharding<T>(write, readList);

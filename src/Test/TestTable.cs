@@ -53,6 +53,7 @@ namespace Test
 
             var teacher = new Teacher
             {
+                Id = new Random().Next(),
                 Name = "王老师",
                 Age = 5
             };
@@ -61,6 +62,7 @@ namespace Test
 
             var student = new Student
             {
+                Id = ShardingFactory.NextObjectId(),
                 Name = "李同学",
                 Age = 100
             };
@@ -154,7 +156,7 @@ namespace Test
                 Money = 200M,
                 AddTime = DateTime.Now
             };
-            Factory.peopleTable.Update(model, new List<string> { "Money,AddTime" });
+            Factory.peopleTable.Update(model, new List<string> { "Money", "AddTime" });
         }
 
         [Test]

@@ -174,12 +174,7 @@ namespace Dapper.Sharding
             throw new NotImplementedException();
         }
 
-        public override int UpdateByWhere(T model, string where)
-        {
-            throw new NotImplementedException();
-        }
-
-        public override int UpdateByWhere(T model, string where, List<string> fields)
+        public override int UpdateByWhere(T model, string where, List<string> fields = null)
         {
             throw new NotImplementedException();
         }
