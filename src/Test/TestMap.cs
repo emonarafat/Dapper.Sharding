@@ -46,6 +46,16 @@ namespace Test
             var data2 = table2.GetAll();
             data2.MapTableOneToOne("AuthorId", "_Author", table1, "Id");
             Console.WriteLine(JsonConvert.SerializeObject(data2));
+
+            var list3 = new List<MapAuthor> { new MapAuthor { Id = 1, Name = "李白" } };
+            list3.MapTableOneToMany("Id", "_BookList", table2, "AuthorId");
+            Console.WriteLine(JsonConvert.SerializeObject(list3));
+        }
+
+        [Test]
+        public void MapCenter()
+        {
+            
         }
     }
 
