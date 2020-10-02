@@ -24,7 +24,7 @@ namespace Dapper.Sharding
 
         public ITable<T> _GetTableByModel(T model)
         {
-            return TableList[ShardingUtils.Mod(model, KeyName, KeyType, TableList.Length)];
+            return TableList[ShardingUtils.Mod(model, SqlField.PrimaryKey, SqlField.PrimaryKeyType, TableList.Length)];
         }
 
         public Dictionary<ITable<T>, List<object>> _GetTableByGroupIds(object ids)
@@ -271,6 +271,30 @@ namespace Dapper.Sharding
             return count;
         }
 
+        public override void Delete(T model)
+        {
+            Wrap(tran =>
+            {
+                foreach (var item in TableList)
+                {
+                    var tb = tran.GetTranTable(item);
+                    tb.Delete(model);
+                }
+            });
+        }
+
+        public override void Delete(IEnumerable<T> modelList)
+        {
+            Wrap(tran =>
+            {
+                foreach (var item in TableList)
+                {
+                    var tb = tran.GetTranTable(item);
+                    tb.Delete(modelList);
+                }
+            });
+        }
+
         public override bool Exists(object id)
         {
             return Query.Exists(id);
@@ -324,7 +348,7 @@ namespace Dapper.Sharding
         public override ITable<T> GetTableByModel(T model)
         {
             var accessor = TypeAccessor.Create(typeof(T));
-            var id = accessor[model, KeyName];
+            var id = accessor[model, SqlField.PrimaryKey];
             return GetTableById(id);
         }
 

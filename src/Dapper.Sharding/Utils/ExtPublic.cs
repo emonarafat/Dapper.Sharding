@@ -50,6 +50,8 @@ namespace Dapper.Sharding
 
         public static void MapOneToOne<T, T2>(this IEnumerable<T> list, string field, string propertyName, IEnumerable<T2> mapList, string mapField) where T : class where T2 : class
         {
+            if (list == null || list.Count() == 0)
+                return;
             var accessor = TypeAccessor.Create(typeof(T));
             foreach (var item in list)
             {
@@ -60,6 +62,8 @@ namespace Dapper.Sharding
 
         public static void MapOneToMany<T, T2>(this IEnumerable<T> list, string field, string propertyName, IEnumerable<T2> mapList, string mapField) where T : class where T2 : class
         {
+            if (list == null || list.Count() == 0)
+                return;
             var accessor = TypeAccessor.Create(typeof(T));
             foreach (var item in list)
             {
@@ -70,21 +74,25 @@ namespace Dapper.Sharding
 
         public static void MapManyToMany<T, T2, T3>(this IEnumerable<T> list, string field, string propertyName, IEnumerable<T2> centerList, string prevField, string nextField, IEnumerable<T3> mapList, string mapField) where T : class where T2 : class where T3 : class
         {
+            if (list == null || list.Count() == 0)
+                return;
             var accessor = TypeAccessor.Create(typeof(T));
             foreach (var item in list)
             {
                 var id = accessor[item, field];
-                var ids = centerList.AsQueryable().Where($"{prevField}=@0", id).Select(nextField).AsEnumerable();
-                accessor[item, propertyName] = mapList.AsQueryable().Where($"{mapField}.Any(@0)", ids).AsEnumerable<T3>();
+                var ids = centerList.AsQueryable().Where($"{prevField}=@0", id).Select(nextField);
+                accessor[item, propertyName] = mapList.AsQueryable().Where($"@0.Contains({mapField})", ids).ToList();
             }
         }
 
         #endregion
 
-        #region IEnumerable oneToOne oneToMany
+        #region IEnumerable map oneToOne oneToMany
 
-        public static void MapTableOneToOne<T, T2>(this IEnumerable<T> list, string field, string propertyName, ITable<T2> table, string mapField, string returnFields = null) where T : class where T2 : class
+        public static void MapTableOneToOne<T, T2>(this IEnumerable<T> list, string field, string propertyName, ICommon<T2> table, string mapField, string returnFields = null) where T : class where T2 : class
         {
+            if (list == null || list.Count() == 0)
+                return;
             var ids = list.AsQueryable().Select(field).Distinct().AsEnumerable();
             IEnumerable<T2> data;
             if (mapField.ToLower() == table.SqlField.PrimaryKey.ToLower())
@@ -114,8 +122,10 @@ namespace Dapper.Sharding
             list.MapOneToOne(field, propertyName, data, mapField);
         }
 
-        public static void MapTableOneToMany<T, T2>(this IEnumerable<T> list, string field, string propertyName, ITable<T2> table, string mapField, string returnFields = null) where T : class where T2 : class
+        public static void MapTableOneToMany<T, T2>(this IEnumerable<T> list, string field, string propertyName, ICommon<T2> table, string mapField, string returnFields = null) where T : class where T2 : class
         {
+            if (list == null || list.Count() == 0)
+                return;
             var ids = list.AsQueryable().Select(field).Distinct().AsEnumerable();
             IEnumerable<T2> data;
             if (mapField.ToLower() == table.SqlField.PrimaryKey.ToLower())
@@ -145,128 +155,53 @@ namespace Dapper.Sharding
             list.MapOneToMany(field, propertyName, data, mapField);
         }
 
-        public static void MapTableOneToOne<T, T2>(this IEnumerable<T> list, string field, string propertyName, ShardingQuery<T2> table, string mapField, string returnFields = null) where T : class where T2 : class
+        #endregion
+
+        #region IEnumerable map many to many
+
+        public static void MapTableManyToMany<T, T2, T3>(this IEnumerable<T> list, string field, string propertyName, ICommon<T2> centerTable, string prevField, string nextField, ICommon<T3> mapTable, string mapField, string returnFields = null) where T : class where T2 : class where T3 : class
         {
+            if (list == null || list.Count() == 0)
+                return;
             var ids = list.AsQueryable().Select(field).Distinct().AsEnumerable();
             IEnumerable<T2> data;
-            if (mapField.ToLower() == table.SqlField.PrimaryKey.ToLower())
+            if (ids.Count() > 1)
             {
-                if (ids.Count() > 1)
-                {
-                    data = table.GetByIds(ids, returnFields);
-                }
-                else
-                {
-                    data = new List<T2> { table.GetById(ids.FirstOrDefault(), returnFields) };
-                }
-
+                data = centerTable.GetByIdsWithField(ids, prevField, returnFields);
             }
             else
             {
-                if (ids.Count() > 1)
-                {
-                    data = table.GetByIdsWithField(ids, mapField, returnFields);
-                }
-                else
-                {
-                    data = table.GetByWhere($"WHERE {mapField}=@id", new { id = ids.FirstOrDefault() }, returnFields);
-                }
-
+                data = centerTable.GetByWhere($"WHERE {prevField}=@id", new { id = ids.FirstOrDefault() });
             }
-            list.MapOneToOne(field, propertyName, data, mapField);
-        }
 
-        public static void MapTableOneToMany<T, T2>(this IEnumerable<T> list, string field, string propertyName, ShardingQuery<T2> table, string mapField, string returnFields = null) where T : class where T2 : class
-        {
-            var ids = list.AsQueryable().Select(field).Distinct().AsEnumerable();
-            IEnumerable<T2> data;
-            if (mapField.ToLower() == table.SqlField.PrimaryKey.ToLower())
+            var ids2 = data.AsQueryable().Select(nextField).Distinct().AsEnumerable();
+            IEnumerable<T3> data2;
+            if (nextField.ToLower() == mapTable.SqlField.PrimaryKey.ToLower()) //主键
             {
-                if (ids.Count() > 1)
+                if (ids2.Count() > 1)
                 {
-                    data = table.GetByIds(ids, returnFields);
+                    data2 = mapTable.GetByIds(ids2, returnFields);
                 }
                 else
                 {
-                    data = new List<T2> { table.GetById(ids.FirstOrDefault(), returnFields) };
+                    data2 = new List<T3> { mapTable.GetById(ids2.FirstOrDefault(), returnFields) };
                 }
-
             }
             else
             {
-                if (ids.Count() > 1)
+                if (ids2.Count() > 1)
                 {
-                    data = table.GetByIdsWithField(ids, mapField, returnFields);
+                    data2 = mapTable.GetByIdsWithField(ids2, mapField, returnFields);
                 }
                 else
                 {
-                    data = table.GetByWhere($"WHERE {mapField}=@id", new { id = ids.FirstOrDefault() }, returnFields);
+                    data2 = mapTable.GetByWhere($"WHERE {mapField}=@id", new { id = ids2.FirstOrDefault() }, returnFields);
                 }
-
             }
-            list.MapOneToMany(field, propertyName, data, mapField);
-        }
 
-        public static void MapTableOneToOne<T, T2>(this IEnumerable<T> list, string field, string propertyName, ISharding<T2> table, string mapField, string returnFields = null) where T : class where T2 : class
-        {
-            var ids = list.AsQueryable().Select(field).Distinct().AsEnumerable();
-            IEnumerable<T2> data;
-            if (mapField.ToLower() == table.KeyName.ToLower())
-            {
-                if (ids.Count() > 1)
-                {
-                    data = table.GetByIds(ids, returnFields);
-                }
-                else
-                {
-                    data = new List<T2> { table.GetById(ids.FirstOrDefault(), returnFields) };
-                }
 
-            }
-            else
-            {
-                if (ids.Count() > 1)
-                {
-                    data = table.Query.GetByIdsWithField(ids, mapField, returnFields);
-                }
-                else
-                {
-                    data = table.Query.GetByWhere($"WHERE {mapField}=@id", new { id = ids.FirstOrDefault() }, returnFields);
-                }
+            list.MapManyToMany(field, propertyName, data, prevField, nextField, data2, mapField);
 
-            }
-            list.MapOneToOne(field, propertyName, data, mapField);
-        }
-
-        public static void MapTableOneToMany<T, T2>(this IEnumerable<T> list, string field, string propertyName, ISharding<T2> table, string mapField, string returnFields = null) where T : class where T2 : class
-        {
-            var ids = list.AsQueryable().Select(field).Distinct().AsEnumerable();
-            IEnumerable<T2> data;
-            if (mapField.ToLower() == table.KeyName.ToLower())
-            {
-                if (ids.Count() > 1)
-                {
-                    data = table.GetByIds(ids, returnFields);
-                }
-                else
-                {
-                    data = new List<T2> { table.GetById(ids.FirstOrDefault(), returnFields) };
-                }
-
-            }
-            else
-            {
-                if (ids.Count() > 1)
-                {
-                    data = table.Query.GetByIdsWithField(ids, mapField, returnFields);
-                }
-                else
-                {
-                    data = table.Query.GetByWhere($"WHERE {mapField}=@id", new { id = ids.FirstOrDefault() }, returnFields);
-                }
-
-            }
-            list.MapOneToMany(field, propertyName, data, mapField);
         }
 
         #endregion

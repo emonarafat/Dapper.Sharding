@@ -1,11 +1,12 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Threading;
 using System.Threading.Tasks;
 
 namespace Dapper.Sharding
 {
-    public abstract class ISharding<T> where T : class
+    public abstract class ISharding<T>: ICommon<T> where T : class
     {
         public ISharding(ITable<T>[] list, DistributedTransaction tran = null)
         {
@@ -14,23 +15,20 @@ namespace Dapper.Sharding
                 throw new Exception("auto increment of primary key is not allowed");
             }
             TableList = list;
-            KeyName = TableList[0].SqlField.PrimaryKey;
-            KeyType = TableList[0].SqlField.PrimaryKeyType;
             Query = new ShardingQuery<T>(TableList);
+            SqlField = list[0].SqlField;
             DistributedTran = tran;
         }
 
         #region base
-
-        public string KeyName { get; }
-
-        public Type KeyType { get; }
 
         public ITable<T>[] TableList { get; }
 
         public ShardingQuery<T> Query { get; }
 
         private DistributedTransaction DistributedTran { get; }
+
+        public SqlFieldEntity SqlField { get; }
 
         protected void Wrap(Action<DistributedTransaction> action)
         {
@@ -389,6 +387,28 @@ namespace Dapper.Sharding
             });
         }
 
+        public virtual void Delete(T model)
+        {
+            Wrap(tran =>
+            {
+                var tb = tran.GetTranTable(GetTableByModel(model));
+                tb.Delete(model);
+            });
+        }
+
+        public virtual void Delete(IEnumerable<T> modelList)
+        {
+            Wrap(tran =>
+            {
+                var dict = GetTableByGroupModelList(modelList);
+                foreach (var item in dict)
+                {
+                    var tb = tran.GetTranTable(item.Key);
+                    tb.Delete(item.Value);
+                }
+            });
+        }
+
         public virtual bool Exists(object id)
         {
             return GetTableById(id).Exists(id);
@@ -419,6 +439,15 @@ namespace Dapper.Sharding
             var result = Task.WhenAll(taskList).Result;
             return result.ConcatItem();
         }
+        public IEnumerable<T> GetByIdsWithField(object ids, string field, string returnFields = null)
+        {
+            return Query.GetByIdsWithField(ids, field, returnFields);
+        }
+
+        public IEnumerable<T> GetByWhere(string where, object param = null, string returnFields = null, string orderby = null, int limit = 0)
+        {
+            return Query.GetByWhere(where, param, returnFields, orderby, limit);
+        }
 
         #endregion
 
@@ -429,6 +458,7 @@ namespace Dapper.Sharding
         public abstract ITable<T> GetTableByModel(T model);
 
         public abstract ISharding<T> CreateTranSharding(DistributedTransaction tran);
+
 
         #endregion
 

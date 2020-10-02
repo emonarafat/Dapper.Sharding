@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace Dapper.Sharding
 {
-    public abstract class ITable<T> where T : class
+    public abstract class ITable<T> : ICommon<T> where T : class
     {
         public ITable(string name, IDatabase database, SqlFieldEntity sqlField, DapperEntity dpEntity)
         {
@@ -22,7 +22,7 @@ namespace Dapper.Sharding
 
         public IDatabase DataBase { get; }
 
-        internal SqlFieldEntity SqlField { get; }
+        public SqlFieldEntity SqlField { get; }
 
         internal DapperEntity DpEntity { get; }
 

@@ -28,7 +28,7 @@ namespace Dapper.Sharding
         public override ITable<T> GetTableByModel(T model)
         {
             var accessor = TypeAccessor.Create(typeof(T));
-            var id = (long)accessor[model, KeyName];
+            var id = (long)accessor[model, SqlField.PrimaryKey];
             var range = _rangeList.First(f => id <= f);
             return _dict[range];
         }

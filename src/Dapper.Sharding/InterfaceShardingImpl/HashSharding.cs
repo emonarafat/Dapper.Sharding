@@ -19,7 +19,7 @@
 
         public override ITable<T> GetTableByModel(T model)
         {
-            return TableList[ShardingUtils.Mod(model, KeyName, KeyType, TableList.Length)];
+            return TableList[ShardingUtils.Mod(model, SqlField.PrimaryKey, SqlField.PrimaryKeyType, TableList.Length)];
         }
 
     }

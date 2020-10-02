@@ -5,7 +5,7 @@ using System.Linq.Dynamic.Core;
 
 namespace Dapper.Sharding
 {
-    public class ShardingQuery<T> where T : class
+    public class ShardingQuery<T> : ICommon<T> where T : class
     {
         public ShardingQuery(params ITable<T>[] tableList)
         {
@@ -13,7 +13,7 @@ namespace Dapper.Sharding
             SqlField = tableList[0].SqlField;
         }
 
-        internal SqlFieldEntity SqlField { get; }
+        public SqlFieldEntity SqlField { get; }
 
         public ITable<T>[] TableList { get; }
 
