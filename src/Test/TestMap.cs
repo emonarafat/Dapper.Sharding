@@ -1,4 +1,5 @@
-﻿using Dapper.Sharding;
+﻿using Dapper;
+using Dapper.Sharding;
 using Newtonsoft.Json;
 using NUnit.Framework;
 using System;
@@ -45,12 +46,9 @@ namespace Test
             Console.WriteLine(JsonConvert.SerializeObject(data1));
 
             //one to one
-            var data2 = table2.GetAll();
-            data2.MapTableOneToOne("AuthorId", "_Author", table1, "Id");
-            Console.WriteLine(JsonConvert.SerializeObject(data2));
-
-            var list3 = new MapAuthor { Id = 1, Name = "李白" };
-            Console.WriteLine(JsonConvert.SerializeObject(list3));
+            //var data2 = table2.GetAll();
+            //data2.MapTableOneToOne("AuthorId", "_Author", table1, "Id");
+            //Console.WriteLine(JsonConvert.SerializeObject(data2));
         }
 
         [Test]
@@ -95,12 +93,23 @@ namespace Test
 
             var data1 = table1.GetAll();
             data1.MapTableManyToMany("Id", "_NextList", centerTable, "FirstId", "NextId", table3, "Id");
+            //data1.MapTableManyToMany("Id", "_NextList", centerTable, "FirstId", "NextId", table3, "Id",null,"AND Id>5");
             Console.WriteLine(JsonConvert.SerializeObject(data1));
 
 
             var data2 = table3.GetAll();
             data2.MapTableManyToMany("Id", "_PrevList", centerTable, "NextId", "FirstId", table1, "Id");
             Console.WriteLine(JsonConvert.SerializeObject(data2));
+
+            var dd = table1.MapCenterTable(centerTable, "FirstId", "NextId", 3);
+            Console.WriteLine(JsonConvert.SerializeObject(dd));
+
+            var dd2 = table3.MapCenterTable(centerTable, "NextId", "FirstId", 2);
+            Console.WriteLine(JsonConvert.SerializeObject(dd2));
+
+            var dd3 = table3.MapCenterTable(centerTable, "NextId", "FirstId", 2, "Name", 1, 1, out long total);
+            Console.WriteLine(JsonConvert.SerializeObject(dd3));
+            Console.WriteLine(total);
         }
     }
 

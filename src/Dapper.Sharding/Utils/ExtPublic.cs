@@ -1,5 +1,6 @@
 ﻿using System.Collections.Generic;
 using System.Data;
+using System.Data.SQLite;
 using System.Linq;
 using System.Linq.Dynamic.Core;
 
@@ -155,6 +156,19 @@ namespace Dapper.Sharding
             list.MapOneToMany(field, propertyName, data, mapField);
         }
 
+        public static void MapTableOneToMany<T, T2>(this IEnumerable<T> list, string field, string propertyName, ICommon<T2> table, string mapField, string returnFields, string and, DynamicParameters par = null, string orderby = null) where T : class where T2 : class
+        {
+            if (list == null || list.Count() == 0)
+                return;
+            var ids = list.AsQueryable().Select(field).Distinct().AsEnumerable();
+            string where = $"WHERE {mapField} IN @ids {and}";
+            if (par == null)
+                par = new DynamicParameters();
+            par.Add("@ids", ids);
+            var data = table.GetByWhere(where, par, returnFields, orderby);
+            list.MapOneToMany(field, propertyName, data, mapField);
+        }
+
         #endregion
 
         #region IEnumerable map many to many
@@ -202,6 +216,60 @@ namespace Dapper.Sharding
 
             list.MapManyToMany(field, propertyName, data, prevField, nextField, data2, mapField);
 
+        }
+
+        public static void MapTableManyToMany<T, T2, T3>(this IEnumerable<T> list, string field, string propertyName, ICommon<T2> centerTable, string prevField, string nextField, ICommon<T3> mapTable, string mapField, string returnFields, string and, DynamicParameters par = null, string orderby = null) where T : class where T2 : class where T3 : class
+        {
+            if (list == null || list.Count() == 0)
+                return;
+            var ids = list.AsQueryable().Select(field).Distinct().AsEnumerable();
+            IEnumerable<T2> data;
+            if (ids.Count() > 1)
+            {
+                data = centerTable.GetByIdsWithField(ids, prevField, returnFields);
+            }
+            else
+            {
+                data = centerTable.GetByWhere($"WHERE {prevField}=@id", new { id = ids.FirstOrDefault() });
+            }
+            var ids2 = data.AsQueryable().Select(nextField).Distinct().AsEnumerable();
+
+            string where = $"WHERE {mapField} IN @ids {and}";
+            if (par == null)
+                par = new DynamicParameters();
+            par.Add("@ids", ids2);
+            var data2 = mapTable.GetByWhere(where, par, returnFields, orderby);
+            list.MapManyToMany(field, propertyName, data, prevField, nextField, data2, mapField);
+
+        }
+
+
+        #endregion
+
+        #region ITable<T> map many to many
+
+        public static IEnumerable<T> MapCenterTable<T, T2>(this ITable<T> table, ITable<T2> centerTable, string prevField, string nextField, object id, string returnFields = null) where T : class where T2 : class
+        {
+            var where = $"AS A WHERE EXISTS(SELECT 1 FROM {centerTable.Name} WHERE {prevField}=A.{table.SqlField.PrimaryKey} AND {nextField}=@id)";
+            return table.GetByWhere(where, new { id }, returnFields);
+        }
+
+        public static IEnumerable<T> MapCenterTable<T, T2>(this ITable<T> table, ITable<T2> centerTable, string prevField, string nextField, object id, string returnFields, string and, DynamicParameters par = null, string orderby = null, int limit = 0) where T : class where T2 : class
+        {
+            if (par == null)
+                par = new DynamicParameters();
+            par.Add("@nextidddd", id);
+            var where = $"AS A WHERE EXISTS(SELECT 1 FROM {centerTable.Name} WHERE {prevField}=A.{table.SqlField.PrimaryKey} AND {nextField}=@nextidddd) {and}";
+            return table.GetByWhere(where, par, returnFields, orderby, limit);
+        }
+
+        public static IEnumerable<T> MapCenterTable<T, T2>(this ITable<T> table, ITable<T2> centerTable, string prevField, string nextField, object id, string returnFields, int page, int pageSize, out long total, string and = null, DynamicParameters par = null, string orderby = null) where T : class where T2 : class
+        {
+            if (par == null)
+                par = new DynamicParameters();
+            par.Add("@nextidddd", id);
+            var where = $"AS A WHERE EXISTS(SELECT 1 FROM {centerTable.Name} WHERE {prevField}=A.{table.SqlField.PrimaryKey} AND {nextField}=@nextidddd) {and}";
+            return table.GetByPageAndCount(page, pageSize, out total, where, par, returnFields, orderby);
         }
 
         #endregion
