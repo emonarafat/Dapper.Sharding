@@ -24,7 +24,7 @@ namespace Dapper.Sharding
 
         public SqlFieldEntity SqlField { get; }
 
-        internal DapperEntity DpEntity { get; }
+        public DapperEntity DpEntity { get; }
 
         #endregion
 
