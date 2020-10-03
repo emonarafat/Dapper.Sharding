@@ -154,6 +154,32 @@ namespace Dapper.Sharding
             throw new NotImplementedException();
         }
 
+        public override bool Insert(T model)
+        {
+            var accessor = TypeAccessor.Create(typeof(T));
+            if (SqlField.IsIdentity)
+            {
+                var sql = $"INSERT INTO [{Name}] ({SqlField.AllFieldsExceptKey})VALUES({SqlField.AllFieldsAtExceptKey});SELECT LAST_INSERT_ROWID()";
+                if (SqlField.PrimaryKeyType == typeof(int))
+                {
+                    var id = DpEntity.ExecuteScalar<int>(sql, model);
+                    accessor[model, SqlField.PrimaryKey] = id;
+                    return id > 0;
+                }
+                else
+                {
+                    var id = DpEntity.ExecuteScalar<long>(sql, model);
+                    accessor[model, SqlField.PrimaryKey] = id;
+                    return id > 0;
+                }
+            }
+            else
+            {
+                var sql = $"INSERT INTO [{Name}] ({SqlField.AllFields})VALUES({SqlField.AllFieldsAt})";
+                return DpEntity.Execute(sql, model) > 0;
+            }
+        }
+
         public override TValue Max<TValue>(string field, string where = null, object param = null)
         {
             throw new NotImplementedException();
