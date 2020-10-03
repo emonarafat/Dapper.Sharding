@@ -77,15 +77,24 @@ namespace Dapper.Sharding
             var sb = new StringBuilder();
             sb.Append($"CREATE TABLE IF NOT EXISTS [{name}] (");
             foreach (var item in tableEntity.ColumnList)
-            {
-                sb.Append($"[{item.Name}] {item.DbType}");
-                if (!string.IsNullOrEmpty(tableEntity.PrimaryKey))
+            {             
+                if (tableEntity.PrimaryKey.ToLower() == item.Name.ToLower())
                 {
-                    if (tableEntity.PrimaryKey.ToLower() == item.Name.ToLower())
+                    if (tableEntity.IsIdentity)
                     {
-                        sb.Append(" PRIMARY KEY");
+                        sb.Append($"[{item.Name}] INTEGER");
+                        sb.Append(" PRIMARY KEY AUTOINCREMENT");
+                    }
+                    else
+                    {
+                        sb.Append($"[{item.Name}] {item.DbType} PRIMARY KEY");
                     }
                 }
+                else
+                {
+                    sb.Append($"[{item.Name}] {item.DbType}");
+                }
+
                 if (item != tableEntity.ColumnList.Last())
                 {
                     sb.Append(",");

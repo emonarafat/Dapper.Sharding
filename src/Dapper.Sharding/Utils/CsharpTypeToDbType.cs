@@ -202,31 +202,6 @@ namespace Dapper.Sharding
                 return "TEXT";
             }
 
-            if (type == typeof(int) || type == typeof(uint) || type == typeof(short) || type == typeof(ushort))
-            {
-                return "INTEGER";
-            }
-
-            if (type == typeof(long) || type == typeof(ulong))
-            {
-                return "INTEGER";
-            }
-
-            if (type == typeof(float))
-            {
-                return "real";
-            }
-
-            if (type == typeof(double))
-            {
-                return "real";
-            }
-
-            if (type == typeof(decimal))
-            {
-                return "real";
-            }
-
             if (type == typeof(bool))
             {
                 return "INTEGER";
@@ -236,12 +211,43 @@ namespace Dapper.Sharding
             {
                 return "INTEGER";
             }
-            if (type == typeof(DateTime))
+
+            if (type == typeof(short) || type == typeof(ushort))
             {
-                return "TEXT";
+                return "INTEGER";
             }
 
-            return "blob";
+            if (type == typeof(int) || type == typeof(uint))
+            {
+                return "INTEGER";
+            }
+
+            if (type == typeof(long) || type == typeof(ulong))
+            {
+                return "NUMERIC";
+            }
+
+            if (type == typeof(float))
+            {
+                return "NUMERIC";
+            }
+
+            if (type == typeof(double))
+            {
+                return "NUMERIC";
+            }
+
+            if (type == typeof(decimal))
+            {
+                return "NUMERIC";
+            }
+
+            if (type == typeof(DateTime))
+            {
+                return "DATETIME";
+            }
+
+            return "BLOB";
         }
 
         private static string CreatePostgresqlType(Type type, double length = 0)

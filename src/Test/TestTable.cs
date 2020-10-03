@@ -46,14 +46,18 @@ namespace Test
                 Age = 50,
                 AddTime = DateTime.Now,
                 IsAdmin = true,
-                Text = "你好"
+                Text = "你好",
+                Money = 10.5M,
+                Money2 = 10.888F,
+                Money3 = 50.55
+
             };
             Factory.peopleTable.Insert(p);
             Console.WriteLine(p.Id);
 
             var teacher = new Teacher
             {
-                Id = new Random().Next(),
+                Id = ShardingFactory.NextSnowFlakeId(),
                 Name = "王老师",
                 Age = 5
             };
@@ -250,7 +254,7 @@ namespace Test
                 IsAdmin = true,
                 Text = "1昂克赛拉的就撒了看得见啊"
             };
-            Factory.peopleTable.Merge(p, new List<string> { "Age" });
+            Factory.peopleTable.Merge(p);
             Console.WriteLine(p.Id);
         }
 
