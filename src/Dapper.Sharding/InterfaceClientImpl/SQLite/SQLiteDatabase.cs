@@ -29,7 +29,10 @@ namespace Dapper.Sharding
 
         public override bool ExistsTable(string name)
         {
-            throw new NotImplementedException();
+            using (var conn = GetConn())
+            {
+                return conn.ExecuteScalar<int>($"SELECT COUNT(1) FROM sqlite_master WHERE name='{name}'") > 0;
+            }
         }
 
         public override IDbConnection GetConn()
@@ -72,18 +75,14 @@ namespace Dapper.Sharding
         {
             var tableEntity = ClassToTableEntityUtils.Get<T>(Client.DbType);
             var sb = new StringBuilder();
-            sb.Append($"CREATE TABLE IF NOT EXISTS {name} (");
+            sb.Append($"CREATE TABLE IF NOT EXISTS [{name}] (");
             foreach (var item in tableEntity.ColumnList)
             {
-                sb.Append($"{item.Name} {item.DbType}");
+                sb.Append($"[{item.Name}] {item.DbType}");
                 if (!string.IsNullOrEmpty(tableEntity.PrimaryKey))
                 {
                     if (tableEntity.PrimaryKey.ToLower() == item.Name.ToLower())
                     {
-                        if (tableEntity.IsIdentity)
-                        {
-                            sb.Append(" AUTO_INCREMENT");
-                        }
                         sb.Append(" PRIMARY KEY");
                     }
                 }
@@ -92,28 +91,28 @@ namespace Dapper.Sharding
                     sb.Append(",");
                 }
             }
+            sb.Append(")");
 
             if (tableEntity.IndexList != null && tableEntity.IndexList.Count > 0)
             {
-                sb.Append(",");
+                sb.Append(";");
                 foreach (var ix in tableEntity.IndexList)
                 {
                     if (ix.Type == IndexType.Normal)
                     {
-                        sb.Append("KEY");
+                        sb.Append("CREATE INDEX");
                     }
                     if (ix.Type == IndexType.Unique)
                     {
-                        sb.Append("UNIQUE KEY");
+                        sb.Append("CREATE UNIQUE INDEX");
                     }
-                    sb.Append($" {ix.Name} ({ix.Columns})");
+                    sb.Append($" {name}_{ix.Name} ON [{name}] ({ix.Columns})");
                     if (ix != tableEntity.IndexList.Last())
                     {
-                        sb.Append(",");
+                        sb.Append(";");
                     }
                 }
             }
-            sb.Append(")");
             return sb.ToString();
         }
 

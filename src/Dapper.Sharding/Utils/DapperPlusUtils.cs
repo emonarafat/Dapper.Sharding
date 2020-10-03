@@ -22,7 +22,8 @@ namespace Dapper.Sharding
                         DapperPlusEntityMapper<T> map;
                         if (sqlField.IsIdentity)
                         {
-                            map = DapperPlusManager.Entity<T>(key).Identity(sqlField.PrimaryKey).Table(tableName);
+                            //map = DapperPlusManager.Entity<T>(key).Identity(sqlField.PrimaryKey).Table(tableName);
+                            map = DapperPlusManager.Entity<T>(key).Table(tableName);
                         }
                         else
                         {

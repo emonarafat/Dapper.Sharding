@@ -236,6 +236,10 @@ namespace Dapper.Sharding
             {
                 return "INTEGER";
             }
+            if (type == typeof(DateTime))
+            {
+                return "TEXT";
+            }
 
             return "blob";
         }

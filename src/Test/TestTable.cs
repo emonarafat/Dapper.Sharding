@@ -98,7 +98,7 @@ namespace Test
                 Id = 11,
                 Name = "自动添加id11"
             };
-            Factory.peopleTable.InsertIdentityIfNoExists(table);
+            Factory.peopleTable.InsertIdentity(table);
         }
 
         [Test]
@@ -114,7 +114,7 @@ namespace Test
                 new People{ Id = 22,Name = "李白22" },
                 new People{ Id = 23,Name = "李白23" }
             };
-            Factory.peopleTable.Insert(modelList);
+            Factory.peopleTable.InsertIdentity(modelList);
         }
 
         [Test]

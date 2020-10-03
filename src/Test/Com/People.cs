@@ -9,6 +9,7 @@ namespace Test
 {
     //[Index("Name","Name",IndexType.Normal)]
     //[Index("Age","Age",IndexType.Unique)]
+    //[Index("NameAndAge", "Name,Age", IndexType.Unique)]
     [Table("Id", true, "人类表")]
     public class People
     {

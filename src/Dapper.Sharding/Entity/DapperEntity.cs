@@ -174,7 +174,7 @@ namespace Dapper.Sharding
                         try
                         {
                             tr.UseBulkOptions(option =>
-                            {
+                            {                 
                                 action(option);
 
                             }).BulkInsert(key, modelList);
