@@ -18,7 +18,7 @@ namespace Dapper.Sharding
                 {
                     if (!_dapperPlusDict.Contains(key))
                     {
-                        var sqlField = new SqlFieldEntity(ClassToTableEntityUtils.Get<T>(), "", "", "@");
+                        var sqlField = new SqlFieldEntity(ClassToTableEntityUtils.Get<T>(DataBaseType.MySql), "", "", "@");
                         DapperPlusEntityMapper<T> map;
                         if (sqlField.IsIdentity)
                         {

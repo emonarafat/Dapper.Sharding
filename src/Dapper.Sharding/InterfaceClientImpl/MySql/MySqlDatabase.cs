@@ -88,7 +88,7 @@ namespace Dapper.Sharding
 
         public override string GetTableScript<T>(string name)
         {
-            var tableEntity = ClassToTableEntityUtils.Get<T>();
+            var tableEntity = ClassToTableEntityUtils.Get<T>(Client.DbType);
             var sb = new StringBuilder();
             sb.Append($"CREATE TABLE IF NOT EXISTS `{name}` (");
             foreach (var item in tableEntity.ColumnList)

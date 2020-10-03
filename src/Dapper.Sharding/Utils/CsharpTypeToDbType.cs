@@ -1,20 +1,33 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace Dapper.Sharding
 {
     internal class CsharpTypeToDbType
     {
 
-        public static string CreateSqlServer(Type type, double length = 0)
+        public static string Create(DataBaseType dbType,Type type, double length = 0)
         {
+            switch (dbType)
+            {
+                case DataBaseType.MySql:return CreateMySqlType(type, length);
+                case DataBaseType.Sqlite: return CreateSqliteType(type);
+                case DataBaseType.SqlServer2008: return CreateSqlServerType(type, length);
+                case DataBaseType.SqlServer2012: return CreateSqlServerType(type, length);
+                case DataBaseType.Postgresql: return CreatePostgresqlType(type, length);
+                case DataBaseType.Oracle: return CreateOracleType(type, length);
+            }
+            throw new Exception("no found");
+        }
 
+        private static string CreateSqlServerType(Type type, double length = 0)
+        {
             if (type == typeof(Guid))
             {
-                return "uniqueidentifier";
+                if (length <= 0)
+                {
+                    length = 36;
+                }
+                return $"varchar({length})";
             }
 
             if (type == typeof(string))
@@ -22,11 +35,27 @@ namespace Dapper.Sharding
                 if (length <= -1)
                     return "nvarchar(max)";
                 if (length == 0)
-                    length = 50;
+                    length = 24;
                 return $"nvarchar({length})";
             }
 
-            if (type == typeof(int) || type == typeof(uint) || type == typeof(short) || type == typeof(ushort))
+
+            if (type == typeof(bool))
+            {
+                return "bit";
+            }
+
+            if (type == typeof(byte))
+            {
+                return "tinyint";
+            }
+
+            if (type == typeof(short) || type == typeof(ushort))
+            {
+                return "smallint";
+            }
+
+            if (type == typeof(int) || type == typeof(uint))
             {
                 return "int";
             }
@@ -34,11 +63,6 @@ namespace Dapper.Sharding
             if (type == typeof(long) || type == typeof(ulong))
             {
                 return "bigint";
-            }
-
-            if (type == typeof(byte))
-            {
-                return "tinyint";
             }
 
             if (type == typeof(float))
@@ -64,11 +88,6 @@ namespace Dapper.Sharding
                 return $"decimal({length},0)";
             }
 
-            if (type == typeof(bool))
-            {
-                return "bit";
-            }
-
             if (type == typeof(DateTime))
             {
                 if (length == 0)
@@ -85,7 +104,7 @@ namespace Dapper.Sharding
             return $"binary({length})";
         }
 
-        public static string CreateMySqlType(Type type, double length = 0)
+        private static string CreateMySqlType(Type type, double length = 0)
         {
             if (type == typeof(Guid))
             {
@@ -94,7 +113,6 @@ namespace Dapper.Sharding
                     length = 36;
                 }
                 return $"varchar({length})";
-
             }
 
             if (type == typeof(string))
@@ -104,29 +122,34 @@ namespace Dapper.Sharding
                 if (length == -2)
                     return "longtext";
                 if (length == 0)
-                    length = 50;
+                    length = 24;
                 return $"varchar({length})";
 
             }
 
-            if (type == typeof(int) || type == typeof(uint))
+            if (type == typeof(bool))
             {
-                return $"int(11)";
-            }
-
-            if (type == typeof(short) || type == typeof(ushort))
-            {
-                return $"smallint(6)";
+                return "bit(1)";
             }
 
             if (type == typeof(byte))
             {
-                return $"tinyint(4)";
+                return "tinyint(4)";
+            }
+
+            if (type == typeof(short) || type == typeof(ushort))
+            {
+                return "smallint(6)";
+            }
+
+            if (type == typeof(int) || type == typeof(uint))
+            {
+                return "int(11)";
             }
 
             if (type == typeof(long) || type == typeof(ulong))
             {
-                return $"bigint(20)";
+                return "bigint(20)";
             }
 
             if (type == typeof(float))
@@ -152,11 +175,6 @@ namespace Dapper.Sharding
                 return $"decimal({length},0)";
             }
 
-            if (type == typeof(bool))
-            {
-                return "bit(1)";
-            }
-
             if (type == typeof(DateTime))
             {
                 return "datetime";
@@ -172,7 +190,7 @@ namespace Dapper.Sharding
 
         }
 
-        public static string CreateSqliteType(Type type)
+        private static string CreateSqliteType(Type type)
         {
             if (type == typeof(Guid))
             {
@@ -222,14 +240,161 @@ namespace Dapper.Sharding
             return "blob";
         }
 
-        public static string CreatePostgresqlType(Type type, double length)
+        private static string CreatePostgresqlType(Type type, double length = 0)
         {
-            return null;
+            if (type == typeof(Guid))
+            {
+                if (length <= 0)
+                {
+                    length = 36;
+                }
+                return $"varchar({length})";
+
+            }
+
+            if (type == typeof(string))
+            {
+                if (length <= -1)
+                    return "text";
+                if (length == 0)
+                    length = 24;
+                return $"varchar({length})";
+
+            }
+
+            if (type == typeof(bool))
+            {
+                return "bool";
+            }
+
+            if (type == typeof(byte))
+            {
+                return "int2";
+            }
+
+            if (type == typeof(short) || type == typeof(ushort))
+            {
+                return "int2";
+            }
+
+            if (type == typeof(int) || type == typeof(uint))
+            {
+                return "int4";
+            }
+
+            if (type == typeof(long) || type == typeof(ulong))
+            {
+                return "int8";
+            }
+
+            if (type == typeof(float))
+            {
+                return "float4";
+            }
+
+            if (type == typeof(double))
+            {
+                return "float8";
+            }
+
+            if (type == typeof(decimal))
+            {
+                var len = length.ToString();
+                if (len.Contains("."))
+                {
+                    len = len.Replace(".", ",");
+                    return $"numeric({len})";
+                }
+                if (length <= 0)
+                    return "numeric(18,2)";
+                return $"numeric({length},0)";
+            }
+
+            if (type == typeof(DateTime))
+            {
+                return "timestamp";
+            }
+
+            return "bytea";
+
         }
 
-        public static string CreateOracleType(Type type, double length)
+        private static string CreateOracleType(Type type, double length = 0)
         {
-            return null;
+            if (type == typeof(Guid))
+            {
+                if (length <= 0)
+                {
+                    length = 36;
+                }
+                return $"VARCHAR2({length})";
+
+            }
+
+            if (type == typeof(string))
+            {
+                if (length <= -1)
+                    return "CLOB";
+                if (length == 0)
+                    length = 24;
+                return $"VARCHAR2({length})";
+
+            }
+
+            if (type == typeof(bool))
+            {
+                return "NUMBER(1)";
+            }
+
+            if (type == typeof(byte))
+            {
+                return "NUMBER(4)";
+            }
+
+            if (type == typeof(short) || type == typeof(ushort))
+            {
+                return "NUMBER(4)";
+            }
+
+            if (type == typeof(int) || type == typeof(uint))
+            {
+                return "NUMBER(9)";
+            }
+
+            if (type == typeof(long) || type == typeof(ulong))
+            {
+                return "NUMBER(19)";
+            }
+
+            if (type == typeof(float))
+            {
+                return "NUMBER(7,3)";
+            }
+
+            if (type == typeof(double))
+            {
+                return "NUMBER(15,5)";
+            }
+
+            if (type == typeof(decimal))
+            {
+                var len = length.ToString();
+                if (len.Contains("."))
+                {
+                    len = len.Replace(".", ",");
+                    return $"NUMBER({len})";
+                }
+                if (length <= 0)
+                    return "NUMBER(18,2)";
+                return $"NUMBER({length},0)";
+            }
+
+            if (type == typeof(DateTime))
+            {
+                return "TIMESTAMP";
+            }
+
+            return "BLOB";
         }
 
     }

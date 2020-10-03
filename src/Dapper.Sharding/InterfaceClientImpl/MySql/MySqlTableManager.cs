@@ -173,7 +173,7 @@ namespace Dapper.Sharding
 
         public override void AddColumn(string name, Type t, double length = 0, string comment = null)
         {
-            var dbType = CsharpTypeToDbType.CreateMySqlType(t, length);
+            var dbType = CsharpTypeToDbType.Create(DataBase.Client.DbType, t, length);
             DpEntity.Execute($"ALTER TABLE `{Name}` ADD  `{name}` {dbType} COMMENT '{comment}'");
         }
 
@@ -184,37 +184,37 @@ namespace Dapper.Sharding
 
         public override void AddColumnAfter(string name, string afterName, Type t, double length = 0, string comment = null)
         {
-            var dbType = CsharpTypeToDbType.CreateMySqlType(t, length);
+            var dbType = CsharpTypeToDbType.Create(DataBase.Client.DbType, t, length);
             DpEntity.Execute($"ALTER TABLE `{Name}` ADD  `{name}` {dbType} COMMENT '{comment}' AFTER `{afterName}`");
         }
 
         public override void AddColumnFirst(string name, Type t, double length = 0, string comment = null)
         {
-            var dbType = CsharpTypeToDbType.CreateMySqlType(t, length);
+            var dbType = CsharpTypeToDbType.Create(DataBase.Client.DbType, t, length);
             DpEntity.Execute($"ALTER TABLE `{Name}` ADD  `{name}` {dbType} COMMENT '{comment}' FIRST");
         }
 
         public override void ModifyColumn(string name, Type t, double length = 0, string comment = null)
         {
-            var dbType = CsharpTypeToDbType.CreateMySqlType(t, length);
+            var dbType = CsharpTypeToDbType.Create(DataBase.Client.DbType, t, length);
             DpEntity.Execute($"ALTER TABLE `{Name}` MODIFY COLUMN `{name}` {dbType} COMMENT '{comment}'");
         }
 
         public override void ModifyColumnFirst(string name, Type t, double length = 0, string comment = null)
         {
-            var dbType = CsharpTypeToDbType.CreateMySqlType(t, length);
+            var dbType = CsharpTypeToDbType.Create(DataBase.Client.DbType, t, length);
             DpEntity.Execute($"ALTER TABLE `{Name}` MODIFY COLUMN `{name}` {dbType} COMMENT '{comment}' FIRST");
         }
 
         public override void ModifyColumnAfter(string name, string afterName, Type t, double length = 0, string comment = null)
         {
-            var dbType = CsharpTypeToDbType.CreateMySqlType(t, length);
+            var dbType = CsharpTypeToDbType.Create(DataBase.Client.DbType, t, length);
             DpEntity.Execute($"ALTER TABLE `{Name}` MODIFY COLUMN `{name}` {dbType} COMMENT '{comment}' AFTER `{afterName}`");
         }
 
         public override void ModifyColumnName(string oldName, string newName, Type t, double length = 0, string comment = null)
         {
-            var dbType = CsharpTypeToDbType.CreateMySqlType(t, length);
+            var dbType = CsharpTypeToDbType.Create(DataBase.Client.DbType, t, length);
             DpEntity.Execute($"ALTER TABLE `{Name}` CHANGE `{oldName}` `{newName}` {dbType} COMMENT '{comment}'");
         }
     }

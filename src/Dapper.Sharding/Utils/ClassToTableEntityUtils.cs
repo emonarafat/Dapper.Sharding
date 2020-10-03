@@ -5,7 +5,7 @@ namespace Dapper.Sharding
 {
     internal class ClassToTableEntityUtils
     {
-        public static TableEntity Get<T>()
+        public static TableEntity Get<T>(DataBaseType dbType)
         {
             var entity = new TableEntity();
             entity.ColumnList = new List<ColumnEntity>();
@@ -37,7 +37,7 @@ namespace Dapper.Sharding
                 var column = new ColumnEntity();
                 column.Name = pro.Name;
                 column.CsType = pro.PropertyType;
-                column.DbType = CsharpTypeToDbType.CreateMySqlType(column.CsType);
+                column.DbType = CsharpTypeToDbType.Create(dbType, column.CsType);
                 if (column.Name.ToLower() == entity.PrimaryKey.ToLower())
                 {
                     entity.PrimaryKeyType = column.CsType;
@@ -46,7 +46,7 @@ namespace Dapper.Sharding
                 if (colAttr != null)
                 {
                     column.Comment = colAttr.Comment;
-                    column.DbType = CsharpTypeToDbType.CreateMySqlType(column.CsType, colAttr.Length);
+                    column.DbType = CsharpTypeToDbType.Create(dbType, column.CsType, colAttr.Length);
                 }
                 entity.ColumnList.Add(column);
             }

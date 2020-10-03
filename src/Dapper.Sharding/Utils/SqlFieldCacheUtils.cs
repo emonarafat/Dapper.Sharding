@@ -20,7 +20,7 @@ namespace Dapper.Sharding
                 {
                     if (!MySqlDict.Keys.Contains(typeHandle))
                     {
-                        MySqlDict.TryAdd(typeHandle, new SqlFieldEntity(ClassToTableEntityUtils.Get<T>(), "`", "`", "@"));
+                        MySqlDict.TryAdd(typeHandle, new SqlFieldEntity(ClassToTableEntityUtils.Get<T>(DataBaseType.MySql), "`", "`", "@"));
                     }
                 }
             }
@@ -45,7 +45,7 @@ namespace Dapper.Sharding
                 {
                     if (!SqlServerDict.Keys.Contains(typeHandle))
                     {
-                        SqlServerDict.TryAdd(typeHandle, new SqlFieldEntity(ClassToTableEntityUtils.Get<T>(), "[", "]", "@"));
+                        SqlServerDict.TryAdd(typeHandle, new SqlFieldEntity(ClassToTableEntityUtils.Get<T>(DataBaseType.SqlServer2008), "[", "]", "@"));
                     }
                 }
             }
@@ -70,7 +70,7 @@ namespace Dapper.Sharding
                 {
                     if (!SqliteDict.Keys.Contains(typeHandle))
                     {
-                        SqliteDict.TryAdd(typeHandle, new SqlFieldEntity(ClassToTableEntityUtils.Get<T>(), "[", "]", "@"));
+                        SqliteDict.TryAdd(typeHandle, new SqlFieldEntity(ClassToTableEntityUtils.Get<T>(DataBaseType.Sqlite), "[", "]", "@"));
                     }
                 }
             }
@@ -96,7 +96,7 @@ namespace Dapper.Sharding
                     if (!PostgreDict.Keys.Contains(typeHandle))
                     {
                         //PostgreDict.TryAdd(typeHandle, new SqlFieldEntity(ClassToTableEntityUtils.Get<T>(), "\"", "\"", "@"));
-                        PostgreDict.TryAdd(typeHandle, new SqlFieldEntity(ClassToTableEntityUtils.Get<T>(), "", "", "@"));
+                        PostgreDict.TryAdd(typeHandle, new SqlFieldEntity(ClassToTableEntityUtils.Get<T>(DataBaseType.Postgresql), "", "", "@"));
                     }
                 }
             }
@@ -122,7 +122,7 @@ namespace Dapper.Sharding
                     if (!OracleDict.Keys.Contains(typeHandle))
                     {
                         //OracleDict.TryAdd(typeHandle, new SqlFieldEntity(ClassToTableEntityUtils.Get<T>(), "\"", "\"", ":"));
-                        OracleDict.TryAdd(typeHandle, new SqlFieldEntity(ClassToTableEntityUtils.Get<T>(), "", "", ":"));
+                        OracleDict.TryAdd(typeHandle, new SqlFieldEntity(ClassToTableEntityUtils.Get<T>(DataBaseType.Oracle), "", "", ":"));
                     }
                 }
             }

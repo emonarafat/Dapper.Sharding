@@ -21,7 +21,10 @@ namespace Dapper.Sharding
 
         public override void DropTable(string name)
         {
-            throw new NotImplementedException();
+            using (var conn = GetConn())
+            {
+                conn.Execute($"DROP TABLE {name}");
+            }
         }
 
         public override bool ExistsTable(string name)
@@ -67,12 +70,12 @@ namespace Dapper.Sharding
 
         public override string GetTableScript<T>(string name)
         {
-            var tableEntity = ClassToTableEntityUtils.Get<T>();
+            var tableEntity = ClassToTableEntityUtils.Get<T>(Client.DbType);
             var sb = new StringBuilder();
-            sb.Append($"CREATE TABLE IF NOT EXISTS [{name}] (");
+            sb.Append($"CREATE TABLE IF NOT EXISTS {name} (");
             foreach (var item in tableEntity.ColumnList)
             {
-                sb.Append($"`{item.Name}` {item.DbType}");
+                sb.Append($"{item.Name} {item.DbType}");
                 if (!string.IsNullOrEmpty(tableEntity.PrimaryKey))
                 {
                     if (tableEntity.PrimaryKey.ToLower() == item.Name.ToLower())
@@ -84,7 +87,6 @@ namespace Dapper.Sharding
                         sb.Append(" PRIMARY KEY");
                     }
                 }
-                sb.Append($" COMMENT '{item.Comment}'");
                 if (item != tableEntity.ColumnList.Last())
                 {
                     sb.Append(",");
@@ -104,22 +106,14 @@ namespace Dapper.Sharding
                     {
                         sb.Append("UNIQUE KEY");
                     }
-                    if (ix.Type == IndexType.FullText)
-                    {
-                        sb.Append("FULLTEXT KEY");
-                    }
-                    if (ix.Type == IndexType.Spatial)
-                    {
-                        sb.Append("SPATIAL KEY");
-                    }
-                    sb.Append($" `{ix.Name}` ({ix.Columns})");
+                    sb.Append($" {ix.Name} ({ix.Columns})");
                     if (ix != tableEntity.IndexList.Last())
                     {
                         sb.Append(",");
                     }
                 }
             }
-            sb.Append($")DEFAULT CHARSET={Client.Charset} COMMENT '{tableEntity.Comment}'");
+            sb.Append(")");
             return sb.ToString();
         }
 
@@ -130,7 +124,10 @@ namespace Dapper.Sharding
 
         public override void TruncateTable(string name)
         {
-            
+            using (var conn = GetConn())
+            {
+                conn.Execute($"DELETE FROM {name}");
+            }
         }
 
         protected override ITable<T> CreateITable<T>(string name)

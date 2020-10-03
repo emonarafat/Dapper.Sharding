@@ -100,7 +100,7 @@ namespace Dapper.Sharding
                                 if (Client.AutoCompareTableColumn)
                                 {
                                     var dbColumns = GetTableColumnList(name);
-                                    var tableEntity = ClassToTableEntityUtils.Get<T>();
+                                    var tableEntity = ClassToTableEntityUtils.Get<T>(Client.DbType);
                                     var manager = GetTableManager(name);
 
                                     foreach (var item in tableEntity.ColumnList)
