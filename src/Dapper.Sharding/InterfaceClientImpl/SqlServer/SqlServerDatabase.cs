@@ -69,7 +69,18 @@ namespace Dapper.Sharding
             var manager = GetTableManager(name);
             entity.IndexList = manager.GetIndexEntityList();
             entity.ColumnList = manager.GetColumnEntityList(entity);
-            return entity;
+            using (var conn = GetConn())
+            {
+                string sql = $@"select ROW_NUMBER() OVER (ORDER BY a.name) AS Num, 
+a.name AS Name,
+CONVERT(NVARCHAR(100),isnull(g.[value],'')) AS Comment
+from
+sys.tables a left join sys.extended_properties g
+on (a.object_id = g.major_id AND g.minor_id = 0) where a.Name='{name}'";
+                var row = conn.QueryFirstOrDefault(sql);
+                entity.Comment = row.Comment;
+            }
+                return entity;
         }
 
         public override IEnumerable<string> GetTableList()

@@ -101,7 +101,8 @@ namespace Test
             var table = new People
             {
                 Id = 11,
-                Name = "自动添加id11"
+                Name = "自动添加id11",
+                AddTime = DateTime.Now
             };
             Factory.peopleTable.InsertIdentityIfNoExists(table);
         }
@@ -111,13 +112,13 @@ namespace Test
         {
             var modelList = new List<People>
             {
-                new People{ Id = 17, Name = "李白17" },
-                new People{ Id = 18,Name = "李白18" },
-                new People{ Id = 19,Name = "李白19" },
-                new People{ Id = 20,Name = "李白20" },
-                new People{ Id = 21, Name = "李白21" },
-                new People{ Id = 22,Name = "李白22" },
-                new People{ Id = 23,Name = "李白23" }
+                new People{ Id = 17, Name = "李白17",AddTime = DateTime.Now },
+                new People{ Id = 18,Name = "李白18",AddTime = DateTime.Now },
+                new People{ Id = 19,Name = "李白19",AddTime = DateTime.Now },
+                new People{ Id = 20,Name = "李白20",AddTime = DateTime.Now },
+                new People{ Id = 21, Name = "李白21",AddTime = DateTime.Now },
+                new People{ Id = 22,Name = "李白22",AddTime = DateTime.Now },
+                new People{ Id = 23,Name = "李白23",AddTime = DateTime.Now }
             };
             Factory.peopleTable.InsertIdentityIfNoExists(modelList);
         }

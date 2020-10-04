@@ -19,6 +19,57 @@ namespace Dapper.Sharding
             return new SqlServerTable<T>(Name, DataBase, conn, tran, commandTimeout);
         }
 
+        #region virtual
+
+        public override bool Insert(T model)
+        {
+            var accessor = TypeAccessor.Create(typeof(T));
+            if (SqlField.IsIdentity)
+            {
+                var sql = $"INSERT INTO [{Name}] ({SqlField.AllFieldsExceptKey})VALUES({SqlField.AllFieldsAtExceptKey});SELECT @@IDENTITY";
+                if (SqlField.PrimaryKeyType == typeof(int))
+                {
+                    var id = DpEntity.ExecuteScalar<int>(sql, model);
+                    accessor[model, SqlField.PrimaryKey] = id;
+                    return id > 0;
+                }
+                else
+                {
+                    var id = DpEntity.ExecuteScalar<long>(sql, model);
+                    accessor[model, SqlField.PrimaryKey] = id;
+                    return id > 0;
+                }
+            }
+            else
+            {
+                var sql = $"INSERT INTO [{Name}] ({SqlField.AllFields})VALUES({SqlField.AllFieldsAt})";
+                return DpEntity.Execute(sql, model) > 0;
+            }
+        }
+
+        public override bool InsertIdentity(T model)
+        {
+            return DpEntity.Execute($"INSERT INTO [{Name}] ({SqlField.AllFields})VALUES({SqlField.AllFieldsAt})", model) > 0;
+        }
+
+        public override bool Update(T model, List<string> fields = null)
+        {
+            string updatefields;
+            if (fields == null)
+                updatefields = SqlField.AllFieldsAtEqExceptKey;
+            else
+                updatefields = CommonUtil.GetFieldsAtEqStr(fields, "[", "]");
+            return DpEntity.Execute($"UPDATE [{Name}] SET {updatefields} WHERE [{SqlField.PrimaryKey}]=@{SqlField.PrimaryKey}", model) > 0;
+        }
+
+        public override bool UpdateIgnore(T model, List<string> fields)
+        {
+            string updateFields = CommonUtil.GetFieldsAtEqStr(SqlField.AllFieldExceptKeyList.Except(fields), "[", "]");
+            return DpEntity.Execute($"UPDATE [{Name}] SET {updateFields} WHERE [{SqlField.PrimaryKey}]=@{SqlField.PrimaryKey}", model) > 0;
+        }
+
+        #endregion
+
         public override TValue Avg<TValue>(string field, string where = null, object param = null)
         {
             throw new NotImplementedException();
