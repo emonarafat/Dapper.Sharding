@@ -2,7 +2,7 @@
 using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Data;
-//using System.Data.SqlClient;
+using System.Data.SqlClient;
 using System.Linq;
 using System.Threading.Tasks;
 
@@ -23,7 +23,7 @@ namespace Dapper.Sharding
 
         protected override IDatabase CreateIDatabase(string name)
         {
-            return null;
+            return new SqlServerDatabase(name, this);
         }
 
         #endregion
@@ -55,16 +55,18 @@ namespace Dapper.Sharding
 
         public override IDbConnection GetConn()
         {
-            //var conn = new SqlConnection(ConnectionString);
-            //if (conn.State != ConnectionState.Open)
-            //    conn.Open();
-            //return conn;
-            return null;
+            var conn = new SqlConnection(ConnectionString);
+            if (conn.State != ConnectionState.Open)
+                conn.Open();
+            return conn;
         }
 
-        public override Task<IDbConnection> GetConnAsync()
+        public override async Task<IDbConnection> GetConnAsync()
         {
-            throw new NotImplementedException();
+            var conn = new SqlConnection(ConnectionString);
+            if (conn.State != ConnectionState.Open)
+                await conn.OpenAsync();
+            return conn;
         }
 
         public override IEnumerable<string> ShowDatabases()

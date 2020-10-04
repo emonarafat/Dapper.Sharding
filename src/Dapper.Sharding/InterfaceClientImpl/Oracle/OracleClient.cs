@@ -20,7 +20,7 @@ namespace Dapper.Sharding
 
         protected override IDatabase CreateIDatabase(string name)
         {
-            throw new NotImplementedException();
+            return new OracleDatabase(name, this);
         }
 
         #endregion

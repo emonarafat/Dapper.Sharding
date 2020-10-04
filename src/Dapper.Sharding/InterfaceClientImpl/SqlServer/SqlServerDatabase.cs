@@ -1,159 +1,101 @@
-﻿//using System;
-//using System.Collections.Concurrent;
-//using System.Collections.Generic;
-//using System.Data;
-//using System.Linq;
-//using System.Text;
-//using System.Threading.Tasks;
+﻿using System;
+using System.Collections.Generic;
+using System.Data;
+using System.Data.SqlClient;
+using System.Text;
+using System.Threading.Tasks;
 
-//namespace Dapper.Sharding
-//{
-//    internal class SqlServerDatabase : IDatabase
-//    {
-//        public SqlServerDatabase(string name, SqlServerClient client)
-//        {
-//            Name = name;
-//            Client = client;
-//            Locker = new LockManager();
-//            TableCache = new ConcurrentDictionary<string, object>();
-//        }
+namespace Dapper.Sharding
+{
+    internal class SqlServerDatabase : IDatabase
+    {
+        public SqlServerDatabase(string name, SqlServerClient client): base(name, client)
+        {
+            ConnectionString = ConnectionStringBuilder.BuilderSqlServer(client.Config, name);
+        }
 
-//        public string Name { get; }
+        public override string ConnectionString { get; }
 
-//        public LockManager Locker { get; }
+        public override void DropTable(string name)
+        {
+            using (var conn = GetConn())
+            {
+                conn.Execute($"IF EXISTS(SELECT 1 FROM sysObjects WHERE Id=OBJECT_ID(N'{name}') AND xtype='U')DROP TABLE [{name}]");
+            }
+            TableCache.TryRemove(name.ToLower(), out _);
+        }
 
-//        public IClient Client { get; }
+        public override bool ExistsTable(string name)
+        {
+            using (var conn = GetConn())
+            {
+                return conn.ExecuteScalar($"SELECT 1 FROM sysObjects WHERE Id=OBJECT_ID(N'{name}') AND xtype='U'") != null;
+            }
+        }
 
-//        public ConcurrentDictionary<string, object> TableCache { get; }
+        public override IDbConnection GetConn()
+        {
+            var conn = new SqlConnection(ConnectionString);
+            if (conn.State != ConnectionState.Open)
+                conn.Open();
+            return conn;
+        }
 
-//        public void CompareTableColumn<T>(string name, IEnumerable<string> dbColumns)
-//        {
-//            throw new NotImplementedException();
-//        }
+        public override async Task<IDbConnection> GetConnAsync()
+        {
+            var conn = new SqlConnection(ConnectionString);
+            if (conn.State != ConnectionState.Open)
+                await conn.OpenAsync();
+            return conn;
+        }
 
-//        public void CreateTable<T>(string name)
-//        {
-//            throw new NotImplementedException();
-//        }
+        public override IEnumerable<string> GetTableColumnList(string name)
+        {
+            throw new NotImplementedException();
+        }
 
-//        public void DropTable(string name)
-//        {
-//            using (var conn = GetConn())
-//            {
-//                conn.Execute($"IF EXISTS(SELECT 1 FROM sysObjects WHERE Id=OBJECT_ID(N'{name}') AND xtype='U')DROP TABLE [{name}]");
-//            }
-//            TableCache.TryRemove(name.ToLower(), out _);
-//        }
+        public override TableEntity GetTableEntityFromDatabase(string name)
+        {
+            throw new NotImplementedException();
+        }
 
-//        public bool ExistsTable(string name)
-//        {
-//            using (var conn = GetConn())
-//            {
-//                return conn.ExecuteScalar($"SELECT 1 FROM sysObjects WHERE Id=OBJECT_ID(N'{name}') AND xtype='U'") != null;
-//            }
-//        }
+        public override IEnumerable<string> GetTableList()
+        {
+            using (var conn = GetConn())
+            {
+                return conn.Query<string>($"SELECT name FROM sysObjects WHERE xtype='U'");
+            }
+        }
 
-//        public void GeneratorClassFile(string savePath, string tableName = "*", string nameSpace = "Model", string Suffix = "Table", bool partialClass = false)
-//        {
-//            throw new NotImplementedException();
-//        }
+        public override ITableManager GetTableManager(string name)
+        {
+            return new SqlServerTableManager(name, this);
+        }
 
-//        public IDbConnection GetConn()
-//        {
-//            var conn = Client.GetConn();
-//            if (conn.Database != Name)
-//                conn.ChangeDatabase(Name);
-//            return conn;
-//        }
+        public override string GetTableScript<T>(string name)
+        {
+            var tableEntity = ClassToTableEntityUtils.Get<T>(Client.DbType);
+            var sb = new StringBuilder();
 
-//        public Task<IDbConnection> GetConnAsync()
-//        {
-//            throw new NotImplementedException();
-//        }
+            return sb.ToString();
+        }
 
-//        public ITable<T> GetTable<T>(string name)
-//        {
-//            throw new NotImplementedException();
-//        }
+        public override void SetCharset(string chartset)
+        {
+            throw new NotImplementedException();
+        }
 
-//        public List<TableEntity> GetTableEnityListFromDatabase()
-//        {
-//            throw new NotImplementedException();
-//        }
+        public override void TruncateTable(string name)
+        {
+            using (var conn = GetConn())
+            {
+                conn.Execute($"TRUNCATE TABLE [{name}]");
+            }
+        }
 
-//        public TableEntity GetTableEntityFromDatabase(string name)
-//        {
-//            throw new NotImplementedException();
-//        }
-
-//        public ITableManager GetTableManager(string name, IDbConnection conn = null, IDbTransaction tran = null, int? commandTimeout = null)
-//        {
-//            throw new NotImplementedException();
-//        }
-
-//        public ITableManager GetTableManager(string name)
-//        {
-//            throw new NotImplementedException();
-//        }
-
-//        public void SetCharset(string chartset)
-//        {
-//            throw new NotImplementedException();
-//        }
-
-//        public IEnumerable<string> ShowTableList()
-//        {
-//            using (var conn = GetConn())
-//            {
-//                return conn.Query<string>($"SELECT name FROM sysObjects WHERE xtype='U'");
-//            }
-//        }
-
-//        public string ShowTableScript<T>(string name)
-//        {
-//            throw new NotImplementedException();
-//        }
-
-//        public dynamic ShowTableStatus(string name)
-//        {
-//            throw new NotImplementedException();
-//        }
-
-//        public IEnumerable<dynamic> ShowTableStatusList()
-//        {
-//            throw new NotImplementedException();
-//        }
-
-//        public TableEntity StatusToTableEntity(dynamic data)
-//        {
-//            throw new NotImplementedException();
-//        }
-
-//        public void TruncateTable(string name)
-//        {
-//            using (var conn = GetConn())
-//            {
-//                conn.Execute($"TRUNCATE TABLE [{name}]");
-//            }
-//        }
-
-//        public void Using(Action<IDbConnection> action)
-//        {
-//            using (var conn = GetConn())
-//            {
-//                action(conn);
-//            }
-//        }
-
-//        public void UsingTran(Action<IDbConnection, IDbTransaction> action)
-//        {
-//            using (var conn = GetConn())
-//            {
-//                using (var tran = conn.BeginTransaction())
-//                {
-//                    action(conn, tran);
-//                }
-//            }
-//        }
-//    }
-//}
+        protected override ITable<T> CreateITable<T>(string name)
+        {
+            throw new NotImplementedException();
+        }
+    }
+}

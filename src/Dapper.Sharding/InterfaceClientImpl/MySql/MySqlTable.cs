@@ -11,6 +11,12 @@ namespace Dapper.Sharding
 
         }
 
+        public override ITable<T> CreateTranTable(IDbConnection conn, IDbTransaction tran, int? commandTimeout = null)
+        {
+            return new MySqlTable<T>(Name, DataBase, conn, tran, commandTimeout);
+        }
+
+
         #region virtual
 
         public override bool Insert(T model)
@@ -61,11 +67,6 @@ namespace Dapper.Sharding
         }
 
         #endregion
-
-        public override ITable<T> CreateTranTable(IDbConnection conn, IDbTransaction tran, int? commandTimeout = null)
-        {
-            return new MySqlTable<T>(Name, DataBase, conn, tran, commandTimeout);
-        }
 
         public override int UpdateByWhere(T model, string where, List<string> fields = null)
         {

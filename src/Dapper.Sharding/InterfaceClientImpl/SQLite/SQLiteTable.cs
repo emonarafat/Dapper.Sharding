@@ -2,8 +2,6 @@
 using System.Collections.Generic;
 using System.Data;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace Dapper.Sharding
 {
@@ -13,6 +11,12 @@ namespace Dapper.Sharding
         {
 
         }
+
+        public override ITable<T> CreateTranTable(IDbConnection conn, IDbTransaction tran, int? commandTimeout = null)
+        {
+            return new SQLiteTable<T>(Name, DataBase, conn, tran, commandTimeout);
+        }
+
 
         public override bool Insert(T model)
         {
@@ -61,10 +65,6 @@ namespace Dapper.Sharding
             return DpEntity.Execute($"UPDATE {Name} SET {updateFields} WHERE {SqlField.PrimaryKey}=@{SqlField.PrimaryKey}", model) > 0;
         }
 
-        public override ITable<T> CreateTranTable(IDbConnection conn, IDbTransaction tran, int? commandTimeout = null)
-        {
-            return new SQLiteTable<T>(Name, DataBase, conn, tran, commandTimeout);
-        }
 
         public override int UpdateByWhere(T model, string where, List<string> fields = null)
         {

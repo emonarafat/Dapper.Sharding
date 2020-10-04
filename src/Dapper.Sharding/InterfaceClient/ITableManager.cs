@@ -20,7 +20,7 @@ namespace Dapper.Sharding
 
         public IDatabase DataBase { get; }
 
-        internal DapperEntity DpEntity { get; }
+        public DapperEntity DpEntity { get; }
 
         #endregion
 

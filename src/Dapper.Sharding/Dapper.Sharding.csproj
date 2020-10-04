@@ -1,7 +1,7 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
 	<PropertyGroup>
-		<TargetFrameworks>net472;</TargetFrameworks>
+		<TargetFrameworks>net472;netcoreapp3.1</TargetFrameworks>
 	</PropertyGroup>
 
 	<PropertyGroup Condition="'$(Configuration)|$(TargetFramework)|$(Platform)'=='Debug|net472|AnyCPU'">
@@ -25,6 +25,7 @@
 		<PackageReference Include="Dapper" Version="2.0.35" />
 		<PackageReference Include="MySqlConnector" Version="1.0.1" />
 		<PackageReference Include="Oracle.ManagedDataAccess.Core" Version="2.19.90" />
+		<PackageReference Include="System.Data.SqlClient" Version="4.8.2" />
 		<PackageReference Include="System.Data.SQLite.Core" Version="1.0.113.1" />
 		<PackageReference Include="System.Linq.Dynamic.Core" Version="1.2.2" />
 		<PackageReference Include="Z.Dapper.Plus" Version="3.0.20" />
