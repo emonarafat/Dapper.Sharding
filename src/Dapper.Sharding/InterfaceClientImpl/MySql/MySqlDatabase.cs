@@ -158,7 +158,7 @@ namespace Dapper.Sharding
                 entity.IsIdentity = (data.Auto_increment >= 1);
             }
             entity.Comment = data.Comment;
-            var manager = GetTableManager((string)data.Name);
+            var manager = GetTableManager(name);
             var indexList = manager.GetIndexEntityList();
             entity.IndexList = indexList;
             var ix = indexList.FirstOrDefault(f => f.Type == IndexType.PrimaryKey);

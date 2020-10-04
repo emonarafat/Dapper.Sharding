@@ -204,22 +204,22 @@ namespace Dapper.Sharding
 
             if (type == typeof(bool))
             {
-                return "INTEGER";
+                return "NUMERIC";
             }
 
             if (type == typeof(byte))
             {
-                return "INTEGER";
+                return "NUMERIC";
             }
 
             if (type == typeof(short) || type == typeof(ushort))
             {
-                return "INTEGER";
+                return "NUMERIC";
             }
 
             if (type == typeof(int) || type == typeof(uint))
             {
-                return "INTEGER";
+                return "NUMERIC";
             }
 
             if (type == typeof(long) || type == typeof(ulong))

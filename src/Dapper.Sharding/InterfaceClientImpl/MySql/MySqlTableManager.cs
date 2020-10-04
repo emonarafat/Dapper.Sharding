@@ -57,27 +57,22 @@ namespace Dapper.Sharding
                 if (item0.Key_name == "PRIMARY")
                 {
                     entity.Type = IndexType.PrimaryKey;
-                    entity.StringType = "IndexType.PrimaryKey";
                 }
                 else if (item0.Index_type == "BTREE" && item0.Non_unique == 0)
                 {
                     entity.Type = IndexType.Unique;
-                    entity.StringType = "IndexType.Unique";
                 }
                 else if (item0.Index_type == "FULLTEXT")
                 {
                     entity.Type = IndexType.FullText;
-                    entity.StringType = "IndexType.FullText";
                 }
                 else if (item0.Index_type == "SPATIAL")
                 {
                     entity.Type = IndexType.Spatial;
-                    entity.StringType = "IndexType.Spatial";
                 }
                 else
                 {
                     entity.Type = IndexType.Normal;
-                    entity.StringType = "IndexType.Normal";
                 }
 
                 if (item.Count == 1)

@@ -16,6 +16,7 @@ namespace Test
         {
             Factory.TableManager.CreateIndex("Name", "Name", IndexType.Normal);
             Factory.TableManager.CreateIndex("Age", "Age", IndexType.Unique);
+            Factory.TableManager.CreateIndex("NameAndAge", "Name,Age", IndexType.Unique);
         }
 
         [Test]
@@ -23,6 +24,7 @@ namespace Test
         {
             Factory.TableManager.DropIndex("Name");
             Factory.TableManager.DropIndex("Age");
+            Factory.TableManager.DropIndex("NameAndAge");
         }
 
         [Test]

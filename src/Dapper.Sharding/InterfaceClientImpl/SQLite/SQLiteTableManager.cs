@@ -30,9 +30,69 @@ namespace Dapper.Sharding
             DpEntity.Execute(sql);
         }
 
+
+        public override void DropIndex(string name)
+        {
+            DpEntity.Execute($"DROP INDEX {name}");
+        }
+
+        public override void AlertIndex(string name, string columns, IndexType indexType)
+        {
+            DropIndex(name);
+            CreateIndex(name, columns, indexType);
+        }
+        public override List<IndexEntity> GetIndexEntityList()
+        {
+            IEnumerable<dynamic> data = DpEntity.Query($"SELECT * FROM sqlite_master where type='index' AND tbl_name='{Name}' AND Name NOT LIKE 'sqlite_autoindex%';");
+            var list = new List<IndexEntity>();
+            foreach (var row in data)
+            {
+                var model = new IndexEntity();
+                model.Name = row.name;
+                var indexsql = (string)row.sql;
+                model.Columns = indexsql.Split('(', ')')[1];
+                if (indexsql.ToUpper().Contains("UNIQUE"))
+                {
+                    model.Type = IndexType.Unique;
+                }
+                else
+                {
+                    model.Type = IndexType.Unique;
+                }
+                list.Add(model);
+            }
+
+            return list;
+        }
+
+        public override List<ColumnEntity> GetColumnEntityList()
+        {
+            var list = new List<ColumnEntity>();
+            IEnumerable<dynamic> data = DpEntity.Query($"pragma table_info('{Name}')");
+            foreach (var row in data)
+            {
+                var model = new ColumnEntity();
+                model.Name = ((string)row.name).FirstCharToUpper(); //列名
+                string columnType = row.type;//数据类型
+                var map = DbCsharpTypeMap.SqLiteMap.FirstOrDefault(f => f.DbType == columnType);
+                if (map != null)
+                    model.CsStringType = map.CsStringType;
+                else
+                    model.CsStringType = "object";
+                model.CsType = map.CsType;
+                model.DbType = columnType;
+                list.Add(model);
+
+            }
+            return list;
+        }
+
+
+
         public override void AddColumn(string name, Type t, double length = 0, string comment = null)
         {
-            throw new NotImplementedException();
+            var dbType = CsharpTypeToDbType.Create(DataBase.Client.DbType, t, length);
+            DpEntity.Execute($"ALTER TABLE {Name} ADD COLUMN {name} {dbType}");
         }
 
         public override void AddColumnAfter(string name, string afterName, Type t, double length = 0, string comment = null)
@@ -45,27 +105,7 @@ namespace Dapper.Sharding
             throw new NotImplementedException();
         }
 
-        public override void AlertIndex(string name, string columns, IndexType indexType)
-        {
-            throw new NotImplementedException();
-        }
-
         public override void DropColumn(string name)
-        {
-            throw new NotImplementedException();
-        }
-
-        public override void DropIndex(string name)
-        {
-            throw new NotImplementedException();
-        }
-
-        public override List<ColumnEntity> GetColumnEntityList()
-        {
-            throw new NotImplementedException();
-        }
-
-        public override List<IndexEntity> GetIndexEntityList()
         {
             throw new NotImplementedException();
         }
@@ -92,7 +132,7 @@ namespace Dapper.Sharding
 
         public override void ReName(string name)
         {
-            throw new NotImplementedException();
+            DpEntity.Execute($"ALTER TABLE {Name} RENAME TO {name}");
         }
 
         public override void SetCharset(string name)

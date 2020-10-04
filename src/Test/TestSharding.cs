@@ -25,19 +25,19 @@ namespace Test
         [Test]
         public void InsertList()
         {
-            var list = new List<Student>();
-            for (int i = 0; i < 1000; i++)
-            {
-                list.Add(new Student { Id = ShardingFactory.NextObjectId(), Name = "李四" + i, Age = i });
-            }
-            Factory.ShardingHash.Insert(list);
-
-            //var list2 = new List<Teacher>();
-            //for (int i = 0; i < 100000; i++)
+            //var list = new List<Student>();
+            //for (int i = 0; i < 1000; i++)
             //{
-            //    list2.Add(new Teacher { Id = i, Name = "李四" + i, Age = i });
+            //    list.Add(new Student { Id = ShardingFactory.NextObjectId(), Name = "李四" + i, Age = i });
             //}
-            //Factory.ShardingRange.Insert(list2);
+            //Factory.ShardingHash.Insert(list);
+
+            var list2 = new List<Teacher>();
+            for (int i = 0; i < 100000; i++)
+            {
+                list2.Add(new Teacher { Id = i, Name = "李四" + i, Age = i });
+            }
+            Factory.ShardingRange.Insert(list2);
         }
     }
 }

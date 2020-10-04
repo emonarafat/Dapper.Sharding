@@ -53,17 +53,52 @@ namespace Dapper.Sharding
 
         public override IEnumerable<string> GetTableColumnList(string name)
         {
-            throw new NotImplementedException();
+            IEnumerable<dynamic> data;
+            using (var conn = GetConn())
+            {
+                data = conn.Query($"pragma table_info('{name}')");//字段信息
+            }
+            return data.Select(s => s.name as string);
         }
 
         public override TableEntity GetTableEntityFromDatabase(string name)
         {
-            throw new NotImplementedException();
+            dynamic dynamicTable;
+            IEnumerable<dynamic> dynamicColums;
+            using (var conn = GetConn())
+            {
+                dynamicTable = conn.QueryFirst($"SELECT * FROM sqlite_master where type='table' and tbl_name='{name}'");
+                dynamicColums = conn.Query($"pragma table_info('{name}')");
+            }
+            var entity = new TableEntity();
+            var tablesql = ((string)dynamicTable.sql).ToUpper();
+            if (tablesql.Contains("AUTOINCREMENT"))
+            {
+                entity.IsIdentity = true;
+            }
+            var row = dynamicColums.FirstOrDefault(f => f.pk == 1);
+            if (row != null)
+            {
+                entity.PrimaryKey = ((string)row.name).FirstCharToUpper();
+            }
+            var manager = GetTableManager(name);
+            var indexList = manager.GetIndexEntityList();
+            entity.IndexList = indexList;
+            entity.ColumnList = manager.GetColumnEntityList();
+            var col = entity.ColumnList.FirstOrDefault(w => w.Name.ToLower() == entity.PrimaryKey.ToLower());
+            if (col != null)
+            {
+                entity.PrimaryKeyType = col.CsType;
+            }
+            return entity;
         }
 
         public override IEnumerable<string> GetTableList()
         {
-            throw new NotImplementedException();
+            using (var conn = GetConn())
+            {
+                return conn.Query<string>("select name from sqlite_master where type='table' and name!='sqlite_sequence'");
+            }
         }
 
         public override ITableManager GetTableManager(string name)
@@ -77,13 +112,12 @@ namespace Dapper.Sharding
             var sb = new StringBuilder();
             sb.Append($"CREATE TABLE IF NOT EXISTS [{name}] (");
             foreach (var item in tableEntity.ColumnList)
-            {             
+            {
                 if (tableEntity.PrimaryKey.ToLower() == item.Name.ToLower())
                 {
                     if (tableEntity.IsIdentity)
                     {
-                        sb.Append($"[{item.Name}] INTEGER");
-                        sb.Append(" PRIMARY KEY AUTOINCREMENT");
+                        sb.Append($"[{item.Name}] INTEGER PRIMARY KEY AUTOINCREMENT");
                     }
                     else
                     {
