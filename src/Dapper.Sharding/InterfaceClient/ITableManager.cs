@@ -34,7 +34,7 @@ namespace Dapper.Sharding
 
         public abstract List<IndexEntity> GetIndexEntityList();
 
-        public abstract List<ColumnEntity> GetColumnEntityList();
+        public abstract List<ColumnEntity> GetColumnEntityList(TableEntity tb = null);
 
         public abstract void ReName(string name);
 

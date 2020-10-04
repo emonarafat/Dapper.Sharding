@@ -27,36 +27,6 @@ namespace Dapper.Sharding
 
         public string TableName { get; }
 
-        public int ExecuteProcedure(string sql, object param = null)
-        {
-            if (Conn == null)
-            {
-                using (var cnn = DataBase.GetConn())
-                {
-                    return cnn.Execute(sql, param, commandType: CommandType.StoredProcedure);
-                }
-            }
-            else
-            {
-                return Conn.Execute(sql, param, Tran, CommandTimeout, CommandType.StoredProcedure);
-            }
-        }
-
-        public IEnumerable<dynamic> QueryProcedure(string sql, object param = null)
-        {
-            if (Conn == null)
-            {
-                using (var cnn = DataBase.GetConn())
-                {
-                    return cnn.Query(sql, param, commandType: CommandType.StoredProcedure);
-                }
-            }
-            else
-            {
-                return Conn.Query(sql, param, Tran, true, CommandTimeout, CommandType.StoredProcedure);
-            }
-        }
-
         public int Execute(string sql, object param = null)
         {
             if (Conn == null)

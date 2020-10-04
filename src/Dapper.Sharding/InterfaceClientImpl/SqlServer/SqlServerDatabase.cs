@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Data;
 using System.Data.SqlClient;
+using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
@@ -9,9 +10,14 @@ namespace Dapper.Sharding
 {
     internal class SqlServerDatabase : IDatabase
     {
-        public SqlServerDatabase(string name, SqlServerClient client): base(name, client)
+        public SqlServerDatabase(string name, SqlServerClient client) : base(name, client)
         {
             ConnectionString = ConnectionStringBuilder.BuilderSqlServer(client.Config, name);
+        }
+
+        protected override ITable<T> CreateITable<T>(string name)
+        {
+            return new SqlServerTable<T>(name, this);
         }
 
         public override string ConnectionString { get; }
@@ -59,7 +65,11 @@ namespace Dapper.Sharding
 
         public override TableEntity GetTableEntityFromDatabase(string name)
         {
-            throw new NotImplementedException();
+            var entity = new TableEntity();
+            var manager = GetTableManager(name);
+            entity.IndexList = manager.GetIndexEntityList();
+            entity.ColumnList = manager.GetColumnEntityList(entity);
+            return entity;
         }
 
         public override IEnumerable<string> GetTableList()
@@ -80,6 +90,41 @@ namespace Dapper.Sharding
             var tableEntity = ClassToTableEntityUtils.Get<T>(Client.DbType);
             var sb = new StringBuilder();
 
+            sb.Append($"IF NOT EXISTS (SELECT * FROM sys.objects WHERE object_id = OBJECT_ID(N'{name}') AND type in (N'U'))");
+            sb.Append($"CREATE TABLE [{name}](");
+            foreach (var item in tableEntity.ColumnList)
+            {
+                sb.Append($"[{item.Name}] {item.DbType}");
+                if (tableEntity.PrimaryKey.ToLower() == item.Name.ToLower())
+                {
+                    if (tableEntity.IsIdentity)
+                    {
+                        sb.Append(" identity(1,1)");
+                    }
+                    sb.Append(" PRIMARY KEY");
+                }
+                if (item != tableEntity.ColumnList.Last())
+                {              
+                    sb.Append(",");
+                }
+            }
+            sb.Append(");");
+
+            foreach (var item in tableEntity.IndexList.Where(w => w.Type != IndexType.PrimaryKey))
+            {
+                sb.Append("CREATE ");
+                if (item.Type == IndexType.Unique)
+                {
+                    sb.Append("UNIQUE");
+                }
+                sb.Append($" NONCLUSTERED INDEX [{name}_{item.Name}] ON [dbo].[People]({item.Columns});");
+
+            }
+            sb.Append($"EXEC sp_addextendedproperty 'MS_Description', N'{tableEntity.Comment}','SCHEMA', N'dbo','TABLE', N'{name}';");
+            foreach (var item in tableEntity.ColumnList)
+            {
+                sb.Append($"EXEC sp_addextendedproperty 'MS_Description', N'{item.Comment}', 'SCHEMA', N'dbo','TABLE', N'{name}','COLUMN', N'{item.Name}';");
+            }
             return sb.ToString();
         }
 
@@ -96,9 +141,6 @@ namespace Dapper.Sharding
             }
         }
 
-        protected override ITable<T> CreateITable<T>(string name)
-        {
-            throw new NotImplementedException();
-        }
+
     }
 }

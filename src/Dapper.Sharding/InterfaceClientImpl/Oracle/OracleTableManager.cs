@@ -40,7 +40,7 @@ namespace Dapper.Sharding
         }
 
 
-        public override List<ColumnEntity> GetColumnEntityList()
+        public override List<ColumnEntity> GetColumnEntityList(TableEntity tb = null)
         {
             throw new NotImplementedException();
         }

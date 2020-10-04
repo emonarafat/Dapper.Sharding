@@ -73,7 +73,7 @@ namespace Dapper.Sharding
             return list;
         }
 
-        public override List<ColumnEntity> GetColumnEntityList()
+        public override List<ColumnEntity> GetColumnEntityList(TableEntity tb = null)
         {
             string sql = @"SELECT  
 ColumnName=a.name, 
@@ -102,8 +102,10 @@ order by a.id,a.colorder";
             foreach (var row in data)
             {
                 var model = new ColumnEntity();
+
                 model.Name = ((string)row.ColumnName).FirstCharToUpper();
                 model.Comment = row.ColumnCommnent;
+
                 var t = (string)row.ColumnType;
 
                 var map = DbCsharpTypeMap.SqlServerMap.FirstOrDefault(f => f.DbType == t);
@@ -112,6 +114,7 @@ order by a.id,a.colorder";
                 else
                     model.CsStringType = "object";
 
+                model.CsType = map.CsType;
                 model.DbType = t.ToLower();
 
                 if (model.DbType == "decimal")
@@ -125,6 +128,16 @@ order by a.id,a.colorder";
                     model.DbLength = row.ColumnLength.ToString();
                 }
 
+                if (row.IsKey == 1)
+                {
+                    tb.PrimaryKey = model.Name;
+                    if (row.IsIdentity == 1)
+                    {
+                        tb.IsIdentity = true;
+                    }
+                    tb.PrimaryKeyType = model.CsType;
+                }
+
                 list.Add(model);
             }
             return list;
@@ -134,6 +147,7 @@ order by a.id,a.colorder";
         {
             var dbType = CsharpTypeToDbType.Create(DataBase.Client.DbType, t, length);
             DpEntity.Execute($"alter table [{Name}] add  [{name}] {dbType}");
+            DpEntity.Execute($"EXEC sp_addextendedproperty 'MS_Description', N'{comment}', 'SCHEMA', N'dbo','TABLE', N'{Name}','COLUMN', N'{name}'");
         }
 
         public override void AddColumnAfter(string name, string afterName, Type t, double length = 0, string comment = null)

@@ -96,7 +96,7 @@ namespace Dapper.Sharding
             return list;
         }
 
-        public override List<ColumnEntity> GetColumnEntityList()
+        public override List<ColumnEntity> GetColumnEntityList(TableEntity tb = null)
         {
             var list = new List<ColumnEntity>();
             var columnList = DpEntity.Query($"SHOW FULL COLUMNS FROM `{Name}`");

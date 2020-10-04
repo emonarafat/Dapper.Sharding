@@ -63,7 +63,7 @@ namespace Dapper.Sharding
             return list;
         }
 
-        public override List<ColumnEntity> GetColumnEntityList()
+        public override List<ColumnEntity> GetColumnEntityList(TableEntity tb = null)
         {
             var list = new List<ColumnEntity>();
             IEnumerable<dynamic> data = DpEntity.Query($"pragma table_info('{Name}')");
