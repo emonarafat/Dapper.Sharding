@@ -90,7 +90,7 @@ namespace Dapper.Sharding
         public override void AddColumn(string name, Type t, double length = 0, string comment = null)
         {
             var dbType = CsharpTypeToDbType.Create(DataBase.Client.DbType, t, length);
-            DpEntity.Execute($"ALTER TABLE {Name} ADD COLUMN {name} {dbType}");
+            DpEntity.Execute($"ALTER TABLE {Name} ADD COLUMN {name.ToLower()} {dbType}");
         }
 
         public override void AddColumnAfter(string name, string afterName, Type t, double length = 0, string comment = null)

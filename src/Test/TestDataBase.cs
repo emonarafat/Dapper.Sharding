@@ -61,7 +61,7 @@ namespace Test
         [Test]
         public void GetTableEntityFromDatabase()
         {
-            Console.WriteLine(JsonConvert.SerializeObject(Factory.Db.GetTableEntityFromDatabase("People")));
+            Console.WriteLine(JsonConvert.SerializeObject(Factory.Db.GetTableEntityFromDatabase("people")));
         }
 
         [Test]

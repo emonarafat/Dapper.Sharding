@@ -2,6 +2,7 @@
 using System;
 using System.Collections.Generic;
 using System.Data;
+using System.Linq;
 using System.Threading.Tasks;
 
 namespace Dapper.Sharding
@@ -68,7 +69,39 @@ namespace Dapper.Sharding
 
         public override TableEntity GetTableEntityFromDatabase(string name)
         {
-            throw new NotImplementedException();
+            var entity = new TableEntity();
+
+            string sql = $@"select a.relname as name , b.description as value from pg_class a 
+left join (select * from pg_description where objsubid =0 ) b on a.oid = b.objoid
+where a.relname='{name}' and a.relname in (select tablename from pg_tables where schemaname = 'public')
+order by a.relname asc";
+
+            using (var conn = GetConn())
+            {
+                var row = conn.QueryFirstOrDefault(sql);
+                if (row != null)
+                {
+                    entity.Comment = row.value;
+                }
+            }
+
+            var manager = GetTableManager(name);
+            var indexList = manager.GetIndexEntityList();
+            entity.IndexList = indexList;
+            var ix = indexList.FirstOrDefault(f => f.Type == IndexType.PrimaryKey);
+            if (ix != null)
+            {
+                entity.PrimaryKey = ix.Columns.FirstCharToUpper();
+            }
+            entity.ColumnList = manager.GetColumnEntityList(entity);
+
+            var col = entity.ColumnList.FirstOrDefault(w => w.Name.ToLower() == entity.PrimaryKey.ToLower());
+            if (col != null)
+            {
+                entity.PrimaryKeyType = col.CsType;
+            }
+            return entity;
+
         }
 
         public override IEnumerable<string> GetTableList()
