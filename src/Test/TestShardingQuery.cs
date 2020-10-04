@@ -96,7 +96,7 @@ namespace Test
         [Test]
         public void GetByWhereFirst()
         {
-            var data = Factory.ShardingQueryTeacher.GetByWhereFirst("WHERE Id=@Id", new { Id = "5f7471f0db027f2115ab769c" });
+            var data = Factory.ShardingQueryTeacher.GetByWhereFirst("WHERE Id=@Id", new { Id = 111111111111 });
             Console.WriteLine(JsonConvert.SerializeObject(data));
         }
 

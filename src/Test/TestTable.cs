@@ -78,12 +78,12 @@ namespace Test
         [Test]
         public void InsertList()
         {
-            var modelList = new List<People>();
-            for (int i = 0; i < 5000; i++)
-            {
-                modelList.Add(new People { Name = "李白" + i,AddTime = DateTime.Now });
-            }
-            Factory.peopleTable.Insert(modelList);
+            //var modelList = new List<People>();
+            //for (int i = 0; i < 5000; i++)
+            //{
+            //    modelList.Add(new People { Name = "李白" + i,AddTime = DateTime.Now });
+            //}
+            //Factory.peopleTable.Insert(modelList);
 
             var list = new List<Student>();
             for (int i = 0; i < 40000; i++)
@@ -102,7 +102,13 @@ namespace Test
             {
                 Id = 11,
                 Name = "自动添加id11",
-                AddTime = DateTime.Now
+                AddTime = DateTime.Now,
+                IsAdmin = true,
+                Text = "你好",
+                LongText = "1",
+                Money = 10.5M,
+                Money2 = 10.888F,
+                Money3 = 50.55
             };
             Factory.peopleTable.InsertIdentityIfNoExists(table);
         }
@@ -132,8 +138,10 @@ namespace Test
                 Name = "李四1111",
                 Age = 51111,
                 Text = "你好11",
+                LongText = "2",
                 Money = 500M,
                 AddTime = DateTime.Now
+
             };
 
             Factory.peopleTable.Update(model);
