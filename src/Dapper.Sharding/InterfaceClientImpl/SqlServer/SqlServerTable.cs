@@ -72,48 +72,54 @@ namespace Dapper.Sharding
 
         public override TValue Avg<TValue>(string field, string where = null, object param = null)
         {
-            throw new NotImplementedException();
+            return DpEntity.ExecuteScalar<TValue>($"SELECT AVG([{field}]) FROM [{Name}] {where}", param);
         }
 
         public override long Count()
         {
-            throw new NotImplementedException();
+            return DpEntity.ExecuteScalar<long>($"SELECT COUNT(1) FROM [{Name}]");
         }
 
         public override long Count(string where, object param = null)
         {
-            throw new NotImplementedException();
+            return DpEntity.ExecuteScalar<long>($"SELECT COUNT(1) FROM [{Name}] {where}", param);
         }
 
 
         public override bool Delete(object id)
         {
-            throw new NotImplementedException();
+            return DpEntity.Execute($"DELETE FROM [{Name}] WHERE [{SqlField.PrimaryKey}]=@id", new { id }) > 0;
         }
 
         public override int DeleteAll()
         {
-            throw new NotImplementedException();
+            return DpEntity.Execute($"DELETE FROM [{Name}]");
         }
 
         public override int DeleteByIds(object ids)
         {
-            throw new NotImplementedException();
+            if (CommonUtil.ObjectIsEmpty(ids))
+                return 0;
+            var dpar = new DynamicParameters();
+            dpar.Add("@ids", ids);
+            return DpEntity.Execute($"DELETE FROM [{Name}] WHERE [{SqlField.PrimaryKey}] IN @ids", dpar);
         }
 
         public override int DeleteByWhere(string where, object param = null)
         {
-            throw new NotImplementedException();
+            return DpEntity.Execute($"DELETE FROM [{Name}] {where}", param);
         }
 
         public override bool Exists(object id)
         {
-            throw new NotImplementedException();
+            return DpEntity.ExecuteScalar($"SELECT 1 FROM [{Name}] WHERE [{SqlField.PrimaryKey}]=@id", new { id }) != null;
         }
 
         public override IEnumerable<T> GetAll(string returnFields = null, string orderby = null)
         {
-            throw new NotImplementedException();
+            if (string.IsNullOrEmpty(returnFields))
+                returnFields = SqlField.AllFields;
+            return DpEntity.Query<T>($"SELECT {returnFields} FROM [{Name}] {orderby.SetOrderBy(SqlField.PrimaryKey)}");
         }
 
         public override IEnumerable<T> GetByAscCurrentPage(int pageSize, T param, string and = null, string returnFields = null)
@@ -168,27 +174,49 @@ namespace Dapper.Sharding
 
         public override T GetById(object id, string returnFields = null)
         {
-            throw new NotImplementedException();
+            if (string.IsNullOrEmpty(returnFields))
+                returnFields = SqlField.AllFields;
+            return DpEntity.QueryFirstOrDefault<T>($"SELECT {returnFields} FROM [{Name}] WHERE [{SqlField.PrimaryKey}]=@id", new { id });
         }
 
         public override T GetByIdForUpdate(object id, string returnFields = null)
         {
-            throw new NotImplementedException();
+            if (string.IsNullOrEmpty(returnFields))
+                returnFields = SqlField.AllFields;
+            return DpEntity.QueryFirstOrDefault<T>($"SELECT {returnFields} FROM [{Name}] WITH (UPDLOCK) WHERE [{SqlField.PrimaryKey}]=@id", new { id });
         }
 
         public override IEnumerable<T> GetByIds(object ids, string returnFields = null)
         {
-            throw new NotImplementedException();
+            if (CommonUtil.ObjectIsEmpty(ids))
+                return Enumerable.Empty<T>();
+            if (string.IsNullOrEmpty(returnFields))
+                returnFields = SqlField.AllFields;
+            var dpar = new DynamicParameters();
+            dpar.Add("@ids", ids);
+            return DpEntity.Query<T>($"SELECT {returnFields} FROM [{Name}] WHERE [{SqlField.PrimaryKey}] IN @ids", dpar);
         }
 
         public override IEnumerable<T> GetByIdsForUpdate(object ids, string returnFields = null)
         {
-            throw new NotImplementedException();
+            if (CommonUtil.ObjectIsEmpty(ids))
+                return Enumerable.Empty<T>();
+            if (string.IsNullOrEmpty(returnFields))
+                returnFields = SqlField.AllFields;
+            var dpar = new DynamicParameters();
+            dpar.Add("@ids", ids);
+            return DpEntity.Query<T>($"SELECT {returnFields} FROM [{Name}] WITH (UPDLOCK) WHERE [{SqlField.PrimaryKey}] IN @ids", dpar);
         }
 
         public override IEnumerable<T> GetByIdsWithField(object ids, string field, string returnFields = null)
         {
-            throw new NotImplementedException();
+            if (CommonUtil.ObjectIsEmpty(ids))
+                return Enumerable.Empty<T>();
+            if (string.IsNullOrEmpty(returnFields))
+                returnFields = SqlField.AllFields;
+            var dpar = new DynamicParameters();
+            dpar.Add("@ids", ids);
+            return DpEntity.Query<T>($"SELECT {returnFields} FROM [{Name}] WHERE [{field}] IN @ids", dpar);
         }
 
         public override IEnumerable<T> GetBySkipTake(int skip, int take, string where = null, object param = null, string returnFields = null, string orderby = null)
@@ -198,42 +226,61 @@ namespace Dapper.Sharding
 
         public override IEnumerable<T> GetByWhere(string where, object param = null, string returnFields = null, string orderby = null, int limit = 0)
         {
-            throw new NotImplementedException();
+            if (string.IsNullOrEmpty(returnFields))
+                returnFields = SqlField.AllFields;
+            string top = null;
+            if (limit != 0)
+            {
+                top = $"TOP({limit}) ";
+            }
+            return DpEntity.Query<T>($"SELECT {top} {returnFields} FROM [{Name}] {where} {orderby.SetOrderBy(SqlField.PrimaryKey)}", param);
         }
 
         public override T GetByWhereFirst(string where, object param = null, string returnFields = null)
         {
-            throw new NotImplementedException();
+            if (string.IsNullOrEmpty(returnFields))
+                returnFields = SqlField.AllFields;
+            return DpEntity.QueryFirstOrDefault<T>($"SELECT TOP(1) {returnFields} FROM [{Name}] {where}", param);
         }
 
         public override TValue Max<TValue>(string field, string where = null, object param = null)
         {
-            throw new NotImplementedException();
+            return DpEntity.ExecuteScalar<TValue>($"SELECT MAX([{field}]) FROM [{Name}] {where}", param);
         }
 
         public override TValue Min<TValue>(string field, string where = null, object param = null)
         {
-            throw new NotImplementedException();
+            return DpEntity.ExecuteScalar<TValue>($"SELECT MIN([{field}]) FROM [{Name}] {where}", param);
         }
 
         public override TValue Sum<TValue>(string field, string where = null, object param = null)
         {
-            throw new NotImplementedException();
+            return DpEntity.ExecuteScalar<TValue>($"SELECT SUM([{field}]) FROM [{Name}] {where}", param);
         }
 
         public override void Truncate()
         {
-            throw new NotImplementedException();
+            DataBase.TruncateTable(Name);
         }
 
         public override int UpdateByWhere(T model, string where, List<string> fields = null)
         {
-            throw new NotImplementedException();
+            string updatefields;
+            if (fields != null)
+            {
+                updatefields = CommonUtil.GetFieldsAtEqStr(fields, "[", "]");
+            }
+            else
+            {
+                updatefields = SqlField.AllFieldsAtEqExceptKey;
+            }
+            return DpEntity.Execute($"UPDATE [{Name}] SET {updatefields} {where}", model);
         }
 
         public override int UpdateByWhereIgnore(T model, string where, List<string> fields)
         {
-            throw new NotImplementedException();
+            string updatefields = CommonUtil.GetFieldsAtEqStr(SqlField.AllFieldExceptKeyList.Except(fields), "[", "]");
+            return DpEntity.Execute($"UPDATE [{Name}] SET {updatefields} {where}", model);
         }
     }
 }

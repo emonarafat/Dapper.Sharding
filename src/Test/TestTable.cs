@@ -144,8 +144,8 @@ namespace Test
         {
             var modelList = new List<People>
             {
-                new People{ Id=1,Name="小黑11" ,Age = 1},
-                new People{ Id=2,Name="小白222",Age = 2 }
+                new People{ Id=1,Name="小黑11" ,Age = 1,AddTime = DateTime.Now},
+                new People{ Id=2,Name="小白222",Age = 2 ,AddTime = DateTime.Now}
             };
             Factory.peopleTable.Update(modelList, new List<string> { "Name" });
         }

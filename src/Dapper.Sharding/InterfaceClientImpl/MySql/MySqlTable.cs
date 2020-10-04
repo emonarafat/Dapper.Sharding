@@ -104,7 +104,7 @@ namespace Dapper.Sharding
 
         public override int DeleteByWhere(string where, object param)
         {
-            return DpEntity.Execute($"DELETE FROM `{Name}` " + where, param);
+            return DpEntity.Execute($"DELETE FROM `{Name}` {where}", param);
         }
 
         public override int DeleteAll()

@@ -11,10 +11,10 @@ namespace Test
         //public static IClient Client2 = ShardingFactory.CreateClient(DataBaseType.MySql, new DataBaseConfig { Server = "127.0.0.1", UserId = "root", Password = "123", Port = 3307 });
 
         //public static IClient Client = ShardingFactory.CreateClient(DataBaseType.Sqlite, new DataBaseConfig { Server = "D:\\SQLite" });
-        //public static IClient Client2 = ShardingFactory.CreateClient(DataBaseType.Sqlite, new DataBaseConfig { Server = "D:\\SQLite2" });
+        public static IClient Client2 = ShardingFactory.CreateClient(DataBaseType.Sqlite, new DataBaseConfig { Server = "D:\\SQLite2" });
 
         public static IClient Client = ShardingFactory.CreateClient(DataBaseType.SqlServer2012, new DataBaseConfig { Server = ".\\express", UserId = "sa", Password = "123456" });
-        public static IClient Client2 = ShardingFactory.CreateClient(DataBaseType.SqlServer2012, new DataBaseConfig { Server = ".\\express", UserId = "sa", Password = "123456" });
+        //public static IClient Client2 = ShardingFactory.CreateClient(DataBaseType.SqlServer2012, new DataBaseConfig { Server = ".\\express", UserId = "sa", Password = "123456" });
 
 
         public static ReadWirteClient RWClient = ShardingFactory.CreateReadWriteClient(Client, Client2);

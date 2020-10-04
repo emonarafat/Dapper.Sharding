@@ -126,7 +126,7 @@ namespace Test
             var list = Factory.peopleTable.GetByWhere("WHERE Id>@Id", new { Id = 8 });
             Console.WriteLine(JsonConvert.SerializeObject(list));
 
-            var list2 = Factory.peopleTable.GetByWhere("WHERE Id>@Id", new { Id = 8 }, "Id,Name");
+            var list2 = Factory.peopleTable.GetByWhere("WHERE Id>@Id", new { Id = 8 }, "Id,Name","ID DESC",limit:10);
             Console.WriteLine(JsonConvert.SerializeObject(list2));
         }
 
