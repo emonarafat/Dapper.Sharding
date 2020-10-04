@@ -16,7 +16,7 @@ namespace Dapper.Sharding
 
         public override ITableManager CreateTranManager(IDbConnection conn, IDbTransaction tran, int? commandTimeout = null)
         {
-            throw new NotImplementedException();
+            return new OracleTableManager(Name, DataBase, conn, tran, commandTimeout);
         }
         public override void CreateIndex(string name, string columns, IndexType indexType)
         {

@@ -1,12 +1,6 @@
-﻿using NUnit.Framework;
+﻿using Newtonsoft.Json;
+using NUnit.Framework;
 using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using Dapper.Sharding;
-using Dapper;
-using Newtonsoft.Json;
 
 namespace Test
 {
@@ -27,8 +21,11 @@ namespace Test
         [Test]
         public void ExistDatabase()
         {
-            bool exists = Factory.Client.ExistsDatabase("test1");
+            bool exists = Factory.Client.ExistsDatabase("test");
             Console.WriteLine(exists);
+
+            bool exists2 = Factory.Client.ExistsDatabase("test1");
+            Console.WriteLine(exists2);
         }
 
         [Test]

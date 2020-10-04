@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Oracle.ManagedDataAccess.Client;
+using System;
 using System.Collections.Generic;
 using System.Data;
 using System.Threading.Tasks;
@@ -42,12 +43,18 @@ namespace Dapper.Sharding
 
         public override IDbConnection GetConn()
         {
-            throw new NotImplementedException();
+            var conn = new OracleConnection(ConnectionString);
+            if (conn.State != ConnectionState.Open)
+                conn.Open();
+            return conn;
         }
 
-        public override Task<IDbConnection> GetConnAsync()
+        public override async Task<IDbConnection> GetConnAsync()
         {
-            throw new NotImplementedException();
+            var conn = new OracleConnection(ConnectionString);
+            if (conn.State != ConnectionState.Open)
+                await conn.OpenAsync();
+            return conn;
         }
 
         public override IEnumerable<string> ShowDatabases()

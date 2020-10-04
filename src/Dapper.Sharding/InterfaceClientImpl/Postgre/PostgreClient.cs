@@ -1,9 +1,8 @@
-﻿using System;
-using System.Collections.Concurrent;
+﻿using Npgsql;
+using System;
 using System.Collections.Generic;
 using System.Data;
 using System.Linq;
-using System.Text;
 using System.Threading.Tasks;
 
 namespace Dapper.Sharding
@@ -22,44 +21,67 @@ namespace Dapper.Sharding
 
         protected override IDatabase CreateIDatabase(string name)
         {
-            throw new NotImplementedException();
+            return new PostgreDatabase(name, this);
         }
 
         #endregion
 
         public override void CreateDatabase(string name)
         {
-            throw new NotImplementedException();
+            using (var conn = GetConn())
+            {
+                var count = conn.ExecuteScalar<int>($"SELECT COUNT(1) FROM pg_database WHERE datname = '{name}'");
+                if (count == 0)
+                {
+                    conn.Execute($"CREATE DATABASE {name}");
+                }
+            }
         }
 
         public override void DropDatabase(string name)
         {
-            throw new NotImplementedException();
+            using (var conn = GetConn())
+            {
+                conn.Execute($"DROP DATABASE IF EXISTS {name}");
+            }
         }
 
         public override bool ExistsDatabase(string name)
         {
-            throw new NotImplementedException();
+            using (var conn = GetConn())
+            {
+                return conn.ExecuteScalar<int>($"SELECT COUNT(1) FROM pg_database WHERE datname = '{name}'") > 0;
+
+            }
         }
 
         public override IDbConnection GetConn()
         {
-            throw new NotImplementedException();
+            var conn = new NpgsqlConnection(ConnectionString);
+            if (conn.State != ConnectionState.Open)
+                conn.Open();
+            return conn;
         }
 
-        public override Task<IDbConnection> GetConnAsync()
+        public override async Task<IDbConnection> GetConnAsync()
         {
-            throw new NotImplementedException();
+            var conn = new NpgsqlConnection(ConnectionString);
+            if (conn.State != ConnectionState.Open)
+                await conn.OpenAsync();
+            return conn;
         }
 
         public override IEnumerable<string> ShowDatabases()
         {
-            throw new NotImplementedException();
+            using (var conn = GetConn())
+            {
+                return conn.Query<string>("select pg_database.datname from pg_database");
+            }
         }
 
         public override IEnumerable<string> ShowDatabasesExcludeSystem()
         {
-            throw new NotImplementedException();
+            return ShowDatabases().Where(w => w != "template1" && w != "template0");
         }
     }
 }

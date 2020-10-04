@@ -5,7 +5,7 @@ VisualStudioVersion = 16.0.30413.136
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Dapper.Sharding", "Dapper.Sharding\Dapper.Sharding.csproj", "{D5DB7731-83A5-42B9-BD46-FCAB75E71692}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Test", "Test\Test.csproj", "{A5A26E95-7A04-404C-92AA-1138AEF9BC58}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Test", "Test\Test.csproj", "{C099190E-14F2-43F5-B37F-30C138BA144C}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -17,10 +17,10 @@ Global
 		{D5DB7731-83A5-42B9-BD46-FCAB75E71692}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{D5DB7731-83A5-42B9-BD46-FCAB75E71692}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{D5DB7731-83A5-42B9-BD46-FCAB75E71692}.Release|Any CPU.Build.0 = Release|Any CPU
-		{A5A26E95-7A04-404C-92AA-1138AEF9BC58}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{A5A26E95-7A04-404C-92AA-1138AEF9BC58}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{A5A26E95-7A04-404C-92AA-1138AEF9BC58}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{A5A26E95-7A04-404C-92AA-1138AEF9BC58}.Release|Any CPU.Build.0 = Release|Any CPU
+		{C099190E-14F2-43F5-B37F-30C138BA144C}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{C099190E-14F2-43F5-B37F-30C138BA144C}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{C099190E-14F2-43F5-B37F-30C138BA144C}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{C099190E-14F2-43F5-B37F-30C138BA144C}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

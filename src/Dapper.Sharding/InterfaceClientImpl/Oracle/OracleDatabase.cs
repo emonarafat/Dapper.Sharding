@@ -1,8 +1,7 @@
-﻿using System;
+﻿using Oracle.ManagedDataAccess.Client;
+using System;
 using System.Collections.Generic;
 using System.Data;
-using System.Linq;
-using System.Text;
 using System.Threading.Tasks;
 
 namespace Dapper.Sharding
@@ -16,6 +15,16 @@ namespace Dapper.Sharding
 
         public override string ConnectionString { get; }
 
+        public override ITableManager GetTableManager(string name)
+        {
+            return new OracleTableManager(name, this);
+        }
+
+        protected override ITable<T> CreateITable<T>(string name)
+        {
+            return new OracleTable<T>(name, this);
+        }
+
         public override void DropTable(string name)
         {
             throw new NotImplementedException();
@@ -28,12 +37,18 @@ namespace Dapper.Sharding
 
         public override IDbConnection GetConn()
         {
-            throw new NotImplementedException();
+            var conn = new OracleConnection(ConnectionString);
+            if (conn.State != ConnectionState.Open)
+                conn.Open();
+            return conn;
         }
 
-        public override Task<IDbConnection> GetConnAsync()
+        public override async Task<IDbConnection> GetConnAsync()
         {
-            throw new NotImplementedException();
+            var conn = new OracleConnection(ConnectionString);
+            if (conn.State != ConnectionState.Open)
+                await conn.OpenAsync();
+            return conn;
         }
 
         public override IEnumerable<string> GetTableColumnList(string name)
@@ -51,10 +66,7 @@ namespace Dapper.Sharding
             throw new NotImplementedException();
         }
 
-        public override ITableManager GetTableManager(string name)
-        {
-            return new OracleTableManager(name, this);
-        }
+
 
         public override string GetTableScript<T>(string name)
         {
@@ -71,9 +83,5 @@ namespace Dapper.Sharding
             throw new NotImplementedException();
         }
 
-        protected override ITable<T> CreateITable<T>(string name)
-        {
-            return new OracleTable<T>(name, this);
-        }
     }
 }
