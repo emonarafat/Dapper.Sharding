@@ -2,8 +2,6 @@
 using System.Collections.Generic;
 using System.Data;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace Dapper.Sharding
 {
@@ -122,54 +120,74 @@ namespace Dapper.Sharding
             return DpEntity.Query<T>($"SELECT {returnFields} FROM [{Name}] {orderby.SetOrderBy(SqlField.PrimaryKey)}");
         }
 
-        public override IEnumerable<T> GetByAscCurrentPage(int pageSize, T param, string and = null, string returnFields = null)
-        {
-            throw new NotImplementedException();
-        }
-
         public override IEnumerable<T> GetByAscFirstPage(int pageSize, object param = null, string and = null, string returnFields = null)
         {
-            throw new NotImplementedException();
+            if (string.IsNullOrEmpty(returnFields))
+                returnFields = SqlField.AllFields;
+            return DpEntity.Query<T>($"SELECT TOP({pageSize}) {returnFields} FROM [{Name}] AS A WHERE 1=1 {and} ORDER BY [{SqlField.PrimaryKey}]", param);
+        }
+
+        public override IEnumerable<T> GetByAscCurrentPage(int pageSize, T param, string and = null, string returnFields = null)
+        {
+            if (string.IsNullOrEmpty(returnFields))
+                returnFields = SqlField.AllFields;
+            return DpEntity.Query<T>($"SELECT TOP({pageSize}) {returnFields} FROM [{Name}] AS A WHERE [{SqlField.PrimaryKey}]>=@{SqlField.PrimaryKey} {and} ORDER BY [{SqlField.PrimaryKey}]", param);
         }
 
         public override IEnumerable<T> GetByAscLastPage(int pageSize, object param = null, string and = null, string returnFields = null)
         {
-            throw new NotImplementedException();
+            if (string.IsNullOrEmpty(returnFields))
+                returnFields = SqlField.AllFields;
+            return DpEntity.Query<T>($"SELECT * FROM (SELECT TOP({pageSize}) {returnFields} FROM [{Name}] AS A WHERE 1=1 {and} ORDER BY [{SqlField.PrimaryKey}] DESC) AS B ORDER BY [{SqlField.PrimaryKey}]", param);
         }
 
         public override IEnumerable<T> GetByAscNextPage(int pageSize, T param, string and = null, string returnFields = null)
         {
-            throw new NotImplementedException();
+            if (string.IsNullOrEmpty(returnFields))
+                returnFields = SqlField.AllFields;
+            return DpEntity.Query<T>($"SELECT TOP({pageSize}) {returnFields} FROM [{Name}] AS A WHERE [{SqlField.PrimaryKey}]>@{SqlField.PrimaryKey} {and} ORDER BY [{SqlField.PrimaryKey}]", param);
         }
 
         public override IEnumerable<T> GetByAscPrevPage(int pageSize, T param, string and = null, string returnFields = null)
         {
-            throw new NotImplementedException();
+            if (string.IsNullOrEmpty(returnFields))
+                returnFields = SqlField.AllFields;
+            return DpEntity.Query<T>($"SELECT * FROM (SELECT TOP({pageSize}) {returnFields} FROM [{Name}] AS A WHERE [{SqlField.PrimaryKey}]<@{SqlField.PrimaryKey} {and} ORDER BY [{SqlField.PrimaryKey}] DESC) AS B ORDER BY [{SqlField.PrimaryKey}]", param);
         }
 
         public override IEnumerable<T> GetByDescCurrentPage(int pageSize, T param, string and = null, string returnFields = null)
         {
-            throw new NotImplementedException();
+            if (string.IsNullOrEmpty(returnFields))
+                returnFields = SqlField.AllFields;
+            return DpEntity.Query<T>($"SELECT TOP({pageSize}) {returnFields} FROM [{Name}] AS A WHERE [{SqlField.PrimaryKey}]<=@{SqlField.PrimaryKey} {and} ORDER BY [{SqlField.PrimaryKey}] DESC", param);
         }
 
         public override IEnumerable<T> GetByDescFirstPage(int pageSize, object param = null, string and = null, string returnFields = null)
         {
-            throw new NotImplementedException();
+            if (string.IsNullOrEmpty(returnFields))
+                returnFields = SqlField.AllFields;
+            return DpEntity.Query<T>($"SELECT TOP({pageSize}) {returnFields} FROM [{Name}] AS A WHERE 1=1 {and} ORDER BY [{SqlField.PrimaryKey}] DESC", param);
         }
 
         public override IEnumerable<T> GetByDescLastPage(int pageSize, object param = null, string and = null, string returnFields = null)
         {
-            throw new NotImplementedException();
+            if (string.IsNullOrEmpty(returnFields))
+                returnFields = SqlField.AllFields;
+            return DpEntity.Query<T>($"SELECT * FROM (SELECT TOP({pageSize}) {returnFields} FROM [{Name}] AS A WHERE 1=1 {and} ORDER BY [{SqlField.PrimaryKey}]) AS B ORDER BY [{SqlField.PrimaryKey}] DESC", param);
         }
 
         public override IEnumerable<T> GetByDescNextPage(int pageSize, T param, string and = null, string returnFields = null)
         {
-            throw new NotImplementedException();
+            if (string.IsNullOrEmpty(returnFields))
+                returnFields = SqlField.AllFields;
+            return DpEntity.Query<T>($"SELECT TOP({pageSize}) {returnFields} FROM [{Name}] AS A WHERE [{SqlField.PrimaryKey}]<@{SqlField.PrimaryKey} {and} ORDER BY [{SqlField.PrimaryKey}] DESC", param);
         }
 
         public override IEnumerable<T> GetByDescPrevPage(int pageSize, T param, string and = null, string returnFields = null)
         {
-            throw new NotImplementedException();
+            if (string.IsNullOrEmpty(returnFields))
+                returnFields = SqlField.AllFields;
+            return DpEntity.Query<T>($"SELECT * FROM (SELECT TOP({pageSize}) {returnFields} FROM [{Name}] AS A WHERE [{SqlField.PrimaryKey}]>@{SqlField.PrimaryKey} {and} ORDER BY [{SqlField.PrimaryKey}]) AS B ORDER BY [{SqlField.PrimaryKey}] DESC", param);
         }
 
         public override T GetById(object id, string returnFields = null)
@@ -221,7 +239,24 @@ namespace Dapper.Sharding
 
         public override IEnumerable<T> GetBySkipTake(int skip, int take, string where = null, object param = null, string returnFields = null, string orderby = null)
         {
-            throw new NotImplementedException();
+            if (string.IsNullOrEmpty(returnFields))
+                returnFields = SqlField.AllFields;
+            if (DataBase.Client.DbType == DataBaseType.SqlServer2012)
+            {
+                return DpEntity.Query<T>($"SELECT {returnFields} FROM [{Name}] {where} {orderby.SetOrderBy(SqlField.PrimaryKey)} offset {skip} rows fetch next {take} rows only", param);
+            }
+            else
+            {
+                if (skip == 0) //第一页,使用Top语句
+                {
+                    return DpEntity.Query<T>($"SELECT TOP ({take}) {returnFields} FROM [{Name}] {where} {orderby.SetOrderBy(SqlField.PrimaryKey)}", param);
+                }
+                else //使用ROW_NUMBER()
+                {
+                    return DpEntity.Query<T>($"WITH cte AS(SELECT ROW_NUMBER() OVER({orderby.SetOrderBy(SqlField.PrimaryKey)}) AS Row_Number,{returnFields} FROM [{Name}] {where}) SELECT * FROM cte WHERE cte.Row_Number BETWEEN {skip + 1} AND {skip + take}", param);
+                }
+            }
+
         }
 
         public override IEnumerable<T> GetByWhere(string where, object param = null, string returnFields = null, string orderby = null, int limit = 0)

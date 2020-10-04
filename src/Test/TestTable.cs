@@ -78,12 +78,12 @@ namespace Test
         [Test]
         public void InsertList()
         {
-            //var modelList = new List<People>();
-            //for (int i = 0; i < 5000; i++)
-            //{
-            //    modelList.Add(new People { Name = "李白" + i });
-            //}
-            //Factory.peopleTable.BulkInsert(modelList);
+            var modelList = new List<People>();
+            for (int i = 0; i < 5000; i++)
+            {
+                modelList.Add(new People { Name = "李白" + i,AddTime = DateTime.Now });
+            }
+            Factory.peopleTable.Insert(modelList);
 
             var list = new List<Student>();
             for (int i = 0; i < 40000; i++)
