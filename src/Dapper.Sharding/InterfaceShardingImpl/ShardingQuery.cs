@@ -45,21 +45,8 @@ namespace Dapper.Sharding
             return result.Any(a => a == true);
         }
 
-        public long Count()
-        {
-            var taskList = TableList.Select(s =>
-            {
-                return Task.Run(() =>
-                {
-                    return s.Count();
-                });
-            });
 
-            var result = Task.WhenAll(taskList).Result;
-            return result.Sum();
-        }
-
-        public long Count(string where, object param = null)
+        public long Count(string where = null, object param = null)
         {
             var taskList = TableList.Select(s =>
             {

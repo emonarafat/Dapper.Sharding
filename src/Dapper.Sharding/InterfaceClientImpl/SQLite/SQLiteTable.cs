@@ -120,11 +120,6 @@ namespace Dapper.Sharding
             return DpEntity.ExecuteScalar($"SELECT 1 FROM {Name} WHERE {SqlField.PrimaryKey}=@id", new { id }) != null;
         }
 
-        public override long Count()
-        {
-            return DpEntity.ExecuteScalar<long>($"SELECT COUNT(1) FROM {Name}");
-        }
-
         public override long Count(string where, object param = null)
         {
             return DpEntity.ExecuteScalar<long>($"SELECT COUNT(1) FROM {Name} {where}", param);

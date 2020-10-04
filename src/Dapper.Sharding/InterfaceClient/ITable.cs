@@ -248,9 +248,7 @@ namespace Dapper.Sharding
 
         public abstract bool Exists(object id);
 
-        public abstract long Count();
-
-        public abstract long Count(string where, object param = null);
+        public abstract long Count(string where = null, object param = null);
 
         public abstract TValue Min<TValue>(string field, string where = null, object param = null);
 

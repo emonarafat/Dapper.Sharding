@@ -24,11 +24,6 @@ namespace Dapper.Sharding
             throw new NotImplementedException();
         }
 
-        public override long Count()
-        {
-            throw new NotImplementedException();
-        }
-
         public override long Count(string where, object param = null)
         {
             throw new NotImplementedException();

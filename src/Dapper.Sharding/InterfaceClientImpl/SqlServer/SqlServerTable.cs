@@ -73,11 +73,6 @@ namespace Dapper.Sharding
             return DpEntity.ExecuteScalar<TValue>($"SELECT AVG([{field}]) FROM [{Name}] {where}", param);
         }
 
-        public override long Count()
-        {
-            return DpEntity.ExecuteScalar<long>($"SELECT COUNT(1) FROM [{Name}]");
-        }
-
         public override long Count(string where, object param = null)
         {
             return DpEntity.ExecuteScalar<long>($"SELECT COUNT(1) FROM [{Name}] {where}", param);
