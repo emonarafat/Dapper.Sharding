@@ -36,6 +36,13 @@ namespace Test
         }
 
         [Test]
+        public void GetTableColumnList()
+        {
+            var data = Factory.Db.GetTableColumnList("People");
+            Assert.Pass(JsonConvert.SerializeObject(data));
+        }
+
+        [Test]
         public void ExistsTable()
         {
             Console.WriteLine(Factory.Db.ExistsTable("People"));

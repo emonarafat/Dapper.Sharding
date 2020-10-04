@@ -49,13 +49,13 @@ namespace Dapper.Sharding
                 model.Name = row.name;
                 var indexsql = (string)row.sql;
                 model.Columns = indexsql.Split('(', ')')[1];
-                if (indexsql.ToUpper().Contains("UNIQUE"))
+                if (indexsql.ToUpper().IndexOf("UNIQUE") >= 0)
                 {
                     model.Type = IndexType.Unique;
                 }
                 else
                 {
-                    model.Type = IndexType.Unique;
+                    model.Type = IndexType.Normal;
                 }
                 list.Add(model);
             }

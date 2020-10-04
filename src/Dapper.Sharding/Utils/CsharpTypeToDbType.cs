@@ -33,10 +33,10 @@ namespace Dapper.Sharding
             if (type == typeof(string))
             {
                 if (length <= -1)
-                    return "nvarchar(max)";
+                    return "varchar(max)";
                 if (length == 0)
                     length = 24;
-                return $"nvarchar({length})";
+                return $"varchar({length})";
             }
 
 

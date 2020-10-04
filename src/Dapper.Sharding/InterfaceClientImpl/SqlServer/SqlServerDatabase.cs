@@ -51,7 +51,10 @@ namespace Dapper.Sharding
 
         public override IEnumerable<string> GetTableColumnList(string name)
         {
-            throw new NotImplementedException();
+            using (var conn = GetConn())
+            {
+                return conn.Query<string>($"Select Name FROM SysColumns Where id=Object_Id('{name}')");
+            }
         }
 
         public override TableEntity GetTableEntityFromDatabase(string name)
