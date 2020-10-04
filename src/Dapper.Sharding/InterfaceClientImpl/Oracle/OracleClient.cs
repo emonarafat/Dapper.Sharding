@@ -1,7 +1,7 @@
 ﻿using Oracle.ManagedDataAccess.Client;
-using System;
 using System.Collections.Generic;
 using System.Data;
+using System.IO;
 using System.Threading.Tasks;
 
 namespace Dapper.Sharding
@@ -11,6 +11,17 @@ namespace Dapper.Sharding
 
         public OracleClient(DataBaseConfig config) : base(DataBaseType.Oracle, config)
         {
+            if (config.Oracle_TableSpace_Mb == 0)
+                config.Oracle_TableSpace_Mb = 1;
+            if (config.Oracle_TableSpace_NextMb == 0)
+                config.Oracle_TableSpace_NextMb = 1;
+            if (!string.IsNullOrEmpty(config.Oracle_DatabaseDirectory))
+            {
+                if (!Directory.Exists(config.Oracle_DatabaseDirectory))
+                {
+                    Directory.CreateDirectory(config.Oracle_DatabaseDirectory);
+                }
+            }
             ConnectionString = ConnectionStringBuilder.BuilderOracleSysdba(config);
         }
 
@@ -28,18 +39,39 @@ namespace Dapper.Sharding
 
         public override void CreateDatabase(string name)
         {
-            throw new NotImplementedException();
+            if (!ExistsDatabase(name))
+            {
+                var upName = name.ToUpper();
+                var dbpath = Path.Combine(Config.Oracle_DatabaseDirectory, $"{upName}.DBF");
+                string sql = $@"create user {upName} identified by {Config.Password};
+create tablespace {upName} datafile '{dbpath}' size {Config.Oracle_TableSpace_Mb}m autoextend on next {Config.Oracle_TableSpace_NextMb}m;
+alter user {upName} default tablespace {upName};
+grant create session,create table,unlimited tablespace to {upName};
+alter user {upName} account unlock;
+grant connect,resource,dba to {upName};
+grant all privileges TO {upName}";
+                using (var conn = GetConn())
+                {
+                    conn.Execute(sql);
+                }
+            }
         }
 
         public override void DropDatabase(string name)
         {
+            using (var conn = GetConn())
+            {
+                conn.Execute($"DROP USER {name.ToUpper()} CASCADE;DROP TABLESPACE {name.ToUpper()} INCLUDING CONTENTS AND DATAFILES");
+            }
             DataBaseCache.TryRemove(name.ToLower(), out _);
-            throw new NotImplementedException();
         }
 
         public override bool ExistsDatabase(string name)
         {
-            throw new NotImplementedException();
+            using (var conn = GetConn())
+            {
+                return conn.ExecuteScalar<long>($"SELECT COUNT(1) FROM dba_users WHERE USERNAME='{name.ToUpper()}'") > 0;
+            }
         }
 
         public override IDbConnection GetConn()
@@ -60,12 +92,18 @@ namespace Dapper.Sharding
 
         public override IEnumerable<string> ShowDatabases()
         {
-            throw new NotImplementedException();
+            using (var conn = GetConn())
+            {
+                return conn.Query<string>("SELECT USERNAME FROM dba_users");
+            }
         }
 
         public override IEnumerable<string> ShowDatabasesExcludeSystem()
         {
-            throw new NotImplementedException();
+            using (var conn = GetConn())
+            {
+                return conn.Query<string>("SELECT USERNAME FROM dba_users WHERE DEFAULT_TABLESPACE NOT IN('SYSTEM','SYSAUX','USERS')");
+            }
         }
 
     }

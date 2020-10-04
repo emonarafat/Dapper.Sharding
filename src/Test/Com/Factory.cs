@@ -14,12 +14,24 @@ namespace Test
         //public static IClient Client2 = ShardingFactory.CreateClient(DataBaseType.Sqlite, new DataBaseConfig { Server = "D:\\SQLite2" });
 
         //public static IClient Client = ShardingFactory.CreateClient(DataBaseType.SqlServer2008, new DataBaseConfig { Server = ".\\express", UserId = "sa", Password = "123456" });
-        public static IClient Client2 = ShardingFactory.CreateClient(DataBaseType.SqlServer2012, new DataBaseConfig { Server = ".\\express", UserId = "sa", Password = "123456" });
+        //public static IClient Client2 = ShardingFactory.CreateClient(DataBaseType.SqlServer2012, new DataBaseConfig { Server = ".\\express", UserId = "sa", Password = "123456" });
 
-        public static IClient Client = ShardingFactory.CreateClient(DataBaseType.Postgresql, new DataBaseConfig { Server = "127.0.0.1", UserId = "postgres", Password = "123" });
+        //public static IClient Client = ShardingFactory.CreateClient(DataBaseType.Postgresql, new DataBaseConfig { Server = "127.0.0.1", UserId = "postgres", Password = "123" });
         //public static IClient Client2 = ShardingFactory.CreateClient(DataBaseType.Postgresql, new DataBaseConfig { Server = "127.0.0.1", UserId = "postgres", Password = "123" });
 
+        static DataBaseConfig oracleConfig = new DataBaseConfig
+        {
+            Server = "127.0.0.1",
+            UserId = "test",
+            Password = "123",
+            Oracle_ServiceName = "xe",
+            Oracle_SysUserId = "sys",
+            Oracle_SysPassword = "123",
+            Oracle_DatabaseDirectory = "D:\\OracleData"
 
+        };
+        public static IClient Client = ShardingFactory.CreateClient(DataBaseType.Oracle, oracleConfig);
+        public static IClient Client2 = ShardingFactory.CreateClient(DataBaseType.Oracle, oracleConfig);
 
         public static ReadWirteClient RWClient = ShardingFactory.CreateReadWriteClient(Client, Client2);
 
