@@ -2,8 +2,6 @@
 using System;
 using System.Collections.Generic;
 using System.Data;
-using System.Linq;
-using System.Text;
 using System.Threading.Tasks;
 
 namespace Dapper.Sharding
@@ -29,12 +27,19 @@ namespace Dapper.Sharding
 
         public override void DropTable(string name)
         {
-            throw new NotImplementedException();
+            using (var conn = GetConn())
+            {
+                conn.Execute($"DROP TABLE IF EXISTS {name}");
+            }
+            TableCache.TryRemove(name.ToLower(), out _);
         }
 
         public override bool ExistsTable(string name)
         {
-            throw new NotImplementedException();
+            using (var conn = GetConn())
+            {
+                return conn.ExecuteScalar<int>($"select count(1) from pg_class where relname='{name}'") > 0;
+            }
         }
 
         public override IDbConnection GetConn()
@@ -55,7 +60,10 @@ namespace Dapper.Sharding
 
         public override IEnumerable<string> GetTableColumnList(string name)
         {
-            throw new NotImplementedException();
+            using (var conn = GetConn())
+            {
+                return conn.Query<string>($"select column_name from information_schema.columns where table_schema='public' and table_name = '{name}'");
+            }
         }
 
         public override TableEntity GetTableEntityFromDatabase(string name)
@@ -65,7 +73,10 @@ namespace Dapper.Sharding
 
         public override IEnumerable<string> GetTableList()
         {
-            throw new NotImplementedException();
+            using (var conn = GetConn())
+            {
+                return conn.Query<string>("select tablename from pg_tables where schemaname='public'");
+            }
         }
 
         public override string GetTableScript<T>(string name)
@@ -80,7 +91,10 @@ namespace Dapper.Sharding
 
         public override void TruncateTable(string name)
         {
-            throw new NotImplementedException();
+            using (var conn = GetConn())
+            {
+                conn.Execute($"TRUNCATE TABLE {name}");
+            }
         }
 
 

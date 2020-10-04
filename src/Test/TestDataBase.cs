@@ -29,7 +29,7 @@ namespace Test
         }
 
         [Test]
-        public void ShowTableList()
+        public void GetTableList()
         {
             var data = Factory.Db.GetTableList();
             Assert.Pass(JsonConvert.SerializeObject(data));
@@ -38,15 +38,15 @@ namespace Test
         [Test]
         public void GetTableColumnList()
         {
-            var data = Factory.Db.GetTableColumnList("People");
+            var data = Factory.Db.GetTableColumnList("people");
             Assert.Pass(JsonConvert.SerializeObject(data));
         }
 
         [Test]
         public void ExistsTable()
         {
-            Console.WriteLine(Factory.Db.ExistsTable("People"));
-            Console.WriteLine(Factory.Db.ExistsTable("People22222"));
+            Console.WriteLine(Factory.Db.ExistsTable("people"));
+            Console.WriteLine(Factory.Db.ExistsTable("people22222"));
         }
 
         [Test]

@@ -33,6 +33,7 @@ namespace Dapper.Sharding
 
         public override void DropDatabase(string name)
         {
+            DataBaseCache.TryRemove(name.ToLower(), out _);
             throw new NotImplementedException();
         }
 
