@@ -166,9 +166,7 @@ namespace Dapper.Sharding
 
         public override T GetByIdForUpdate(object id, string returnFields = null)
         {
-            if (string.IsNullOrEmpty(returnFields))
-                returnFields = SqlField.AllFields;
-            return DpEntity.QueryFirstOrDefault<T>($"SELECT {returnFields} FROM {Name} WHERE {SqlField.PrimaryKey}=@id FOR UPDATE", new { id });
+            throw new NotImplementedException();
         }
 
         public override IEnumerable<T> GetByIds(object ids, string returnFields = null)
@@ -184,13 +182,7 @@ namespace Dapper.Sharding
 
         public override IEnumerable<T> GetByIdsForUpdate(object ids, string returnFields = null)
         {
-            if (CommonUtil.ObjectIsEmpty(ids))
-                return Enumerable.Empty<T>();
-            if (string.IsNullOrEmpty(returnFields))
-                returnFields = SqlField.AllFields;
-            var dpar = new DynamicParameters();
-            dpar.Add("@ids", ids);
-            return DpEntity.Query<T>($"SELECT {returnFields} FROM {Name} WHERE {SqlField.PrimaryKey} IN @ids FOR UPDATE", dpar);
+            throw new NotImplementedException();
         }
 
         public override IEnumerable<T> GetByIdsWithField(object ids, string field, string returnFields = null)
