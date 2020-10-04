@@ -3,6 +3,7 @@ using System;
 using System.Collections.Generic;
 using System.Data;
 using System.Linq;
+using System.Text;
 using System.Threading.Tasks;
 
 namespace Dapper.Sharding
@@ -114,7 +115,61 @@ order by a.relname asc";
 
         public override string GetTableScript<T>(string name)
         {
-            throw new NotImplementedException();
+            var tableEntity = ClassToTableEntityUtils.Get<T>(Client.DbType);
+            var sb = new StringBuilder();
+            sb.Append($"CREATE TABLE IF NOT EXISTS {name.ToLower()} (");
+            foreach (var item in tableEntity.ColumnList)
+            {
+                string dbtype = item.DbType;
+
+                if (tableEntity.PrimaryKey.ToLower() == item.Name.ToLower())
+                {    
+                    if (tableEntity.IsIdentity)
+                    {
+                        if (tableEntity.PrimaryKeyType == typeof(int))
+                        {
+                            dbtype = "serial4";
+                        }
+                        else
+                        {
+                            dbtype = "serial8";
+                        }
+                    }
+                    sb.Append($"{item.Name.ToLower()} {dbtype}");
+                    sb.Append(" PRIMARY KEY");
+                }
+                else
+                {
+                    sb.Append($"{item.Name.ToLower()} {dbtype}");
+                }
+
+                if (item != tableEntity.ColumnList.Last())
+                {
+                    sb.Append(",");
+                }
+            }
+            sb.Append(");");
+            foreach (var ix in tableEntity.IndexList)
+            {
+                if (ix.Type == IndexType.Normal)
+                {
+                    sb.Append("CREATE INDEX");
+                }
+                if (ix.Type == IndexType.Unique)
+                {
+                    sb.Append("CREATE UNIQUE INDEX");
+                }
+                sb.Append($" {name.ToLower()}_{ix.Name} ON {name.ToLower()} ({ix.Columns})");
+                if (ix != tableEntity.IndexList.Last())
+                {
+                    sb.Append(";");
+                }
+            }
+            foreach (var item in tableEntity.ColumnList)
+            {
+                sb.Append($";COMMENT ON COLUMN {name.ToLower()}.{item.Name.ToLower()} IS '{item.Comment}'");
+            }
+            return sb.ToString();
         }
 
         public override void SetCharset(string chartset)
