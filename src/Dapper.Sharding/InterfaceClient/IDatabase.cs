@@ -130,7 +130,7 @@ namespace Dapper.Sharding
             return (ITable<T>)TableCache[lowerName];
         }
 
-        public void GeneratorClassFile(string savePath, string tableList = "*", string nameSpace = "Model", string Suffix = "Table", bool partialClass = false)
+        public void GeneratorClassFile(string savePath, List<string> tableList = null, string nameSpace = "Model", string Suffix = "Table", bool partialClass = false)
         {
             this.CreateFiles(savePath, tableList, nameSpace, Suffix, partialClass);
         }

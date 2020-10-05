@@ -94,7 +94,7 @@ namespace Dapper.Sharding
         {
             if (list == null || list.Count() == 0)
                 return;
-            var ids = list.AsQueryable().Select(field).Distinct().AsEnumerable();
+            var ids = list.AsQueryable().Select(field).Distinct().ToDynamicList();
             IEnumerable<T2> data;
             if (mapField.ToLower() == table.SqlField.PrimaryKey.ToLower())
             {
@@ -127,7 +127,7 @@ namespace Dapper.Sharding
         {
             if (list == null || list.Count() == 0)
                 return;
-            var ids = list.AsQueryable().Select(field).Distinct().AsEnumerable();
+            var ids = list.AsQueryable().Select(field).Distinct().ToDynamicList();
             IEnumerable<T2> data;
             if (mapField.ToLower() == table.SqlField.PrimaryKey.ToLower())
             {
@@ -160,7 +160,7 @@ namespace Dapper.Sharding
         {
             if (list == null || list.Count() == 0)
                 return;
-            var ids = list.AsQueryable().Select(field).Distinct().AsEnumerable();
+            var ids = list.AsQueryable().Select(field).Distinct().ToDynamicList();
             string where = $"WHERE {mapField} IN @ids {and}";
             if (par == null)
                 par = new DynamicParameters();
@@ -177,7 +177,7 @@ namespace Dapper.Sharding
         {
             if (list == null || list.Count() == 0)
                 return;
-            var ids = list.AsQueryable().Select(field).Distinct().AsEnumerable();
+            var ids = list.AsQueryable().Select(field).Distinct().ToDynamicList();
             IEnumerable<T2> data;
             if (ids.Count() > 1)
             {
@@ -222,7 +222,7 @@ namespace Dapper.Sharding
         {
             if (list == null || list.Count() == 0)
                 return;
-            var ids = list.AsQueryable().Select(field).Distinct().AsEnumerable();
+            var ids = list.AsQueryable().Select(field).Distinct().ToDynamicList();
             IEnumerable<T2> data;
             if (ids.Count() > 1)
             {
@@ -232,7 +232,7 @@ namespace Dapper.Sharding
             {
                 data = centerTable.GetByWhere($"WHERE {prevField}=@id", new { id = ids.FirstOrDefault() });
             }
-            var ids2 = data.AsQueryable().Select(nextField).Distinct().AsEnumerable();
+            var ids2 = data.AsQueryable().Select(nextField).Distinct().ToDynamicList();
 
             string where = $"WHERE {mapField} IN @ids {and}";
             if (par == null)

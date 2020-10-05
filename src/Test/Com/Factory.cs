@@ -6,19 +6,25 @@ namespace Test
 {
     public class Factory
     {
-        //must singleton mode(必须是单例模式)
+        //client must singleton mode(必须是单例模式)
+
+        /*===mysql===*/
         //public static IClient Client = ShardingFactory.CreateClient(DataBaseType.MySql, new DataBaseConfig { Server = "127.0.0.1", UserId = "root", Password = "123", Port = 3306 });
         //public static IClient Client2 = ShardingFactory.CreateClient(DataBaseType.MySql, new DataBaseConfig { Server = "127.0.0.1", UserId = "root", Password = "123", Port = 3307 });
 
+        /*===sqlite===*/
         //public static IClient Client = ShardingFactory.CreateClient(DataBaseType.Sqlite, new DataBaseConfig { Server = "D:\\SQLite" });
         //public static IClient Client2 = ShardingFactory.CreateClient(DataBaseType.Sqlite, new DataBaseConfig { Server = "D:\\SQLite2" });
 
+        /*===sqlserver===*/
         //public static IClient Client = ShardingFactory.CreateClient(DataBaseType.SqlServer2008, new DataBaseConfig { Server = ".\\express", UserId = "sa", Password = "123456" });
         //public static IClient Client2 = ShardingFactory.CreateClient(DataBaseType.SqlServer2012, new DataBaseConfig { Server = ".\\express", UserId = "sa", Password = "123456" });
 
+        /*===postgresql===*/
         //public static IClient Client = ShardingFactory.CreateClient(DataBaseType.Postgresql, new DataBaseConfig { Server = "127.0.0.1", UserId = "postgres", Password = "123" });
         //public static IClient Client2 = ShardingFactory.CreateClient(DataBaseType.Postgresql, new DataBaseConfig { Server = "127.0.0.1", UserId = "postgres", Password = "123" });
 
+        /*===oracle===*/
         static DataBaseConfig oracleConfig = new DataBaseConfig
         {
             Server = "127.0.0.1",
@@ -30,7 +36,6 @@ namespace Test
             Oracle_DatabaseDirectory = "D:\\OracleData",
             Oracle_TableSpace_Mb = 1,
             Oracle_TableSpace_NextMb = 1
-
         };
         public static IClient Client = ShardingFactory.CreateClient(DataBaseType.Oracle, oracleConfig);
         public static IClient Client2 = ShardingFactory.CreateClient(DataBaseType.Oracle, oracleConfig);
@@ -57,7 +62,7 @@ namespace Test
         {
             get
             {
-                return Db.GetTableManager("People");
+                return Db.GetTableManager("people");
             }
         }
 
@@ -65,7 +70,7 @@ namespace Test
         {
             get
             {
-                return Db.GetTable<People>("People");
+                return Db.GetTable<People>("people");
             }
         }
 
@@ -73,7 +78,7 @@ namespace Test
         {
             get
             {
-                return Db.GetTable<Student>("Student");
+                return Db.GetTable<Student>("student");
             }
         }
 
@@ -81,7 +86,7 @@ namespace Test
         {
             get
             {
-                return Db.GetTable<Teacher>("Teacher");
+                return Db.GetTable<Teacher>("teacher");
             }
         }
 

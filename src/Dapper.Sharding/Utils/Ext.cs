@@ -32,23 +32,13 @@ namespace Dapper.Sharding
 
         #region IDatabase
 
-        public static void CreateFiles(this IDatabase database, string savePath, string tableList = "*", string nameSpace = "Model", string Suffix = "Table", bool partialClass = false)
+        public static void CreateFiles(this IDatabase database, string savePath, List<string> tableList = null, string nameSpace = "Model", string Suffix = "Table", bool partialClass = false)
         {
-            IEnumerable<string> list;
-            if (tableList == "*")
+            if (tableList == null || tableList.Count == 0)
             {
-                list = database.GetTableList();
+                tableList = database.GetTableList().ToList();
             }
-            else if (tableList.Contains(","))
-            {
-                list = tableList.Split(',').ToList();
-            }
-            else
-            {
-                list = new List<string> { tableList };
-            }
-
-            foreach (var name in list)
+            foreach (var name in tableList)
             {
                 var entity = database.GetTableEntityFromDatabase(name);
                 var className = name.FirstCharToUpper() + Suffix;

@@ -35,9 +35,9 @@ namespace Test
                 new MapBook{ Id=6,AuthorId=5,Name="西瓜" }
             };
 
-            var table1 = Factory.Client.GetDatabase("test").GetTable<MapAuthor>("MapAuthor");
+            var table1 = Factory.Client.GetDatabase("test").GetTable<MapAuthor>("map_author");
             table1.Merge(list1);
-            var table2 = Factory.Client.GetDatabase("test").GetTable<MapBook>("MapBook");
+            var table2 = Factory.Client.GetDatabase("test").GetTable<MapBook>("map_book");
             table2.Merge(list2);
 
             //one to many
@@ -107,7 +107,7 @@ namespace Test
             var dd2 = table3.MapCenterTable(centerTable, "NextId", "FirstId", 2);
             Console.WriteLine(JsonConvert.SerializeObject(dd2));
 
-            var dd3 = table3.MapCenterTable(centerTable, "NextId", "FirstId", 2, "Name", 1, 1, out long total);
+            var dd3 = table3.MapCenterTable(centerTable, "NextId", "FirstId", 2, "Name", 2, 1, out long total);
             Console.WriteLine(JsonConvert.SerializeObject(dd3));
             Console.WriteLine(total);
         }

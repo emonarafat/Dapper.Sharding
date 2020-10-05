@@ -124,7 +124,7 @@ order by a.relname asc";
                 string dbtype = item.DbType;
 
                 if (tableEntity.PrimaryKey.ToLower() == item.Name.ToLower())
-                {    
+                {
                     if (tableEntity.IsIdentity)
                     {
                         if (tableEntity.PrimaryKeyType == typeof(int))
@@ -170,6 +170,7 @@ order by a.relname asc";
             {
                 sb.Append($";COMMENT ON COLUMN {lowName}.{item.Name.ToLower()} IS '{item.Comment}'");
             }
+            sb.Append($";COMMENT ON TABLE {lowName} IS '{tableEntity.Comment}'");
             return sb.ToString();
         }
 
