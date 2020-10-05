@@ -18,14 +18,18 @@ namespace Test
             Factory.Client.DropDatabase("demo");
         }
 
+
+        [Test]
+        public void GetDatbase()
+        {
+            Factory.Client.GetDatabase("demo");
+        }
+
         [Test]
         public void ExistDatabase()
         {
-            bool exists = Factory.Client.ExistsDatabase("test");
+            bool exists = Factory.Client.ExistsDatabase("demo");
             Console.WriteLine(exists);
-
-            bool exists2 = Factory.Client.ExistsDatabase("test1");
-            Console.WriteLine(exists2);
         }
 
         [Test]
@@ -40,12 +44,6 @@ namespace Test
         {
             var databases = Factory.Client.ShowDatabasesExcludeSystem();
             Console.WriteLine(JsonConvert.SerializeObject(databases));
-        }
-
-        [Test]
-        public void GetDatbase()
-        {
-            Factory.Client.GetDatabase("ok");
         }
 
         [Test]

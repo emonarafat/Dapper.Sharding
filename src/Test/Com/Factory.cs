@@ -27,7 +27,9 @@ namespace Test
             Oracle_ServiceName = "xe",
             Oracle_SysUserId = "sys",
             Oracle_SysPassword = "123",
-            Oracle_DatabaseDirectory = "D:\\OracleData"
+            Oracle_DatabaseDirectory = "D:\\OracleData",
+            Oracle_TableSpace_Mb = 1,
+            Oracle_TableSpace_NextMb = 1
 
         };
         public static IClient Client = ShardingFactory.CreateClient(DataBaseType.Oracle, oracleConfig);
@@ -55,7 +57,7 @@ namespace Test
         {
             get
             {
-                return Db.GetTableManager("people");
+                return Db.GetTableManager("People");
             }
         }
 
@@ -63,7 +65,7 @@ namespace Test
         {
             get
             {
-                return Db.GetTable<People>("people");
+                return Db.GetTable<People>("People");
             }
         }
 
@@ -71,7 +73,7 @@ namespace Test
         {
             get
             {
-                return Db.GetTable<Student>("student");
+                return Db.GetTable<Student>("Student");
             }
         }
 
@@ -79,7 +81,7 @@ namespace Test
         {
             get
             {
-                return Db.GetTable<Teacher>("teacher");
+                return Db.GetTable<Teacher>("Teacher");
             }
         }
 

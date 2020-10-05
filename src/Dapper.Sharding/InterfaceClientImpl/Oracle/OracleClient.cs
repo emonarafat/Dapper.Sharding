@@ -11,9 +11,9 @@ namespace Dapper.Sharding
 
         public OracleClient(DataBaseConfig config) : base(DataBaseType.Oracle, config)
         {
-            if (config.Oracle_TableSpace_Mb == 0)
+            if (config.Oracle_TableSpace_Mb <= 0)
                 config.Oracle_TableSpace_Mb = 1;
-            if (config.Oracle_TableSpace_NextMb == 0)
+            if (config.Oracle_TableSpace_NextMb <= 0)
                 config.Oracle_TableSpace_NextMb = 1;
             if (!string.IsNullOrEmpty(config.Oracle_DatabaseDirectory))
             {
@@ -48,7 +48,7 @@ namespace Dapper.Sharding
             else
             {
                 dbpath = upName + ".DBF";
-            } 
+            }
 
             var sql1 = $"create user {upName} identified by {Config.Password}";
             var sql2 = $"create tablespace {upName} datafile '{dbpath}' size {Config.Oracle_TableSpace_Mb}m autoextend on next {Config.Oracle_TableSpace_NextMb}m";
@@ -72,8 +72,8 @@ namespace Dapper.Sharding
             var sql = $@"DROP USER {name.ToUpper()} CASCADE";
             var sql2 = $"DROP TABLESPACE {name.ToUpper()} INCLUDING CONTENTS AND DATAFILES";
             using (var conn = GetConn())
-            {   
-                conn.Execute(sql);   
+            {
+                conn.Execute(sql);
                 conn.Execute(sql2);
             }
             DataBaseCache.TryRemove(name.ToLower(), out _);

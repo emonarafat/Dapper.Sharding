@@ -38,15 +38,15 @@ namespace Test
         [Test]
         public void GetTableColumnList()
         {
-            var data = Factory.Db.GetTableColumnList("people");
+            var data = Factory.Db.GetTableColumnList("People");
             Assert.Pass(JsonConvert.SerializeObject(data));
         }
 
         [Test]
         public void ExistsTable()
         {
-            Console.WriteLine(Factory.Db.ExistsTable("people"));
-            Console.WriteLine(Factory.Db.ExistsTable("people22222"));
+            Console.WriteLine(Factory.Db.ExistsTable("People"));
+            Console.WriteLine(Factory.Db.ExistsTable("People2222"));
         }
 
         [Test]

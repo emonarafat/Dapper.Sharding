@@ -115,9 +115,10 @@ order by a.relname asc";
 
         public override string GetTableScript<T>(string name)
         {
+            string lowName = name.ToLower();
             var tableEntity = ClassToTableEntityUtils.Get<T>(Client.DbType);
             var sb = new StringBuilder();
-            sb.Append($"CREATE TABLE IF NOT EXISTS {name.ToLower()} (");
+            sb.Append($"CREATE TABLE IF NOT EXISTS {lowName} (");
             foreach (var item in tableEntity.ColumnList)
             {
                 string dbtype = item.DbType;
@@ -159,7 +160,7 @@ order by a.relname asc";
                 {
                     sb.Append("CREATE UNIQUE INDEX");
                 }
-                sb.Append($" {name.ToLower()}_{ix.Name} ON {name.ToLower()} ({ix.Columns})");
+                sb.Append($" {lowName}_{ix.Name} ON {lowName} ({ix.Columns})");
                 if (ix != tableEntity.IndexList.Last())
                 {
                     sb.Append(";");
@@ -167,7 +168,7 @@ order by a.relname asc";
             }
             foreach (var item in tableEntity.ColumnList)
             {
-                sb.Append($";COMMENT ON COLUMN {name.ToLower()}.{item.Name.ToLower()} IS '{item.Comment}'");
+                sb.Append($";COMMENT ON COLUMN {lowName}.{item.Name.ToLower()} IS '{item.Comment}'");
             }
             return sb.ToString();
         }

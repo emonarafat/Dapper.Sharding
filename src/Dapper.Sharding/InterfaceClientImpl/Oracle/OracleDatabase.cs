@@ -28,7 +28,6 @@ namespace Dapper.Sharding
         public override void DropTable(string name)
         {
             TableCache.TryRemove(name.ToLower(), out _);
-            throw new NotImplementedException();
         }
 
         public override bool ExistsTable(string name)
