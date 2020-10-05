@@ -39,29 +39,42 @@ namespace Dapper.Sharding
 
         public override void CreateDatabase(string name)
         {
-            if (!ExistsDatabase(name))
+            var upName = name.ToUpper();
+            string dbpath;
+            if (!string.IsNullOrEmpty(Config.Oracle_DatabaseDirectory))
             {
-                var upName = name.ToUpper();
-                var dbpath = Path.Combine(Config.Oracle_DatabaseDirectory, $"{upName}.DBF");
-                string sql = $@"create user {upName} identified by {Config.Password};
-create tablespace {upName} datafile '{dbpath}' size {Config.Oracle_TableSpace_Mb}m autoextend on next {Config.Oracle_TableSpace_NextMb}m;
-alter user {upName} default tablespace {upName};
-grant create session,create table,unlimited tablespace to {upName};
-alter user {upName} account unlock;
-grant connect,resource,dba to {upName};
-grant all privileges TO {upName}";
-                using (var conn = GetConn())
-                {
-                    conn.Execute(sql);
-                }
+                dbpath = Path.Combine(Config.Oracle_DatabaseDirectory, upName + ".DBF");
+            }
+            else
+            {
+                dbpath = upName + ".DBF";
+            } 
+
+            var sql1 = $"create user {upName} identified by {Config.Password}";
+            var sql2 = $"create tablespace {upName} datafile '{dbpath}' size {Config.Oracle_TableSpace_Mb}m autoextend on next {Config.Oracle_TableSpace_NextMb}m";
+            var sql3 = $"alter user {upName} default tablespace {upName}";
+            var sql4 = $"grant create session,create table,unlimited tablespace to {upName}";
+            var sql5 = $"alter user {upName} account unlock";
+            var sql6 = $"grant connect,resource,dba to {upName}";
+            using (var conn = GetConn())
+            {
+                conn.Execute(sql1);
+                conn.Execute(sql2);
+                conn.Execute(sql3);
+                conn.Execute(sql4);
+                conn.Execute(sql5);
+                conn.Execute(sql6);
             }
         }
 
         public override void DropDatabase(string name)
         {
+            var sql = $@"DROP USER {name.ToUpper()} CASCADE";
+            var sql2 = $"DROP TABLESPACE {name.ToUpper()} INCLUDING CONTENTS AND DATAFILES";
             using (var conn = GetConn())
-            {
-                conn.Execute($"DROP USER {name.ToUpper()} CASCADE;DROP TABLESPACE {name.ToUpper()} INCLUDING CONTENTS AND DATAFILES");
+            {   
+                conn.Execute(sql);   
+                conn.Execute(sql2);
             }
             DataBaseCache.TryRemove(name.ToLower(), out _);
         }

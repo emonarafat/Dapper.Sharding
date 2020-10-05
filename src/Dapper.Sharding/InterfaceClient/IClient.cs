@@ -50,7 +50,10 @@ namespace Dapper.Sharding
                     {
                         if (AutoCreateDatabase)
                         {
-                            CreateDatabase(name);
+                            if (!ExistsDatabase(name))
+                            {
+                                CreateDatabase(name);
+                            }
                         }
                         DataBaseCache.TryAdd(lowerName, CreateIDatabase(name));
                     }

@@ -30,11 +30,7 @@ namespace Dapper.Sharding
         {
             using (var conn = GetConn())
             {
-                var count = conn.ExecuteScalar<int>($"SELECT COUNT(1) FROM pg_database WHERE datname = '{name}'");
-                if (count == 0)
-                {
-                    conn.Execute($"CREATE DATABASE {name}");
-                }
+                conn.Execute($"CREATE DATABASE {name}");
             }
         }
 

@@ -77,7 +77,7 @@ namespace Dapper.Sharding
         {
             using (var conn = GetConn())
             {
-                return !string.IsNullOrEmpty(conn.QueryFirstOrDefault<string>($"SHOW DATABASES LIKE '{name}'"));
+                return conn.ExecuteScalar<int>($"select COUNT(1) from information_schema.schemata where schema_name='{name}'") > 0;
             }
         }
 
