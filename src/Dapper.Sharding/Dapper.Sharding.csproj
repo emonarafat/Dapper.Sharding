@@ -29,9 +29,19 @@
 		<PackageReference Include="System.Data.SqlClient" Version="4.8.2" />
 		<PackageReference Include="System.Data.SQLite.Core" Version="1.0.113.1" />
 		<PackageReference Include="System.Linq.Dynamic.Core" Version="1.2.2" />
-		<PackageReference Include="Z.Dapper.Plus" Version="3.0.20" />
 	</ItemGroup>
 	<ItemGroup Condition="'$(TargetFramework)'=='net472'">
 		<Reference Include="Microsoft.CSharp" />
 	</ItemGroup>
+	<ItemGroup Condition="'$(TargetFramework)'=='net472'">
+	  <Reference Include="Z.Dapper.Plus">
+	    <HintPath>..\..\Lib\Z.Dapper.Plus.3.0.20-Crack\net45\Z.Dapper.Plus.dll</HintPath>
+	  </Reference>
+	</ItemGroup>
+	<ItemGroup Condition="'$(TargetFramework)'=='netcoreapp3.1'">
+		<Reference Include="Z.Dapper.Plus">
+			<HintPath>..\..\Lib\Z.Dapper.Plus.3.0.20-Crack\netcore3.1\Z.Dapper.Plus.dll</HintPath>
+		</Reference>
+	</ItemGroup>
+
 </Project>
