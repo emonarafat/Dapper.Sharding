@@ -62,7 +62,20 @@ namespace Dapper.Sharding
 
         public override IEnumerable<string> GetTableColumnList(string name)
         {
-            throw new NotImplementedException();
+            var sql = $@"SELECT
+C.COLUMN_NAME
+FROM USER_TAB_COLUMNS C
+LEFT JOIN USER_COL_COMMENTS CC ON C.TABLE_NAME = CC.TABLE_NAME AND C.COLUMN_NAME = CC.COLUMN_NAME
+LEFT JOIN(
+SELECT CU.COLUMN_NAME FROM USER_CONS_COLUMNS CU
+LEFT JOIN USER_CONSTRAINTS AU ON CU.CONSTRAINT_NAME = AU.CONSTRAINT_NAME
+WHERE CU.TABLE_NAME = '{name.ToUpper()}' AND AU.CONSTRAINT_TYPE= 'P'
+)P ON C.COLUMN_NAME = P.COLUMN_NAME
+WHERE C.TABLE_NAME = '{name.ToUpper()}' ORDER BY C.COLUMN_ID";
+            using (var conn = GetConn())
+            {
+                return conn.Query<string>(sql);
+            }
         }
 
         public override TableEntity GetTableEntityFromDatabase(string name)
