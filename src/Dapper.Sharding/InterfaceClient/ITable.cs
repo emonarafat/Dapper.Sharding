@@ -256,7 +256,7 @@ namespace Dapper.Sharding
 
         public abstract TValue Sum<TValue>(string field, string where = null, object param = null);
 
-        public abstract TValue Avg<TValue>(string field, string where = null, object param = null);
+        public abstract decimal Avg(string field, string where = null, object param = null);
 
         public abstract IEnumerable<T> GetAll(string returnFields = null, string orderby = null);
 

@@ -62,7 +62,7 @@ namespace Test
         {
             get
             {
-                return Db.GetTableManager("people");
+                return Db.GetTableManager("PEOPLE");
             }
         }
 
@@ -70,7 +70,7 @@ namespace Test
         {
             get
             {
-                return Db.GetTable<People>("people");
+                return Db.GetTable<People>("PEOPLE");
             }
         }
 
@@ -78,7 +78,7 @@ namespace Test
         {
             get
             {
-                return Db.GetTable<Student>("student");
+                return Db.GetTable<Student>("STUDENT");
             }
         }
 
@@ -86,7 +86,7 @@ namespace Test
         {
             get
             {
-                return Db.GetTable<Teacher>("teacher");
+                return Db.GetTable<Teacher>("TEACHER");
             }
         }
 

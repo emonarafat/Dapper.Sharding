@@ -23,7 +23,7 @@ namespace Test
                         Name = "李四",
                         Age = 50,
                         AddTime = DateTime.Now,
-                        IsAdmin = true,
+                        IsAdmin = 1,
                         Text = "你好"
                     };
                     tableTran.Insert(p);
@@ -43,10 +43,11 @@ namespace Test
         {
             var p = new People
             {
+                Id = DateTime.Now.Millisecond,
                 Name = "李四",
                 Age = 50,
                 AddTime = DateTime.Now,
-                IsAdmin = true,
+                IsAdmin = 1,
                 Text = "你好",
                 Money = 10.5M,
                 Money2 = 10.888F,
@@ -81,7 +82,7 @@ namespace Test
             //var modelList = new List<People>();
             //for (int i = 0; i < 5000; i++)
             //{
-            //    modelList.Add(new People { Name = "李白" + i,AddTime = DateTime.Now });
+            //    modelList.Add(new People { Id = i, Name = "李白" + i, AddTime = DateTime.Now });
             //}
             //Factory.peopleTable.Insert(modelList);
 
@@ -103,7 +104,7 @@ namespace Test
                 Id = 11,
                 Name = "自动添加id11",
                 AddTime = DateTime.Now,
-                IsAdmin = true,
+                IsAdmin = 1,
                 Text = "你好",
                 LongText = "1",
                 Money = 10.5M,
@@ -245,7 +246,7 @@ namespace Test
                 Name = "李四",
                 Age = 50,
                 AddTime = DateTime.Now,
-                IsAdmin = true,
+                IsAdmin = 1,
                 Text = "你好"
             };
             Factory.peopleTable.InsertIfNoExists(p);
@@ -261,7 +262,7 @@ namespace Test
                 Name = "啊实打实的",
                 Age = 222,
                 AddTime = DateTime.Now,
-                IsAdmin = true,
+                IsAdmin = 1,
                 Text = "1昂克赛拉的就撒了看得见啊"
             };
             Factory.peopleTable.Merge(p);

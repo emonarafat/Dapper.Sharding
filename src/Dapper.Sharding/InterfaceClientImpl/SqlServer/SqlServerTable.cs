@@ -67,9 +67,9 @@ namespace Dapper.Sharding
 
         #endregion
 
-        public override TValue Avg<TValue>(string field, string where = null, object param = null)
+        public override decimal Avg(string field, string where = null, object param = null)
         {
-            return DpEntity.ExecuteScalar<TValue>($"SELECT AVG([{field}]) FROM [{Name}] {where}", param);
+            return DpEntity.ExecuteScalar<decimal>($"SELECT AVG([{field}]) FROM [{Name}] {where}", param);
         }
 
         public override long Count(string where, object param = null)

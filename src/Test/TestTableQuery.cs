@@ -23,9 +23,6 @@ namespace Test
         {
             var count = Factory.peopleTable.Count();
             Console.WriteLine(count);
-
-            var count2 = Factory.peopleTable.Count("WHERE Id>@Id", new { Id = 10 });
-            Console.WriteLine(count2);
         }
 
         [Test]
@@ -34,8 +31,6 @@ namespace Test
             var count = Factory.peopleTable.Min<int>("Id");
             Console.WriteLine(count);
 
-            var count2 = Factory.peopleTable.Min<int>("Id", "WHERE Text=@Text", new { Text = "A" });
-            Console.WriteLine(count2);
         }
 
         [Test]
@@ -43,9 +38,6 @@ namespace Test
         {
             var count = Factory.peopleTable.Max<int>("Id");
             Console.WriteLine(count);
-
-            var count2 = Factory.peopleTable.Max<int>("Id", "WHERE Text=@Text", new { Text = "A" });
-            Console.WriteLine(count2);
         }
 
         [Test]
@@ -54,18 +46,14 @@ namespace Test
             var count = Factory.peopleTable.Sum<int>("Id");
             Console.WriteLine(count);
 
-            var count2 = Factory.peopleTable.Sum<int>("Id", "WHERE Text=@Text", new { Text = "A" });
-            Console.WriteLine(count2);
         }
 
         [Test]
         public void Avg()
         {
-            var count = Factory.peopleTable.Avg<decimal>("Id");
+            var count = Factory.peopleTable.Avg("Id");
             Console.WriteLine(count);
 
-            var count2 = Factory.peopleTable.Avg<decimal>("Id", "WHERE Text=@Text", new { Text = "A" });
-            Console.WriteLine(count2);
         }
 
         [Test]
@@ -133,10 +121,10 @@ namespace Test
         [Test]
         public void GetByWhereFirst()
         {
-            var model = Factory.peopleTable.GetByWhereFirst("WHERE Id=@Id", new { id = 8 });
+            var model = Factory.peopleTable.GetByWhereFirst("WHERE Id=:Id", new { id = 8 });
             Console.WriteLine(JsonConvert.SerializeObject(model));
 
-            var model2 = Factory.peopleTable.GetByWhereFirst("WHERE Id=@Id", new { id = 8 }, "Id,Name");
+            var model2 = Factory.peopleTable.GetByWhereFirst("WHERE Id=:Id", new { id = 8 }, "Id,Name");
             Console.WriteLine(JsonConvert.SerializeObject(model2));
         }
 

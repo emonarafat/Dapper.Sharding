@@ -35,7 +35,7 @@ namespace Test
 
         public double Money3 { get; set; }
 
-        public bool IsAdmin { get; set; }
+        public int IsAdmin { get; set; }
 
         public DateTime AddTime { get; set; }
 

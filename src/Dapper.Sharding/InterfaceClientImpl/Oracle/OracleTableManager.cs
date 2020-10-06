@@ -163,8 +163,8 @@ WHERE C.TABLE_NAME = '{Name.ToUpper()}' ORDER BY C.COLUMN_ID";
                     {
                         if (len2 == 1)
                         {
-                            model.CsType = typeof(bool);
-                            model.CsStringType = "bool";
+                            model.CsType = typeof(int);
+                            model.CsStringType = "int";
                         }
                         else if (len2 <= 4)
                         {

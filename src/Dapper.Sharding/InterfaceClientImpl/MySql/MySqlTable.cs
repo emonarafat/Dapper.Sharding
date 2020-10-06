@@ -142,9 +142,9 @@ namespace Dapper.Sharding
             return DpEntity.ExecuteScalar<TValue>($"SELECT SUM(`{field}`) FROM `{Name}` {where}", param);
         }
 
-        public override TValue Avg<TValue>(string field, string where = null, object param = null)
+        public override decimal Avg(string field, string where = null, object param = null)
         {
-            return DpEntity.ExecuteScalar<TValue>($"SELECT AVG(`{field}`) FROM `{Name}` {where}", param);
+            return DpEntity.ExecuteScalar<decimal>($"SELECT AVG(`{field}`) FROM `{Name}` {where}", param);
         }
 
         public override IEnumerable<T> GetAll(string returnFields = null, string orderby = null)
