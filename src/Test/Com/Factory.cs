@@ -9,8 +9,8 @@ namespace Test
         //client must singleton mode(必须是单例模式)
 
         /*===mysql===*/
-        //public static IClient Client = ShardingFactory.CreateClient(DataBaseType.MySql, new DataBaseConfig { Server = "127.0.0.1", UserId = "root", Password = "123", Port = 3306 });
-        //public static IClient Client2 = ShardingFactory.CreateClient(DataBaseType.MySql, new DataBaseConfig { Server = "127.0.0.1", UserId = "root", Password = "123", Port = 3307 });
+        public static IClient Client = ShardingFactory.CreateClient(DataBaseType.MySql, new DataBaseConfig { Server = "127.0.0.1", UserId = "root", Password = "123", Port = 3306 });
+        public static IClient Client2 = ShardingFactory.CreateClient(DataBaseType.MySql, new DataBaseConfig { Server = "127.0.0.1", UserId = "root", Password = "123", Port = 3307 });
 
         /*===sqlite===*/
         //public static IClient Client = ShardingFactory.CreateClient(DataBaseType.Sqlite, new DataBaseConfig { Server = "D:\\DatabaseFile" });
@@ -37,8 +37,8 @@ namespace Test
             Database_Size_Mb = 1,
             Database_SizeGrowth_Mb = 1
         };
-        public static IClient Client = ShardingFactory.CreateClient(DataBaseType.Oracle, oracleConfig);
-        public static IClient Client2 = ShardingFactory.CreateClient(DataBaseType.Oracle, oracleConfig);
+        //public static IClient Client = ShardingFactory.CreateClient(DataBaseType.Oracle, oracleConfig);
+        //public static IClient Client2 = ShardingFactory.CreateClient(DataBaseType.Oracle, oracleConfig);
 
         public static ReadWirteClient RWClient = ShardingFactory.CreateReadWriteClient(Client, Client2);
 
@@ -62,7 +62,7 @@ namespace Test
         {
             get
             {
-                return Db.GetTableManager("PEOPLE");
+                return Db.GetTableManager("people");
             }
         }
 
@@ -70,7 +70,7 @@ namespace Test
         {
             get
             {
-                return Db.GetTable<People>("PEOPLE");
+                return Db.GetTable<People>("people");
             }
         }
 
@@ -78,7 +78,7 @@ namespace Test
         {
             get
             {
-                return Db.GetTable<Student>("STUDENT");
+                return Db.GetTable<Student>("student");
             }
         }
 
@@ -86,7 +86,7 @@ namespace Test
         {
             get
             {
-                return Db.GetTable<Teacher>("TEACHER");
+                return Db.GetTable<Teacher>("teacher");
             }
         }
 

@@ -121,10 +121,10 @@ namespace Test
         [Test]
         public void GetByWhereFirst()
         {
-            var model = Factory.peopleTable.GetByWhereFirst("WHERE Id=:Id", new { id = 8 });
+            var model = Factory.peopleTable.GetByWhereFirst("WHERE Id=@Id", new { id = 8 });
             Console.WriteLine(JsonConvert.SerializeObject(model));
 
-            var model2 = Factory.peopleTable.GetByWhereFirst("WHERE Id=:Id", new { id = 8 }, "Id,Name");
+            var model2 = Factory.peopleTable.GetByWhereFirst("WHERE Id=@Id", new { id = 8 }, "Id,Name");
             Console.WriteLine(JsonConvert.SerializeObject(model2));
         }
 
