@@ -36,13 +36,13 @@ namespace Dapper.Sharding
 
         public override List<IndexEntity> GetIndexEntityList()
         {
-            throw new NotImplementedException();
+            return new List<IndexEntity>();
         }
 
 
         public override List<ColumnEntity> GetColumnEntityList(TableEntity tb = null)
         {
-            throw new NotImplementedException();
+            return new List<ColumnEntity>();
         }
 
         public override void AddColumn(string name, Type t, double length = 0, string comment = null)

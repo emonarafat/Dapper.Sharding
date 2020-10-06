@@ -41,7 +41,7 @@ namespace Dapper.Sharding
             foreach (var name in tableList)
             {
                 var entity = database.GetTableEntityFromDatabase(name);
-                var className = name.FirstCharToUpper() + Suffix;
+                var className = name.ToLower().FirstCharToUpper() + Suffix;
                 var sb = new StringBuilder();
                 sb.Append("using System;");
                 sb.AppendLine();
@@ -76,7 +76,7 @@ namespace Dapper.Sharding
                 {
                     sb.Append($"        [Column({item.Length}, \"{item.Comment}\")]");
                     sb.AppendLine();
-                    sb.Append("        public " + item.CsStringType + " " + item.Name + " { get; set; }");
+                    sb.Append("        public " + item.CsStringType + " " + item.Name.ToLower().FirstCharToUpper() + " { get; set; }");
                     sb.AppendLine();
                     if (item != entity.ColumnList.Last())
                     {

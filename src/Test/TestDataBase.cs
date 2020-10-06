@@ -9,7 +9,7 @@ namespace Test
     class TestDataBase
     {
         [Test]
-        public void CreateTable()
+        public void GetTable()
         {
             Factory.Db.GetTable<People>("people");
             Factory.Db.GetTable<Teacher>("teacher");

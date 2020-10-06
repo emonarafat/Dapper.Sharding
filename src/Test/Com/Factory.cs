@@ -17,8 +17,8 @@ namespace Test
         //public static IClient Client2 = ShardingFactory.CreateClient(DataBaseType.Sqlite, new DataBaseConfig { Server = "D:\\SQLite2" });
 
         /*===sqlserver===*/
-        //public static IClient Client = ShardingFactory.CreateClient(DataBaseType.SqlServer2008, new DataBaseConfig { Server = ".\\express", UserId = "sa", Password = "123456" });
-        //public static IClient Client2 = ShardingFactory.CreateClient(DataBaseType.SqlServer2012, new DataBaseConfig { Server = ".\\express", UserId = "sa", Password = "123456" });
+        //public static IClient Client = ShardingFactory.CreateClient(DataBaseType.SqlServer2008, new DataBaseConfig { Server = ".\\express", UserId = "sa", Password = "123456", Database_Path = "D:\\DatabaseFile" });
+        //public static IClient Client2 = ShardingFactory.CreateClient(DataBaseType.SqlServer2012, new DataBaseConfig { Server = ".\\express", UserId = "sa", Password = "123456", Database_Path = "D:\\DatabaseFile" });
 
         /*===postgresql===*/
         //public static IClient Client = ShardingFactory.CreateClient(DataBaseType.Postgresql, new DataBaseConfig { Server = "127.0.0.1", UserId = "postgres", Password = "123" });
@@ -33,9 +33,9 @@ namespace Test
             Oracle_ServiceName = "xe",
             Oracle_SysUserId = "sys",
             Oracle_SysPassword = "123",
-            Oracle_DatabaseDirectory = "D:\\OracleData",
-            Oracle_TableSpace_Mb = 1,
-            Oracle_TableSpace_NextMb = 1
+            Database_Path = "D:\\DatabaseFile",
+            Database_Size_Mb = 1,
+            Database_SizeGrowth_Mb = 1
         };
         public static IClient Client = ShardingFactory.CreateClient(DataBaseType.Oracle, oracleConfig);
         public static IClient Client2 = ShardingFactory.CreateClient(DataBaseType.Oracle, oracleConfig);

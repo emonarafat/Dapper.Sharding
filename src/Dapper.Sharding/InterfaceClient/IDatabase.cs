@@ -69,7 +69,7 @@ namespace Dapper.Sharding
             }
         }
 
-        public void CreateTable<T>(string name)
+        public virtual void CreateTable<T>(string name)
         {
             var script = GetTableScript<T>(name);
             using (var conn = GetConn())

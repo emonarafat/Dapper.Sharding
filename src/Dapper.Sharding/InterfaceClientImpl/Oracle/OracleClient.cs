@@ -11,15 +11,15 @@ namespace Dapper.Sharding
 
         public OracleClient(DataBaseConfig config) : base(DataBaseType.Oracle, config)
         {
-            if (config.Oracle_TableSpace_Mb <= 0)
-                config.Oracle_TableSpace_Mb = 1;
-            if (config.Oracle_TableSpace_NextMb <= 0)
-                config.Oracle_TableSpace_NextMb = 1;
-            if (!string.IsNullOrEmpty(config.Oracle_DatabaseDirectory))
+            if (config.Database_Size_Mb <= 0)
+                config.Database_Size_Mb = 1;
+            if (config.Database_SizeGrowth_Mb <= 0)
+                config.Database_SizeGrowth_Mb = 1;
+            if (!string.IsNullOrEmpty(config.Database_Path))
             {
-                if (!Directory.Exists(config.Oracle_DatabaseDirectory))
+                if (!Directory.Exists(config.Database_Path))
                 {
-                    Directory.CreateDirectory(config.Oracle_DatabaseDirectory);
+                    Directory.CreateDirectory(config.Database_Path);
                 }
             }
             ConnectionString = ConnectionStringBuilder.BuilderOracleSysdba(config);
@@ -41,9 +41,9 @@ namespace Dapper.Sharding
         {
             var upName = name.ToUpper();
             string dbpath;
-            if (!string.IsNullOrEmpty(Config.Oracle_DatabaseDirectory))
+            if (!string.IsNullOrEmpty(Config.Database_Path))
             {
-                dbpath = Path.Combine(Config.Oracle_DatabaseDirectory, upName + ".DBF");
+                dbpath = Path.Combine(Config.Database_Path, upName + ".DBF");
             }
             else
             {
@@ -51,7 +51,7 @@ namespace Dapper.Sharding
             }
 
             var sql1 = $"create user {upName} identified by {Config.Password}";
-            var sql2 = $"create tablespace {upName} datafile '{dbpath}' size {Config.Oracle_TableSpace_Mb}m autoextend on next {Config.Oracle_TableSpace_NextMb}m";
+            var sql2 = $"create tablespace {upName} datafile '{dbpath}' size {Config.Database_Size_Mb}m autoextend on next {Config.Database_SizeGrowth_Mb}m";
             var sql3 = $"alter user {upName} default tablespace {upName}";
             var sql4 = $"grant create session,create table,unlimited tablespace to {upName}";
             var sql5 = $"alter user {upName} account unlock";

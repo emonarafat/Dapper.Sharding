@@ -168,9 +168,15 @@ order by a.relname asc";
             }
             foreach (var item in tableEntity.ColumnList)
             {
-                sb.Append($";COMMENT ON COLUMN {lowName}.{item.Name.ToLower()} IS '{item.Comment}'");
+                if (!string.IsNullOrEmpty(item.Comment))
+                {
+                    sb.Append($";COMMENT ON COLUMN {lowName}.{item.Name.ToLower()} IS '{item.Comment}'");
+                }
             }
-            sb.Append($";COMMENT ON TABLE {lowName} IS '{tableEntity.Comment}'");
+            if (!string.IsNullOrEmpty(tableEntity.Comment))
+            {
+                sb.Append($";COMMENT ON TABLE {lowName} IS '{tableEntity.Comment}'");
+            }
             return sb.ToString();
         }
 

@@ -1,7 +1,9 @@
 ﻿using System.Collections.Generic;
 using System.Data;
 using System.Data.SqlClient;
+using System.IO;
 using System.Linq;
+using System.Text;
 using System.Threading.Tasks;
 
 namespace Dapper.Sharding
@@ -11,6 +13,13 @@ namespace Dapper.Sharding
 
         public SqlServerClient(DataBaseConfig config, DataBaseType dbType) : base(dbType, config)
         {
+            if (!string.IsNullOrEmpty(config.Database_Path))
+            {
+                if (!Directory.Exists(config.Database_Path))
+                {
+                    Directory.CreateDirectory(config.Database_Path);
+                }
+            }
             ConnectionString = ConnectionStringBuilder.BuilderSqlServer(config);
         }
 
@@ -28,9 +37,35 @@ namespace Dapper.Sharding
 
         public override void CreateDatabase(string name)
         {
+            var sb = new StringBuilder();
+            sb.Append($"IF NOT EXISTS (SELECT 1 FROM sys.databases WHERE name='{name}') CREATE DATABASE [{name}] ");
+            if (!string.IsNullOrEmpty(Config.Database_Path))
+            {
+                sb.Append($"ON (NAME={name},FILENAME='{Path.Combine(Config.Database_Path,name)}.mdf'");
+                if (Config.Database_Size_Mb != 0)
+                {
+                    sb.Append($",SIZE={Config.Database_Size_Mb}MB");
+                }
+                if (Config.Database_SizeGrowth_Mb != 0)
+                {
+                    sb.Append($",FILEGROWTH={Config.Database_SizeGrowth_Mb}MB");
+                }
+                sb.Append(")");
+                sb.Append($"LOG ON (NAME={name}_log,FILENAME='{Path.Combine(Config.Database_Path,name)}_log.ldf'");
+                if (Config.Database_LogSize_Mb != 0)
+                {
+                    sb.Append($",SIZE={Config.Database_LogSize_Mb}MB");
+                }
+                if (Config.Database_LogSizGrowth_Mb != 0)
+                {
+                    sb.Append($",FILEGROWTH={Config.Database_LogSizGrowth_Mb}MB");
+                }
+                sb.Append(")");
+            }
+            
             using (var conn = GetConn())
             {
-                conn.Execute($"IF NOT EXISTS (SELECT 1 FROM sys.databases WHERE name='{name}') CREATE DATABASE [{name}]");
+                conn.Execute(sb.ToString());
             }
         }
 

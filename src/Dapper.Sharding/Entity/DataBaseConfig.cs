@@ -22,11 +22,15 @@
 
         public string Oracle_SysPassword { get; set; }
 
-        public string Oracle_DatabaseDirectory { get; set; }
+        public string Database_Path { get; set; }
 
-        public int Oracle_TableSpace_Mb { get; set; }
+        public int Database_Size_Mb { get; set; }
 
-        public int Oracle_TableSpace_NextMb { get; set; }
+        public int Database_SizeGrowth_Mb { get; set; }
+
+        public int Database_LogSize_Mb { get; set; }
+
+        public int Database_LogSizGrowth_Mb { get; set; }
 
     }
 }
