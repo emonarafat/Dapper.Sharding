@@ -98,6 +98,8 @@ namespace Dapper.Sharding
 
         public override List<ColumnEntity> GetColumnEntityList(TableEntity tb = null)
         {
+            if (tb == null)
+                tb = new TableEntity();
             var list = new List<ColumnEntity>();
             var columnList = DpEntity.Query($"SHOW FULL COLUMNS FROM `{Name}`");
             foreach (var item in columnList)

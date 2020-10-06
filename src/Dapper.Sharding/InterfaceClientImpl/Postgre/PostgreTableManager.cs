@@ -110,6 +110,8 @@ order by
 
         public override List<ColumnEntity> GetColumnEntityList(TableEntity tb = null)
         {
+            if (tb == null)
+                tb = new TableEntity();
             var sql1 = $@"set session myapp.name='{Name}';
 SELECT 
 a.attname as name,

@@ -1,4 +1,5 @@
 ﻿using Oracle.ManagedDataAccess.Client;
+using System;
 using System.Collections.Generic;
 using System.Data;
 using System.IO;
@@ -58,12 +59,26 @@ namespace Dapper.Sharding
             var sql6 = $"grant connect,resource,dba to {upName}";
             using (var conn = GetConn())
             {
-                conn.Execute(sql1);
-                conn.Execute(sql2);
-                conn.Execute(sql3);
-                conn.Execute(sql4);
-                conn.Execute(sql5);
-                conn.Execute(sql6);
+                using (var tran = conn.BeginTransaction())
+                {
+                    try
+                    {
+                        conn.Execute(sql1);
+                        conn.Execute(sql2);
+                        conn.Execute(sql3);
+                        conn.Execute(sql4);
+                        conn.Execute(sql5);
+                        conn.Execute(sql6);
+                        tran.Commit();
+                    }
+                    catch (Exception ex)
+                    {
+                        tran.Rollback();
+                        throw ex;
+                    }
+
+                }
+
             }
         }
 

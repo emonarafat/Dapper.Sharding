@@ -7,9 +7,9 @@ using System.Threading.Tasks;
 
 namespace Test
 {
-    [Index("Name","Name",IndexType.Normal)]
-    [Index("Age","Age",IndexType.Unique)]
-    [Index("NameAndAge", "Name,Age", IndexType.Unique)]
+    //[Index("Name","Name",IndexType.Normal)]
+    //[Index("Age","Age",IndexType.Unique)]
+    //[Index("NameAndAge", "Name,Age", IndexType.Unique)]
     [Table("Id", false, "人类表")]
     public class People
     {

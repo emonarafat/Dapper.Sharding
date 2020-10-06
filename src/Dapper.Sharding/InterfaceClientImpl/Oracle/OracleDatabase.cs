@@ -67,7 +67,29 @@ namespace Dapper.Sharding
 
         public override TableEntity GetTableEntityFromDatabase(string name)
         {
-            throw new NotImplementedException();
+            var entity = new TableEntity();
+            var manager = GetTableManager(name);
+            entity.IndexList = manager.GetIndexEntityList();
+            entity.ColumnList = manager.GetColumnEntityList(entity);
+            var col = entity.ColumnList.FirstOrDefault(w => w.Name.ToLower() == entity.PrimaryKey.ToLower());
+            if (col != null)
+            {
+                entity.PrimaryKeyType = col.CsType;
+            }
+
+            var sql = $"SELECT T.TABLE_NAME AS \"name\",'T' AS \"t\",NVL(C.COMMENTS, T.TABLE_NAME) AS \"comment\" FROM USER_TABLES T ";
+            sql += $"LEFT JOIN USER_TAB_COMMENTS C ON T.TABLE_NAME = C.TABLE_NAME WHERE C.TABLE_NAME = '{name.ToUpper()}' ";
+            sql += "UNION ALL SELECT T.VIEW_NAME AS \"Name\",'V' AS \"TypeName\",NVL(C.COMMENTS, T.VIEW_NAME) AS \"Description\" FROM USER_VIEWS T ";
+            sql += "LEFT JOIN USER_TAB_COMMENTS C ON T.VIEW_NAME = C.TABLE_NAME";
+            using (var conn = GetConn())
+            {
+                var row = conn.QueryFirstOrDefault(sql);
+                if (row != null)
+                {
+                    entity.Comment = row.comment;
+                }
+            }
+            return entity;
         }
 
         public override IEnumerable<string> GetTableList()
@@ -79,7 +101,7 @@ namespace Dapper.Sharding
         }
 
         public override string GetTableScript<T>(string name)
-        {           
+        {
             var tableEntity = ClassToTableEntityUtils.Get<T>(Client.DbType);
             if (tableEntity.IsIdentity)
                 throw new Exception($"oracle is not supported identity key,table name is {name}");
@@ -135,6 +157,17 @@ namespace Dapper.Sharding
                             else if (item.Type == IndexType.Unique)
                             {
                                 conn.Execute($"CREATE UNIQUE INDEX {Client.Config.UserId.ToUpper()}.\"{name}_{item.Name}\" ON {Client.Config.UserId.ToUpper()}.\"{name.ToUpper()}\" ({item.Columns})");
+                            }
+                        }
+                        if (!string.IsNullOrEmpty(tableEntity.Comment))
+                        {
+                            conn.Execute($"COMMENT ON TABLE {name.ToUpper()} IS '{tableEntity.Comment}'");
+                        }
+                        foreach (var item in tableEntity.ColumnList)
+                        {
+                            if (!string.IsNullOrEmpty(item.Comment))
+                            {
+                                conn.Execute($"COMMENT ON COLUMN {name.ToUpper()}.{item.Name.ToUpper()} IS '{item.Comment}'");
                             }
                         }
                         tran.Commit();

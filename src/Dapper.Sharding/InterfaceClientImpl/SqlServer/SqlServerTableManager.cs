@@ -73,6 +73,8 @@ namespace Dapper.Sharding
 
         public override List<ColumnEntity> GetColumnEntityList(TableEntity tb = null)
         {
+            if (tb == null)
+                tb = new TableEntity();
             string sql = @"SELECT  
 ColumnName=a.name, 
 IsKey=case when exists(SELECT 1 FROM sysobjects where xtype='PK' and name in (
