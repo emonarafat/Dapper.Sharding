@@ -350,7 +350,15 @@ namespace Dapper.Sharding
             {
                 par.Add("@ids", ids.ToDynamicList());
             }
-            string where = $"WHERE {mapField} IN @ids {and}";
+            string where;
+            if (table.DataBase.Client.DbType == DataBaseType.Postgresql)
+            {
+                where = $"WHERE {mapField}=ANY(@ids) {and}";
+            }
+            else 
+            {
+                where = $"WHERE {mapField} IN @ids {and}";
+            }
             var data = table.GetByWhere(where, par, returnFields, orderby);
             list.MapOneToMany(field, propertyName, data, mapField);
         }
@@ -389,7 +397,7 @@ namespace Dapper.Sharding
                 {
                     data = centerTable.GetByIdsWithField(ids.ToDynamicList(), prevField, returnFields);
                 }
-              
+
             }
             else
             {
@@ -414,7 +422,7 @@ namespace Dapper.Sharding
                 {
                     data = centerTable.GetByWhere($"WHERE {prevField}=@id", new { id = first });
                 }
-                
+
             }
 
             var ids2 = data.AsQueryable().Select(nextField).Distinct();
@@ -447,7 +455,7 @@ namespace Dapper.Sharding
                         {
                             data2 = mapTable.GetByIds(ids2.ToDynamicList(), returnFields);
                         }
-                        
+
                     }
                     else
                     {
@@ -471,7 +479,7 @@ namespace Dapper.Sharding
                         {
                             data2 = new List<T3> { mapTable.GetById(first2, returnFields) };
                         }
-                        
+
                     }
                 }
                 else
@@ -498,7 +506,7 @@ namespace Dapper.Sharding
                         {
                             data2 = mapTable.GetByIdsWithField(ids2.ToDynamicList(), mapField, returnFields);
                         }
-                        
+
                     }
                     else
                     {
@@ -522,7 +530,7 @@ namespace Dapper.Sharding
                         {
                             data2 = mapTable.GetByWhere($"WHERE {mapField}=@id", new { id = first2 }, returnFields);
                         }
-                        
+
                     }
                 }
             }
@@ -590,7 +598,7 @@ namespace Dapper.Sharding
                 {
                     data = centerTable.GetByWhere($"WHERE {prevField}=@id", new { id = first });
                 }
-                
+
             }
 
             var ids2 = data.AsQueryable().Select(nextField).Distinct();
@@ -621,15 +629,23 @@ namespace Dapper.Sharding
                 {
                     par.Add("@ids", ids2.ToDynamicList());
                 }
-                
-                string where = $"WHERE {mapField} IN @ids {and}";
+
+                string where;
+                if (mapTable.DataBase.Client.DbType == DataBaseType.Postgresql)
+                {
+                    where = $"WHERE {mapField}=ANY(@ids) {and}";
+                }
+                else
+                {
+                    where = $"WHERE {mapField} IN @ids {and}";
+                }
                 data2 = mapTable.GetByWhere(where, par, returnFields, orderby);
             }
             else
             {
                 data2 = Enumerable.Empty<T3>();
             }
-            
+
             list.MapManyToMany(field, propertyName, data, prevField, nextField, data2, mapField);
 
         }

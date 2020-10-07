@@ -11,11 +11,14 @@ namespace Dapper.Sharding
         {
             TableList = tableList;
             SqlField = tableList[0].SqlField;
+            DataBase = tableList[0].DataBase;
         }
 
         public SqlFieldEntity SqlField { get; }
 
         public ITable<T>[] TableList { get; }
+
+        public IDatabase DataBase { get; }
 
         public bool Exists(object id)
         {

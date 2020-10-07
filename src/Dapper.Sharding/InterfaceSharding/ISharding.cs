@@ -16,6 +16,7 @@ namespace Dapper.Sharding
             }
             TableList = list;
             Query = new ShardingQuery<T>(TableList);
+            DataBase = Query.DataBase;
             SqlField = list[0].SqlField;
             DistributedTran = tran;
         }
@@ -29,6 +30,8 @@ namespace Dapper.Sharding
         private DistributedTransaction DistributedTran { get; }
 
         public SqlFieldEntity SqlField { get; }
+
+        public IDatabase DataBase { get; }
 
         protected void Wrap(Action<DistributedTransaction> action)
         {

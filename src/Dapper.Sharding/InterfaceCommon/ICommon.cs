@@ -13,5 +13,7 @@ namespace Dapper.Sharding
         IEnumerable<T> GetByWhere(string where, object param = null, string returnFields = null, string orderby = null, int limit = 0);
 
         SqlFieldEntity SqlField { get; }
+
+        IDatabase DataBase { get;}
     }
 }

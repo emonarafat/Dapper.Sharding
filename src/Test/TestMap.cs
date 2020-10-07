@@ -93,7 +93,7 @@ namespace Test
 
             var data1 = table1.GetAll();
             data1.MapTableManyToMany("Id", "_NextList", centerTable, "FirstId", "NextId", table3, "Id");
-            //data1.MapTableManyToMany("Id", "_NextList", centerTable, "FirstId", "NextId", table3, "Id",null,"AND Id>5");
+            data1.MapTableManyToMany("Id", "_NextList", centerTable, "FirstId", "NextId", table3, "Id",null,"AND Id>5");
             Console.WriteLine(JsonConvert.SerializeObject(data1));
 
 
