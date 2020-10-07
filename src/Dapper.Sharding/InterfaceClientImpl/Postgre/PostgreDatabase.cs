@@ -46,18 +46,38 @@ namespace Dapper.Sharding
 
         public override IDbConnection GetConn()
         {
-            var conn = new NpgsqlConnection(ConnectionString);
-            if (conn.State != ConnectionState.Open)
-                conn.Open();
-            return conn;
+            if (Client.Config.ConnectMode == ConnectionMode.StandAloneConnection)
+            {
+                var conn = new NpgsqlConnection(ConnectionString);
+                if (conn.State != ConnectionState.Open)
+                    conn.Open();
+                return conn;
+            }
+            else
+            {
+                var conn = Client.GetConn();
+                conn.ChangeDatabase(Name);
+                return conn;
+
+            }
+
         }
 
         public override async Task<IDbConnection> GetConnAsync()
         {
-            var conn = new NpgsqlConnection(ConnectionString);
-            if (conn.State != ConnectionState.Open)
-                await conn.OpenAsync();
-            return conn;
+            if (Client.Config.ConnectMode == ConnectionMode.StandAloneConnection)
+            {
+                var conn = new NpgsqlConnection(ConnectionString);
+                if (conn.State != ConnectionState.Open)
+                    await conn.OpenAsync();
+                return conn;
+            }
+            else
+            {
+                var conn = await Client.GetConnAsync();
+                conn.ChangeDatabase(Name);
+                return conn;
+            }
         }
 
         public override IEnumerable<string> GetTableColumnList(string name)

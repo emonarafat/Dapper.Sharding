@@ -10,11 +10,11 @@ namespace Test
     //[Index("Name","Name",IndexType.Normal)]
     //[Index("Age","Age",IndexType.Unique)]
     //[Index("NameAndAge", "Name,Age", IndexType.Unique)]
-    [Table("Id", true, "人类表")]
+    [Table("Id", false, "人类表")]
     public class People
     {
         [Column(11, "主键id")]
-        public int Id { get; set; }
+        public long Id { get; set; }
 
         [Column(50, "名字")]
         public string Name { get; set; }

@@ -77,6 +77,22 @@ namespace Test
         }
 
         [Test]
+        public void InsertIfNoExists()
+        {
+            var p = new People
+            {
+                Id = 12,
+                Name = "李四",
+                Age = 50,
+                AddTime = DateTime.Now,
+                IsAdmin = 1,
+                Text = "你好"
+            };
+            Factory.peopleTable.InsertIfNoExists(p);
+            Console.WriteLine(p.Id);
+        }
+
+        [Test]
         public void InsertList()
         {
             //var modelList = new List<People>();
@@ -128,6 +144,24 @@ namespace Test
                 new People{ Id = 23,Name = "李白23",AddTime = DateTime.Now }
             };
             Factory.peopleTable.InsertIdentityIfNoExists(modelList);
+        }
+
+
+
+        [Test]
+        public void Merge()
+        {
+            var p = new People
+            {
+                Id = 1,
+                Name = "啊实打实的",
+                Age = 222,
+                AddTime = DateTime.Now,
+                IsAdmin = 1,
+                Text = "1昂克赛拉的就撒了看得见啊"
+            };
+            Factory.peopleTable.Merge(p);
+            Console.WriteLine(p.Id);
         }
 
         [Test]
@@ -237,37 +271,8 @@ namespace Test
             Factory.peopleTable.UpdateByWhereIgnore(model, "WHERE Age=@Age", new List<string> { "Name" });
         }
 
-        [Test]
-        public void InsertIfNoExists()
-        {
-            var p = new People
-            {
-                Id = 12,
-                Name = "李四",
-                Age = 50,
-                AddTime = DateTime.Now,
-                IsAdmin = 1,
-                Text = "你好"
-            };
-            Factory.peopleTable.InsertIfNoExists(p);
-            Console.WriteLine(p.Id);
-        }
 
-        [Test]
-        public void Merge()
-        {
-            var p = new People
-            {
-                Id = 1,
-                Name = "啊实打实的",
-                Age = 222,
-                AddTime = DateTime.Now,
-                IsAdmin = 1,
-                Text = "1昂克赛拉的就撒了看得见啊"
-            };
-            Factory.peopleTable.Merge(p);
-            Console.WriteLine(p.Id);
-        }
+
 
         [Test]
         public void Delete()

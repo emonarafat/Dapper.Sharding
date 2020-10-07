@@ -41,18 +41,38 @@ namespace Dapper.Sharding
 
         public override IDbConnection GetConn()
         {
-            var conn = new SqlConnection(ConnectionString);
-            if (conn.State != ConnectionState.Open)
-                conn.Open();
-            return conn;
+            if (Client.Config.ConnectMode == ConnectionMode.StandAloneConnection)
+            {
+                var conn = new SqlConnection(ConnectionString);
+                if (conn.State != ConnectionState.Open)
+                    conn.Open();
+                return conn;
+            }
+            else
+            {
+                var conn = Client.GetConn();
+                conn.ChangeDatabase(Name);
+                return conn;
+
+            }
+
         }
 
         public override async Task<IDbConnection> GetConnAsync()
         {
-            var conn = new SqlConnection(ConnectionString);
-            if (conn.State != ConnectionState.Open)
-                await conn.OpenAsync();
-            return conn;
+            if (Client.Config.ConnectMode == ConnectionMode.StandAloneConnection)
+            {
+                var conn = new SqlConnection(ConnectionString);
+                if (conn.State != ConnectionState.Open)
+                    await conn.OpenAsync();
+                return conn;
+            }
+            else
+            {
+                var conn = await Client.GetConnAsync();
+                conn.ChangeDatabase(Name);
+                return conn;
+            }
         }
 
         public override IEnumerable<string> GetTableColumnList(string name)
@@ -80,7 +100,7 @@ on (a.object_id = g.major_id AND g.minor_id = 0) where a.Name='{name}'";
                 var row = conn.QueryFirstOrDefault(sql);
                 entity.Comment = row.Comment;
             }
-                return entity;
+            return entity;
         }
 
         public override IEnumerable<string> GetTableList()
@@ -115,7 +135,7 @@ on (a.object_id = g.major_id AND g.minor_id = 0) where a.Name='{name}'";
                     sb.Append(" PRIMARY KEY");
                 }
                 if (item != tableEntity.ColumnList.Last())
-                {              
+                {
                     sb.Append(",");
                 }
             }

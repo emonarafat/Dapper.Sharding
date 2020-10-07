@@ -32,5 +32,7 @@
 
         public int Database_LogSizGrowth_Mb { get; set; }
 
+        public ConnectionMode ConnectMode { get; set; }
+
     }
 }
