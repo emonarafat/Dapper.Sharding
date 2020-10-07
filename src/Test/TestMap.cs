@@ -46,9 +46,9 @@ namespace Test
             Console.WriteLine(JsonConvert.SerializeObject(data1));
 
             //one to one
-            //var data2 = table2.GetAll();
-            //data2.MapTableOneToOne("AuthorId", "_Author", table1, "Id");
-            //Console.WriteLine(JsonConvert.SerializeObject(data2));
+            var data2 = table2.GetAll();
+            data2.MapTableOneToOne("AuthorId", "_Author", table1, "Id");
+            Console.WriteLine(JsonConvert.SerializeObject(data2));
         }
 
         [Test]
@@ -84,11 +84,11 @@ namespace Test
                 new Map_Next{ Id=6,Name="西瓜" }
             };
 
-            var table1 = Factory.Client.GetDatabase("test").GetTable<Map_Prev>("Map_Prev");
+            var table1 = Factory.Client.GetDatabase("test").GetTable<Map_Prev>("map_prev");
             table1.Merge(list1);
-            var centerTable = Factory.Client.GetDatabase("test").GetTable<Map_Center>("Map_Center");
+            var centerTable = Factory.Client.GetDatabase("test").GetTable<Map_Center>("map_center");
             centerTable.Merge(centerList);
-            var table3 = Factory.Client.GetDatabase("test").GetTable<Map_Next>("Map_Next");
+            var table3 = Factory.Client.GetDatabase("test").GetTable<Map_Next>("map_next");
             table3.Merge(list3);
 
             var data1 = table1.GetAll();
