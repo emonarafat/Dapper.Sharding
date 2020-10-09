@@ -1,7 +1,6 @@
 ﻿using Newtonsoft.Json;
 using NUnit.Framework;
 using System;
-using System.Threading;
 
 namespace Test
 {
@@ -16,6 +15,7 @@ namespace Test
         [Test]
         public void DropDatabase()
         {
+
             Factory.Client.DropDatabase("demo");
         }
 
@@ -24,8 +24,6 @@ namespace Test
         public void GetDatbase()
         {
             Factory.Client.GetDatabase("demo");
-
-
         }
 
         [Test]
