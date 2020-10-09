@@ -16,25 +16,16 @@ namespace Test
         [Test]
         public void DropDatabase()
         {
-            for (int i = 0; i < 105; i++)
-            {
-                Factory.Client.DropDatabase("demo" + i);
-
-            }
-
+            Factory.Client.DropDatabase("demo");
         }
 
 
         [Test]
         public void GetDatbase()
         {
-            for (int i = 0; i < 105; i++)
-            {
-                Factory.Client.GetDatabase("demo"+i).GetTable<Student>("a");
-                Thread.Sleep(200);
+            Factory.Client.GetDatabase("demo");
 
-            }
-         
+
         }
 
         [Test]
