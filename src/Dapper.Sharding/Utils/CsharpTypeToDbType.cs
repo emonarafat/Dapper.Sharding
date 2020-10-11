@@ -35,7 +35,7 @@ namespace Dapper.Sharding
                 if (length <= -1)
                     return "varchar(max)";
                 if (length == 0)
-                    length = 24;
+                    length = 50;
                 return $"varchar({length})";
             }
 
@@ -122,7 +122,7 @@ namespace Dapper.Sharding
                 if (length == -2)
                     return "longtext";
                 if (length == 0)
-                    length = 24;
+                    length = 50;
                 return $"varchar({length})";
 
             }
@@ -267,7 +267,7 @@ namespace Dapper.Sharding
                 if (length <= -1)
                     return "text";
                 if (length == 0)
-                    length = 24;
+                    length = 50;
                 return $"varchar({length})";
 
             }
@@ -346,7 +346,7 @@ namespace Dapper.Sharding
                 if (length <= -1)
                     return "CLOB";
                 if (length == 0)
-                    length = 24;
+                    length = 50;
                 return $"VARCHAR2({length})";
 
             }
