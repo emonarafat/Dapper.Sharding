@@ -298,7 +298,5 @@ namespace Test
             Factory.studentTable.DeleteAll();
         }
 
-
-
     }
 }
