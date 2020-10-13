@@ -114,7 +114,7 @@ namespace Test
             var list = Factory.peopleTable.GetByWhere("WHERE Id>@Id", new { Id = 8 });
             Console.WriteLine(JsonConvert.SerializeObject(list));
 
-            var list2 = Factory.peopleTable.GetByWhere("WHERE Id>@Id", new { Id = 8 }, "Id,Name","ID DESC",limit:10);
+            var list2 = Factory.peopleTable.GetByWhere("WHERE Id>@Id", new { Id = 8 }, "Id,Name", "ID DESC", limit: 10);
             Console.WriteLine(JsonConvert.SerializeObject(list2));
         }
 
@@ -158,17 +158,17 @@ namespace Test
         public void GetByPageAndCount()
         {
             //do not use tran at this method
-            var list = Factory.peopleTable.GetByPageAndCount(1, 2, out var total);
-            Console.WriteLine(total);
-            Console.WriteLine(JsonConvert.SerializeObject(list));
+            var list = Factory.peopleTable.GetByPageAndCount(1, 2);
+            Console.WriteLine(list.Count);
+            Console.WriteLine(JsonConvert.SerializeObject(list.Data));
 
-            var list2 = Factory.peopleTable.GetByPageAndCount(1, 2, out var total2, "WHERE Id=@Id", new { Id = 1 });
-            Console.WriteLine(total2);
-            Console.WriteLine(JsonConvert.SerializeObject(list2));
+            var list2 = Factory.peopleTable.GetByPageAndCount(1, 2, "WHERE Id=@Id", new { Id = 1 });
+            Console.WriteLine(list2.Count);
+            Console.WriteLine(JsonConvert.SerializeObject(list2.Data));
 
-            var list3 = Factory.peopleTable.GetByPageAndCount(1, 2, out var total3, "WHERE Id=@Id", new { Id = 1 }, "Id,Name");
-            Console.WriteLine(total3);
-            Console.WriteLine(JsonConvert.SerializeObject(list3));
+            var list3 = Factory.peopleTable.GetByPageAndCount(1, 2, "WHERE Id=@Id", new { Id = 1 }, "Id,Name");
+            Console.WriteLine(list3.Count);
+            Console.WriteLine(JsonConvert.SerializeObject(list3.Data));
         }
 
         [Test]

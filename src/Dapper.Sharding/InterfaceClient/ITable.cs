@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace Dapper.Sharding
 {
-    public abstract class ITable<T> : ICommon<T> where T : class
+    public abstract class ITable<T> where T : class
     {
         public ITable(string name, IDatabase database, SqlFieldEntity sqlField, DapperEntity dpEntity)
         {
@@ -204,19 +204,13 @@ namespace Dapper.Sharding
             return GetBySkipTake(skip, pageSize, where, param, returnFields, orderby);
         }
 
-        public IEnumerable<T> GetByPageAndCount(int page, int pageSize, out long count, string where = null, object param = null, string returnFields = null, string orderby = null)
+        public PageEntity<T> GetByPageAndCount(int page, int pageSize, string where = null, object param = null, string returnFields = null, string orderby = null)
         {
-            var task1 = Task.Run(() =>
+            return new PageEntity<T>
             {
-                return Count(where, param);
-            });
-            var task2 = Task.Run(() =>
-            {
-                return GetByPage(page, pageSize, where, param, returnFields, orderby);
-            });
-            Task.WhenAll(task1, task2).Wait();
-            count = task1.Result;
-            return task2.Result;
+                Data = GetByPage(page, pageSize, where, param, returnFields, orderby),
+                Count = Count(where, param)
+            };
         }
 
         public bool Exists(T model)

@@ -295,24 +295,24 @@ namespace Dapper.Sharding
             });
         }
 
-        public override bool Exists(object id)
+        public override  bool Exists(object id)
         {
-            return Query.Exists(id);
+            return Query.ExistsAsync(id).Result;
         }
 
         public override bool Exists(T model)
         {
-            return Query.Exists(model);
+            return Query.ExistsAsync(model).Result;
         }
 
         public override T GetById(object id, string returnFields = null)
         {
-            return Query.GetById(id, returnFields);
+            return Query.GetByIdAsync(id, returnFields).Result;
         }
 
-        public override IEnumerable<T> GetByIds(object ids, string returnFields = null)
+        public override async Task<IEnumerable<T>> GetByIdsAsync(object ids, string returnFields = null)
         {
-            return Query.GetByIds(ids, returnFields);
+            return await Query.GetByIdsAsync(ids, returnFields);
         }
 
         #endregion

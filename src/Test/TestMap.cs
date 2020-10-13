@@ -107,9 +107,9 @@ namespace Test
             var dd2 = table3.MapCenterTable(centerTable, "NextId", "FirstId", 2);
             Console.WriteLine(JsonConvert.SerializeObject(dd2));
 
-            var dd3 = table3.MapCenterTable(centerTable, "NextId", "FirstId", 2, "Name", 2, 1, out long total);
+            var dd3 = table3.MapCenterTable(centerTable, "NextId", "FirstId", 2, "Name", 2, 1);
             Console.WriteLine(JsonConvert.SerializeObject(dd3));
-            Console.WriteLine(total);
+            Console.WriteLine(dd3.Count);
         }
     }
 

@@ -90,7 +90,7 @@ namespace Dapper.Sharding
 
         #region IEnumerable map oneToOne oneToMany
 
-        public static void MapTableOneToOne<T, T2>(this IEnumerable<T> list, string field, string propertyName, ICommon<T2> table, string mapField, string returnFields = null) where T : class where T2 : class
+        public static void MapTableOneToOne<T, T2>(this IEnumerable<T> list, string field, string propertyName, ITable<T2> table, string mapField, string returnFields = null) where T : class where T2 : class
         {
             if (list == null || list.Count() == 0)
                 return;
@@ -206,7 +206,7 @@ namespace Dapper.Sharding
             list.MapOneToOne(field, propertyName, data, mapField);
         }
 
-        public static void MapTableOneToMany<T, T2>(this IEnumerable<T> list, string field, string propertyName, ICommon<T2> table, string mapField, string returnFields = null) where T : class where T2 : class
+        public static void MapTableOneToMany<T, T2>(this IEnumerable<T> list, string field, string propertyName, ITable<T2> table, string mapField, string returnFields = null) where T : class where T2 : class
         {
             if (list == null || list.Count() == 0)
                 return;
@@ -322,7 +322,7 @@ namespace Dapper.Sharding
             list.MapOneToMany(field, propertyName, data, mapField);
         }
 
-        public static void MapTableOneToMany<T, T2>(this IEnumerable<T> list, string field, string propertyName, ICommon<T2> table, string mapField, string returnFields, string and, DynamicParameters par = null, string orderby = null) where T : class where T2 : class
+        public static void MapTableOneToMany<T, T2>(this IEnumerable<T> list, string field, string propertyName, ITable<T2> table, string mapField, string returnFields, string and, DynamicParameters par = null, string orderby = null) where T : class where T2 : class
         {
             if (list == null || list.Count() == 0)
                 return;
@@ -355,7 +355,7 @@ namespace Dapper.Sharding
             {
                 where = $"WHERE {mapField}=ANY(@ids) {and}";
             }
-            else 
+            else
             {
                 where = $"WHERE {mapField} IN @ids {and}";
             }
@@ -367,7 +367,7 @@ namespace Dapper.Sharding
 
         #region IEnumerable map many to many
 
-        public static void MapTableManyToMany<T, T2, T3>(this IEnumerable<T> list, string field, string propertyName, ICommon<T2> centerTable, string prevField, string nextField, ICommon<T3> mapTable, string mapField, string returnFields = null) where T : class where T2 : class where T3 : class
+        public static void MapTableManyToMany<T, T2, T3>(this IEnumerable<T> list, string field, string propertyName, ITable<T2> centerTable, string prevField, string nextField, ITable<T3> mapTable, string mapField, string returnFields = null) where T : class where T2 : class where T3 : class
         {
             if (list == null || list.Count() == 0)
                 return;
@@ -544,7 +544,7 @@ namespace Dapper.Sharding
 
         }
 
-        public static void MapTableManyToMany<T, T2, T3>(this IEnumerable<T> list, string field, string propertyName, ICommon<T2> centerTable, string prevField, string nextField, ICommon<T3> mapTable, string mapField, string returnFields, string and, DynamicParameters par = null, string orderby = null) where T : class where T2 : class where T3 : class
+        public static void MapTableManyToMany<T, T2, T3>(this IEnumerable<T> list, string field, string propertyName, ITable<T2> centerTable, string prevField, string nextField, ITable<T3> mapTable, string mapField, string returnFields, string and, DynamicParameters par = null, string orderby = null) where T : class where T2 : class where T3 : class
         {
             if (list == null || list.Count() == 0)
                 return;
@@ -670,13 +670,13 @@ namespace Dapper.Sharding
             return table.GetByWhere(where, par, returnFields, orderby, limit);
         }
 
-        public static IEnumerable<T> MapCenterTable<T, T2>(this ITable<T> table, ITable<T2> centerTable, string prevField, string nextField, object id, string returnFields, int page, int pageSize, out long total, string and = null, DynamicParameters par = null, string orderby = null) where T : class where T2 : class
+        public static PageEntity<T> MapCenterTable<T, T2>(this ITable<T> table, ITable<T2> centerTable, string prevField, string nextField, object id, string returnFields, int page, int pageSize, string and = null, DynamicParameters par = null, string orderby = null) where T : class where T2 : class
         {
             if (par == null)
                 par = new DynamicParameters();
             par.Add("@nextidddd", id);
             var where = $"AS A WHERE EXISTS(SELECT 1 FROM {centerTable.Name} WHERE {prevField}=A.{table.SqlField.PrimaryKey} AND {nextField}=@nextidddd) {and}";
-            return table.GetByPageAndCount(page, pageSize, out total, where, par, returnFields, orderby);
+            return table.GetByPageAndCount(page, pageSize, where, par, returnFields, orderby);
         }
 
         #endregion

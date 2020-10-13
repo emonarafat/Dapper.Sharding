@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace Dapper.Sharding
 {
-    public abstract class ISharding<T>: ICommon<T> where T : class
+    public abstract class ISharding<T> where T : class
     {
         public ISharding(ITable<T>[] list, DistributedTransaction tran = null)
         {
@@ -16,7 +16,6 @@ namespace Dapper.Sharding
             }
             TableList = list;
             Query = new ShardingQuery<T>(TableList);
-            DataBase = Query.DataBase;
             SqlField = list[0].SqlField;
             DistributedTran = tran;
         }
@@ -29,9 +28,8 @@ namespace Dapper.Sharding
 
         private DistributedTransaction DistributedTran { get; }
 
-        public SqlFieldEntity SqlField { get; }
+        protected SqlFieldEntity SqlField { get; }
 
-        public IDatabase DataBase { get; }
 
         protected void Wrap(Action<DistributedTransaction> action)
         {
@@ -427,7 +425,7 @@ namespace Dapper.Sharding
             return GetTableById(id).GetById(id, returnFields);
         }
 
-        public virtual IEnumerable<T> GetByIds(object ids, string returnFields = null)
+        public virtual async Task<IEnumerable<T>> GetByIdsAsync(object ids, string returnFields = null)
         {
             if (CommonUtil.ObjectIsEmpty(ids))
                 return Enumerable.Empty<T>();
@@ -439,17 +437,8 @@ namespace Dapper.Sharding
                     return s.Key.GetByIds(s.Value, returnFields);
                 });
             });
-            var result = Task.WhenAll(taskList).Result;
+            var result = await Task.WhenAll(taskList);
             return result.ConcatItem();
-        }
-        public IEnumerable<T> GetByIdsWithField(object ids, string field, string returnFields = null)
-        {
-            return Query.GetByIdsWithField(ids, field, returnFields);
-        }
-
-        public IEnumerable<T> GetByWhere(string where, object param = null, string returnFields = null, string orderby = null, int limit = 0)
-        {
-            return Query.GetByWhere(where, param, returnFields, orderby, limit);
         }
 
         #endregion
