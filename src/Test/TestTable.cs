@@ -3,6 +3,7 @@ using Newtonsoft.Json;
 using NUnit.Framework;
 using System;
 using System.Collections.Generic;
+using System.Data;
 using Test.Com;
 
 namespace Test
@@ -95,21 +96,21 @@ namespace Test
         [Test]
         public void InsertList()
         {
-            //var modelList = new List<People>();
-            //for (int i = 0; i < 5000; i++)
-            //{
-            //    modelList.Add(new People { Id = i, Name = "李白" + i, AddTime = DateTime.Now });
-            //}
-            //Factory.peopleTable.Insert(modelList);
-
-            //Console.WriteLine(modelList[0].Id);
-
-            var list = new List<Student>();
-            for (int i = 0; i < 40000; i++)
+            var modelList = new List<People>();
+            for (int i = 0; i < 10; i++)
             {
-                list.Add(new Student { Id = ShardingFactory.NextObjectId(), Name = "李四" + i, Age = i });
+                modelList.Add(new People { Id = i, Name = "李白" + i, AddTime = DateTime.Now });
             }
-            Factory.studentTable.Insert(list);
+            Factory.peopleTable.Insert(modelList);
+
+            Console.WriteLine(modelList[0].Id);
+
+            //var list = new List<Student>();
+            //for (int i = 0; i < 40000; i++)
+            //{
+            //    list.Add(new Student { Id = ShardingFactory.NextObjectId(), Name = "李四" + i, Age = i });
+            //}
+            //Factory.studentTable.Insert(list);
 
         }
 
@@ -298,6 +299,17 @@ namespace Test
         public void DeleteAll()
         {
             Factory.studentTable.DeleteAll();
+        }
+
+        [Test]
+        public void DataTable()
+        {
+            DataTable dt = null;
+            Factory.Db.Using(conn => {
+                 dt = conn.GetDataTable("SELECT * FROM people LIMIT 0");              
+            });
+
+            Console.WriteLine(JsonConvert.SerializeObject(dt));
         }
 
     }
