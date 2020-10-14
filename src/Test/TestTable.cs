@@ -88,7 +88,7 @@ namespace Test
                 IsAdmin = 1,
                 Text = "你好"
             };
-            Factory.peopleTable.InsertIfNoExists(p);
+            Factory.peopleTable.InsertIdentity(p);
             Console.WriteLine(p.Id);
         }
 
@@ -101,6 +101,8 @@ namespace Test
             //    modelList.Add(new People { Id = i, Name = "李白" + i, AddTime = DateTime.Now });
             //}
             //Factory.peopleTable.Insert(modelList);
+
+            //Console.WriteLine(modelList[0].Id);
 
             var list = new List<Student>();
             for (int i = 0; i < 40000; i++)
