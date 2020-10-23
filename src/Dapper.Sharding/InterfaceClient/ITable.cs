@@ -176,7 +176,7 @@ namespace Dapper.Sharding
             {
                 if (fields != null)
                 {
-                    opt.IgnoreOnUpdateNames = fields;
+                    opt.IgnoreOnMergeUpdateNames = fields;
                 }
                 opt.MergeKeepIdentity = true;
             });
@@ -188,7 +188,7 @@ namespace Dapper.Sharding
             {
                 if (fields != null)
                 {
-                    opt.IgnoreOnUpdateNames = fields;
+                    opt.IgnoreOnMergeUpdateNames = fields;
                 }
                 opt.MergeKeepIdentity = true;
             });

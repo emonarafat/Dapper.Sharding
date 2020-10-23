@@ -22,6 +22,7 @@ namespace Test
         public void Count()
         {
             var count = Factory.peopleTable.Count();
+            Factory.peopleTable.Count("WHERE Name=@Name", new { Name = "李四" });
             Console.WriteLine(count);
         }
 
