@@ -10,6 +10,8 @@
 
         public string Password { get; set; }
 
+        public int MinPoolSize { get; set; }
+
         public int MaxPoolSize { get; set; }
 
         public string CharSet { get; set; }

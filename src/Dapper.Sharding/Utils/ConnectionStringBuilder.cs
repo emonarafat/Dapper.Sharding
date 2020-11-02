@@ -25,6 +25,10 @@ namespace Dapper.Sharding
             {
                 sb.Append($";port={config.Port}");
             }
+            if (config.MinPoolSize != 0)
+            {
+                sb.Append($";min pool size={config.MinPoolSize}");
+            }
             if (config.MaxPoolSize != 0)
             {
                 sb.Append($";max pool size={config.MaxPoolSize}");
@@ -57,6 +61,10 @@ namespace Dapper.Sharding
             {
                 sb.Append($";database={databaseName}");
             }
+            if (config.MinPoolSize != 0)
+            {
+                sb.Append($";min pool size={config.MinPoolSize}");
+            }
             if (config.MaxPoolSize != 0)
             {
                 sb.Append($";max pool size={config.MaxPoolSize}");
@@ -84,6 +92,10 @@ namespace Dapper.Sharding
             if (config.Port != 0)
             {
                 sb.Append($";port={config.Port}");
+            }
+            if (config.MinPoolSize != 0)
+            {
+                sb.Append($";minpoolsize={config.MinPoolSize}");
             }
             if (config.MaxPoolSize != 0)
             {
@@ -116,6 +128,10 @@ namespace Dapper.Sharding
             if (!string.IsNullOrEmpty(config.Oracle_SysPassword))
             {
                 sb.Append($";password={config.Oracle_SysPassword}");
+            }
+            if (config.MinPoolSize != 0)
+            {
+                sb.Append($";min pool size={config.MinPoolSize}");
             }
             if (config.MaxPoolSize != 0)
             {
@@ -150,6 +166,10 @@ namespace Dapper.Sharding
             if (!string.IsNullOrEmpty(config.Password))
             {
                 sb.Append($";password={config.Password}");
+            }
+            if (config.MinPoolSize != 0)
+            {
+                sb.Append($";min pool size={config.MinPoolSize}");
             }
             if (config.MaxPoolSize != 0)
             {
