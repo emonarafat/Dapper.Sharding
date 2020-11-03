@@ -6,3 +6,5 @@ src/Test/bin
 src/Test/obj
 src/TestResults
 src/packages
+src/Test2/bin
+src/Test2/obj
