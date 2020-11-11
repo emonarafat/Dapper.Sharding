@@ -168,7 +168,8 @@ order by a.id,a.colorder";
 
         public override void ModifyColumn(string name, Type t, double length = 0, string comment = null)
         {
-            throw new NotImplementedException();
+            var dbType = CsharpTypeToDbType.Create(DataBase.Client.DbType, t, length);
+            DpEntity.Execute($"alter table [{Name}] alter column [{name}] {dbType}");
         }
 
         public override void ModifyColumnAfter(string name, string afterName, Type t, double length = 0, string comment = null)

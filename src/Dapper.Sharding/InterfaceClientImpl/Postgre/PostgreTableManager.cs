@@ -222,7 +222,8 @@ where table_schema='public' and table_name=current_setting('myapp.name') order b
 
         public override void ModifyColumn(string name, Type t, double length = 0, string comment = null)
         {
-            throw new NotImplementedException();
+            var dbType = CsharpTypeToDbType.Create(DataBase.Client.DbType, t, length);
+            DpEntity.Execute($"ALTER TABLE {Name} ALTER COLUMN {name} TYPE {dbType}");
         }
 
         public override void DropColumn(string name)
