@@ -1,6 +1,6 @@
 ﻿namespace Dapper.Sharding
 {
-    internal class SnowflakeId
+    public class SnowflakeId
     {
         internal static IdWorker worker = new IdWorker(0, 0);
 
