@@ -10,7 +10,7 @@ using System;
 
 namespace Dapper.Sharding
 {
-    public class IdWorker
+    internal class IdWorker
     {
         //基准时间（2020-09-01）
         public const long Twepoch = 1598889600000L;

@@ -12,7 +12,7 @@ namespace Dapper.Sharding
     /// <summary>
     /// Represents an ObjectId (see also BsonObjectId).
     /// </summary>
-    public struct ObjectId : IComparable<ObjectId>, IEquatable<ObjectId>, IConvertible
+    internal struct ObjectId : IComparable<ObjectId>, IEquatable<ObjectId>, IConvertible
     {
         // private static fields
         private static readonly ObjectId __emptyInstance = default(ObjectId);
