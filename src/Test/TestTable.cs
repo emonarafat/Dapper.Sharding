@@ -60,7 +60,7 @@ namespace Test
 
             var teacher = new Teacher
             {
-                Id = ShardingFactory.NextSnowFlakeId(),
+                Id = ShardingFactory.NextSnowId(),
                 Name = "王老师",
                 Age = 5
             };
