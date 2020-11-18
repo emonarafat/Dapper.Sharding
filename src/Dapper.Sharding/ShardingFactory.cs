@@ -31,7 +31,7 @@ namespace Dapper.Sharding
 
         public static DistributedTransaction CreateDistributedTransaction()
         {
-            return new DistributedTransaction();         
+            return new DistributedTransaction();
         }
 
         public static ReadWirteClient CreateReadWriteClient(IClient writeClient, params IClient[] readClientList)
@@ -69,9 +69,14 @@ namespace Dapper.Sharding
             return ObjectId.GenerateNewIdAsString();
         }
 
-        public static long NextSnowFlakeId()
+        public static long NextSnowId()
         {
             return SnowflakeId.GenerateNewId();
+        }
+
+        public static string NextSnowIdAsString()
+        {
+            return NextSnowId().ToString();
         }
     }
 }
