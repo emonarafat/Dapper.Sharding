@@ -116,9 +116,9 @@ namespace Dapper.Sharding
         {
             if (list == null || list.Count() == 0)
                 return;
-
             var ids = list.AsQueryable().Where($"{field}!=null").Select(field).Distinct();
-            if (ids.Count() == 0)
+            var idsCount = ids.Count();
+            if (idsCount == 0)
             {
                 return;
             }
@@ -127,7 +127,7 @@ namespace Dapper.Sharding
             IEnumerable<T2> data;
             if (mapField.ToLower() == table.SqlField.PrimaryKey.ToLower())
             {
-                if (ids.Count() > 1)
+                if (idsCount > 1)
                 {
                     if (t == typeof(long))
                     {
@@ -179,7 +179,7 @@ namespace Dapper.Sharding
             }
             else
             {
-                if (ids.Count() > 1)
+                if (idsCount > 1)
                 {
                     if (t == typeof(long))
                     {
@@ -237,7 +237,8 @@ namespace Dapper.Sharding
             if (list == null || list.Count() == 0)
                 return;
             var ids = list.AsQueryable().Where($"{field}!=null").Select(field).Distinct();
-            if (ids.Count() == 0)
+            var idsCount = ids.Count();
+            if (idsCount == 0)
             {
                 return;
             }
@@ -246,7 +247,7 @@ namespace Dapper.Sharding
             IEnumerable<T2> data;
             if (mapField.ToLower() == table.SqlField.PrimaryKey.ToLower())
             {
-                if (ids.Count() > 1)
+                if (idsCount > 1)
                 {
                     if (t == typeof(long))
                     {
@@ -299,7 +300,7 @@ namespace Dapper.Sharding
             }
             else
             {
-                if (ids.Count() > 1)
+                if (idsCount > 1)
                 {
                     if (t == typeof(long))
                     {
@@ -357,7 +358,8 @@ namespace Dapper.Sharding
             if (list == null || list.Count() == 0)
                 return;
             var ids = list.AsQueryable().Where($"{field}!=null").Select(field).Distinct();
-            if (ids.Count() == 0)
+            var idsCount = ids.Count();
+            if (idsCount == 0)
             {
                 return;
             };
@@ -406,14 +408,15 @@ namespace Dapper.Sharding
             if (list == null || list.Count() == 0)
                 return;
             var ids = list.AsQueryable().Where($"{field}!=null").Select(field).Distinct();
-            if (ids.Count() == 0)
+            var idsCount = ids.Count();
+            if (idsCount == 0)
             {
                 return;
             }
             var first = ids.First();
             Type t = first.GetType();
             IEnumerable<T2> data;
-            if (ids.Count() > 1)
+            if (idsCount > 1)
             {
                 if (t == typeof(long))
                 {
@@ -463,15 +466,16 @@ namespace Dapper.Sharding
 
             }
 
-            var ids2 = data.AsQueryable().Select(nextField).Distinct();
+            var ids2 = data.AsQueryable().Where($"{nextField}!=null").Select(nextField).Distinct();
+            var ids2Count = ids2.Count();
             IEnumerable<T3> data2;
-            if (ids2.Count() > 0)
+            if (ids2Count > 0)
             {
                 var first2 = ids2.First();
                 Type t2 = first2.GetType();
                 if (nextField.ToLower() == mapTable.SqlField.PrimaryKey.ToLower()) //主键
                 {
-                    if (ids2.Count() > 1)
+                    if (ids2Count > 1)
                     {
                         if (t2 == typeof(long))
                         {
@@ -522,7 +526,7 @@ namespace Dapper.Sharding
                 }
                 else
                 {
-                    if (ids2.Count() == 1)
+                    if (ids2Count == 1)
                     {
                         if (t2 == typeof(long))
                         {
@@ -587,14 +591,15 @@ namespace Dapper.Sharding
             if (list == null || list.Count() == 0)
                 return;
             var ids = list.AsQueryable().Where($"{field}!=null").Select(field).Distinct();
-            if (ids.Count() == 0)
+            var idsCount = ids.Count();
+            if (idsCount == 0)
             {
                 return;
             }
             var first = ids.First();
             Type t = first.GetType();
             IEnumerable<T2> data;
-            if (ids.Count() > 1)
+            if (idsCount > 1)
             {
                 if (t == typeof(long))
                 {
@@ -643,9 +648,10 @@ namespace Dapper.Sharding
 
             }
 
-            var ids2 = data.AsQueryable().Select(nextField).Distinct();
+            var ids2 = data.AsQueryable().Where($"{nextField}!=null").Select(nextField).Distinct();
+            var ids2Count = ids2.Count();
             IEnumerable<T3> data2;
-            if (ids2.Count() > 0)
+            if (ids2Count > 0)
             {
                 Type t2 = ids2.First().GetType();
                 if (par == null)
