@@ -117,7 +117,11 @@ namespace Dapper.Sharding
             if (list == null || list.Count() == 0)
                 return;
 
-            var ids = list.AsQueryable().Select(field).Distinct();
+            var ids = list.AsQueryable().Where($"{field}!=null").Select(field).Distinct();
+            if (ids.Count() == 0)
+            {
+                return;
+            }
             var first = ids.First();
             Type t = first.GetType();
             IEnumerable<T2> data;
@@ -131,7 +135,7 @@ namespace Dapper.Sharding
                     }
                     else if (t == typeof(string))
                     {
-                        data = table.GetByIds(ids.OfType<string>().Where(w => w != null).ToList(), returnFields);
+                        data = table.GetByIds(ids.OfType<string>().ToList(), returnFields);
                     }
                     else if (t == typeof(int))
                     {
@@ -183,7 +187,7 @@ namespace Dapper.Sharding
                     }
                     else if (t == typeof(string))
                     {
-                        data = table.GetByIdsWithField(ids.OfType<string>().Where(w => w != null).ToList(), mapField, returnFields);
+                        data = table.GetByIdsWithField(ids.OfType<string>().ToList(), mapField, returnFields);
                     }
                     else if (t == typeof(int))
                     {
@@ -232,7 +236,11 @@ namespace Dapper.Sharding
         {
             if (list == null || list.Count() == 0)
                 return;
-            var ids = list.AsQueryable().Select(field).Distinct();
+            var ids = list.AsQueryable().Where($"{field}!=null").Select(field).Distinct();
+            if (ids.Count() == 0)
+            {
+                return;
+            }
             var first = ids.First();
             Type t = first.GetType();
             IEnumerable<T2> data;
@@ -246,7 +254,7 @@ namespace Dapper.Sharding
                     }
                     else if (t == typeof(string))
                     {
-                        data = table.GetByIds(ids.OfType<string>().Where(w => w != null).ToList(), returnFields);
+                        data = table.GetByIds(ids.OfType<string>().ToList(), returnFields);
                     }
                     else if (t == typeof(int))
                     {
@@ -299,7 +307,7 @@ namespace Dapper.Sharding
                     }
                     else if (t == typeof(string))
                     {
-                        data = table.GetByIdsWithField(ids.OfType<string>().Where(w => w != null).ToList(), mapField, returnFields);
+                        data = table.GetByIdsWithField(ids.OfType<string>().ToList(), mapField, returnFields);
                     }
                     else if (t == typeof(int))
                     {
@@ -348,7 +356,11 @@ namespace Dapper.Sharding
         {
             if (list == null || list.Count() == 0)
                 return;
-            var ids = list.AsQueryable().Select(field).Distinct();
+            var ids = list.AsQueryable().Where($"{field}!=null").Select(field).Distinct();
+            if (ids.Count() == 0)
+            {
+                return;
+            };
             var t = ids.First().GetType();
             if (par == null)
                 par = new DynamicParameters();
@@ -358,7 +370,7 @@ namespace Dapper.Sharding
             }
             else if (t == typeof(string))
             {
-                par.Add("@ids", ids.OfType<string>().Where(w => w != null).ToList());
+                par.Add("@ids", ids.OfType<string>().ToList());
             }
             else if (t == typeof(int))
             {
@@ -393,7 +405,11 @@ namespace Dapper.Sharding
         {
             if (list == null || list.Count() == 0)
                 return;
-            var ids = list.AsQueryable().Select(field).Distinct();
+            var ids = list.AsQueryable().Where($"{field}!=null").Select(field).Distinct();
+            if (ids.Count() == 0)
+            {
+                return;
+            }
             var first = ids.First();
             Type t = first.GetType();
             IEnumerable<T2> data;
@@ -405,7 +421,7 @@ namespace Dapper.Sharding
                 }
                 else if (t == typeof(string))
                 {
-                    data = centerTable.GetByIdsWithField(ids.OfType<string>().Where(w => w != null).ToList(), prevField, returnFields);
+                    data = centerTable.GetByIdsWithField(ids.OfType<string>().ToList(), prevField, returnFields);
                 }
                 else if (t == typeof(int))
                 {
@@ -463,7 +479,7 @@ namespace Dapper.Sharding
                         }
                         else if (t2 == typeof(string))
                         {
-                            data2 = mapTable.GetByIds(ids2.OfType<string>().Where(w => w != null).ToList(), returnFields);
+                            data2 = mapTable.GetByIds(ids2.OfType<string>().ToList(), returnFields);
                         }
                         else if (t2 == typeof(int))
                         {
@@ -514,7 +530,7 @@ namespace Dapper.Sharding
                         }
                         else if (t2 == typeof(string))
                         {
-                            data2 = mapTable.GetByIdsWithField(ids2.OfType<string>().Where(w => w != null).ToList(), mapField, returnFields);
+                            data2 = mapTable.GetByIdsWithField(ids2.OfType<string>().ToList(), mapField, returnFields);
                         }
                         else if (t2 == typeof(int))
                         {
@@ -570,7 +586,11 @@ namespace Dapper.Sharding
         {
             if (list == null || list.Count() == 0)
                 return;
-            var ids = list.AsQueryable().Select(field).Distinct();
+            var ids = list.AsQueryable().Where($"{field}!=null").Select(field).Distinct();
+            if (ids.Count() == 0)
+            {
+                return;
+            }
             var first = ids.First();
             Type t = first.GetType();
             IEnumerable<T2> data;
@@ -582,7 +602,7 @@ namespace Dapper.Sharding
                 }
                 else if (t == typeof(string))
                 {
-                    data = centerTable.GetByIdsWithField(ids.OfType<string>().Where(w => w != null).ToList(), prevField, returnFields);
+                    data = centerTable.GetByIdsWithField(ids.OfType<string>().ToList(), prevField, returnFields);
                 }
                 else if (t == typeof(int))
                 {
@@ -637,7 +657,7 @@ namespace Dapper.Sharding
                 }
                 else if (t2 == typeof(string))
                 {
-                    par.Add("@ids", ids2.OfType<string>().Where(w => w != null).ToList());
+                    par.Add("@ids", ids2.OfType<string>().ToList());
                 }
                 else if (t2 == typeof(int))
                 {
