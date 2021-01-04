@@ -53,11 +53,18 @@ namespace Dapper.Sharding
         {
             if (list == null || list.Count() == 0)
                 return;
+            if (mapList == null || mapList.Count() == 0)
+                return;
             var accessor = TypeAccessor.Create(typeof(T));
+            var queryable = mapList.AsQueryable();
             foreach (var item in list)
             {
                 var id = accessor[item, field];
-                accessor[item, propertyName] = mapList.AsQueryable().FirstOrDefault(mapField + "=@0", id);
+                if (id == null)
+                {
+                    continue;
+                }
+                accessor[item, propertyName] = queryable.FirstOrDefault(mapField + "=@0", id);
             }
         }
 
@@ -65,11 +72,18 @@ namespace Dapper.Sharding
         {
             if (list == null || list.Count() == 0)
                 return;
+            if (mapList == null || mapList.Count() == 0)
+                return;
             var accessor = TypeAccessor.Create(typeof(T));
+            var queryable = mapList.AsQueryable();
             foreach (var item in list)
             {
                 var id = accessor[item, field];
-                accessor[item, propertyName] = mapList.AsQueryable().Where(mapField + "=@0", id).ToList();
+                if (id == null)
+                {
+                    continue;
+                }
+                accessor[item, propertyName] = queryable.Where(mapField + "=@0", id).ToList();
             }
         }
 
@@ -77,12 +91,20 @@ namespace Dapper.Sharding
         {
             if (list == null || list.Count() == 0)
                 return;
+            if (mapList == null || mapList.Count() == 0)
+                return;
             var accessor = TypeAccessor.Create(typeof(T));
+            var queryable = mapList.AsQueryable();
+            var centerqueryable = centerList.AsQueryable();
             foreach (var item in list)
             {
                 var id = accessor[item, field];
-                var ids = centerList.AsQueryable().Where($"{prevField}=@0", id).Select(nextField);
-                accessor[item, propertyName] = mapList.AsQueryable().Where($"@0.Contains({mapField})", ids).ToList();
+                if (id == null)
+                {
+                    continue;
+                }
+                var ids = centerqueryable.Where($"{prevField}=@0", id).Select(nextField);
+                accessor[item, propertyName] = queryable.Where($"@0.Contains({mapField})", ids).ToList();
             }
         }
 
