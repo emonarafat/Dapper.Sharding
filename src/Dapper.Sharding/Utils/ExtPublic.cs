@@ -109,7 +109,7 @@ namespace Dapper.Sharding
                     }
                     else if (t == typeof(string))
                     {
-                        data = table.GetByIds(ids.OfType<string>().ToList(), returnFields);
+                        data = table.GetByIds(ids.OfType<string>().Where(w => w != null).ToList(), returnFields);
                     }
                     else if (t == typeof(int))
                     {
@@ -161,7 +161,7 @@ namespace Dapper.Sharding
                     }
                     else if (t == typeof(string))
                     {
-                        data = table.GetByIdsWithField(ids.OfType<string>().ToList(), mapField, returnFields);
+                        data = table.GetByIdsWithField(ids.OfType<string>().Where(w => w != null).ToList(), mapField, returnFields);
                     }
                     else if (t == typeof(int))
                     {
@@ -224,7 +224,7 @@ namespace Dapper.Sharding
                     }
                     else if (t == typeof(string))
                     {
-                        data = table.GetByIds(ids.OfType<string>().ToList(), returnFields);
+                        data = table.GetByIds(ids.OfType<string>().Where(w => w != null).ToList(), returnFields);
                     }
                     else if (t == typeof(int))
                     {
@@ -277,7 +277,7 @@ namespace Dapper.Sharding
                     }
                     else if (t == typeof(string))
                     {
-                        data = table.GetByIdsWithField(ids.OfType<string>().ToList(), mapField, returnFields);
+                        data = table.GetByIdsWithField(ids.OfType<string>().Where(w => w != null).ToList(), mapField, returnFields);
                     }
                     else if (t == typeof(int))
                     {
@@ -336,7 +336,7 @@ namespace Dapper.Sharding
             }
             else if (t == typeof(string))
             {
-                par.Add("@ids", ids.OfType<string>().ToList());
+                par.Add("@ids", ids.OfType<string>().Where(w => w != null).ToList());
             }
             else if (t == typeof(int))
             {
@@ -383,7 +383,7 @@ namespace Dapper.Sharding
                 }
                 else if (t == typeof(string))
                 {
-                    data = centerTable.GetByIdsWithField(ids.OfType<string>().ToList(), prevField, returnFields);
+                    data = centerTable.GetByIdsWithField(ids.OfType<string>().Where(w => w != null).ToList(), prevField, returnFields);
                 }
                 else if (t == typeof(int))
                 {
@@ -441,7 +441,7 @@ namespace Dapper.Sharding
                         }
                         else if (t2 == typeof(string))
                         {
-                            data2 = mapTable.GetByIds(ids2.OfType<string>().ToList(), returnFields);
+                            data2 = mapTable.GetByIds(ids2.OfType<string>().Where(w => w != null).ToList(), returnFields);
                         }
                         else if (t2 == typeof(int))
                         {
@@ -492,7 +492,7 @@ namespace Dapper.Sharding
                         }
                         else if (t2 == typeof(string))
                         {
-                            data2 = mapTable.GetByIdsWithField(ids2.OfType<string>().ToList(), mapField, returnFields);
+                            data2 = mapTable.GetByIdsWithField(ids2.OfType<string>().Where(w => w != null).ToList(), mapField, returnFields);
                         }
                         else if (t2 == typeof(int))
                         {
@@ -560,7 +560,7 @@ namespace Dapper.Sharding
                 }
                 else if (t == typeof(string))
                 {
-                    data = centerTable.GetByIdsWithField(ids.OfType<string>().ToList(), prevField, returnFields);
+                    data = centerTable.GetByIdsWithField(ids.OfType<string>().Where(w => w != null).ToList(), prevField, returnFields);
                 }
                 else if (t == typeof(int))
                 {
@@ -615,7 +615,7 @@ namespace Dapper.Sharding
                 }
                 else if (t2 == typeof(string))
                 {
-                    par.Add("@ids", ids2.OfType<string>().ToList());
+                    par.Add("@ids", ids2.OfType<string>().Where(w => w != null).ToList());
                 }
                 else if (t2 == typeof(int))
                 {
