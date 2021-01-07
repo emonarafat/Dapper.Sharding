@@ -20,9 +20,9 @@ namespace Dapper.Sharding
 
         public override bool Insert(T model)
         {
-            var accessor = TypeAccessor.Create(typeof(T));
             if (SqlField.IsIdentity)
             {
+                var accessor = TypeAccessor.Create(typeof(T));
                 var sql = $"INSERT INTO {Name} ({SqlField.AllFieldsExceptKey})VALUES({SqlField.AllFieldsAtExceptKey}) RETURNING {SqlField.PrimaryKey}";
                 if (SqlField.PrimaryKeyType == typeof(int))
                 {
