@@ -10,17 +10,19 @@ namespace Dapper.Sharding
 
         public object GetObject(string name)
         {
-            if (!dict.ContainsKey(name))
+            var exists = dict.TryGetValue(name, out var val);
+            if (!exists)
             {
                 lock (_lock)
                 {
                     if (!dict.ContainsKey(name))
                     {
-                        dict.Add(name, new object());
+                        val = new object();
+                        dict.Add(name, val);
                     }
                 }
             }
-            return dict[name];
+            return val;
         }
     }
 }

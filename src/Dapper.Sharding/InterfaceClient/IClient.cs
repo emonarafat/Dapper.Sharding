@@ -21,7 +21,7 @@ namespace Dapper.Sharding
         protected ConcurrentDictionary<string, IDatabase> DataBaseCache { get; } = new ConcurrentDictionary<string, IDatabase>();
 
         protected abstract IDatabase CreateIDatabase(string name);
-        
+
 
         #endregion
 
@@ -42,7 +42,8 @@ namespace Dapper.Sharding
         public virtual IDatabase GetDatabase(string name)
         {
             var lowerName = name.ToLower();
-            if (!DataBaseCache.ContainsKey(lowerName))
+            var exists = DataBaseCache.TryGetValue(lowerName, out var val);
+            if (!exists)
             {
                 lock (Locker.GetObject(lowerName))
                 {
@@ -55,11 +56,12 @@ namespace Dapper.Sharding
                                 CreateDatabase(name);
                             }
                         }
-                        DataBaseCache.TryAdd(lowerName, CreateIDatabase(name));
+                        val = CreateIDatabase(name);
+                        DataBaseCache.TryAdd(lowerName, val);
                     }
                 }
             }
-            return DataBaseCache[lowerName];
+            return val;
         }
 
         public void ClearCache()

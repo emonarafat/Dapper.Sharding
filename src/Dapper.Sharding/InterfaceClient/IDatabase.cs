@@ -81,7 +81,8 @@ namespace Dapper.Sharding
         public ITable<T> GetTable<T>(string name) where T : class
         {
             var lowerName = name.ToLower();
-            if (!TableCache.ContainsKey(lowerName))
+            var exists = TableCache.TryGetValue(lowerName, out var val);
+            if (!exists)
             {
                 lock (Locker.GetObject(lowerName))
                 {
@@ -123,11 +124,12 @@ namespace Dapper.Sharding
 
                             #endregion
                         }
-                        TableCache.TryAdd(lowerName, CreateITable<T>(name));
+                        val = CreateITable<T>(name);
+                        TableCache.TryAdd(lowerName, val);
                     }
                 }
             }
-            return (ITable<T>)TableCache[lowerName];
+            return (ITable<T>)val;
         }
 
         public void GeneratorClassFile(string savePath, List<string> tableList = null, string nameSpace = "Model", string Suffix = "Table", bool partialClass = false)

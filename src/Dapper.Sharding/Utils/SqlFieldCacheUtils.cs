@@ -14,18 +14,19 @@ namespace Dapper.Sharding
         public static SqlFieldEntity GetMySqlFieldEntity<T>()
         {
             var typeHandle = typeof(T).TypeHandle;
-            if (!MySqlDict.Keys.Contains(typeHandle))
+            var exists = MySqlDict.TryGetValue(typeHandle, out var val);
+            if (!exists)
             {
                 lock (_mysqlLocker)
                 {
-                    if (!MySqlDict.Keys.Contains(typeHandle))
+                    if (!MySqlDict.ContainsKey(typeHandle))
                     {
-                        MySqlDict.TryAdd(typeHandle, new SqlFieldEntity(ClassToTableEntityUtils.Get<T>(DataBaseType.MySql), "`", "`", "@"));
+                        val = new SqlFieldEntity(ClassToTableEntityUtils.Get<T>(DataBaseType.MySql), "`", "`", "@");
+                        MySqlDict.TryAdd(typeHandle, val);
                     }
                 }
             }
-
-            return MySqlDict[typeHandle];
+            return val;
         }
 
         #endregion
@@ -39,18 +40,19 @@ namespace Dapper.Sharding
         public static SqlFieldEntity GetSqlServerFieldEntity<T>()
         {
             var typeHandle = typeof(T).TypeHandle;
-            if (!SqlServerDict.Keys.Contains(typeHandle))
+            var exists = SqlServerDict.TryGetValue(typeHandle, out var val);
+            if (!exists)
             {
                 lock (_sqlserverLocker)
                 {
-                    if (!SqlServerDict.Keys.Contains(typeHandle))
+                    if (!SqlServerDict.ContainsKey(typeHandle))
                     {
-                        SqlServerDict.TryAdd(typeHandle, new SqlFieldEntity(ClassToTableEntityUtils.Get<T>(DataBaseType.SqlServer2008), "[", "]", "@"));
+                        val = new SqlFieldEntity(ClassToTableEntityUtils.Get<T>(DataBaseType.SqlServer2008), "[", "]", "@");
+                        SqlServerDict.TryAdd(typeHandle, val);
                     }
                 }
             }
-
-            return SqlServerDict[typeHandle];
+            return val;
         }
 
         #endregion
@@ -64,18 +66,19 @@ namespace Dapper.Sharding
         public static SqlFieldEntity GetSqliteFieldEntity<T>()
         {
             var typeHandle = typeof(T).TypeHandle;
-            if (!SqliteDict.Keys.Contains(typeHandle))
+            var exists = SqliteDict.TryGetValue(typeHandle, out var val);
+            if (!exists)
             {
                 lock (_sqliteLocker)
                 {
-                    if (!SqliteDict.Keys.Contains(typeHandle))
+                    if (!SqliteDict.ContainsKey(typeHandle))
                     {
-                        SqliteDict.TryAdd(typeHandle, new SqlFieldEntity(ClassToTableEntityUtils.Get<T>(DataBaseType.Sqlite), "[", "]", "@"));
+                        val = new SqlFieldEntity(ClassToTableEntityUtils.Get<T>(DataBaseType.Sqlite), "[", "]", "@");
+                        SqliteDict.TryAdd(typeHandle, val);
                     }
                 }
             }
-
-            return SqliteDict[typeHandle];
+            return val;
         }
 
         #endregion
@@ -89,19 +92,20 @@ namespace Dapper.Sharding
         public static SqlFieldEntity GetPostgreFieldEntity<T>()
         {
             var typeHandle = typeof(T).TypeHandle;
-            if (!PostgreDict.Keys.Contains(typeHandle))
+            var exists = PostgreDict.TryGetValue(typeHandle, out var val);
+            if (!exists)
             {
                 lock (_postgreLocker)
                 {
-                    if (!PostgreDict.Keys.Contains(typeHandle))
+                    if (!PostgreDict.ContainsKey(typeHandle))
                     {
                         //PostgreDict.TryAdd(typeHandle, new SqlFieldEntity(ClassToTableEntityUtils.Get<T>(), "\"", "\"", "@"));
-                        PostgreDict.TryAdd(typeHandle, new SqlFieldEntity(ClassToTableEntityUtils.Get<T>(DataBaseType.Postgresql), "", "", "@"));
+                        val = new SqlFieldEntity(ClassToTableEntityUtils.Get<T>(DataBaseType.Postgresql), "", "", "@");
+                        PostgreDict.TryAdd(typeHandle, val);
                     }
                 }
             }
-
-            return PostgreDict[typeHandle];
+            return val;
         }
 
         #endregion
@@ -115,18 +119,20 @@ namespace Dapper.Sharding
         public static SqlFieldEntity GetOracleFieldEntity<T>()
         {
             var typeHandle = typeof(T).TypeHandle;
-            if (!OracleDict.Keys.Contains(typeHandle))
+            var exists = OracleDict.TryGetValue(typeHandle, out var val);
+            if (!exists)
             {
                 lock (_oracleLocker)
                 {
-                    if (!OracleDict.Keys.Contains(typeHandle))
+                    if (!OracleDict.ContainsKey(typeHandle))
                     {
                         //OracleDict.TryAdd(typeHandle, new SqlFieldEntity(ClassToTableEntityUtils.Get<T>(), "\"", "\"", ":"));
-                        OracleDict.TryAdd(typeHandle, new SqlFieldEntity(ClassToTableEntityUtils.Get<T>(DataBaseType.Oracle), "", "", ":"));
+                        val = new SqlFieldEntity(ClassToTableEntityUtils.Get<T>(DataBaseType.Oracle), "", "", ":");
+                        OracleDict.TryAdd(typeHandle, val);
                     }
                 }
             }
-            return OracleDict[typeHandle];
+            return val;
         }
 
         #endregion
