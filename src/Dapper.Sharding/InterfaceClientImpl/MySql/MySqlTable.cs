@@ -20,7 +20,7 @@ namespace Dapper.Sharding
         #region virtual
 
         public override bool Insert(T model)
-        {        
+        {
             if (SqlField.IsIdentity)
             {
                 var accessor = TypeAccessor.Create(typeof(T));
@@ -86,6 +86,20 @@ namespace Dapper.Sharding
         {
             string updatefields = CommonUtil.GetFieldsAtEqStr(SqlField.AllFieldExceptKeyList.Except(fields), "`", "`");
             return DpEntity.Execute($"UPDATE `{Name}` SET {updatefields} {where}", model);
+        }
+
+        public override int UpdateByWhere(string where, object param, List<string> fields = null)
+        {
+            string updatefields;
+            if (fields != null)
+            {
+                updatefields = CommonUtil.GetFieldsAtEqStr(fields, "`", "`");
+            }
+            else
+            {
+                updatefields = SqlField.AllFieldsAtEqExceptKey;
+            }
+            return DpEntity.Execute($"UPDATE `{Name}` SET {updatefields} {where}", param);
         }
 
         public override bool Delete(object id)
@@ -296,6 +310,5 @@ namespace Dapper.Sharding
                 returnFields = SqlField.AllFields;
             return DpEntity.Query<T>($"SELECT * FROM (SELECT {returnFields} FROM `{Name}` AS A WHERE 1=1 {and} ORDER BY `{SqlField.PrimaryKey}` LIMIT {pageSize}) AS B ORDER BY `{SqlField.PrimaryKey}` DESC", param);
         }
-
     }
 }

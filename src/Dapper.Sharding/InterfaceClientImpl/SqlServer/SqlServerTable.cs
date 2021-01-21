@@ -311,5 +311,20 @@ namespace Dapper.Sharding
             string updatefields = CommonUtil.GetFieldsAtEqStr(SqlField.AllFieldExceptKeyList.Except(fields), "[", "]");
             return DpEntity.Execute($"UPDATE [{Name}] SET {updatefields} {where}", model);
         }
+
+
+        public override int UpdateByWhere(string where, object param, List<string> fields = null)
+        {
+            string updatefields;
+            if (fields != null)
+            {
+                updatefields = CommonUtil.GetFieldsAtEqStr(fields, "[", "]");
+            }
+            else
+            {
+                updatefields = SqlField.AllFieldsAtEqExceptKey;
+            }
+            return DpEntity.Execute($"UPDATE [{Name}] SET {updatefields} {where}", param);
+        }
     }
 }

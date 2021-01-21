@@ -230,6 +230,8 @@ namespace Dapper.Sharding
 
         public abstract int UpdateByWhereIgnore(T model, string where, List<string> fields);
 
+        public abstract int UpdateByWhere(string where, object param, List<string> fields = null);
+
         public abstract bool Delete(object id);
 
         public abstract int DeleteByIds(object ids);

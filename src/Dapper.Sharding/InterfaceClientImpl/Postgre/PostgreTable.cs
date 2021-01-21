@@ -87,6 +87,20 @@ namespace Dapper.Sharding
             return DpEntity.Execute($"UPDATE {Name} SET {updatefields} {where}", model);
         }
 
+        public override int UpdateByWhere(string where, object param, List<string> fields = null)
+        {
+            string updatefields;
+            if (fields != null)
+            {
+                updatefields = CommonUtil.GetFieldsAtEqStr(fields, "", "");
+            }
+            else
+            {
+                updatefields = SqlField.AllFieldsAtEqExceptKey;
+            }
+            return DpEntity.Execute($"UPDATE {Name} SET {updatefields} {where}", param);
+        }
+
         public override bool Delete(object id)
         {
             return DpEntity.Execute($"DELETE FROM {Name} WHERE {SqlField.PrimaryKey}=@id", new { id }) > 0;
