@@ -1,13 +1,12 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
 	<PropertyGroup>
-		<TargetFrameworks>net472;net5.0</TargetFrameworks>
+		<TargetFrameworks>net472;net5.0;netstandard2.0</TargetFrameworks>
 	</PropertyGroup>
 
 	<PropertyGroup Condition="'$(Configuration)|$(TargetFramework)|$(Platform)'=='Debug|net472|AnyCPU'">
 	  <DefineConstants>TRACE</DefineConstants>
 	</PropertyGroup>
-
 
 	<ItemGroup>
 		<None Remove="DbTypeMap.xml" />
@@ -18,15 +17,13 @@
 	</ItemGroup>
 	<ItemGroup>
 		<PackageReference Include="Dapper" Version="2.0.78" />
+		<PackageReference Include="Microsoft.CSharp" Version="4.7.0" />
 		<PackageReference Include="MySqlConnector" Version="1.2.1" />
 		<PackageReference Include="Npgsql" Version="5.0.2" />
 		<PackageReference Include="Oracle.ManagedDataAccess.Core" Version="2.19.101" />
 		<PackageReference Include="System.Data.SqlClient" Version="4.8.2" />
 		<PackageReference Include="System.Data.SQLite.Core" Version="1.0.113.7" />
 		<PackageReference Include="System.Linq.Dynamic.Core" Version="1.2.7" />
-	</ItemGroup>
-	<ItemGroup Condition="'$(TargetFramework)'=='net472'">
-		<Reference Include="Microsoft.CSharp" />
 	</ItemGroup>
 	<ItemGroup Condition="'$(TargetFramework)'=='net472'">
 	  <Reference Include="Z.Dapper.Plus">
@@ -36,6 +33,11 @@
 	<ItemGroup Condition="'$(TargetFramework)'=='net5.0'">
 		<Reference Include="Z.Dapper.Plus">
 			<HintPath>..\..\Lib\Z.Dapper.Plus.3.0.20-Crack\net5.0\Z.Dapper.Plus.dll</HintPath>
+		</Reference>
+	</ItemGroup>
+	<ItemGroup Condition="'$(TargetFramework)'=='netstandard2.0'">
+		<Reference Include="Z.Dapper.Plus">
+			<HintPath>..\..\Lib\Z.Dapper.Plus.3.0.20-Crack\netstandard2.0\Z.Dapper.Plus.dll</HintPath>
 		</Reference>
 	</ItemGroup>
 </Project>
