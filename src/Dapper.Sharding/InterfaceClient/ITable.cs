@@ -36,9 +36,46 @@ namespace Dapper.Sharding
             return true;
         }
 
+        public virtual bool Insert(T model, List<string> fields)
+        {
+            DpEntity.BulkInsert(model, opt =>
+            {
+                opt.IgnoreOnInsertNames = SqlField.AllFieldExceptKeyList.Except(fields).ToList();
+            });
+            return true;
+        }
+
+        public virtual bool InsertIgnore(T model, List<string> fields)
+        {
+            DpEntity.BulkInsert(model, opt =>
+            {
+                opt.IgnoreOnInsertNames = fields;
+            });
+            return true;
+        }
+
+
         public void Insert(IEnumerable<T> modelList)
         {
             DpEntity.BulkInsert(modelList, opt => { });
+        }
+
+        public virtual bool Insert(IEnumerable<T> modelList, List<string> fields)
+        {
+            DpEntity.BulkInsert(modelList, opt =>
+            {
+                opt.IgnoreOnInsertNames = SqlField.AllFieldExceptKeyList.Except(fields).ToList();
+            });
+            return true;
+        }
+
+        public virtual bool InsertIgnore(IEnumerable<T> modelList, List<string> fields)
+        {
+            DpEntity.BulkInsert(modelList, opt =>
+            {
+                opt.IgnoreOnInsertNames = fields;
+            });
+            return true;
         }
 
         public void InsertIfNoExists(T model)
@@ -49,10 +86,46 @@ namespace Dapper.Sharding
             });
         }
 
+        public void InsertIfNoExists(T model, List<string> fields)
+        {
+            DpEntity.BulkInsert(model, opt =>
+            {
+                opt.IgnoreOnInsertNames = SqlField.AllFieldExceptKeyList.Except(fields).ToList();
+                opt.InsertIfNotExists = true;
+            });
+        }
+
+        public void InsertIfNoExistsIgnore(T model, List<string> fields)
+        {
+            DpEntity.BulkInsert(model, opt =>
+            {
+                opt.IgnoreOnInsertNames = fields;
+                opt.InsertIfNotExists = true;
+            });
+        }
+
         public void InsertIfNoExists(IEnumerable<T> modelList)
         {
             DpEntity.BulkInsert(modelList, opt =>
             {
+                opt.InsertIfNotExists = true;
+            });
+        }
+
+        public void InsertIfNoExists(IEnumerable<T> modelList, List<string> fields)
+        {
+            DpEntity.BulkInsert(modelList, opt =>
+            {
+                opt.IgnoreOnInsertNames = SqlField.AllFieldExceptKeyList.Except(fields).ToList();
+                opt.InsertIfNotExists = true;
+            });
+        }
+
+        public void InsertIfNoExistsIgnore(IEnumerable<T> modelList, List<string> fields)
+        {
+            DpEntity.BulkInsert(modelList, opt =>
+            {
+                opt.IgnoreOnInsertNames = fields;
                 opt.InsertIfNotExists = true;
             });
         }
@@ -66,10 +139,48 @@ namespace Dapper.Sharding
             return true;
         }
 
+        public virtual bool InsertIdentity(T model, List<string> fields)
+        {
+            DpEntity.BulkInsert(model, opt =>
+            {
+                opt.IgnoreOnInsertNames = SqlField.AllFieldExceptKeyList.Except(fields).ToList();
+                opt.InsertKeepIdentity = true;
+            });
+            return true;
+        }
+
+        public virtual bool InsertIdentityIgnore(T model, List<string> fields)
+        {
+            DpEntity.BulkInsert(model, opt =>
+            {
+                opt.IgnoreOnInsertNames = fields;
+                opt.InsertKeepIdentity = true;
+            });
+            return true;
+        }
+
         public void InsertIdentity(IEnumerable<T> modelList)
         {
             DpEntity.BulkInsert(modelList, opt =>
             {
+                opt.InsertKeepIdentity = true;
+            });
+        }
+
+        public void InsertIdentity(IEnumerable<T> modelList, List<string> fields)
+        {
+            DpEntity.BulkInsert(modelList, opt =>
+            {
+                opt.IgnoreOnInsertNames = SqlField.AllFieldExceptKeyList.Except(fields).ToList();
+                opt.InsertKeepIdentity = true;
+            });
+        }
+
+        public void InsertIdentityIgnore(IEnumerable<T> modelList, List<string> fields)
+        {
+            DpEntity.BulkInsert(modelList, opt =>
+            {
+                opt.IgnoreOnInsertNames = fields;
                 opt.InsertKeepIdentity = true;
             });
         }
@@ -83,6 +194,26 @@ namespace Dapper.Sharding
             });
         }
 
+        public void InsertIdentityIfNoExists(T model, List<string> fields)
+        {
+            DpEntity.BulkInsert(model, opt =>
+            {
+                opt.IgnoreOnInsertNames = SqlField.AllFieldExceptKeyList.Except(fields).ToList();
+                opt.InsertKeepIdentity = true;
+                opt.InsertIfNotExists = true;
+            });
+        }
+        public void InsertIdentityIfNoExistsIgnore(T model, List<string> fields)
+        {
+            DpEntity.BulkInsert(model, opt =>
+            {
+                opt.IgnoreOnInsertNames = fields;
+                opt.InsertKeepIdentity = true;
+                opt.InsertIfNotExists = true;
+            });
+        }
+
+
         public void InsertIdentityIfNoExists(IEnumerable<T> modelList)
         {
             DpEntity.BulkInsert(modelList, opt =>
@@ -91,6 +222,27 @@ namespace Dapper.Sharding
                 opt.InsertIfNotExists = true;
             });
         }
+
+        public void InsertIdentityIfNoExists(IEnumerable<T> modelList, List<string> fields)
+        {
+            DpEntity.BulkInsert(modelList, opt =>
+            {
+                opt.IgnoreOnInsertNames = SqlField.AllFieldExceptKeyList.Except(fields).ToList();
+                opt.InsertKeepIdentity = true;
+                opt.InsertIfNotExists = true;
+            });
+        }
+
+        public void InsertIdentityIfNoExistsIgnore(IEnumerable<T> modelList, List<string> fields)
+        {
+            DpEntity.BulkInsert(modelList, opt =>
+            {
+                opt.IgnoreOnInsertNames = fields;
+                opt.InsertKeepIdentity = true;
+                opt.InsertIfNotExists = true;
+            });
+        }
+
 
         public virtual bool Update(T model, List<string> fields = null)
         {
