@@ -19,8 +19,6 @@ namespace Dapper.Sharding
             var ok = dict.TryGetValue(table, out var val);
             if (!ok)
             {
-                #region database conn tran cache
-
                 var db = table.DataBase;
                 IDbConnection conn;
                 IDbTransaction tran;
@@ -38,37 +36,8 @@ namespace Dapper.Sharding
                     conn = dictConn[db];
                     tran = dictTran[db];
                 }
-
-                #endregion
-
-                try
-                {
-                    val = table.CreateTranTable(conn, tran, CommandTimeout);
-                    dict.Add(table, val);
-                }
-                catch (Exception ex)
-                {
-                    if (conn != null && conn.State == ConnectionState.Open)
-                    {
-                        try
-                        {
-                            conn.Dispose();
-                        }
-                        catch { }
-
-                    }
-                    if (tran != null)
-                    {
-                        try
-                        {
-                            tran.Dispose();
-                        }
-                        catch { }
-
-                    }
-                    Close();
-                    throw ex;
-                }
+                val = table.CreateTranTable(conn, tran, CommandTimeout);
+                dict.Add(table, val);
             }
             return (ITable<T>)val;
         }
