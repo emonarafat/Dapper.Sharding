@@ -54,7 +54,6 @@ namespace Dapper.Sharding
             return true;
         }
 
-
         public void Insert(IEnumerable<T> modelList)
         {
             DpEntity.BulkInsert(modelList, opt => { });
@@ -203,6 +202,7 @@ namespace Dapper.Sharding
                 opt.InsertIfNotExists = true;
             });
         }
+
         public void InsertIdentityIfNoExistsIgnore(T model, List<string> fields)
         {
             DpEntity.BulkInsert(model, opt =>
@@ -212,7 +212,6 @@ namespace Dapper.Sharding
                 opt.InsertIfNotExists = true;
             });
         }
-
 
         public void InsertIdentityIfNoExists(IEnumerable<T> modelList)
         {
@@ -242,7 +241,6 @@ namespace Dapper.Sharding
                 opt.InsertIfNotExists = true;
             });
         }
-
 
         public virtual bool Update(T model, List<string> fields = null)
         {
@@ -346,6 +344,13 @@ namespace Dapper.Sharding
             });
         }
 
+        public bool Exists(T model)
+        {
+            var accessor = TypeAccessor.Create(typeof(T));
+            var id = accessor[model, SqlField.PrimaryKey];
+            return Exists(id);
+        }
+
         public IEnumerable<T> GetByPage(int page, int pageSize, string where = null, object param = null, string returnFields = null, string orderby = null)
         {
             int skip = 0;
@@ -365,12 +370,25 @@ namespace Dapper.Sharding
             };
         }
 
-        public bool Exists(T model)
+        public IEnumerable<dynamic> GetByPageDynamic(int page, int pageSize, string where = null, object param = null, string returnFields = null, string orderby = null)
         {
-            var accessor = TypeAccessor.Create(typeof(T));
-            var id = accessor[model, SqlField.PrimaryKey];
-            return Exists(id);
+            int skip = 0;
+            if (page > 0)
+            {
+                skip = (page - 1) * pageSize;
+            }
+            return GetBySkipTakeDynamic(skip, pageSize, where, param, returnFields, orderby);
         }
+
+        public PageEntity<dynamic> GetByPageAndCountDynamic(int page, int pageSize, string where = null, object param = null, string returnFields = null, string orderby = null)
+        {
+            return new PageEntity<dynamic>
+            {
+                Data = GetByPageDynamic(page, pageSize, where, param, returnFields, orderby),
+                Count = Count(where, param)
+            };
+        }
+
 
         #endregion
 
@@ -447,6 +465,46 @@ namespace Dapper.Sharding
 
         #endregion
 
+        #region abstract method dynamic
 
+        public abstract IEnumerable<dynamic> GetAllDynamic(string returnFields = null, string orderby = null);
+
+        public abstract dynamic GetByIdDynamic(object id, string returnFields = null);
+
+        public abstract dynamic GetByIdForUpdateDynamic(object id, string returnFields = null);
+
+        public abstract IEnumerable<dynamic> GetByIdsDynamic(object ids, string returnFields = null);
+
+        public abstract IEnumerable<dynamic> GetByIdsForUpdateDynamic(object ids, string returnFields = null);
+
+        public abstract IEnumerable<dynamic> GetByIdsWithFieldDynamic(object ids, string field, string returnFields = null);
+
+        public abstract IEnumerable<dynamic> GetByWhereDynamic(string where, object param = null, string returnFields = null, string orderby = null, int limit = 0);
+
+        public abstract dynamic GetByWhereFirstDynamic(string where, object param = null, string returnFields = null);
+
+        public abstract IEnumerable<dynamic> GetBySkipTakeDynamic(int skip, int take, string where = null, object param = null, string returnFields = null, string orderby = null);
+
+        public abstract IEnumerable<dynamic> GetByAscFirstPageDynamic(int pageSize, object param = null, string and = null, string returnFields = null);
+
+        public abstract IEnumerable<dynamic> GetByAscPrevPageDynamic(int pageSize, T param, string and = null, string returnFields = null);
+
+        public abstract IEnumerable<dynamic> GetByAscCurrentPageDynamic(int pageSize, T param, string and = null, string returnFields = null);
+
+        public abstract IEnumerable<dynamic> GetByAscNextPageDynamic(int pageSize, T param, string and = null, string returnFields = null);
+
+        public abstract IEnumerable<dynamic> GetByAscLastPageDynamic(int pageSize, object param = null, string and = null, string returnFields = null);
+
+        public abstract IEnumerable<dynamic> GetByDescFirstPageDynamic(int pageSize, object param = null, string and = null, string returnFields = null);
+
+        public abstract IEnumerable<dynamic> GetByDescPrevPageDynamic(int pageSize, T param, string and = null, string returnFields = null);
+
+        public abstract IEnumerable<dynamic> GetByDescCurrentPageDynamic(int pageSize, T param, string and = null, string returnFields = null);
+
+        public abstract IEnumerable<dynamic> GetByDescNextPageDynamic(int pageSize, T param, string and = null, string returnFields = null);
+
+        public abstract IEnumerable<dynamic> GetByDescLastPageDynamic(int pageSize, object param = null, string and = null, string returnFields = null);
+
+        #endregion
     }
 }

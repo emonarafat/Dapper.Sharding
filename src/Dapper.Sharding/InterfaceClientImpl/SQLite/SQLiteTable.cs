@@ -65,7 +65,6 @@ namespace Dapper.Sharding
             return DpEntity.Execute($"UPDATE {Name} SET {updateFields} WHERE {SqlField.PrimaryKey}=@{SqlField.PrimaryKey}", model) > 0;
         }
 
-
         public override int UpdateByWhere(T model, string where, List<string> fields = null)
         {
             string updatefields;
@@ -158,6 +157,8 @@ namespace Dapper.Sharding
         {
             return DpEntity.ExecuteScalar<decimal>($"SELECT AVG({field}) FROM {Name} {where}", param);
         }
+
+        #region dynamic no
 
         public override IEnumerable<T> GetAll(string returnFields = null, string orderby = null)
         {
@@ -300,5 +301,153 @@ namespace Dapper.Sharding
                 returnFields = SqlField.AllFields;
             return DpEntity.Query<T>($"SELECT * FROM (SELECT {returnFields} FROM {Name} AS A WHERE 1=1 {and} ORDER BY {SqlField.PrimaryKey} LIMIT {pageSize}) AS B ORDER BY {SqlField.PrimaryKey} DESC", param);
         }
+
+        #endregion
+
+        #region dynamic
+
+        public override IEnumerable<dynamic> GetAllDynamic(string returnFields = null, string orderby = null)
+        {
+            if (string.IsNullOrEmpty(returnFields))
+                returnFields = SqlField.AllFields;
+            return DpEntity.Query($"SELECT {returnFields} FROM {Name} {orderby.SetOrderBy(SqlField.PrimaryKey)}");
+        }
+
+        public override dynamic GetByIdDynamic(object id, string returnFields = null)
+        {
+            if (string.IsNullOrEmpty(returnFields))
+                returnFields = SqlField.AllFields;
+            return DpEntity.QueryFirstOrDefault($"SELECT {returnFields} FROM {Name} WHERE {SqlField.PrimaryKey}=@id", new { id });
+        }
+
+        public override dynamic GetByIdForUpdateDynamic(object id, string returnFields = null)
+        {
+            throw new NotImplementedException();
+        }
+
+        public override IEnumerable<dynamic> GetByIdsDynamic(object ids, string returnFields = null)
+        {
+            if (CommonUtil.ObjectIsEmpty(ids))
+                return Enumerable.Empty<dynamic>();
+            if (string.IsNullOrEmpty(returnFields))
+                returnFields = SqlField.AllFields;
+            var dpar = new DynamicParameters();
+            dpar.Add("@ids", ids);
+            return DpEntity.Query($"SELECT {returnFields} FROM {Name} WHERE {SqlField.PrimaryKey} IN @ids", dpar);
+        }
+
+        public override IEnumerable<dynamic> GetByIdsForUpdateDynamic(object ids, string returnFields = null)
+        {
+            throw new NotImplementedException();
+        }
+
+        public override IEnumerable<dynamic> GetByIdsWithFieldDynamic(object ids, string field, string returnFields = null)
+        {
+            if (CommonUtil.ObjectIsEmpty(ids))
+                return Enumerable.Empty<dynamic>();
+            if (string.IsNullOrEmpty(returnFields))
+                returnFields = SqlField.AllFields;
+            var dpar = new DynamicParameters();
+            dpar.Add("@ids", ids);
+            return DpEntity.Query($"SELECT {returnFields} FROM {Name} WHERE {field} IN @ids", dpar);
+        }
+
+        public override IEnumerable<dynamic> GetByWhereDynamic(string where, object param = null, string returnFields = null, string orderby = null, int limit = 0)
+        {
+            if (string.IsNullOrEmpty(returnFields))
+                returnFields = SqlField.AllFields;
+            string limitStr = null;
+            if (limit != 0)
+            {
+                limitStr = "LIMIT " + limit;
+            }
+            return DpEntity.Query($"SELECT {returnFields} FROM {Name} {where} {orderby.SetOrderBy(SqlField.PrimaryKey)} {limitStr}", param);
+        }
+
+        public override dynamic GetByWhereFirstDynamic(string where, object param = null, string returnFields = null)
+        {
+            if (string.IsNullOrEmpty(returnFields))
+                returnFields = SqlField.AllFields;
+            return DpEntity.QueryFirstOrDefault($"SELECT {returnFields} FROM {Name} {where} LIMIT 1", param);
+        }
+
+        public override IEnumerable<dynamic> GetBySkipTakeDynamic(int skip, int take, string where = null, object param = null, string returnFields = null, string orderby = null)
+        {
+            if (string.IsNullOrEmpty(returnFields))
+                returnFields = SqlField.AllFields;
+            return DpEntity.Query($"SELECT {returnFields} FROM {Name} {where} {orderby.SetOrderBy(SqlField.PrimaryKey)} LIMIT {skip},{take}", param);
+        }
+
+        public override IEnumerable<dynamic> GetByAscFirstPageDynamic(int pageSize, object param = null, string and = null, string returnFields = null)
+        {
+            if (string.IsNullOrEmpty(returnFields))
+                returnFields = SqlField.AllFields;
+            return DpEntity.Query($"SELECT {returnFields} FROM {Name} AS A WHERE 1=1 {and} ORDER BY {SqlField.PrimaryKey} LIMIT {pageSize}", param);
+        }
+
+        public override IEnumerable<dynamic> GetByAscPrevPageDynamic(int pageSize, T param, string and = null, string returnFields = null)
+        {
+            if (string.IsNullOrEmpty(returnFields))
+                returnFields = SqlField.AllFields;
+            return DpEntity.Query($"SELECT * FROM (SELECT {returnFields} FROM {Name} AS A WHERE {SqlField.PrimaryKey}<@{SqlField.PrimaryKey} {and} ORDER BY {SqlField.PrimaryKey} DESC LIMIT {pageSize}) AS B ORDER BY {SqlField.PrimaryKey}", param);
+        }
+
+        public override IEnumerable<dynamic> GetByAscCurrentPageDynamic(int pageSize, T param, string and = null, string returnFields = null)
+        {
+            if (string.IsNullOrEmpty(returnFields))
+                returnFields = SqlField.AllFields;
+            return DpEntity.Query($"SELECT {returnFields} FROM {Name} AS A WHERE {SqlField.PrimaryKey}>=@{SqlField.PrimaryKey} {and} ORDER BY {SqlField.PrimaryKey} LIMIT {pageSize}", param);
+        }
+
+        public override IEnumerable<dynamic> GetByAscNextPageDynamic(int pageSize, T param, string and = null, string returnFields = null)
+        {
+            if (string.IsNullOrEmpty(returnFields))
+                returnFields = SqlField.AllFields;
+            return DpEntity.Query($"SELECT {returnFields} FROM {Name} AS A WHERE {SqlField.PrimaryKey}>@{SqlField.PrimaryKey} {and} ORDER BY {SqlField.PrimaryKey} LIMIT {pageSize}", param);
+        }
+
+        public override IEnumerable<dynamic> GetByAscLastPageDynamic(int pageSize, object param = null, string and = null, string returnFields = null)
+        {
+            if (string.IsNullOrEmpty(returnFields))
+                returnFields = SqlField.AllFields;
+            return DpEntity.Query($"SELECT * FROM (SELECT {returnFields} FROM {Name} AS A WHERE 1=1 {and} ORDER BY {SqlField.PrimaryKey} DESC LIMIT {pageSize}) AS B ORDER BY {SqlField.PrimaryKey}", param);
+        }
+
+        public override IEnumerable<dynamic> GetByDescFirstPageDynamic(int pageSize, object param = null, string and = null, string returnFields = null)
+        {
+            if (string.IsNullOrEmpty(returnFields))
+                returnFields = SqlField.AllFields;
+            return DpEntity.Query($"SELECT {returnFields} FROM {Name} AS A WHERE 1=1 {and} ORDER BY {SqlField.PrimaryKey} DESC LIMIT {pageSize}", param);
+        }
+
+        public override IEnumerable<dynamic> GetByDescPrevPageDynamic(int pageSize, T param, string and = null, string returnFields = null)
+        {
+            if (string.IsNullOrEmpty(returnFields))
+                returnFields = SqlField.AllFields;
+            return DpEntity.Query($"SELECT * FROM (SELECT {returnFields} FROM {Name} AS A WHERE {SqlField.PrimaryKey}>@{SqlField.PrimaryKey} {and} ORDER BY {SqlField.PrimaryKey} LIMIT {pageSize}) AS B ORDER BY {SqlField.PrimaryKey} DESC", param);
+        }
+
+        public override IEnumerable<dynamic> GetByDescCurrentPageDynamic(int pageSize, T param, string and = null, string returnFields = null)
+        {
+            if (string.IsNullOrEmpty(returnFields))
+                returnFields = SqlField.AllFields;
+            return DpEntity.Query($"SELECT {returnFields} FROM {Name} AS A WHERE {SqlField.PrimaryKey}<=@{SqlField.PrimaryKey} {and} ORDER BY {SqlField.PrimaryKey} DESC LIMIT {pageSize}", param);
+        }
+
+        public override IEnumerable<dynamic> GetByDescNextPageDynamic(int pageSize, T param, string and = null, string returnFields = null)
+        {
+            if (string.IsNullOrEmpty(returnFields))
+                returnFields = SqlField.AllFields;
+            return DpEntity.Query($"SELECT {returnFields} FROM {Name} AS A WHERE {SqlField.PrimaryKey}<@{SqlField.PrimaryKey} {and} ORDER BY {SqlField.PrimaryKey} DESC LIMIT {pageSize}", param);
+        }
+
+        public override IEnumerable<dynamic> GetByDescLastPageDynamic(int pageSize, object param = null, string and = null, string returnFields = null)
+        {
+            if (string.IsNullOrEmpty(returnFields))
+                returnFields = SqlField.AllFields;
+            return DpEntity.Query($"SELECT * FROM (SELECT {returnFields} FROM {Name} AS A WHERE 1=1 {and} ORDER BY {SqlField.PrimaryKey} LIMIT {pageSize}) AS B ORDER BY {SqlField.PrimaryKey} DESC", param);
+        }
+
+        #endregion
     }
 }
