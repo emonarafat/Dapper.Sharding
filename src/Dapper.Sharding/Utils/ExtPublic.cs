@@ -3,11 +3,61 @@ using System.Collections.Generic;
 using System.Data;
 using System.Linq;
 using System.Linq.Dynamic.Core;
+using System.Text;
 
 namespace Dapper.Sharding
 {
     public static class ExtPublic
     {
+        #region string
+
+        public static string AsPgsqlField(this string data)
+        {
+            var sb = new StringBuilder();
+            var arr = data.Split(',');
+            foreach (var item in arr)
+            {
+                sb.Append($"{item} as \"{item}\"");
+                if (item != arr.Last())
+                {
+                    sb.Append(',');
+                }
+            }
+            return sb.ToString();
+        }
+
+        public static string AsMySqlField(this string data)
+        {
+            var sb = new StringBuilder();
+            var arr = data.Split(',');
+            foreach (var item in arr)
+            {
+                sb.Append($"{item} as `{item}`");
+                if (item != arr.Last())
+                {
+                    sb.Append(',');
+                }
+            }
+            return sb.ToString();
+        }
+
+        public static string AsSqlServerField(this string data)
+        {
+            var sb = new StringBuilder();
+            var arr = data.Split(',');
+            foreach (var item in arr)
+            {
+                sb.Append($"{item} as [{item}]");
+                if (item != arr.Last())
+                {
+                    sb.Append(',');
+                }
+            }
+            return sb.ToString();
+        }
+
+        #endregion
+
         #region dapper
 
         public static DataTable GetDataTable(this IDbConnection conn, string sql, object param = null, IDbTransaction tran = null, int? commandTimeout = null, CommandType? commandType = null)
