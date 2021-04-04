@@ -42,12 +42,12 @@ namespace Test
 
             //one to many
             var data1 = table1.GetAll();
-            data1.MapTableOneToMany("Id", "_BookList", table2, "AuthorId");
+            data1.TableOneToMany("Id", "_BookList", table2, "AuthorId");
             Console.WriteLine(JsonConvert.SerializeObject(data1));
 
             //one to one
             var data2 = table2.GetAll();
-            data2.MapTableOneToOne("AuthorId", "_Author", table1, "Id");
+            data2.TableOneToOne("AuthorId", "_Author", table1, "Id");
             Console.WriteLine(JsonConvert.SerializeObject(data2));
         }
 
@@ -92,24 +92,14 @@ namespace Test
             table3.Merge(list3);
 
             var data1 = table1.GetAll();
-            data1.MapTableManyToMany("Id", "_NextList", centerTable, "FirstId", "NextId", table3, "Id");
-            data1.MapTableManyToMany("Id", "_NextList", centerTable, "FirstId", "NextId", table3, "Id",null,"AND Id>5");
+            data1.TableCenterToMany("Id", "_NextList", centerTable, "FirstId", "NextId", table3, "Id");
+            data1.TableCenterToMany("Id", "_NextList", centerTable, "FirstId", "NextId", table3, "Id",null,"AND Id>5");
             Console.WriteLine(JsonConvert.SerializeObject(data1));
 
 
             var data2 = table3.GetAll();
-            data2.MapTableManyToMany("Id", "_PrevList", centerTable, "NextId", "FirstId", table1, "Id");
+            data2.TableCenterToMany("Id", "_PrevList", centerTable, "NextId", "FirstId", table1, "Id");
             Console.WriteLine(JsonConvert.SerializeObject(data2));
-
-            var dd = table1.MapCenterTable(centerTable, "FirstId", "NextId", 3);
-            Console.WriteLine(JsonConvert.SerializeObject(dd));
-
-            var dd2 = table3.MapCenterTable(centerTable, "NextId", "FirstId", 2);
-            Console.WriteLine(JsonConvert.SerializeObject(dd2));
-
-            var dd3 = table3.MapCenterTable(centerTable, "NextId", "FirstId", 2, "Name", 2, 1);
-            Console.WriteLine(JsonConvert.SerializeObject(dd3));
-            Console.WriteLine(dd3.Count);
         }
     }
 

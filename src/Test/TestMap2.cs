@@ -35,7 +35,7 @@ namespace Test
             table2.Merge(list2);
 
             var data1 = table1.GetAll();
-            data1.MapTableOneToOne("BId", "_BB", table2, "Id");
+            data1.TableOneToOne("BId", "_BB", table2, "Id");
             Console.WriteLine(JsonConvert.SerializeObject(data1));
 
 

@@ -321,6 +321,10 @@ namespace Dapper.Sharding
         {
             if (string.IsNullOrEmpty(returnFields))
                 returnFields = SqlField.AllFields;
+            if (returnFields.IndexOf(" AS ") == -1)
+            {
+                returnFields = returnFields.AsPgsqlField();
+            }
             return DpEntity.Query($"SELECT {returnFields} FROM {Name} {orderby.SetOrderBy(SqlField.PrimaryKey)}");
         }
 
@@ -328,6 +332,10 @@ namespace Dapper.Sharding
         {
             if (string.IsNullOrEmpty(returnFields))
                 returnFields = SqlField.AllFields;
+            if (returnFields.IndexOf(" AS ") == -1)
+            {
+                returnFields = returnFields.AsPgsqlField();
+            }
             return DpEntity.QueryFirstOrDefault($"SELECT {returnFields} FROM {Name} WHERE {SqlField.PrimaryKey}=@id", new { id });
         }
 
@@ -335,6 +343,10 @@ namespace Dapper.Sharding
         {
             if (string.IsNullOrEmpty(returnFields))
                 returnFields = SqlField.AllFields;
+            if (returnFields.IndexOf(" AS ") == -1)
+            {
+                returnFields = returnFields.AsPgsqlField();
+            }
             return DpEntity.QueryFirstOrDefault($"SELECT {returnFields} FROM {Name} WHERE {SqlField.PrimaryKey}=@id FOR UPDATE", new { id });
         }
 
@@ -344,6 +356,10 @@ namespace Dapper.Sharding
                 return Enumerable.Empty<dynamic>();
             if (string.IsNullOrEmpty(returnFields))
                 returnFields = SqlField.AllFields;
+            if (returnFields.IndexOf(" AS ") == -1)
+            {
+                returnFields = returnFields.AsPgsqlField();
+            }
             var dpar = new DynamicParameters();
             dpar.Add("@ids", ids);
             return DpEntity.Query($"SELECT {returnFields} FROM {Name} WHERE {SqlField.PrimaryKey}=ANY(@ids)", dpar);
@@ -355,6 +371,10 @@ namespace Dapper.Sharding
                 return Enumerable.Empty<dynamic>();
             if (string.IsNullOrEmpty(returnFields))
                 returnFields = SqlField.AllFields;
+            if (returnFields.IndexOf(" AS ") == -1)
+            {
+                returnFields = returnFields.AsPgsqlField();
+            }
             var dpar = new DynamicParameters();
             dpar.Add("@ids", ids);
             return DpEntity.Query($"SELECT {returnFields} FROM {Name} WHERE {SqlField.PrimaryKey}=ANY(@ids) FOR UPDATE", dpar);
@@ -366,6 +386,10 @@ namespace Dapper.Sharding
                 return Enumerable.Empty<dynamic>();
             if (string.IsNullOrEmpty(returnFields))
                 returnFields = SqlField.AllFields;
+            if (returnFields.IndexOf(" AS ") == -1)
+            {
+                returnFields = returnFields.AsPgsqlField();
+            }
             var dpar = new DynamicParameters();
             dpar.Add("@ids", ids);
             return DpEntity.Query($"SELECT {returnFields} FROM {Name} WHERE {field}=ANY(@ids)", dpar);
@@ -375,6 +399,10 @@ namespace Dapper.Sharding
         {
             if (string.IsNullOrEmpty(returnFields))
                 returnFields = SqlField.AllFields;
+            if (returnFields.IndexOf(" AS ") == -1)
+            {
+                returnFields = returnFields.AsPgsqlField();
+            }
             string limitStr = null;
             if (limit != 0)
             {
@@ -386,7 +414,11 @@ namespace Dapper.Sharding
         public override dynamic GetByWhereFirstDynamic(string where, object param = null, string returnFields = null)
         {
             if (string.IsNullOrEmpty(returnFields))
-                returnFields = SqlField.AllFields;
+                returnFields = SqlField.AllFields; 
+            if (returnFields.IndexOf(" AS ") == -1)
+            {
+                returnFields = returnFields.AsPgsqlField();
+            }
             return DpEntity.QueryFirstOrDefault($"SELECT {returnFields} FROM {Name} {where} LIMIT 1", param);
         }
 
@@ -394,6 +426,10 @@ namespace Dapper.Sharding
         {
             if (string.IsNullOrEmpty(returnFields))
                 returnFields = SqlField.AllFields;
+            if (returnFields.IndexOf(" AS ") == -1)
+            {
+                returnFields = returnFields.AsPgsqlField();
+            }
             return DpEntity.Query($"SELECT {returnFields} FROM {Name} {where} {orderby.SetOrderBy(SqlField.PrimaryKey)} LIMIT {take} OFFSET {skip}", param);
         }
 
@@ -401,6 +437,10 @@ namespace Dapper.Sharding
         {
             if (string.IsNullOrEmpty(returnFields))
                 returnFields = SqlField.AllFields;
+            if (returnFields.IndexOf(" AS ") == -1)
+            {
+                returnFields = returnFields.AsPgsqlField();
+            }
             return DpEntity.Query($"SELECT {returnFields} FROM {Name} AS A WHERE 1=1 {and} ORDER BY {SqlField.PrimaryKey} LIMIT {pageSize}", param);
         }
 
@@ -408,6 +448,10 @@ namespace Dapper.Sharding
         {
             if (string.IsNullOrEmpty(returnFields))
                 returnFields = SqlField.AllFields;
+            if (returnFields.IndexOf(" AS ") == -1)
+            {
+                returnFields = returnFields.AsPgsqlField();
+            }
             return DpEntity.Query($"SELECT * FROM (SELECT {returnFields} FROM {Name} AS A WHERE {SqlField.PrimaryKey}<@{SqlField.PrimaryKey} {and} ORDER BY {SqlField.PrimaryKey} DESC LIMIT {pageSize}) AS B ORDER BY {SqlField.PrimaryKey}", param);
         }
 
@@ -415,6 +459,10 @@ namespace Dapper.Sharding
         {
             if (string.IsNullOrEmpty(returnFields))
                 returnFields = SqlField.AllFields;
+            if (returnFields.IndexOf(" AS ") == -1)
+            {
+                returnFields = returnFields.AsPgsqlField();
+            }
             return DpEntity.Query($"SELECT {returnFields} FROM {Name} AS A WHERE {SqlField.PrimaryKey}>=@{SqlField.PrimaryKey} {and} ORDER BY {SqlField.PrimaryKey} LIMIT {pageSize}", param);
         }
 
@@ -422,6 +470,10 @@ namespace Dapper.Sharding
         {
             if (string.IsNullOrEmpty(returnFields))
                 returnFields = SqlField.AllFields;
+            if (returnFields.IndexOf(" AS ") == -1)
+            {
+                returnFields = returnFields.AsPgsqlField();
+            }
             return DpEntity.Query($"SELECT {returnFields} FROM {Name} AS A WHERE {SqlField.PrimaryKey}>@{SqlField.PrimaryKey} {and} ORDER BY {SqlField.PrimaryKey} LIMIT {pageSize}", param);
         }
 
@@ -429,6 +481,10 @@ namespace Dapper.Sharding
         {
             if (string.IsNullOrEmpty(returnFields))
                 returnFields = SqlField.AllFields;
+            if (returnFields.IndexOf(" AS ") == -1)
+            {
+                returnFields = returnFields.AsPgsqlField();
+            }
             return DpEntity.Query($"SELECT * FROM (SELECT {returnFields} FROM {Name} AS A WHERE 1=1 {and} ORDER BY {SqlField.PrimaryKey} DESC LIMIT {pageSize}) AS B ORDER BY {SqlField.PrimaryKey}", param);
         }
 
@@ -436,6 +492,10 @@ namespace Dapper.Sharding
         {
             if (string.IsNullOrEmpty(returnFields))
                 returnFields = SqlField.AllFields;
+            if (returnFields.IndexOf(" AS ") == -1)
+            {
+                returnFields = returnFields.AsPgsqlField();
+            }
             return DpEntity.Query($"SELECT {returnFields} FROM {Name} AS A WHERE 1=1 {and} ORDER BY {SqlField.PrimaryKey} DESC LIMIT {pageSize}", param);
         }
 
@@ -443,6 +503,10 @@ namespace Dapper.Sharding
         {
             if (string.IsNullOrEmpty(returnFields))
                 returnFields = SqlField.AllFields;
+            if (returnFields.IndexOf(" AS ") == -1)
+            {
+                returnFields = returnFields.AsPgsqlField();
+            }
             return DpEntity.Query($"SELECT * FROM (SELECT {returnFields} FROM {Name} AS A WHERE {SqlField.PrimaryKey}>@{SqlField.PrimaryKey} {and} ORDER BY {SqlField.PrimaryKey} LIMIT {pageSize}) AS B ORDER BY {SqlField.PrimaryKey} DESC", param);
         }
 
@@ -450,6 +514,10 @@ namespace Dapper.Sharding
         {
             if (string.IsNullOrEmpty(returnFields))
                 returnFields = SqlField.AllFields;
+            if (returnFields.IndexOf(" AS ") == -1)
+            {
+                returnFields = returnFields.AsPgsqlField();
+            }
             return DpEntity.Query($"SELECT {returnFields} FROM {Name} AS A WHERE {SqlField.PrimaryKey}<=@{SqlField.PrimaryKey} {and} ORDER BY {SqlField.PrimaryKey} DESC LIMIT {pageSize}", param);
         }
 
@@ -457,6 +525,10 @@ namespace Dapper.Sharding
         {
             if (string.IsNullOrEmpty(returnFields))
                 returnFields = SqlField.AllFields;
+            if (returnFields.IndexOf(" AS ") == -1)
+            {
+                returnFields = returnFields.AsPgsqlField();
+            }
             return DpEntity.Query($"SELECT {returnFields} FROM {Name} AS A WHERE {SqlField.PrimaryKey}<@{SqlField.PrimaryKey} {and} ORDER BY {SqlField.PrimaryKey} DESC LIMIT {pageSize}", param);
         }
 
@@ -464,6 +536,10 @@ namespace Dapper.Sharding
         {
             if (string.IsNullOrEmpty(returnFields))
                 returnFields = SqlField.AllFields;
+            if (returnFields.IndexOf(" AS ") == -1)
+            {
+                returnFields = returnFields.AsPgsqlField();
+            }
             return DpEntity.Query($"SELECT * FROM (SELECT {returnFields} FROM {Name} AS A WHERE 1=1 {and} ORDER BY {SqlField.PrimaryKey} LIMIT {pageSize}) AS B ORDER BY {SqlField.PrimaryKey} DESC", param);
         }
 
