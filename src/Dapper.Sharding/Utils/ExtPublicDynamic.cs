@@ -1,105 +1,44 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Data;
 using System.Linq;
 using System.Linq.Dynamic.Core;
-using System.Text;
+using System.Linq.Dynamic.Core.CustomTypeProviders;
 
 namespace Dapper.Sharding
 {
-    public static class ExtPublic
+    #region linq.dynamic.core Extending
+
+    [DynamicLinqType]
+    public static class ExtUtils
     {
-        #region string
-
-        public static string AsPgsqlField(this string data)
+        public static int Int(object val)
         {
-            var sb = new StringBuilder();
-            var arr = data.Split(',');
-            foreach (var item in arr)
-            {
-                sb.Append($"{item} as \"{item}\"");
-                if (item != arr.Last())
-                {
-                    sb.Append(',');
-                }
-            }
-            return sb.ToString();
+            return (int)val;
         }
 
-        public static string AsMySqlField(this string data)
+        public static long Long(object val)
         {
-            var sb = new StringBuilder();
-            var arr = data.Split(',');
-            foreach (var item in arr)
-            {
-                sb.Append($"{item} as `{item}`");
-                if (item != arr.Last())
-                {
-                    sb.Append(',');
-                }
-            }
-            return sb.ToString();
+            return (long)val;
         }
 
-        public static string AsSqlServerField(this string data)
+        public static decimal Decimal(object val)
         {
-            var sb = new StringBuilder();
-            var arr = data.Split(',');
-            foreach (var item in arr)
-            {
-                sb.Append($"{item} as [{item}]");
-                if (item != arr.Last())
-                {
-                    sb.Append(',');
-                }
-            }
-            return sb.ToString();
+            return (decimal)val;
         }
 
-        #endregion
-
-        #region dapper
-
-        public static DataTable GetDataTable(this IDbConnection conn, string sql, object param = null, IDbTransaction tran = null, int? commandTimeout = null, CommandType? commandType = null)
+        public static string String(object val)
         {
-            if (conn.State == ConnectionState.Closed)
-                conn.Open();
-
-            using (IDataReader reader = conn.ExecuteReader(sql, param, tran, commandTimeout, commandType))
-            {
-                DataTable dt = new DataTable();
-                dt.Load(reader);
-                return dt;
-            }
+            return (string)val;
         }
+    }
 
-        public static DataSet GetDataSet(this IDbConnection conn, string sql, object param = null, IDbTransaction tran = null, int? commandTimeout = null, CommandType? commandType = null)
-        {
-            //oracle do no support GetDataSet
+    #endregion
 
-            if (conn.State == ConnectionState.Closed)
-                conn.Open();
-            using (IDataReader reader = conn.ExecuteReader(sql, param, tran, commandTimeout, commandType))
-            {
-                DataSet ds = new DataSet();
-                int i = 0;
-                while (!reader.IsClosed)
-                {
-                    i++;
-                    DataTable dt = new DataTable();
-                    dt.TableName = "T" + i;
-                    dt.Load(reader);
-                    ds.Tables.Add(dt);
-                }
-                return ds;
-            }
-        }
-
-        #endregion
-
+    public static class ExtPublicDynamic
+    {
         #region IEnumerable map base
 
-        public static void MapOneToOne<T, T2>(this IEnumerable<T> list, string field, string propertyName, IEnumerable<T2> mapList, string mapField) where T : class where T2 : class
+        private static void MapOneToOneDynamic<T>(this IEnumerable<T> list, string field, string propertyName, IEnumerable<dynamic> mapList, string mapField) where T : class
         {
             if (list == null || list.Count() == 0)
                 return;
@@ -114,11 +53,32 @@ namespace Dapper.Sharding
                 {
                     continue;
                 }
-                accessor[item, propertyName] = queryable.FirstOrDefault($"{mapField}=@0", id);
+
+                if (id is int)
+                {
+                    accessor[item, propertyName] = queryable.FirstOrDefault($"ExtUtils.Int({mapField})=@0", id);
+                }
+                else if (id is long)
+                {
+                    accessor[item, propertyName] = queryable.FirstOrDefault($"ExtUtils.Long({mapField})=@0", id);
+                }
+                else if (id is decimal)
+                {
+                    accessor[item, propertyName] = queryable.FirstOrDefault($"ExtUtils.Decimal({mapField})=@0", id);
+                }
+                else if (id is string)
+                {
+                    accessor[item, propertyName] = queryable.FirstOrDefault($"ExtUtils.String({mapField})=@0", id);
+                }
+                else
+                {
+                    accessor[item, propertyName] = queryable.FirstOrDefault($"{mapField}.ToString()=@0", id.ToString());
+                }
+
             }
         }
 
-        public static void MapOneToMany<T, T2>(this IEnumerable<T> list, string field, string propertyName, IEnumerable<T2> mapList, string mapField) where T : class where T2 : class
+        private static void MapOneToManyDynamic<T>(this IEnumerable<T> list, string field, string propertyName, IEnumerable<dynamic> mapList, string mapField) where T : class
         {
             if (list == null || list.Count() == 0)
                 return;
@@ -133,11 +93,31 @@ namespace Dapper.Sharding
                 {
                     continue;
                 }
-                accessor[item, propertyName] = queryable.Where($"{mapField}=@0", id).ToList();
+
+                if (id is int)
+                {
+                    accessor[item, propertyName] = queryable.Where($"ExtUtils.Int({mapField})=@0", id).ToList();
+                }
+                else if (id is long)
+                {
+                    accessor[item, propertyName] = queryable.Where($"ExtUtils.Long({mapField})=@0", id).ToList();
+                }
+                else if (id is decimal)
+                {
+                    accessor[item, propertyName] = queryable.Where($"ExtUtils.Decimal({mapField})=@0", id).ToList();
+                }
+                else if (id is string)
+                {
+                    accessor[item, propertyName] = queryable.Where($"ExtUtils.String({mapField})=@0", id).ToList();
+                }
+                else
+                {
+                    accessor[item, propertyName] = queryable.Where($"{mapField}.ToString()=@0", id.ToString()).ToList();
+                }
             }
         }
 
-        public static void MapManyToMany<T, T2, T3>(this IEnumerable<T> list, string field, string propertyName, IEnumerable<T2> centerList, string prevField, string nextField, IEnumerable<T3> mapList, string mapField) where T : class where T2 : class where T3 : class
+        private static void MapManyToManyDynamic<T, T2>(this IEnumerable<T> list, string field, string propertyName, IEnumerable<T2> centerList, string prevField, string nextField, IEnumerable<dynamic> mapList, string mapField) where T : class where T2 : class
         {
             if (list == null || list.Count() == 0)
                 return;
@@ -156,53 +136,74 @@ namespace Dapper.Sharding
                 var ids = centerqueryable.Where($"{prevField}=@0", id).Select(nextField);
                 if (ids.Any())
                 {
-                    accessor[item, propertyName] = queryable.Where($"@0.Contains({mapField})", ids).ToList();
+                    var first = ids.FirstOrDefault();
+                    if (first is int)
+                    {
+                        accessor[item, propertyName] = queryable.Where($"@0.Contains(ExtUtils.Int({mapField}))", ids).ToList();
+                    }
+                    else if (first is long)
+                    {
+                        accessor[item, propertyName] = queryable.Where($"@0.Contains(ExtUtils.Long({mapField}))", ids).ToList();
+                    }
+                    else if (first is decimal)
+                    {
+                        accessor[item, propertyName] = queryable.Where($"@0.Contains(ExtUtils.Decimal({mapField}))", ids).ToList();
+                    }
+                    else if (first is string)
+                    {
+                        accessor[item, propertyName] = queryable.Where($"@0.Contains(ExtUtils.String({mapField}))", ids).ToList();
+                    }
+                    else
+                    {
+                        var idss = ids.Select("new(it.ToString())");
+                        accessor[item, propertyName] = queryable.Where($"@0.Contains({mapField}.ToString())", idss).ToList();
+                    }
+
                 }
+
             }
         }
 
         #endregion
 
-        //=============table map=====================//
-
         #region IEnumerable map oneToOne oneToMany
 
-        private static IEnumerable<T2> Com<T, T2>(IEnumerable<T> list, string field, ITable<T2> table, string mapField, string returnFields = null) where T : class where T2 : class
+        private static IEnumerable<dynamic> Com<T, T2>(IEnumerable<T> list, string field, ITable<T2> table, string mapField, string returnFields = null) where T : class where T2 : class
         {
             if (list == null || list.Count() == 0)
-                return Enumerable.Empty<T2>();
+                return Enumerable.Empty<dynamic>();
             var ids = list.AsQueryable().Where($"{field}!=null").Select(field).Distinct();
             var idsCount = ids.Count();
             if (idsCount == 0)
             {
-                return Enumerable.Empty<T2>();
+                return Enumerable.Empty<dynamic>();
             }
             var first = ids.First();
             Type t = first.GetType();
-            IEnumerable<T2> data;
+            IEnumerable<dynamic> data;
             if (mapField.ToLower() == table.SqlField.PrimaryKey.ToLower())
             {
                 if (idsCount > 1)
                 {
                     if (t == typeof(long))
                     {
-                        data = table.GetByIds(ids.OfType<long>().ToList(), returnFields);
+                        data = table.GetByIdsDynamic(ids.OfType<long>().ToList(), returnFields);
                     }
                     else if (t == typeof(string))
                     {
-                        data = table.GetByIds(ids.OfType<string>().ToList(), returnFields);
+                        data = table.GetByIdsDynamic(ids.OfType<string>().ToList(), returnFields);
                     }
                     else if (t == typeof(int))
                     {
-                        data = table.GetByIds(ids.OfType<int>().ToList(), returnFields);
+                        data = table.GetByIdsDynamic(ids.OfType<int>().ToList(), returnFields);
                     }
                     else if (t == typeof(decimal))
                     {
-                        data = table.GetByIds(ids.OfType<decimal>().ToList(), returnFields);
+                        data = table.GetByIdsDynamic(ids.OfType<decimal>().ToList(), returnFields);
                     }
                     else
                     {
-                        data = table.GetByIds(ids.ToDynamicList(), returnFields);
+                        data = table.GetByIdsDynamic(ids.ToDynamicList(), returnFields);
                     }
 
                 }
@@ -210,23 +211,23 @@ namespace Dapper.Sharding
                 {
                     if (t == typeof(long))
                     {
-                        data = new List<T2> { table.GetById((long)first, returnFields) };
+                        data = new List<dynamic> { table.GetByIdDynamic((long)first, returnFields) };
                     }
                     else if (t == typeof(string))
                     {
-                        data = new List<T2> { table.GetById((string)first, returnFields) };
+                        data = new List<dynamic> { table.GetByIdDynamic((string)first, returnFields) };
                     }
                     else if (t == typeof(int))
                     {
-                        data = new List<T2> { table.GetById((int)first, returnFields) };
+                        data = new List<dynamic> { table.GetByIdDynamic((int)first, returnFields) };
                     }
                     else if (t == typeof(decimal))
                     {
-                        data = new List<T2> { table.GetById((decimal)first, returnFields) };
+                        data = new List<dynamic> { table.GetByIdDynamic((decimal)first, returnFields) };
                     }
                     else
                     {
-                        data = new List<T2> { table.GetById(first, returnFields) };
+                        data = new List<dynamic> { table.GetByIdDynamic(first, returnFields) };
                     }
 
                 }
@@ -238,23 +239,23 @@ namespace Dapper.Sharding
                 {
                     if (t == typeof(long))
                     {
-                        data = table.GetByIdsWithField(ids.OfType<long>().ToList(), mapField, returnFields);
+                        data = table.GetByIdsWithFieldDynamic(ids.OfType<long>().ToList(), mapField, returnFields);
                     }
                     else if (t == typeof(string))
                     {
-                        data = table.GetByIdsWithField(ids.OfType<string>().ToList(), mapField, returnFields);
+                        data = table.GetByIdsWithFieldDynamic(ids.OfType<string>().ToList(), mapField, returnFields);
                     }
                     else if (t == typeof(int))
                     {
-                        data = table.GetByIdsWithField(ids.OfType<int>().ToList(), mapField, returnFields);
+                        data = table.GetByIdsWithFieldDynamic(ids.OfType<int>().ToList(), mapField, returnFields);
                     }
                     else if (t == typeof(decimal))
                     {
-                        data = table.GetByIdsWithField(ids.OfType<decimal>().ToList(), mapField, returnFields);
+                        data = table.GetByIdsWithFieldDynamic(ids.OfType<decimal>().ToList(), mapField, returnFields);
                     }
                     else
                     {
-                        data = table.GetByIdsWithField(ids.ToDynamicList(), mapField, returnFields);
+                        data = table.GetByIdsWithFieldDynamic(ids.ToDynamicList(), mapField, returnFields);
                     }
 
                 }
@@ -262,23 +263,23 @@ namespace Dapper.Sharding
                 {
                     if (t == typeof(long))
                     {
-                        data = table.GetByWhere($"WHERE {mapField}=@id", new { id = (long)first }, returnFields);
+                        data = table.GetByWhereDynamic($"WHERE {mapField}=@id", new { id = (long)first }, returnFields);
                     }
                     else if (t == typeof(string))
                     {
-                        data = table.GetByWhere($"WHERE {mapField}=@id", new { id = (string)first }, returnFields);
+                        data = table.GetByWhereDynamic($"WHERE {mapField}=@id", new { id = (string)first }, returnFields);
                     }
                     else if (t == typeof(int))
                     {
-                        data = table.GetByWhere($"WHERE {mapField}=@id", new { id = (int)first }, returnFields);
+                        data = table.GetByWhereDynamic($"WHERE {mapField}=@id", new { id = (int)first }, returnFields);
                     }
                     else if (t == typeof(decimal))
                     {
-                        data = table.GetByWhere($"WHERE {mapField}=@id", new { id = (decimal)first }, returnFields);
+                        data = table.GetByWhereDynamic($"WHERE {mapField}=@id", new { id = (decimal)first }, returnFields);
                     }
                     else
                     {
-                        data = table.GetByWhere($"WHERE {mapField}=@id", new { id = first }, returnFields);
+                        data = table.GetByWhereDynamic($"WHERE {mapField}=@id", new { id = first }, returnFields);
                     }
 
                 }
@@ -287,19 +288,19 @@ namespace Dapper.Sharding
             return data;
         }
 
-        public static void MapTableOneToOne<T, T2>(this IEnumerable<T> list, string field, string propertyName, ITable<T2> table, string mapField, string returnFields = null) where T : class where T2 : class
+        public static void MapTableOneToOneDynamic<T, T2>(this IEnumerable<T> list, string field, string propertyName, ITable<T2> table, string mapField, string returnFields = null) where T : class where T2 : class
         {
             var data = Com(list, field, table, mapField, returnFields);
-            list.MapOneToOne(field, propertyName, data, mapField);
+            list.MapOneToOneDynamic(field, propertyName, data, mapField);
         }
 
-        public static void MapTableOneToMany<T, T2>(this IEnumerable<T> list, string field, string propertyName, ITable<T2> table, string mapField, string returnFields = null) where T : class where T2 : class
+        public static void MapTableOneToManyDynamic<T, T2>(this IEnumerable<T> list, string field, string propertyName, ITable<T2> table, string mapField, string returnFields = null) where T : class where T2 : class
         {
             var data = Com(list, field, table, mapField, returnFields);
-            list.MapOneToMany(field, propertyName, data, mapField);
+            list.MapOneToManyDynamic(field, propertyName, data, mapField);
         }
 
-        public static void MapTableOneToMany<T, T2>(this IEnumerable<T> list, string field, string propertyName, ITable<T2> table, string mapField, string returnFields, string and, DynamicParameters par = null, string orderby = null) where T : class where T2 : class
+        public static void MapTableOneToManyDynamic<T, T2>(this IEnumerable<T> list, string field, string propertyName, ITable<T2> table, string mapField, string returnFields, string and, DynamicParameters par = null, string orderby = null) where T : class where T2 : class
         {
             if (list == null || list.Count() == 0)
                 return;
@@ -341,15 +342,15 @@ namespace Dapper.Sharding
             {
                 where = $"WHERE {mapField} IN @ids {and}";
             }
-            var data = table.GetByWhere(where, par, returnFields, orderby);
-            list.MapOneToMany(field, propertyName, data, mapField);
+            var data = table.GetByWhereDynamic(where, par, returnFields, orderby);
+            list.MapOneToManyDynamic(field, propertyName, data, mapField);
         }
 
         #endregion
 
         #region IEnumerable map many to many
 
-        public static void MapTableManyToMany<T, T2, T3>(this IEnumerable<T> list, string field, string propertyName, ITable<T2> centerTable, string prevField, string nextField, ITable<T3> mapTable, string mapField, string returnFields = null) where T : class where T2 : class where T3 : class
+        public static void MapTableManyToManyDynamic<T, T2, T3>(this IEnumerable<T> list, string field, string propertyName, ITable<T2> centerTable, string prevField, string nextField, ITable<T3> mapTable, string mapField, string returnFields = null) where T : class where T2 : class where T3 : class
         {
             if (list == null || list.Count() == 0)
                 return;
@@ -414,7 +415,7 @@ namespace Dapper.Sharding
 
             var ids2 = data.AsQueryable().Where($"{nextField}!=null").Select(nextField).Distinct();
             var ids2Count = ids2.Count();
-            IEnumerable<T3> data2;
+            IEnumerable<dynamic> data2;
             if (ids2Count > 0)
             {
                 var first2 = ids2.First();
@@ -425,23 +426,23 @@ namespace Dapper.Sharding
                     {
                         if (t2 == typeof(long))
                         {
-                            data2 = mapTable.GetByIds(ids2.OfType<long>().ToList(), returnFields);
+                            data2 = mapTable.GetByIdsDynamic(ids2.OfType<long>().ToList(), returnFields);
                         }
                         else if (t2 == typeof(string))
                         {
-                            data2 = mapTable.GetByIds(ids2.OfType<string>().ToList(), returnFields);
+                            data2 = mapTable.GetByIdsDynamic(ids2.OfType<string>().ToList(), returnFields);
                         }
                         else if (t2 == typeof(int))
                         {
-                            data2 = mapTable.GetByIds(ids2.OfType<int>().ToList(), returnFields);
+                            data2 = mapTable.GetByIdsDynamic(ids2.OfType<int>().ToList(), returnFields);
                         }
                         else if (t2 == typeof(decimal))
                         {
-                            data2 = mapTable.GetByIds(ids2.OfType<decimal>().ToList(), returnFields);
+                            data2 = mapTable.GetByIdsDynamic(ids2.OfType<decimal>().ToList(), returnFields);
                         }
                         else
                         {
-                            data2 = mapTable.GetByIds(ids2.ToDynamicList(), returnFields);
+                            data2 = mapTable.GetByIdsDynamic(ids2.ToDynamicList(), returnFields);
                         }
 
                     }
@@ -449,23 +450,23 @@ namespace Dapper.Sharding
                     {
                         if (t2 == typeof(long))
                         {
-                            data2 = new List<T3> { mapTable.GetById((long)first2, returnFields) };
+                            data2 = new List<T3> { mapTable.GetByIdDynamic((long)first2, returnFields) };
                         }
                         else if (t2 == typeof(string))
                         {
-                            data2 = new List<T3> { mapTable.GetById((string)first2, returnFields) };
+                            data2 = new List<T3> { mapTable.GetByIdDynamic((string)first2, returnFields) };
                         }
                         else if (t2 == typeof(int))
                         {
-                            data2 = new List<T3> { mapTable.GetById((int)first2, returnFields) };
+                            data2 = new List<T3> { mapTable.GetByIdDynamic((int)first2, returnFields) };
                         }
                         else if (t2 == typeof(decimal))
                         {
-                            data2 = new List<T3> { mapTable.GetById((decimal)first2, returnFields) };
+                            data2 = new List<T3> { mapTable.GetByIdDynamic((decimal)first2, returnFields) };
                         }
                         else
                         {
-                            data2 = new List<T3> { mapTable.GetById(first2, returnFields) };
+                            data2 = new List<T3> { mapTable.GetByIdDynamic(first2, returnFields) };
                         }
 
                     }
@@ -476,23 +477,23 @@ namespace Dapper.Sharding
                     {
                         if (t2 == typeof(long))
                         {
-                            data2 = mapTable.GetByIdsWithField(ids2.OfType<long>().ToList(), mapField, returnFields);
+                            data2 = mapTable.GetByIdsWithFieldDynamic(ids2.OfType<long>().ToList(), mapField, returnFields);
                         }
                         else if (t2 == typeof(string))
                         {
-                            data2 = mapTable.GetByIdsWithField(ids2.OfType<string>().ToList(), mapField, returnFields);
+                            data2 = mapTable.GetByIdsWithFieldDynamic(ids2.OfType<string>().ToList(), mapField, returnFields);
                         }
                         else if (t2 == typeof(int))
                         {
-                            data2 = mapTable.GetByIdsWithField(ids2.OfType<int>().ToList(), mapField, returnFields);
+                            data2 = mapTable.GetByIdsWithFieldDynamic(ids2.OfType<int>().ToList(), mapField, returnFields);
                         }
                         else if (t2 == typeof(decimal))
                         {
-                            data2 = mapTable.GetByIdsWithField(ids2.OfType<decimal>().ToList(), mapField, returnFields);
+                            data2 = mapTable.GetByIdsWithFieldDynamic(ids2.OfType<decimal>().ToList(), mapField, returnFields);
                         }
                         else
                         {
-                            data2 = mapTable.GetByIdsWithField(ids2.ToDynamicList(), mapField, returnFields);
+                            data2 = mapTable.GetByIdsWithFieldDynamic(ids2.ToDynamicList(), mapField, returnFields);
                         }
 
                     }
@@ -500,23 +501,23 @@ namespace Dapper.Sharding
                     {
                         if (t2 == typeof(long))
                         {
-                            data2 = mapTable.GetByWhere($"WHERE {mapField}=@id", new { id = (long)first2 }, returnFields);
+                            data2 = mapTable.GetByWhereDynamic($"WHERE {mapField}=@id", new { id = (long)first2 }, returnFields);
                         }
                         else if (t2 == typeof(string))
                         {
-                            data2 = mapTable.GetByWhere($"WHERE {mapField}=@id", new { id = (string)first2 }, returnFields);
+                            data2 = mapTable.GetByWhereDynamic($"WHERE {mapField}=@id", new { id = (string)first2 }, returnFields);
                         }
                         else if (t2 == typeof(int))
                         {
-                            data2 = mapTable.GetByWhere($"WHERE {mapField}=@id", new { id = (int)first2 }, returnFields);
+                            data2 = mapTable.GetByWhereDynamic($"WHERE {mapField}=@id", new { id = (int)first2 }, returnFields);
                         }
                         else if (t2 == typeof(decimal))
                         {
-                            data2 = mapTable.GetByWhere($"WHERE {mapField}=@id", new { id = (decimal)first2 }, returnFields);
+                            data2 = mapTable.GetByWhereDynamic($"WHERE {mapField}=@id", new { id = (decimal)first2 }, returnFields);
                         }
                         else
                         {
-                            data2 = mapTable.GetByWhere($"WHERE {mapField}=@id", new { id = first2 }, returnFields);
+                            data2 = mapTable.GetByWhereDynamic($"WHERE {mapField}=@id", new { id = first2 }, returnFields);
                         }
 
                     }
@@ -524,15 +525,14 @@ namespace Dapper.Sharding
             }
             else
             {
-                data2 = Enumerable.Empty<T3>();
+                data2 = Enumerable.Empty<dynamic>();
             }
 
-
-            list.MapManyToMany(field, propertyName, data, prevField, nextField, data2, mapField);
+            list.MapManyToManyDynamic(field, propertyName, data, prevField, nextField, data2, mapField);
 
         }
 
-        public static void MapTableManyToMany<T, T2, T3>(this IEnumerable<T> list, string field, string propertyName, ITable<T2> centerTable, string prevField, string nextField, ITable<T3> mapTable, string mapField, string returnFields, string and, DynamicParameters par = null, string orderby = null) where T : class where T2 : class where T3 : class
+        public static void MapTableManyToManyDynamic<T, T2, T3>(this IEnumerable<T> list, string field, string propertyName, ITable<T2> centerTable, string prevField, string nextField, ITable<T3> mapTable, string mapField, string returnFields, string and, DynamicParameters par = null, string orderby = null) where T : class where T2 : class where T3 : class
         {
             if (list == null || list.Count() == 0)
                 return;
@@ -596,7 +596,7 @@ namespace Dapper.Sharding
 
             var ids2 = data.AsQueryable().Where($"{nextField}!=null").Select(nextField).Distinct();
             var ids2Count = ids2.Count();
-            IEnumerable<T3> data2;
+            IEnumerable<dynamic> data2;
             if (ids2Count > 0)
             {
                 Type t2 = ids2.First().GetType();
@@ -633,7 +633,7 @@ namespace Dapper.Sharding
                 {
                     where = $"WHERE {mapField} IN @ids {and}";
                 }
-                data2 = mapTable.GetByWhere(where, par, returnFields, orderby);
+                data2 = mapTable.GetByWhereDynamic(where, par, returnFields, orderby);
             }
             else
             {
@@ -649,31 +649,30 @@ namespace Dapper.Sharding
 
         #region ITable<T> map many to many
 
-        public static IEnumerable<T> MapCenterTable<T, T2>(this ITable<T> table, ITable<T2> centerTable, string prevField, string nextField, object id, string returnFields = null) where T : class where T2 : class
+        public static IEnumerable<dynamic> MapCenterTableDynamic<T, T2>(this ITable<T> table, ITable<T2> centerTable, string prevField, string nextField, object id, string returnFields = null) where T : class where T2 : class
         {
             var where = $"AS A WHERE EXISTS(SELECT 1 FROM {centerTable.Name} WHERE {prevField}=A.{table.SqlField.PrimaryKey} AND {nextField}=@id)";
-            return table.GetByWhere(where, new { id }, returnFields);
+            return table.GetByWhereDynamic(where, new { id }, returnFields);
         }
 
-        public static IEnumerable<T> MapCenterTable<T, T2>(this ITable<T> table, ITable<T2> centerTable, string prevField, string nextField, object id, string returnFields, string and, DynamicParameters par = null, string orderby = null, int limit = 0) where T : class where T2 : class
+        public static IEnumerable<dynamic> MapCenterTableDynamic<T, T2>(this ITable<T> table, ITable<T2> centerTable, string prevField, string nextField, object id, string returnFields, string and, DynamicParameters par = null, string orderby = null, int limit = 0) where T : class where T2 : class
         {
             if (par == null)
                 par = new DynamicParameters();
             par.Add("@nextidddd", id);
             var where = $"AS A WHERE EXISTS(SELECT 1 FROM {centerTable.Name} WHERE {prevField}=A.{table.SqlField.PrimaryKey} AND {nextField}=@nextidddd) {and}";
-            return table.GetByWhere(where, par, returnFields, orderby, limit);
+            return table.GetByWhereDynamic(where, par, returnFields, orderby, limit);
         }
 
-        public static PageEntity<T> MapCenterTable<T, T2>(this ITable<T> table, ITable<T2> centerTable, string prevField, string nextField, object id, string returnFields, int page, int pageSize, string and = null, DynamicParameters par = null, string orderby = null) where T : class where T2 : class
+        public static PageEntity<dynamic> MapCenterTableDynamic<T, T2>(this ITable<T> table, ITable<T2> centerTable, string prevField, string nextField, object id, string returnFields, int page, int pageSize, string and = null, DynamicParameters par = null, string orderby = null) where T : class where T2 : class
         {
             if (par == null)
                 par = new DynamicParameters();
             par.Add("@nextidddd", id);
             var where = $"AS A WHERE EXISTS(SELECT 1 FROM {centerTable.Name} WHERE {prevField}=A.{table.SqlField.PrimaryKey} AND {nextField}=@nextidddd) {and}";
-            return table.GetByPageAndCount(page, pageSize, where, par, returnFields, orderby);
+            return table.GetByPageAndCountDynamic(page, pageSize, where, par, returnFields, orderby);
         }
 
         #endregion
-
     }
 }
