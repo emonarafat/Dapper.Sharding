@@ -114,7 +114,7 @@ namespace Dapper.Sharding
                 {
                     continue;
                 }
-                accessor[item, propertyName] = queryable.FirstOrDefault($"{mapField}=@0", id);
+                accessor[item, propertyName] = queryable.FirstOrDefault(mapField + "=@0", id);
             }
         }
 
@@ -133,7 +133,7 @@ namespace Dapper.Sharding
                 {
                     continue;
                 }
-                accessor[item, propertyName] = queryable.Where($"{mapField}=@0", id).ToList();
+                accessor[item, propertyName] = queryable.Where(mapField + "=@0", id).ToList();
             }
         }
 
@@ -154,28 +154,23 @@ namespace Dapper.Sharding
                     continue;
                 }
                 var ids = centerqueryable.Where($"{prevField}=@0", id).Select(nextField);
-                if (ids.Any())
-                {
-                    accessor[item, propertyName] = queryable.Where($"@0.Contains({mapField})", ids).ToList();
-                }
+                accessor[item, propertyName] = queryable.Where($"@0.Contains({mapField})", ids).ToList();
             }
         }
 
         #endregion
 
-        //=============table map=====================//
-
         #region IEnumerable map oneToOne oneToMany
 
-        private static IEnumerable<T2> Com<T, T2>(IEnumerable<T> list, string field, ITable<T2> table, string mapField, string returnFields = null) where T : class where T2 : class
+        public static void MapTableOneToOne<T, T2>(this IEnumerable<T> list, string field, string propertyName, ITable<T2> table, string mapField, string returnFields = null) where T : class where T2 : class
         {
             if (list == null || list.Count() == 0)
-                return Enumerable.Empty<T2>();
+                return;
             var ids = list.AsQueryable().Where($"{field}!=null").Select(field).Distinct();
             var idsCount = ids.Count();
             if (idsCount == 0)
             {
-                return Enumerable.Empty<T2>();
+                return;
             }
             var first = ids.First();
             Type t = first.GetType();
@@ -284,18 +279,127 @@ namespace Dapper.Sharding
                 }
 
             }
-            return data;
-        }
-
-        public static void MapTableOneToOne<T, T2>(this IEnumerable<T> list, string field, string propertyName, ITable<T2> table, string mapField, string returnFields = null) where T : class where T2 : class
-        {
-            var data = Com(list, field, table, mapField, returnFields);
             list.MapOneToOne(field, propertyName, data, mapField);
         }
 
         public static void MapTableOneToMany<T, T2>(this IEnumerable<T> list, string field, string propertyName, ITable<T2> table, string mapField, string returnFields = null) where T : class where T2 : class
         {
-            var data = Com(list, field, table, mapField, returnFields);
+            if (list == null || list.Count() == 0)
+                return;
+            var ids = list.AsQueryable().Where($"{field}!=null").Select(field).Distinct();
+            var idsCount = ids.Count();
+            if (idsCount == 0)
+            {
+                return;
+            }
+            var first = ids.First();
+            Type t = first.GetType();
+            IEnumerable<T2> data;
+            if (mapField.ToLower() == table.SqlField.PrimaryKey.ToLower())
+            {
+                if (idsCount > 1)
+                {
+                    if (t == typeof(long))
+                    {
+                        data = table.GetByIds(ids.OfType<long>().ToList(), returnFields);
+                    }
+                    else if (t == typeof(string))
+                    {
+                        data = table.GetByIds(ids.OfType<string>().ToList(), returnFields);
+                    }
+                    else if (t == typeof(int))
+                    {
+                        data = table.GetByIds(ids.OfType<int>().ToList(), returnFields);
+                    }
+                    else if (t == typeof(decimal))
+                    {
+                        data = table.GetByIds(ids.OfType<decimal>().ToList(), returnFields);
+                    }
+                    else
+                    {
+                        data = table.GetByIds(ids.ToDynamicList(), returnFields);
+                    }
+
+                }
+                else
+                {
+                    if (t == typeof(long))
+                    {
+                        data = new List<T2> { table.GetById((long)first, returnFields) };
+                    }
+                    else if (t == typeof(string))
+                    {
+                        data = new List<T2> { table.GetById((string)first, returnFields) };
+                    }
+                    else if (t == typeof(int))
+                    {
+                        data = new List<T2> { table.GetById((int)first, returnFields) };
+
+                    }
+                    else if (t == typeof(decimal))
+                    {
+                        data = new List<T2> { table.GetById((decimal)first, returnFields) };
+                    }
+                    else
+                    {
+                        data = new List<T2> { table.GetById(first, returnFields) };
+                    }
+
+                }
+
+            }
+            else
+            {
+                if (idsCount > 1)
+                {
+                    if (t == typeof(long))
+                    {
+                        data = table.GetByIdsWithField(ids.OfType<long>().ToList(), mapField, returnFields);
+                    }
+                    else if (t == typeof(string))
+                    {
+                        data = table.GetByIdsWithField(ids.OfType<string>().ToList(), mapField, returnFields);
+                    }
+                    else if (t == typeof(int))
+                    {
+                        data = table.GetByIdsWithField(ids.OfType<int>().ToList(), mapField, returnFields);
+                    }
+                    else if (t == typeof(decimal))
+                    {
+                        data = table.GetByIdsWithField(ids.OfType<decimal>().ToList(), mapField, returnFields);
+                    }
+                    else
+                    {
+                        data = table.GetByIdsWithField(ids, mapField, returnFields);
+                    }
+
+                }
+                else
+                {
+                    if (t == typeof(long))
+                    {
+                        data = table.GetByWhere($"WHERE {mapField}=@id", new { id = (long)first }, returnFields);
+                    }
+                    else if (t == typeof(string))
+                    {
+                        data = table.GetByWhere($"WHERE {mapField}=@id", new { id = (string)first }, returnFields);
+                    }
+                    else if (t == typeof(int))
+                    {
+                        data = table.GetByWhere($"WHERE {mapField}=@id", new { id = (int)first }, returnFields);
+                    }
+                    else if (t == typeof(decimal))
+                    {
+                        data = table.GetByWhere($"WHERE {mapField}=@id", new { id = (decimal)first }, returnFields);
+                    }
+                    else
+                    {
+                        data = table.GetByWhere($"WHERE {mapField}=@id", new { id = first }, returnFields);
+                    }
+
+                }
+
+            }
             list.MapOneToMany(field, propertyName, data, mapField);
         }
 
@@ -674,6 +778,5 @@ namespace Dapper.Sharding
         }
 
         #endregion
-
     }
 }
