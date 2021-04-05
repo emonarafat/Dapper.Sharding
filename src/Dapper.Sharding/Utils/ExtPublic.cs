@@ -254,7 +254,7 @@ namespace Dapper.Sharding
 
         #region IEnumerable map oneToOne oneToMany
 
-        private static IEnumerable<T2> Com<T, T2>(this IEnumerable<T> list, string field, string propertyName, ITable<T2> table, string mapField, string returnFields = null) where T : class where T2 : class
+        private static IEnumerable<T2> Com<T, T2>(this IEnumerable<T> list, string field, ITable<T2> table, string mapField, string returnFields = null) where T : class where T2 : class
         {
             if (list == null || list.Count() == 0)
                 return Enumerable.Empty<T2>();
@@ -373,13 +373,13 @@ namespace Dapper.Sharding
 
         public static void TableOneToOne<T, T2>(this IEnumerable<T> list, string field, string propertyName, ITable<T2> table, string mapField, string returnFields = null) where T : class where T2 : class
         {
-            var data = Com(list, field, propertyName, table, mapField, returnFields);
+            var data = Com(list, field, table, mapField, returnFields);
             list.ListOneToOne(field, propertyName, data, mapField);
         }
 
         public static void TableOneToMany<T, T2>(this IEnumerable<T> list, string field, string propertyName, ITable<T2> table, string mapField, string returnFields = null) where T : class where T2 : class
         {
-            var data = Com(list, field, propertyName, table, mapField, returnFields);
+            var data = Com(list, field, table, mapField, returnFields);
             list.ListOneToMany(field, propertyName, data, mapField);
         }
 
@@ -475,23 +475,23 @@ namespace Dapper.Sharding
                 {
                     if (t == typeof(long))
                     {
-                        data = new List<T2> { table.GetByIdDynamic((long)first, returnFields) };
+                        data = new List<dynamic> { table.GetByIdDynamic((long)first, returnFields) };
                     }
                     else if (t == typeof(string))
                     {
-                        data = new List<T2> { table.GetByIdDynamic((string)first, returnFields) };
+                        data = new List<dynamic> { table.GetByIdDynamic((string)first, returnFields) };
                     }
                     else if (t == typeof(int))
                     {
-                        data = new List<T2> { table.GetByIdDynamic((int)first, returnFields) };
+                        data = new List<dynamic> { table.GetByIdDynamic((int)first, returnFields) };
                     }
                     else if (t == typeof(decimal))
                     {
-                        data = new List<T2> { table.GetByIdDynamic((decimal)first, returnFields) };
+                        data = new List<dynamic> { table.GetByIdDynamic((decimal)first, returnFields) };
                     }
                     else
                     {
-                        data = new List<T2> { table.GetByIdDynamic(first, returnFields) };
+                        data = new List<dynamic> { table.GetByIdDynamic(first, returnFields) };
                     }
 
                 }
