@@ -47,6 +47,7 @@ namespace Dapper.Sharding
                 {
                     column.Comment = colAttr.Comment;
                     column.DbType = CsharpTypeToDbType.Create(dbType, column.CsType, colAttr.Length);
+                    column.Length = colAttr.Length;
                 }
                 entity.ColumnList.Add(column);
             }
