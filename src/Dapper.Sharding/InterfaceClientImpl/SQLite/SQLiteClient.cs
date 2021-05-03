@@ -33,7 +33,7 @@ namespace Dapper.Sharding
             return new SQLiteDatabase(name, this);
         }
 
-        public override IDatabase GetDatabase(string name)
+        public override IDatabase GetDatabase(string name, bool useGis = false, string gisExt = null)
         {
             var lowerName = name.ToLower();
             if (!DataBaseCache.ContainsKey(lowerName))
@@ -62,7 +62,7 @@ namespace Dapper.Sharding
             throw new NotImplementedException();
         }
 
-        public override void CreateDatabase(string name)
+        public override void CreateDatabase(string name, bool useGis = false, string gisExt = null)
         {
             var fileName = GetFileName(name);
             if (!File.Exists(fileName))

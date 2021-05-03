@@ -21,23 +21,7 @@ namespace Dapper.Sharding
             StringBuilder sb = new StringBuilder();
             foreach (var item in fieldList)
             {
-                sb.AppendFormat("{0}{1}{2}", leftChar, item, rightChar);
-
-                if (item != fieldList.Last())
-                {
-                    sb.Append(",");
-                }
-            }
-
-            return sb.ToString();
-        }
-
-        public static string GetFieldsStr(string[] fieldList, string leftChar, string rightChar)
-        {
-            StringBuilder sb = new StringBuilder();
-            foreach (var item in fieldList)
-            {
-                sb.AppendFormat("{0}{1}{2}", leftChar, item, rightChar);
+                sb.Append($"{leftChar}{item}{rightChar}");
 
                 if (item != fieldList.Last())
                 {
@@ -53,12 +37,30 @@ namespace Dapper.Sharding
         /// </summary>
         /// <param name="fieldList"></param>
         /// <returns></returns>
-        public static string GetFieldsAtStr(IEnumerable<string> fieldList, string symbol = "@") //oracle @换成 
+        public static string GetFieldsAtStr(IEnumerable<string> fieldList, string symbol = "@", SqlFieldEntity entity = null) //oracle @换成 
         {
             StringBuilder sb = new StringBuilder();
             foreach (var item in fieldList)
             {
-                sb.AppendFormat("{0}{1}", symbol, item);
+                if (entity != null && entity.OtherFieldDict.Count > 0)
+                {
+                    var ok = entity.OtherFieldDict.TryGetValue(item, out var dict);
+                    if (ok)
+                    {
+                        if (dict == -10)
+                        {
+                            sb.Append($"{symbol}{item}::jsonb");
+                        }
+                        else if (dict == -11)
+                        {
+                            sb.Append($"{symbol}{item}::json");
+                        }
+                    }
+                }
+                else
+                {
+                    sb.Append($"{symbol}{item}");
+                }
 
                 if (item != fieldList.Last())
                 {
@@ -68,20 +70,6 @@ namespace Dapper.Sharding
             return sb.ToString();
         }
 
-        public static string GetFieldsAtStr(string[] fieldList, string symbol = "@") //oracle @换成 
-        {
-            StringBuilder sb = new StringBuilder();
-            foreach (var item in fieldList)
-            {
-                sb.AppendFormat("{0}{1}", symbol, item);
-
-                if (item != fieldList.Last())
-                {
-                    sb.Append(",");
-                }
-            }
-            return sb.ToString();
-        }
 
         /// <summary>
         /// 关键字处理[name] `name`
@@ -91,27 +79,31 @@ namespace Dapper.Sharding
         /// <param name="leftChar">左符号</param>
         /// <param name="rightChar">右符号</param>
         /// <returns></returns>
-        public static string GetFieldsAtEqStr(IEnumerable<string> fieldList, string leftChar, string rightChar, string symbol = "@") //oracle @换成 
+        public static string GetFieldsAtEqStr(IEnumerable<string> fieldList, string leftChar, string rightChar, string symbol = "@", SqlFieldEntity entity = null) //oracle @换成 
         {
             StringBuilder sb = new StringBuilder();
             foreach (var item in fieldList)
             {
-                sb.AppendFormat("{0}{1}{2}={3}{1}", leftChar, item, rightChar, symbol);
 
-                if (item != fieldList.Last())
+                if (entity != null && entity.OtherFieldDict.Count > 0)
                 {
-                    sb.Append(",");
+                    var ok = entity.OtherFieldDict.TryGetValue(item, out var dict);
+                    if (ok)
+                    {
+                        if (dict == -10)
+                        {
+                            sb.Append($"{leftChar}{item}{rightChar}={symbol}{item}::jsonb");
+                        }
+                        else if (dict == -11)
+                        {
+                            sb.Append($"{leftChar}{item}{rightChar}={symbol}{item}::json");
+                        }
+                    }
                 }
-            }
-            return sb.ToString();
-        }
-
-        public static string GetFieldsAtEqStr(string[] fieldList, string leftChar, string rightChar, string symbol = "@") //oracle @换成 
-        {
-            StringBuilder sb = new StringBuilder();
-            foreach (var item in fieldList)
-            {
-                sb.AppendFormat("{0}{1}{2}={3}{1}", leftChar, item, rightChar, symbol);
+                else
+                {
+                    sb.Append($"{leftChar}{item}{rightChar}={symbol}{item}");
+                }
 
                 if (item != fieldList.Last())
                 {

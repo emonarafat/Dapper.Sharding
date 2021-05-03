@@ -10,6 +10,7 @@ namespace Dapper.Sharding
             var entity = new TableEntity();
             entity.ColumnList = new List<ColumnEntity>();
             entity.IndexList = new List<IndexEntity>();
+            entity.OtherColumnDict = new Dictionary<string, double>();
             entity.IgnoreColumnList = new List<string>();
             var t = typeof(T);
             var tableAttr = t.GetCustomAttributes(false).First(f => f is TableAttribute) as TableAttribute;
@@ -48,6 +49,10 @@ namespace Dapper.Sharding
                     column.Comment = colAttr.Comment;
                     column.DbType = CsharpTypeToDbType.Create(dbType, column.CsType, colAttr.Length);
                     column.Length = colAttr.Length;
+                    if (column.Length > -20 && column.Length <= -10)
+                    {
+                        entity.OtherColumnDict.Add(column.Name, column.Length);
+                    }
                 }
                 entity.ColumnList.Add(column);
             }

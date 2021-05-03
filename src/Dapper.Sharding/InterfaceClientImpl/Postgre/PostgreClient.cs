@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Data;
 using System.Linq;
+using System.Text;
 using System.Threading.Tasks;
 
 namespace Dapper.Sharding
@@ -25,11 +26,61 @@ namespace Dapper.Sharding
 
         #endregion
 
-        public override void CreateDatabase(string name)
+        public override void CreateDatabase(string name, bool useGis = false, string gisExt = null)
         {
             using (var conn = GetConn())
             {
-                conn.Execute($"CREATE DATABASE {name}");
+                if (!useGis)
+                {
+                    conn.Execute($"CREATE DATABASE {name}");
+                }
+                else
+                {
+                    if (string.IsNullOrEmpty(gisExt))
+                    {
+                        gisExt = "CREATE EXTENSION postgis";
+                    }
+                    else if (gisExt == "1")
+                    {
+                        var sb = new StringBuilder();
+                        sb.Append("CREATE EXTENSION postgis;");
+                        sb.Append("CREATE EXTENSION postgis_raster;");
+                        sb.Append("CREATE EXTENSION postgis_sfcgal;");
+                        sb.Append("CREATE EXTENSION postgis_topology;");
+                        gisExt = sb.ToString();
+                    }
+                    else if (gisExt == "2")
+                    {
+                        var sb = new StringBuilder();
+                        sb.Append("CREATE EXTENSION postgis;");
+                        sb.Append("CREATE EXTENSION postgis_raster;");
+                        sb.Append("CREATE EXTENSION postgis_sfcgal;");
+                        sb.Append("CREATE EXTENSION postgis_topology;");
+
+                        sb.Append("CREATE EXTENSION pgrouting;");
+                        sb.Append("CREATE EXTENSION ogr_fdw;");
+
+                        gisExt = sb.ToString();
+                    }
+                    else if (gisExt == "3")
+                    {
+                        var sb = new StringBuilder();
+                        sb.Append("CREATE EXTENSION postgis;");
+                        sb.Append("CREATE EXTENSION postgis_raster;");
+                        sb.Append("CREATE EXTENSION postgis_sfcgal;");
+                        sb.Append("CREATE EXTENSION postgis_topology;");
+
+                        sb.Append("CREATE EXTENSION ogr_fdw;");
+                        sb.Append("CREATE EXTENSION pgrouting;");
+
+                        sb.Append("CREATE EXTENSION address_standardizer;");
+                        sb.Append("CREATE EXTENSION address_standardizer_data_us;");
+                        sb.Append("CREATE EXTENSION fuzzystrmatch;");
+                        sb.Append("CREATE EXTENSION postgis_tiger_geocoder;");
+                        gisExt = sb.ToString();
+                    }
+                    conn.Execute($"CREATE DATABASE {name};USE {name};{gisExt}");
+                }
             }
         }
 

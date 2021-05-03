@@ -55,13 +55,13 @@ namespace Dapper.Sharding
             if (fields == null)
                 updatefields = SqlField.AllFieldsAtEqExceptKey;
             else
-                updatefields = CommonUtil.GetFieldsAtEqStr(fields, "", "");
+                updatefields = CommonUtil.GetFieldsAtEqStr(fields, "", "", entity: SqlField);
             return DpEntity.Execute($"UPDATE {Name} SET {updatefields} WHERE {SqlField.PrimaryKey}=@{SqlField.PrimaryKey}", model) > 0;
         }
 
         public override bool UpdateIgnore(T model, List<string> fields)
         {
-            string updateFields = CommonUtil.GetFieldsAtEqStr(SqlField.AllFieldExceptKeyList.Except(fields), "", "");
+            string updateFields = CommonUtil.GetFieldsAtEqStr(SqlField.AllFieldExceptKeyList.Except(fields), "", "", entity: SqlField);
             return DpEntity.Execute($"UPDATE {Name} SET {updateFields} WHERE {SqlField.PrimaryKey}=@{SqlField.PrimaryKey}", model) > 0;
         }
 
@@ -72,7 +72,7 @@ namespace Dapper.Sharding
             string updatefields;
             if (fields != null)
             {
-                updatefields = CommonUtil.GetFieldsAtEqStr(fields, "", "");
+                updatefields = CommonUtil.GetFieldsAtEqStr(fields, "", "", entity: SqlField);
             }
             else
             {
@@ -83,7 +83,7 @@ namespace Dapper.Sharding
 
         public override int UpdateByWhereIgnore(T model, string where, List<string> fields)
         {
-            string updatefields = CommonUtil.GetFieldsAtEqStr(SqlField.AllFieldExceptKeyList.Except(fields), "", "");
+            string updatefields = CommonUtil.GetFieldsAtEqStr(SqlField.AllFieldExceptKeyList.Except(fields), "", "", entity: SqlField);
             return DpEntity.Execute($"UPDATE {Name} SET {updatefields} {where}", model);
         }
 
@@ -92,7 +92,7 @@ namespace Dapper.Sharding
             string updatefields;
             if (fields != null)
             {
-                updatefields = CommonUtil.GetFieldsAtEqStr(fields, "", "");
+                updatefields = CommonUtil.GetFieldsAtEqStr(fields, "", "", entity: SqlField);
             }
             else
             {
@@ -414,7 +414,7 @@ namespace Dapper.Sharding
         public override dynamic GetByWhereFirstDynamic(string where, object param = null, string returnFields = null)
         {
             if (string.IsNullOrEmpty(returnFields))
-                returnFields = SqlField.AllFields; 
+                returnFields = SqlField.AllFields;
             if (returnFields.IndexOf(" AS ") == -1)
             {
                 returnFields = returnFields.AsPgsqlField();

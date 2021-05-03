@@ -38,7 +38,7 @@ namespace Dapper.Sharding
 
         #endregion
 
-        public override void CreateDatabase(string name)
+        public override void CreateDatabase(string name, bool useGis = false, string gisExt = null)
         {
             var upName = name.ToUpper();
             string dbpath;

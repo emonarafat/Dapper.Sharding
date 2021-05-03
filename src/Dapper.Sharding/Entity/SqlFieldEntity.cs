@@ -12,18 +12,20 @@ namespace Dapper.Sharding
             IsIdentity = entity.IsIdentity;
             PrimaryKeyType = entity.PrimaryKeyType;
 
+            IgnoreFieldList = entity.IgnoreColumnList;
+            OtherFieldDict = entity.OtherColumnDict;
+
             AllFieldList = entity.ColumnList.Select(s => s.Name);
             AllFieldExceptKeyList = AllFieldList.Where(w => w.ToLower() != entity.PrimaryKey.ToLower());
 
             AllFields = CommonUtil.GetFieldsStr(AllFieldList, leftChar, rightChart);
-            AllFieldsAt = CommonUtil.GetFieldsAtStr(AllFieldList, symbol);
-            AllFieldsAtEq = CommonUtil.GetFieldsAtEqStr(AllFieldList, leftChar, rightChart, symbol);
+            AllFieldsAt = CommonUtil.GetFieldsAtStr(AllFieldList, symbol, this);
+            AllFieldsAtEq = CommonUtil.GetFieldsAtEqStr(AllFieldList, leftChar, rightChart, symbol, this);
 
             AllFieldsExceptKey = CommonUtil.GetFieldsStr(AllFieldExceptKeyList, leftChar, rightChart);
-            AllFieldsAtExceptKey = CommonUtil.GetFieldsAtStr(AllFieldExceptKeyList, symbol);
-            AllFieldsAtEqExceptKey = CommonUtil.GetFieldsAtEqStr(AllFieldExceptKeyList, leftChar, rightChart, symbol);
+            AllFieldsAtExceptKey = CommonUtil.GetFieldsAtStr(AllFieldExceptKeyList, symbol, this);
+            AllFieldsAtEqExceptKey = CommonUtil.GetFieldsAtEqStr(AllFieldExceptKeyList, leftChar, rightChart, symbol, this);
 
-            IgnoreFieldList = entity.IgnoreColumnList;
         }
 
         public string PrimaryKey { get; }
@@ -36,7 +38,9 @@ namespace Dapper.Sharding
 
         public IEnumerable<string> AllFieldExceptKeyList { get; }
 
-        public IEnumerable<string> IgnoreFieldList { get; set; }
+        public IEnumerable<string> IgnoreFieldList { get; }
+
+        public Dictionary<string, double> OtherFieldDict { get; }
 
         //保留主键
         public string AllFields { get; }//所有列逗号分隔[name],[sex]

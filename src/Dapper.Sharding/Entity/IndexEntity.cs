@@ -19,6 +19,10 @@
                     case IndexType.Normal: return "IndexType.Normal";
                     case IndexType.FullText: return "IndexType.FullText";
                     case IndexType.Spatial: return "IndexType.Spatial";
+                    case IndexType.Gist: return "IndexType.Gist";
+                    case IndexType.JsonbGin: return "IndexType.JsonbGin";
+                    case IndexType.JsonbGinPath: return "IndexType.JsonbGinPath";
+                    case IndexType.JsonBtree: return "IndexType.JsonBtree";
                 }
                 return null;
             } 

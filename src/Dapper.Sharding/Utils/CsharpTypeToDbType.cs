@@ -264,8 +264,14 @@ namespace Dapper.Sharding
 
             if (type == typeof(string))
             {
-                if (length <= -1)
+                if (length == -1)
                     return "text";
+                if (length == -10)
+                    return "jsonb";
+                if (length == -11)
+                    return "json";
+                if (length == -20)
+                    return "geometry";
                 if (length == 0)
                     length = 50;
                 return $"varchar({length})";
