@@ -152,15 +152,34 @@ order by a.relname asc";
             sb.Append(");");
             foreach (var ix in tableEntity.IndexList)
             {
-                if (ix.Type == IndexType.Normal)
+                if (ix.Type == IndexType.Gist)
                 {
-                    sb.Append("CREATE INDEX");
+                    sb.Append($"CREATE INDEX {lowName}_{ix.Name} ON {lowName} USING GIST({ix.Columns})");
                 }
-                if (ix.Type == IndexType.Unique)
+                else if (ix.Type == IndexType.JsonbGin)
                 {
-                    sb.Append("CREATE UNIQUE INDEX");
+                    sb.Append($"CREATE INDEX {lowName}_{ix.Name} ON {lowName} USING GIN({ix.Columns})");
                 }
-                sb.Append($" {lowName}_{ix.Name} ON {lowName} ({ix.Columns})");
+                else if (ix.Type == IndexType.JsonbGinPath)
+                {
+                    sb.Append($"CREATE INDEX {lowName}_{ix.Name} ON {lowName} USING GIN({ix.Columns} JSONB_PATH_OPS)");
+                }
+                else if (ix.Type == IndexType.JsonBtree)
+                {
+                    sb.Append($"CREATE INDEX {lowName}_{ix.Name} ON {lowName} USING BTREE({ix.Columns})");
+                }
+                else
+                {
+                    if (ix.Type == IndexType.Normal)
+                    {
+                        sb.Append("CREATE INDEX");
+                    }
+                    if (ix.Type == IndexType.Unique)
+                    {
+                        sb.Append("CREATE UNIQUE INDEX");
+                    }
+                    sb.Append($" {lowName}_{ix.Name} ON {lowName} ({ix.Columns})");
+                }
                 if (ix != tableEntity.IndexList.Last())
                 {
                     sb.Append(";");

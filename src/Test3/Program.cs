@@ -23,7 +23,9 @@ namespace Test2
             //BB();
             //BB2();
             //CC();
-            CC2();
+            //CC2();
+            CC3();
+            Console.WriteLine("好了");
             Console.ReadKey();
         }
 
@@ -269,6 +271,19 @@ namespace Test2
             var data2 = table3.GetAll();
             data2.TableCenterToManyDynamic("Id", "_PrevList2", centerTable, "NextId", "FirstId", table1, "Id");
             Console.WriteLine(JsonSerializer.Serialize(data2, options));
+        }
+
+        static void CC3()
+        {
+            var table1 = Client.GetDatabase("testgist", true).GetTable<CCC>("aa");
+            var model = new CCC
+            {
+                a = "POINT(0 0)",
+                b="[]",
+                c="{}"
+            };
+
+            table1.Insert(model);
         }
     }
 }

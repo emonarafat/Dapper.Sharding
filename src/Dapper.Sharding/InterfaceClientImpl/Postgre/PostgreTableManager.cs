@@ -25,6 +25,10 @@ namespace Dapper.Sharding
             {
                 case IndexType.Normal: sql = $"CREATE INDEX {name} ON {Name} ({columns});"; break;
                 case IndexType.Unique: sql = $"CREATE UNIQUE INDEX {name} ON {Name} ({columns});"; break;
+                case IndexType.Gist: sql = $"CREATE INDEX {name} ON {Name} USING GIST({columns});"; break;
+                case IndexType.JsonbGin: sql = $"CREATE INDEX {name} ON {Name} USING GIN({columns});"; break;
+                case IndexType.JsonbGinPath: sql = $"CREATE INDEX {name} ON {Name} USING GIN({columns} JSONB_PATH_OPS);"; break;
+                case IndexType.JsonBtree: sql = $"CREATE INDEX {name} ON {Name} USING BTREE({columns});"; break;
             }
             DpEntity.Execute(sql);
         }
@@ -45,7 +49,8 @@ namespace Dapper.Sharding
             var sql1 = $@"SELECT
 A.INDEXNAME as name,
 C.INDISUNIQUE uni,
-C.INDISPRIMARY pri
+C.INDISPRIMARY pri,
+B.amname
 FROM
 PG_AM B
 LEFT JOIN PG_CLASS F ON B.OID = F.RELAM
@@ -100,7 +105,19 @@ order by
                     }
                     else
                     {
-                        model.Type = IndexType.Normal;
+                        if (msg.amname == "gin")
+                        {
+                            model.Type = IndexType.JsonbGin;
+                        }
+                        else if (msg.amname == "gist")
+                        {
+                            model.Type = IndexType.Gist;
+                        }
+                        else
+                        {
+                            model.Type = IndexType.Normal;
+                        }
+
                     }
                 }
                 list.Add(model);

@@ -56,6 +56,10 @@ namespace Dapper.Sharding
                             sb.Append($"{symbol}{item}::json");
                         }
                     }
+                    else
+                    {
+                        sb.Append($"{symbol}{item}");
+                    }
                 }
                 else
                 {
@@ -98,6 +102,10 @@ namespace Dapper.Sharding
                         {
                             sb.Append($"{leftChar}{item}{rightChar}={symbol}{item}::json");
                         }
+                    }
+                    else
+                    {
+                        sb.Append($"{leftChar}{item}{rightChar}={symbol}{item}");
                     }
                 }
                 else
