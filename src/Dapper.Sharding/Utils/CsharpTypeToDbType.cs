@@ -5,11 +5,11 @@ namespace Dapper.Sharding
     internal class CsharpTypeToDbType
     {
 
-        public static string Create(DataBaseType dbType,Type type, double length = 0)
+        public static string Create(DataBaseType dbType, Type type, double length = 0)
         {
             switch (dbType)
             {
-                case DataBaseType.MySql:return CreateMySqlType(type, length);
+                case DataBaseType.MySql: return CreateMySqlType(type, length);
                 case DataBaseType.Sqlite: return CreateSqliteType(type);
                 case DataBaseType.SqlServer2008: return CreateSqlServerType(type, length);
                 case DataBaseType.SqlServer2012: return CreateSqlServerType(type, length);
@@ -272,6 +272,19 @@ namespace Dapper.Sharding
                     return "json";
                 if (length == -20)
                     return "geometry";
+                if (length > -30 && length < -20)
+                {
+                    var str = length.ToString();
+                    if (str.Contains("."))
+                    {
+                        var srid = str.Split('.')[1];
+                        return $"geometry(geometry,{srid})";
+                    }
+                    else
+                    {
+                        return "geometry";
+                    }
+                }
                 if (length == 0)
                     length = 50;
                 return $"varchar({length})";

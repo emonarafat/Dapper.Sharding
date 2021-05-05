@@ -103,7 +103,7 @@ namespace Dapper.Sharding
             }
             if (config.TimeOut != 0)
             {
-                sb.Append($";timeout={config.TimeOut}");
+                sb.Append($";commandtimeout={config.TimeOut}");
             }
             if (!string.IsNullOrEmpty(config.CharSet))
             {

@@ -279,11 +279,13 @@ namespace Test2
             var model = new CCC
             {
                 a = "POINT(0 0)",
-                b="[]",
-                c="{}"
+                aa = "POINT(0 0)",
+                b = "[]",
+                c = "{}"
             };
 
             table1.Insert(model);
+            table1.Insert(new List<CCC> { model, model });
         }
     }
 }

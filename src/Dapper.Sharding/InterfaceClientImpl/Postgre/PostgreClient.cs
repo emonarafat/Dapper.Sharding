@@ -37,48 +37,47 @@ namespace Dapper.Sharding
             {
                 if (string.IsNullOrEmpty(gisExt))
                 {
-                    gisExt = "CREATE EXTENSION postgis";
+                    gisExt = "CREATE EXTENSION IF NOT EXISTS postgis";
                 }
                 else if (gisExt == "1")
                 {
                     var sb = new StringBuilder();
-                    sb.Append("CREATE EXTENSION postgis;");
-                    sb.Append("CREATE EXTENSION postgis_raster;");
-                    sb.Append("CREATE EXTENSION postgis_sfcgal;");
-                    sb.Append("CREATE EXTENSION postgis_topology;");
+                    sb.Append("CREATE EXTENSION IF NOT EXISTS postgis;");
+                    sb.Append("CREATE EXTENSION IF NOT EXISTS postgis_raster;");
+                    sb.Append("CREATE EXTENSION IF NOT EXISTS postgis_sfcgal;");
+                    sb.Append("CREATE EXTENSION IF NOT EXISTS postgis_topology;");
                     gisExt = sb.ToString();
                 }
                 else if (gisExt == "2")
                 {
                     var sb = new StringBuilder();
-                    sb.Append("CREATE EXTENSION postgis;");
-                    sb.Append("CREATE EXTENSION postgis_raster;");
-                    sb.Append("CREATE EXTENSION postgis_sfcgal;");
-                    sb.Append("CREATE EXTENSION postgis_topology;");
+                    sb.Append("CREATE EXTENSION IF NOT EXISTS postgis;");
+                    sb.Append("CREATE EXTENSION IF NOT EXISTS postgis_raster;");
+                    sb.Append("CREATE EXTENSION IF NOT EXISTS postgis_sfcgal;");
+                    sb.Append("CREATE EXTENSION IF NOT EXISTS postgis_topology;");
 
-                    sb.Append("CREATE EXTENSION pgrouting;");
-                    sb.Append("CREATE EXTENSION ogr_fdw;");
+                    sb.Append("CREATE EXTENSION IF NOT EXISTS pgrouting;");
+                    sb.Append("CREATE EXTENSION IF NOT EXISTS ogr_fdw;");
 
                     gisExt = sb.ToString();
                 }
                 else if (gisExt == "3")
                 {
                     var sb = new StringBuilder();
-                    sb.Append("CREATE EXTENSION postgis;");
-                    sb.Append("CREATE EXTENSION postgis_raster;");
-                    sb.Append("CREATE EXTENSION postgis_sfcgal;");
-                    sb.Append("CREATE EXTENSION postgis_topology;");
+                    sb.Append("CREATE EXTENSION IF NOT EXISTS postgis;");
+                    sb.Append("CREATE EXTENSION IF NOT EXISTS postgis_raster;");
+                    sb.Append("CREATE EXTENSION IF NOT EXISTS postgis_sfcgal;");
+                    sb.Append("CREATE EXTENSION IF NOT EXISTS postgis_topology;");
 
-                    sb.Append("CREATE EXTENSION ogr_fdw;");
-                    sb.Append("CREATE EXTENSION pgrouting;");
+                    sb.Append("CREATE EXTENSION IF NOT EXISTS ogr_fdw;");
+                    sb.Append("CREATE EXTENSION IF NOT EXISTS pgrouting;");
 
-                    sb.Append("CREATE EXTENSION address_standardizer;");
-                    sb.Append("CREATE EXTENSION address_standardizer_data_us;");
-                    sb.Append("CREATE EXTENSION fuzzystrmatch;");
-                    sb.Append("CREATE EXTENSION postgis_tiger_geocoder;");
+                    sb.Append("CREATE EXTENSION IF NOT EXISTS address_standardizer;");
+                    sb.Append("CREATE EXTENSION IF NOT EXISTS address_standardizer_data_us;");
+                    sb.Append("CREATE EXTENSION IF NOT EXISTS fuzzystrmatch;");
+                    sb.Append("CREATE EXTENSION IF NOT EXISTS postgis_tiger_geocoder;");
                     gisExt = sb.ToString();
                 }
-
                 var db = CreateIDatabase(name);
                 db.Using(conn =>
                 {

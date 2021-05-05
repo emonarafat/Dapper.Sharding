@@ -19,6 +19,9 @@ namespace Test2
         [Column(-20)]
         public string a { get; set; }
 
+        [Column(-20.4326)]
+        public string aa { get; set; }
+
         [Column(-10)]
         public string b { get; set; }
 
