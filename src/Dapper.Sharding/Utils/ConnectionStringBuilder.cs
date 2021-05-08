@@ -1,8 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿using System.Text;
 
 namespace Dapper.Sharding
 {
@@ -235,13 +231,13 @@ namespace Dapper.Sharding
             sb.Append($";User={config.UserId}");
             if (!string.IsNullOrEmpty(config.Password))
             {
-                sb.Append($";Passsword={config.Password}");
+                sb.Append($";Password={config.Password}");
             }
             if (string.IsNullOrEmpty(databaseName))
             {
                 databaseName = "default";
             }
-            sb.Append($"Database={databaseName}");
+            sb.Append($";Database={databaseName}");
 
             sb.Append(";Compress=True");
             return sb.ToString();
