@@ -77,7 +77,7 @@ namespace Dapper.Sharding
             {
                 File.Delete(fileName);
             }
-            DataBaseCache.TryRemove(name.ToLower(), out _);
+            DataBaseCache.TryRemove(name, out _);
         }
 
         public override bool ExistsDatabase(string name)

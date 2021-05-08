@@ -28,7 +28,7 @@ namespace Dapper.Sharding
             {
                 conn.Execute($"IF EXISTS(SELECT 1 FROM sysObjects WHERE Id=OBJECT_ID(N'{name}') AND xtype='U')DROP TABLE [{name}]");
             }
-            TableCache.TryRemove(name.ToLower(), out _);
+            TableCache.TryRemove(name, out _);
         }
 
         public override bool ExistsTable(string name)

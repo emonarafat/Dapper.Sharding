@@ -51,7 +51,7 @@ namespace Dapper.Sharding
             {
                 conn.Execute($"DROP TABLE IF EXISTS `{name}`");
             }
-            TableCache.TryRemove(name.ToLower(), out _);
+            TableCache.TryRemove(name, out _);
         }
 
         public override void TruncateTable(string name)

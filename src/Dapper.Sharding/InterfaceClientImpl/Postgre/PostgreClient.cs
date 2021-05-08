@@ -92,7 +92,7 @@ namespace Dapper.Sharding
             {
                 conn.Execute($"DROP DATABASE IF EXISTS {name}");
             }
-            DataBaseCache.TryRemove(name.ToLower(), out _);
+            DataBaseCache.TryRemove(name, out _);
         }
 
         public override bool ExistsDatabase(string name)
