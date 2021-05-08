@@ -28,12 +28,12 @@
 	</ItemGroup>
 	<ItemGroup Condition="'$(TargetFramework)'=='netstandard2.0'">
 		<Reference Include="Z.Dapper.Plus">
-			<HintPath>..\..\Lib\Z.Dapper.Plus.3.0.20-Crack\netstandard2.0\Z.Dapper.Plus.dll</HintPath>
+			<HintPath>..\..\Lib\Z.Dapper.Plus\netstandard2.0\Z.Dapper.Plus.dll</HintPath>
 		</Reference>
 	</ItemGroup>
 	<ItemGroup Condition="'$(TargetFramework)'=='net5.0'">
 		<Reference Include="Z.Dapper.Plus">
-			<HintPath>..\..\Lib\Z.Dapper.Plus.3.0.20-Crack\net5.0\Z.Dapper.Plus.dll</HintPath>
+			<HintPath>..\..\Lib\Z.Dapper.Plus\net5.0\Z.Dapper.Plus.dll</HintPath>
 		</Reference>
 	</ItemGroup>
 </Project>
