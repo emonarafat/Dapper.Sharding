@@ -33,6 +33,14 @@ namespace Dapper.Sharding
 
         public IClient Client { get; }
 
+        public DataBaseType DbType
+        {
+            get
+            {
+                return Client.DbType;
+            }
+        }
+
         public void Using(Action<IDbConnection> action)
         {
             using (var conn = GetConn())
@@ -153,6 +161,20 @@ namespace Dapper.Sharding
             this.CreateFiles(savePath, tableList, nameSpace, Suffix, partialClass);
         }
 
+        public void ClearCache(string tablename = null)
+        {
+            if (!string.IsNullOrEmpty(tablename))
+            {
+                TableCache.TryRemove(tablename, out _);
+                TableCache2.TryRemove(tablename, out _);
+            }
+            else
+            {
+                TableCache.Clear();
+                TableCache2.Clear();
+            }
+
+        }
 
         #endregion
 

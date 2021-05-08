@@ -23,8 +23,8 @@ namespace Test2
             //BB();
             //BB2();
             //CC();
-            //CC2();
-            CC3();
+            CC2();
+            //CC3();
             Console.WriteLine("好了");
             Console.ReadKey();
         }
@@ -267,9 +267,9 @@ namespace Test2
             data1.TableCenterToManyDynamic("Id", "_NextList2", centerTable, "FirstId", "NextId", table3, "Id", null, "AND Id>5");
             Console.WriteLine(JsonSerializer.Serialize(data1, options));
 
-
             var data2 = table3.GetAll();
             data2.TableCenterToManyDynamic("Id", "_PrevList2", centerTable, "NextId", "FirstId", table1, "Id");
+
             Console.WriteLine(JsonSerializer.Serialize(data2, options));
         }
 

@@ -63,9 +63,16 @@ namespace Dapper.Sharding
             return val;
         }
 
-        public void ClearCache()
+        public void ClearCache(string dbname = null)
         {
-            DataBaseCache.Clear();
+            if (!string.IsNullOrEmpty(dbname))
+            {
+                DataBaseCache.Clear();
+            }
+            else
+            {
+                DataBaseCache.TryRemove(dbname, out _);
+            }
         }
 
         #endregion

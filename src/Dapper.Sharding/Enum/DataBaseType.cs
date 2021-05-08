@@ -7,7 +7,8 @@
         SqlServer2008 = 3,
         SqlServer2012 = 4,
         Postgresql = 5,
-        Oracle = 6
+        Oracle = 6,
+        ClickHouse = 7
         
     }
 }

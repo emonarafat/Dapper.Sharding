@@ -22,6 +22,14 @@ namespace Dapper.Sharding
 
         public IDatabase DataBase { get; }
 
+        public DataBaseType DbType
+        {
+            get
+            {
+                return DataBase.Client.DbType;
+            }
+        }
+
         public SqlFieldEntity SqlField { get; }
 
         public DapperEntity DpEntity { get; }
