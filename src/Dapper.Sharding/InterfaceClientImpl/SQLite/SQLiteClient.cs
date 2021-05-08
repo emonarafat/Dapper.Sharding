@@ -35,19 +35,18 @@ namespace Dapper.Sharding
 
         public override IDatabase GetDatabase(string name, bool useGis = false, string gisExt = null)
         {
-            var lowerName = name.ToLower();
-            if (!DataBaseCache.ContainsKey(lowerName))
+            if (!DataBaseCache.ContainsKey(name))
             {
-                lock (Locker.GetObject(lowerName))
+                lock (Locker.GetObject(name))
                 {
-                    if (!DataBaseCache.ContainsKey(lowerName))
+                    if (!DataBaseCache.ContainsKey(name))
                     {
                         CreateDatabase(name);
-                        DataBaseCache.TryAdd(lowerName, CreateIDatabase(name));
+                        DataBaseCache.TryAdd(name, CreateIDatabase(name));
                     }
                 }
             }
-            return DataBaseCache[lowerName];
+            return DataBaseCache[name];
         }
 
         #endregion

@@ -41,13 +41,12 @@ namespace Dapper.Sharding
 
         public virtual IDatabase GetDatabase(string name, bool useGis = false, string gisExt = null)
         {
-            var lowerName = name.ToLower();
-            var exists = DataBaseCache.TryGetValue(lowerName, out var val);
+            var exists = DataBaseCache.TryGetValue(name, out var val);
             if (!exists)
             {
-                lock (Locker.GetObject(lowerName))
+                lock (Locker.GetObject(name))
                 {
-                    if (!DataBaseCache.ContainsKey(lowerName))
+                    if (!DataBaseCache.ContainsKey(name))
                     {
                         if (AutoCreateDatabase)
                         {
@@ -57,7 +56,7 @@ namespace Dapper.Sharding
                             }
                         }
                         val = CreateIDatabase(name);
-                        DataBaseCache.TryAdd(lowerName, val);
+                        DataBaseCache.TryAdd(name, val);
                     }
                 }
             }

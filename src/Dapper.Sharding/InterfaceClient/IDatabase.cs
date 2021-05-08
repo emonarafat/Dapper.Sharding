@@ -21,6 +21,8 @@ namespace Dapper.Sharding
 
         protected ConcurrentDictionary<string, object> TableCache { get; } = new ConcurrentDictionary<string, object>();
 
+        protected ConcurrentDictionary<string, object> TableCache2 { get; } = new ConcurrentDictionary<string, object>();
+
         protected abstract ITable<T> CreateITable<T>(string name) where T : class;
 
         #endregion
@@ -80,44 +82,40 @@ namespace Dapper.Sharding
 
         public ITable<T> GetTable<T>(string name) where T : class
         {
-            var lowerName = name.ToLower();
-            var exists = TableCache.TryGetValue(lowerName, out var val);
+            var exists = TableCache.TryGetValue(name, out var val);
             if (!exists)
             {
-                lock (Locker.GetObject(lowerName))
+                lock (Locker.GetObject(name))
                 {
-                    if (!TableCache.ContainsKey(lowerName))
+                    if (!TableCache.ContainsKey(name))
                     {
                         if (Client.AutoCreateTable)
                         {
-                            #region 创建、比对表
+                            #region 创建表、对比表
 
                             if (!ExistsTable(name))
                             {
                                 CreateTable<T>(name);
                             }
-                            else
+                            else if (Client.AutoCompareTableColumn)
                             {
-                                if (Client.AutoCompareTableColumn)
+                                var dbColumns = GetTableColumnList(name);
+                                var tableEntity = ClassToTableEntityUtils.Get<T>(Client.DbType);
+                                var manager = GetTableManager(name);
+
+                                foreach (var item in tableEntity.ColumnList)
                                 {
-                                    var dbColumns = GetTableColumnList(name);
-                                    var tableEntity = ClassToTableEntityUtils.Get<T>(Client.DbType);
-                                    var manager = GetTableManager(name);
-
-                                    foreach (var item in tableEntity.ColumnList)
+                                    if (!dbColumns.Any(a => a.ToLower().Equals(item.Name.ToLower())))
                                     {
-                                        if (!dbColumns.Any(a => a.ToLower().Equals(item.Name.ToLower())))
-                                        {
-                                            manager.AddColumn(item.Name, item.CsType, item.Length, item.Comment);
-                                        }
+                                        manager.AddColumn(item.Name, item.CsType, item.Length, item.Comment);
                                     }
+                                }
 
-                                    foreach (var item in dbColumns)
+                                foreach (var item in dbColumns)
+                                {
+                                    if (!tableEntity.ColumnList.Any(a => a.Name.ToLower().Equals(item.ToLower())))
                                     {
-                                        if (!tableEntity.ColumnList.Any(a => a.Name.ToLower().Equals(item.ToLower())))
-                                        {
-                                            manager.DropColumn(item);
-                                        }
+                                        manager.DropColumn(item);
                                     }
                                 }
                             }
@@ -125,7 +123,25 @@ namespace Dapper.Sharding
                             #endregion
                         }
                         val = CreateITable<T>(name);
-                        TableCache.TryAdd(lowerName, val);
+                        TableCache.TryAdd(name, val);
+                    }
+                }
+            }
+            return (ITable<T>)val;
+        }
+
+        public ITable<T> GetTableExist<T>(string name) where T : class
+        {
+            var key = typeof(T).FullName + "@" + name;
+            var exists = TableCache2.TryGetValue(key, out var val);
+            if (!exists)
+            {
+                lock (Locker.GetObject(key))
+                {
+                    if (!TableCache2.ContainsKey(key))
+                    {
+                        val = CreateITable<T>(name);
+                        TableCache2.TryAdd(key, val);
                     }
                 }
             }
