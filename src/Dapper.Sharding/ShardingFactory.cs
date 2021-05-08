@@ -25,6 +25,8 @@ namespace Dapper.Sharding
                     return new PostgreClient(config);
                 case DataBaseType.Oracle:
                     return new OracleClient(config);
+                case DataBaseType.ClickHouse:
+                    return new ClickHouseClient(config);
             }
             return null;
         }

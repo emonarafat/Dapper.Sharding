@@ -1,35 +1,19 @@
-﻿using System;
+﻿using Dapper.Sharding;
+using NUnit.Framework;
+using System;
 using System.Collections.Generic;
+using System.Linq;
+using System.Text;
 using System.Text.Json;
 using System.Text.Unicode;
-using Dapper.Sharding;
-
+using System.Threading.Tasks;
 namespace Test2
 {
-    class Program
+    public class TestPostgresql
     {
-        /*===mysql===*/
-        //public static IClient Client = ShardingFactory.CreateClient(DataBaseType.MySql, new DataBaseConfig { Server = "127.0.0.1", UserId = "root", Password = "123", Port = 3306 });
-        //public static IClient Client2 = ShardingFactory.CreateClient(DataBaseType.MySql, new DataBaseConfig { Server = "127.0.0.1", UserId = "root", Password = "123", Port = 3307 });
 
-        /*===postgresql===*/
-        public static IClient Client = ShardingFactory.CreateClient(DataBaseType.Postgresql, new DataBaseConfig { Server = "127.0.0.1", UserId = "postgres", Password = "123", MinPoolSize = 1, MaxPoolSize = 2 });
-        public static IClient Client2 = ShardingFactory.CreateClient(DataBaseType.Postgresql, new DataBaseConfig { Server = "127.0.0.1", UserId = "postgres", Password = "123" });
-
-        static void Main(string[] args)
-        {
-            //AA();
-            //AA2();
-            //BB();
-            //BB2();
-            //CC();
-            CC2();
-            //CC3();
-            Console.WriteLine("好了");
-            Console.ReadKey();
-        }
-
-        static void AA()
+        [Test]
+        public void AA()
         {
             var list1 = new List<MapAuthor>
             {
@@ -49,9 +33,9 @@ namespace Test2
                 new MapBook{ Id=6,AuthorId=5,Name="西瓜" }
             };
 
-            var table1 = Client.GetDatabase("test").GetTable<MapAuthor>("map_author");
+            var table1 = DbHelper.Client.GetDatabase("test").GetTable<MapAuthor>("map_author");
             table1.Merge(list1);
-            var table2 = Client.GetDatabase("test").GetTable<MapBook>("map_book");
+            var table2 = DbHelper.Client.GetDatabase("test").GetTable<MapBook>("map_book");
             table2.Merge(list2);
 
             var options = new JsonSerializerOptions();
@@ -68,7 +52,8 @@ namespace Test2
             Console.WriteLine(JsonSerializer.Serialize(data2, options));
         }
 
-        static void AA2()
+        [Test]
+        public void AA2()
         {
             var list1 = new List<MapAuthor>
             {
@@ -88,9 +73,9 @@ namespace Test2
                 new MapBook{ Id=6,AuthorId=5,Name="西瓜" }
             };
 
-            var table1 = Client.GetDatabase("test").GetTable<MapAuthor>("map_author");
+            var table1 = DbHelper.Client.GetDatabase("test").GetTable<MapAuthor>("map_author");
             table1.Merge(list1);
-            var table2 = Client.GetDatabase("test").GetTable<MapBook>("map_book");
+            var table2 = DbHelper.Client.GetDatabase("test").GetTable<MapBook>("map_book");
             table2.Merge(list2);
 
             var options = new JsonSerializerOptions();
@@ -107,7 +92,8 @@ namespace Test2
             Console.WriteLine(JsonSerializer.Serialize(data2, options));
         }
 
-        static void BB()
+        [Test]
+        public void BB()
         {
             var list1 = new List<AA>
             {
@@ -127,9 +113,9 @@ namespace Test2
             var options = new JsonSerializerOptions();
             options.Encoder = System.Text.Encodings.Web.JavaScriptEncoder.Create(UnicodeRanges.All);
 
-            var table1 = Client.GetDatabase("test").GetTable<AA>("aa");
+            var table1 = DbHelper.Client.GetDatabase("test").GetTable<AA>("aa");
             table1.Merge(list1);
-            var table2 = Client.GetDatabase("test").GetTable<BB>("bb");
+            var table2 = DbHelper.Client.GetDatabase("test").GetTable<BB>("bb");
             table2.Merge(list2);
 
             var data1 = table1.GetAll();
@@ -137,7 +123,8 @@ namespace Test2
             Console.WriteLine(JsonSerializer.Serialize(data1, options));
         }
 
-        static void BB2()
+        [Test]
+        public void BB2()
         {
             var list1 = new List<AA>
             {
@@ -157,9 +144,9 @@ namespace Test2
             var options = new JsonSerializerOptions();
             options.Encoder = System.Text.Encodings.Web.JavaScriptEncoder.Create(UnicodeRanges.All);
 
-            var table1 = Client.GetDatabase("test").GetTable<AA>("aa");
+            var table1 = DbHelper.Client.GetDatabase("test").GetTable<AA>("aa");
             table1.Merge(list1);
-            var table2 = Client.GetDatabase("test").GetTable<BB>("bb");
+            var table2 = DbHelper.Client.GetDatabase("test").GetTable<BB>("bb");
             table2.Merge(list2);
 
             var data1 = table1.GetAll();
@@ -167,7 +154,8 @@ namespace Test2
             Console.WriteLine(JsonSerializer.Serialize(data1, options));
         }
 
-        static void CC()
+        [Test]
+        public void CC()
         {
             var list1 = new List<Map_Prev>
             {
@@ -199,11 +187,11 @@ namespace Test2
                 new Map_Next{ Id=6,Name="西瓜" }
             };
 
-            var table1 = Client.GetDatabase("test").GetTable<Map_Prev>("map_prev");
+            var table1 = DbHelper.Client.GetDatabase("test").GetTable<Map_Prev>("map_prev");
             table1.Merge(list1);
-            var centerTable = Client.GetDatabase("test").GetTable<Map_Center>("map_center");
+            var centerTable = DbHelper.Client.GetDatabase("test").GetTable<Map_Center>("map_center");
             centerTable.Merge(centerList);
-            var table3 = Client.GetDatabase("test").GetTable<Map_Next>("map_next");
+            var table3 = DbHelper.Client.GetDatabase("test").GetTable<Map_Next>("map_next");
             table3.Merge(list3);
 
             var options = new JsonSerializerOptions();
@@ -220,7 +208,8 @@ namespace Test2
             Console.WriteLine(JsonSerializer.Serialize(data2, options));
         }
 
-        static void CC2()
+        [Test]
+        public void CC2()
         {
             var list1 = new List<Map_Prev>
             {
@@ -252,11 +241,11 @@ namespace Test2
                 new Map_Next{ Id=6,Name="西瓜" }
             };
 
-            var table1 = Client.GetDatabase("test").GetTable<Map_Prev>("map_prev");
+            var table1 = DbHelper.Client.GetDatabase("test").GetTable<Map_Prev>("map_prev");
             table1.Merge(list1);
-            var centerTable = Client.GetDatabase("test").GetTable<Map_Center>("map_center");
+            var centerTable = DbHelper.Client.GetDatabase("test").GetTable<Map_Center>("map_center");
             centerTable.Merge(centerList);
-            var table3 = Client.GetDatabase("test").GetTable<Map_Next>("map_next");
+            var table3 = DbHelper.Client.GetDatabase("test").GetTable<Map_Next>("map_next");
             table3.Merge(list3);
 
             var options = new JsonSerializerOptions();
@@ -273,9 +262,10 @@ namespace Test2
             Console.WriteLine(JsonSerializer.Serialize(data2, options));
         }
 
-        static void CC3()
+        [Test]
+        public void CC3()
         {
-            var table1 = Client.GetDatabase("testgist", true).GetTable<CCC>("aa");
+            var table1 = DbHelper.Client.GetDatabase("testgist", true).GetTable<CCC>("aa");
             var model = new CCC
             {
                 a = "POINT(0 0)",
@@ -289,4 +279,3 @@ namespace Test2
         }
     }
 }
-
