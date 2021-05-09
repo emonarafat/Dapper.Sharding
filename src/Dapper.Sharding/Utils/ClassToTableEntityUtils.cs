@@ -15,7 +15,14 @@ namespace Dapper.Sharding
             var t = typeof(T);
             var tableAttr = t.GetCustomAttributes(false).First(f => f is TableAttribute) as TableAttribute;
             entity.PrimaryKey = tableAttr.PrimaryKey;
-            entity.IsIdentity = tableAttr.IsIdentity;
+            if (dbType == DataBaseType.ClickHouse) //clickhouse是没有自增的
+            {
+                entity.IsIdentity = false;
+            }
+            else
+            {
+                entity.IsIdentity = tableAttr.IsIdentity;
+            }
             entity.Comment = tableAttr.Comment;
             entity.Engine = tableAttr.Engine;
             var indexAttrs = t.GetCustomAttributes(false).Where(f => f is IndexAttribute).Select(s => s as IndexAttribute);
