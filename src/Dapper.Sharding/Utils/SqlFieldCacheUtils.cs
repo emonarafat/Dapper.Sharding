@@ -137,6 +137,30 @@ namespace Dapper.Sharding
 
         #endregion
 
+        #region ClickHouse
 
+        private static readonly ConcurrentDictionary<RuntimeTypeHandle, SqlFieldEntity> ClickHouseDict = new ConcurrentDictionary<RuntimeTypeHandle, SqlFieldEntity>();
+
+        private static readonly object _clickLocker = new object();
+
+        public static SqlFieldEntity GetClickHouseFieldEntity<T>()
+        {
+            var typeHandle = typeof(T).TypeHandle;
+            var exists = ClickHouseDict.TryGetValue(typeHandle, out var val);
+            if (!exists)
+            {
+                lock (_clickLocker)
+                {
+                    if (!ClickHouseDict.ContainsKey(typeHandle))
+                    {
+                        val = new SqlFieldEntity(ClassToTableEntityUtils.Get<T>(DataBaseType.ClickHouse), "", "", "@");
+                        ClickHouseDict.TryAdd(typeHandle, val);
+                    }
+                }
+            }
+            return val;
+        }
+
+        #endregion
     }
 }

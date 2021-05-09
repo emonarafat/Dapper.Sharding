@@ -13,6 +13,8 @@ namespace Dapper.Sharding
 
         public string Comment { get; set; }
 
+        public string Engine { get; set; }
+
         public List<ColumnEntity> ColumnList { get; set; }
 
         public Dictionary<string, double> OtherColumnDict { get; set; }

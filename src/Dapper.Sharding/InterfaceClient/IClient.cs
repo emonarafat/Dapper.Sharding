@@ -67,11 +67,11 @@ namespace Dapper.Sharding
         {
             if (!string.IsNullOrEmpty(dbname))
             {
-                DataBaseCache.Clear();
+                DataBaseCache.TryRemove(dbname, out _);              
             }
             else
             {
-                DataBaseCache.TryRemove(dbname, out _);
+                DataBaseCache.Clear();
             }
         }
 

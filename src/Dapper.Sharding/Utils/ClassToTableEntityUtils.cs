@@ -17,6 +17,7 @@ namespace Dapper.Sharding
             entity.PrimaryKey = tableAttr.PrimaryKey;
             entity.IsIdentity = tableAttr.IsIdentity;
             entity.Comment = tableAttr.Comment;
+            entity.Engine = tableAttr.Engine;
             var indexAttrs = t.GetCustomAttributes(false).Where(f => f is IndexAttribute).Select(s => s as IndexAttribute);
             if (indexAttrs.Any())
             {

@@ -1,12 +1,13 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Data;
+using System.Linq;
 using System.Threading.Tasks;
 using ClickHouse.Ado;
 
 namespace Dapper.Sharding
 {
-    public class ClickHouseClient : IClient
+    internal class ClickHouseClient : IClient
     {
         public ClickHouseClient(DataBaseConfig config) : base(DataBaseType.ClickHouse, config)
         {
@@ -34,7 +35,11 @@ namespace Dapper.Sharding
 
         public override bool ExistsDatabase(string name)
         {
-            throw new NotImplementedException();
+            using (var conn = GetConn())
+            {
+                var dbname = conn.ExecuteScalar<string>($"SHOW DATABASES LIKE '{name}'");
+                return !string.IsNullOrEmpty(dbname);
+            }
         }
 
         public override IDbConnection GetConn()
@@ -52,17 +57,20 @@ namespace Dapper.Sharding
 
         public override IEnumerable<string> ShowDatabases()
         {
-            throw new NotImplementedException();
+            using (var conn = GetConn())
+            {
+                return conn.Query<string>("SHOW DATABASES");
+            }
         }
 
         public override IEnumerable<string> ShowDatabasesExcludeSystem()
         {
-            throw new NotImplementedException();
+            return ShowDatabases().Where(w => w != "system");
         }
 
         protected override IDatabase CreateIDatabase(string name)
         {
-            throw new NotImplementedException();
+            return new ClickHouseDatabase(name, this);
         }
     }
 }

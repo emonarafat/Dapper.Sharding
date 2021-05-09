@@ -15,6 +15,7 @@ namespace Dapper.Sharding
                 case DataBaseType.SqlServer2012: return CreateSqlServerType(type, length);
                 case DataBaseType.Postgresql: return CreatePostgresqlType(type, length);
                 case DataBaseType.Oracle: return CreateOracleType(type, length);
+                case DataBaseType.ClickHouse: return CreateClickHouseType(type, length);
             }
             throw new Exception("no found");
         }
@@ -38,7 +39,6 @@ namespace Dapper.Sharding
                     length = 50;
                 return $"varchar({length})";
             }
-
 
             if (type == typeof(bool))
             {
@@ -426,5 +426,140 @@ namespace Dapper.Sharding
             return "BLOB";
         }
 
+        private static string CreateClickHouseType(Type type, double length = 0)
+        {
+            if (type == typeof(Guid))
+            {
+                return $"UUID";
+            }
+
+            if (type == typeof(string))
+            {
+                if (length > 0)
+                {
+                    return $"FixedString({length})";
+                }
+                if (length == -1)
+                {
+                    return "Date";
+                }
+                if (length == -2)
+                {
+                    return "UUID";
+                }
+                return "String";
+            }
+
+            if (type == typeof(DateTime))
+            {
+                if (length == -1)
+                {
+                    return "Date";
+                }
+                if (length == -2)
+                {
+                    return "Datetime64";
+                }
+                return "Datetime";
+            }
+
+            if (type == typeof(float))
+            {
+                return "Float32";
+            }
+
+            if (type == typeof(double))
+            {
+                return "Float64";
+            }
+
+            if (type == typeof(sbyte))
+            {
+                return "Int8";
+            }
+
+            if (type == typeof(short))
+            {
+                return "Int16";
+            }
+
+            if (type == typeof(int))
+            {
+                if (length == -1)
+                {
+                    return "Int16";
+                }
+                if (length == -2)
+                {
+                    return "Int8";
+                }
+                return "Int32";
+            }
+
+            if (type == typeof(long))
+            {
+                return "Int64";
+            }
+
+            if (type == typeof(byte))
+            {
+                return "UInt8";
+            }
+
+            if (type == typeof(ushort))
+            {
+                return "UInt16";
+            }
+
+            if (type == typeof(uint))
+            {
+                return "UInt32";
+            }
+
+            if (type == typeof(ulong))
+            {
+                return "UInt64";
+            }
+
+            if (type == typeof(decimal))
+            {
+                if (length <= 0)
+                {
+                    length = 18.2;
+                }
+                var p = 1;
+                var s = 0;
+                var len = length.ToString();
+                if (len.Contains("."))
+                {
+                    var arr = len.Split('.');
+                    p = Convert.ToInt32(arr[0]);
+                    s = Convert.ToInt32(arr[1]);
+                }
+                else
+                {
+                    p = Convert.ToInt32(len);
+                }
+
+                if (p >= 1 && p <= 9)
+                {
+                    return $"Decimal32({s})";
+                }
+
+                if (p >= 10 && p <= 18)
+                {
+                    return $"Decimal64({s})";
+                }
+
+                if (p >= 19 && p <= 38)
+                {
+                    return $"Decimal128({s})";
+                }
+
+                return $"Decimal32({s})";
+            }
+
+            return "String";
+        }
     }
 }

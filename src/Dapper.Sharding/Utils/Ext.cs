@@ -56,12 +56,15 @@ namespace Dapper.Sharding
                 sb.AppendLine();
                 sb.Append("{");
                 sb.AppendLine();
-                var indexList = entity.IndexList.Where(w => w.Type != IndexType.PrimaryKey);
-                foreach (var item in indexList)
+                if (entity.IndexList != null)
                 {
-                    sb.Append($"    [Index(\"{item.Name}\", \"{item.Columns}\", {item.StringType})]");
+                    var indexList = entity.IndexList.Where(w => w.Type != IndexType.PrimaryKey);
+                    foreach (var item in indexList)
+                    {
+                        sb.Append($"    [Index(\"{item.Name}\", \"{item.Columns}\", {item.StringType})]");
 
-                    sb.AppendLine();
+                        sb.AppendLine();
+                    }
                 }
                 sb.Append($"    [Table(\"{entity.PrimaryKey}\", {entity.IsIdentity.ToString().ToLower()}, \"{entity.Comment}\")]");
                 sb.AppendLine();

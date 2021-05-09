@@ -10,7 +10,7 @@ namespace Test
     //[Index("Name","Name",IndexType.Normal)]
     //[Index("Age","Age",IndexType.Unique)]
     //[Index("NameAndAge", "Name,Age", IndexType.Unique)]
-    [Table("Id", true, "人类表")]
+    [Table("Id", true, "人类表", "Log")]
     public class People
     {
         [Column(11, "主键id")]
@@ -41,7 +41,7 @@ namespace Test
 
         public short ShortField { get; set; }
 
-        public byte ByteField { get; set; }
+        //public byte ByteField { get; set; }
 
         [Ignore]
         public string NoDataBaseColumn { get; set; }

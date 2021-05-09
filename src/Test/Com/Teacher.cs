@@ -7,7 +7,7 @@ using System.Threading.Tasks;
 
 namespace Test.Com
 {
-    [Table("Id", false, "老师表")]
+    [Table("Id", false, "老师表", "Log")]
     public class Teacher
     {
         [Column(20, "主键Id")]
