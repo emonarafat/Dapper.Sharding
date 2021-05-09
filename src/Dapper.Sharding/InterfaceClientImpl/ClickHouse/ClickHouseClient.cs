@@ -2,9 +2,7 @@
 using System.Collections.Generic;
 using System.Data;
 using System.Threading.Tasks;
-//using ClickHouse.Ado;
-using Octonica.ClickHouseClient;
-
+using ClickHouse.Ado;
 
 namespace Dapper.Sharding
 {

@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using FastMember;
+using System.Collections.Generic;
 using System.Linq;
 
 namespace Dapper.Sharding

@@ -1,4 +1,5 @@
-﻿using System;
+﻿using FastMember;
+using System;
 
 namespace Dapper.Sharding
 {
