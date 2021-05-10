@@ -45,6 +45,11 @@ namespace Dapper.Sharding
             foreach (var name in tableList)
             {
                 var entity = database.GetTableEntityFromDatabase(name);
+                if (database.DbType == DataBaseType.ClickHouse)
+                {
+                    entity.IsIdentity = false;
+                    entity.PrimaryKey = entity.ColumnList[0].Name;
+                }
                 var className = name.ToLower().FirstCharToUpper() + Suffix;
                 var sb = new StringBuilder();
                 sb.Append("using System;");
