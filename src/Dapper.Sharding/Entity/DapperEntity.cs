@@ -74,37 +74,6 @@ namespace Dapper.Sharding
             }
         }
 
-        public IEnumerable<dynamic> Query(string sql, object param = null)
-        {
-            if (Conn == null)
-            {
-                using (var cnn = DataBase.GetConn())
-                {
-                    return cnn.Query(sql, param);
-                }
-            }
-            else
-            {
-                return Conn.Query(sql, param, Tran, commandTimeout: CommandTimeout);
-            }
-
-        }
-
-        public IEnumerable<T> Query<T>(string sql, object param = null)
-        {
-            if (Conn == null)
-            {
-                using (var cnn = DataBase.GetConn())
-                {
-                    return cnn.Query<T>(sql, param);
-                }
-            }
-            else
-            {
-                return Conn.Query<T>(sql, param, Tran, commandTimeout: CommandTimeout);
-            }
-        }
-
         public dynamic QueryFirstOrDefault(string sql, object param = null)
         {
             if (Conn == null)
@@ -133,6 +102,37 @@ namespace Dapper.Sharding
             else
             {
                 return Conn.QueryFirstOrDefault<T>(sql, param, Tran, commandTimeout: CommandTimeout);
+            }
+        }
+
+        public IEnumerable<dynamic> Query(string sql, object param = null)
+        {
+            if (Conn == null)
+            {
+                using (var cnn = DataBase.GetConn())
+                {
+                    return cnn.Query(sql, param);
+                }
+            }
+            else
+            {
+                return Conn.Query(sql, param, Tran, commandTimeout: CommandTimeout);
+            }
+
+        }
+
+        public IEnumerable<T> Query<T>(string sql, object param = null)
+        {
+            if (Conn == null)
+            {
+                using (var cnn = DataBase.GetConn())
+                {
+                    return cnn.Query<T>(sql, param);
+                }
+            }
+            else
+            {
+                return Conn.Query<T>(sql, param, Tran, commandTimeout: CommandTimeout);
             }
         }
 

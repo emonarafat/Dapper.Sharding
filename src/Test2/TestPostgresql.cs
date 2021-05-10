@@ -263,7 +263,7 @@ namespace Test2
         }
 
         [Test]
-        public void CC3()
+        public void Gist()
         {
             var table1 = DbHelper.Client.GetDatabase("testgist", true).GetTable<CCC>("aa");
             var model = new CCC

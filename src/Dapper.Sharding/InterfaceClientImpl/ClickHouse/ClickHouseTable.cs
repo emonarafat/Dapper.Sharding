@@ -14,20 +14,75 @@ namespace Dapper.Sharding
 
         }
 
-        public override decimal Avg(string field, string where = null, object param = null)
+        #region virtual insert
+
+        public override bool Insert(T model)
+        {
+            var sql = $"INSERT INTO {Name} ({SqlField.AllFields}) SELECT {SqlField.AllFieldsAt}";
+            return DpEntity.Execute(sql, model) > 0;
+        }
+
+        public override bool Insert(T model, List<string> fields)
+        {
+            var ff = CommonUtil.GetFieldsStr(fields, "", "");
+            var vv = CommonUtil.GetFieldsAtStr(fields, "@");
+            var sql = $"INSERT INTO {Name} ({ff}) SELECT {vv}";
+            return DpEntity.Execute(sql, model) > 0;
+        }
+
+        public override bool InsertIgnore(T model, List<string> fields)
+        {
+            var exList = SqlField.AllFieldList.Except(fields).ToList();
+            var ff = CommonUtil.GetFieldsStr(exList, "", "");
+            var vv = CommonUtil.GetFieldsAtStr(exList, "@");
+            var sql = $"INSERT INTO {Name} ({ff}) SELECT {vv}";
+            return DpEntity.Execute(sql, model) > 0;
+
+        }
+
+        public override void Insert(IEnumerable<T> modelList)
+        {
+            var sql = $"INSERT INTO {Name} ({SqlField.AllFields}) VALUES @list";
+            DpEntity.Execute(sql, new { list = modelList });
+        }
+
+        public override bool Insert(IEnumerable<T> modelList, List<string> fields)
+        {
+            var ff = CommonUtil.GetFieldsStr(fields, "", "");
+            var sql = $"INSERT INTO {Name} ({ff}) VALUES @list";
+            return DpEntity.Execute(sql, new { list = modelList }) > 0;
+        }
+
+        public override bool InsertIgnore(IEnumerable<T> modelList, List<string> fields)
+        {
+            var exList = SqlField.AllFieldList.Except(fields).ToList();
+            var ff = CommonUtil.GetFieldsStr(exList, "", "");
+            var sql = $"INSERT INTO {Name} ({ff}) VALUES @list";
+            return DpEntity.Execute(sql, new { list = modelList }) > 0;
+        }
+
+        #endregion
+
+        #region update
+
+        public override int UpdateByWhere(T model, string where, List<string> fields = null)
         {
             throw new NotImplementedException();
         }
 
-        public override long Count(string where = null, object param = null)
+        public override int UpdateByWhere(string where, object param, List<string> fields = null)
         {
             throw new NotImplementedException();
         }
 
-        public override ITable<T> CreateTranTable(IDbConnection conn, IDbTransaction tran, int? commandTimeout = null)
+        public override int UpdateByWhereIgnore(T model, string where, List<string> fields)
         {
             throw new NotImplementedException();
         }
+
+        #endregion
+
+        #region del
 
         public override bool Delete(object id)
         {
@@ -49,9 +104,26 @@ namespace Dapper.Sharding
             throw new NotImplementedException();
         }
 
-        public override bool Exists(object id)
+        #endregion
+
+        public override decimal Avg(string field, string where = null, object param = null)
         {
             throw new NotImplementedException();
+        }
+
+        public override long Count(string where = null, object param = null)
+        {
+            return DpEntity.ExecuteScalar<long>($"SELECT COUNT({SqlField.PrimaryKey}) FROM {Name} {where}", param);
+        }
+
+        public override ITable<T> CreateTranTable(IDbConnection conn, IDbTransaction tran, int? commandTimeout = null)
+        {
+            throw new NotImplementedException();
+        }
+
+        public override bool Exists(object id)
+        {
+            return DpEntity.ExecuteScalar<long>($"SELECT COUNT({SqlField.PrimaryKey}) FROM {Name} WHERE {SqlField.PrimaryKey}=@id", new { id }) > 0;
         }
 
         public override IEnumerable<T> GetAll(string returnFields = null, string orderby = null)
@@ -264,19 +336,5 @@ namespace Dapper.Sharding
             throw new NotImplementedException();
         }
 
-        public override int UpdateByWhere(T model, string where, List<string> fields = null)
-        {
-            throw new NotImplementedException();
-        }
-
-        public override int UpdateByWhere(string where, object param, List<string> fields = null)
-        {
-            throw new NotImplementedException();
-        }
-
-        public override int UpdateByWhereIgnore(T model, string where, List<string> fields)
-        {
-            throw new NotImplementedException();
-        }
     }
 }

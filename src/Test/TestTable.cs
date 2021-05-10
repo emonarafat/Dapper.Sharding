@@ -149,8 +149,6 @@ namespace Test
             Factory.peopleTable.InsertIdentityIfNoExists(modelList);
         }
 
-
-
         [Test]
         public void Merge()
         {
@@ -273,9 +271,6 @@ namespace Test
 
             Factory.peopleTable.UpdateByWhereIgnore(model, "WHERE Age=@Age", new List<string> { "Name" });
         }
-
-
-
 
         [Test]
         public void Delete()

@@ -62,10 +62,10 @@ namespace Dapper.Sharding
             foreach (var item in columnList)
             {
                 var model = new ColumnEntity();
-                model.Name = ((string)item.name).FirstCharToUpper(); //列名
+                model.Name = item.name; //列名
                 model.Comment = item.comment; //说明
                 string columnType = item.type;//数据类型
-                if (columnType == "string")
+                if (columnType == "String")
                 {
                     model.CsStringType = "string";
                     model.CsType = typeof(string);
@@ -149,7 +149,7 @@ namespace Dapper.Sharding
                     model.CsStringType = "ulong";
                     model.CsType = typeof(ulong);
                 }
-                else if (columnType.StartsWith("Decimal32"))
+                else if (columnType.StartsWith("Decimal32") || columnType.StartsWith("Decimal("))
                 {
                     model.CsStringType = "decimal";
                     model.CsType = typeof(decimal);
@@ -158,7 +158,7 @@ namespace Dapper.Sharding
                         var len = columnType.Split('(')[1].Split(')')[0];
                         model.Length = Convert.ToDouble("18." + len);
                     }
-                    catch { }    
+                    catch { }
                 }
                 else if (columnType.StartsWith("Decimal64"))
                 {

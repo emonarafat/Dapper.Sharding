@@ -16,7 +16,7 @@
 		<PackageReference Include="System.Data.SqlClient" Version="4.8.2" />
 		<PackageReference Include="System.Data.SQLite.Core" Version="1.0.113.7" />
 		<PackageReference Include="System.Linq.Dynamic.Core" Version="1.2.9" />
-		<PackageReference Include="ClickHouse.Ado.Dapper" Version="1.0.5" />
+		<PackageReference Include="ClickHouse.Ado.Dapper" Version="1.0.7" />
 	</ItemGroup>
 	<ItemGroup Condition="'$(TargetFramework)'=='netstandard2.0'">	
 		<Reference Include="Z.Dapper.Plus">

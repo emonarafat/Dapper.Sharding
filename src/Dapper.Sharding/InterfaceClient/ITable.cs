@@ -63,7 +63,7 @@ namespace Dapper.Sharding
             return true;
         }
 
-        public void Insert(IEnumerable<T> modelList)
+        public virtual void Insert(IEnumerable<T> modelList)
         {
             DpEntity.BulkInsert(modelList, opt => { });
         }

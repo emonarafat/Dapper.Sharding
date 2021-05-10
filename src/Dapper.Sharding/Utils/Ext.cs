@@ -81,9 +81,19 @@ namespace Dapper.Sharding
                 sb.AppendLine();
                 foreach (var item in entity.ColumnList)
                 {
-                    sb.Append($"        [Column({item.Length}, \"{item.Comment}\")]");
-                    sb.AppendLine();
-                    sb.Append("        public " + item.CsStringType + " " + item.Name.ToLower().FirstCharToUpper() + " { get; set; }");
+                    if (item.Length != 0 || !string.IsNullOrEmpty(item.Comment))
+                    {
+                        sb.Append($"        [Column({item.Length}, \"{item.Comment}\")]");
+                        sb.AppendLine();
+                    }
+                    if (database.DbType == DataBaseType.ClickHouse)
+                    {
+                        sb.Append("        public " + item.CsStringType + " " + item.Name + " { get; set; }");
+                    }
+                    else
+                    {
+                        sb.Append("        public " + item.CsStringType + " " + item.Name.FirstCharToUpper() + " { get; set; }");
+                    }
                     sb.AppendLine();
                     if (item != entity.ColumnList.Last())
                     {

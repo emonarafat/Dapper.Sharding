@@ -11,14 +11,11 @@ namespace Dapper.Sharding
         {
             TableList = tableList;
             SqlField = tableList[0].SqlField;
-            DataBase = tableList[0].DataBase;
         }
 
         public SqlFieldEntity SqlField { get; }
 
         public ITable<T>[] TableList { get; }
-
-        public IDatabase DataBase { get; }
 
         public async Task<bool> ExistsAsync(object id)
         {
@@ -48,7 +45,6 @@ namespace Dapper.Sharding
             return result.Any(a => a == true);
         }
 
-
         public async Task<long> CountAsync(string where = null, object param = null)
         {
             var taskList = TableList.Select(s =>
@@ -63,13 +59,13 @@ namespace Dapper.Sharding
             return result.Sum();
         }
 
-        public async Task<TValue> MinAsync<TValue>(string field, string where = null, object param = null)
+        public async Task<TResult> MinAsync<TResult>(string field, string where = null, object param = null)
         {
             var taskList = TableList.Select(s =>
             {
                 return Task.Run(() =>
                 {
-                    return s.Min<TValue>(field, where, param);
+                    return s.Min<TResult>(field, where, param);
                 });
             });
 
@@ -77,13 +73,13 @@ namespace Dapper.Sharding
             return result.Min();
         }
 
-        public async Task<TValue> MaxAsync<TValue>(string field, string where = null, object param = null)
+        public async Task<TResult> MaxAsync<TResult>(string field, string where = null, object param = null)
         {
             var taskList = TableList.Select(s =>
             {
                 return Task.Run(() =>
                 {
-                    return s.Max<TValue>(field, where, param);
+                    return s.Max<TResult>(field, where, param);
                 });
             });
 
@@ -91,13 +87,13 @@ namespace Dapper.Sharding
             return result.Max();
         }
 
-        public async Task<TValue[]> SumListAsync<TValue>(string field, string where = null, object param = null)
+        public async Task<TResult[]> SumListAsync<TResult>(string field, string where = null, object param = null)
         {
             var taskList = TableList.Select(s =>
             {
                 return Task.Run(() =>
                 {
-                    return s.Sum<TValue>(field, where, param);
+                    return s.Sum<TResult>(field, where, param);
                 });
             });
 
@@ -405,5 +401,88 @@ namespace Dapper.Sharding
 
         }
 
+        public async Task<int[]> ExecuteAsync(string sql, object param = null)
+        {
+            var taskList = TableList.Select(s =>
+            {
+                return Task.Run(() =>
+                {
+                    return s.DpEntity.Execute(sql, param);
+                });
+            });
+            return await Task.WhenAll(taskList);
+        }
+
+        public async Task<object[]> ExecuteScalarAsync(string sql, object param = null)
+        {
+            var taskList = TableList.Select(s =>
+            {
+                return Task.Run(() =>
+                {
+                    return s.DpEntity.ExecuteScalar(sql, param);
+                });
+            });
+            return await Task.WhenAll(taskList);
+        }
+
+        public async Task<TResult[]> ExecuteScalarAsync<TResult>(string sql, object param = null)
+        {
+            var taskList = TableList.Select(s =>
+            {
+                return Task.Run(() =>
+                {
+                    return s.DpEntity.ExecuteScalar<TResult>(sql, param);
+                });
+            });
+            return await Task.WhenAll(taskList);
+        }
+
+        public async Task<dynamic[]> QueryFirstOrDefaultAsync(string sql, object param = null)
+        {
+            var taskList = TableList.Select(s =>
+            {
+                return Task.Run(() =>
+                {
+                    return s.DpEntity.QueryFirstOrDefault(sql, param);
+                });
+            });
+            return await Task.WhenAll(taskList);
+        }
+
+        public async Task<TResult[]> QueryFirstOrDefaultAsync<TResult>(string sql, object param = null)
+        {
+            var taskList = TableList.Select(s =>
+            {
+                return Task.Run(() =>
+                {
+                    return s.DpEntity.QueryFirstOrDefault<TResult>(sql, param);
+                });
+            });
+            return await Task.WhenAll(taskList);
+        }
+
+        public async Task<IEnumerable<dynamic>[]> QueryAsync(string sql, object param = null)
+        {
+            var taskList = TableList.Select(s =>
+            {
+                return Task.Run(() =>
+                {
+                    return s.DpEntity.Query(sql, param);
+                });
+            });
+            return await Task.WhenAll(taskList);
+        }
+
+        public async Task<IEnumerable<TResult>[]> QueryAsync<TResult>(string sql, object param = null)
+        {
+            var taskList = TableList.Select(s =>
+            {
+                return Task.Run(() =>
+                {
+                    return s.DpEntity.Query<TResult>(sql, param);
+                });
+            });
+            return await Task.WhenAll(taskList);
+        }
     }
 }
