@@ -212,6 +212,14 @@ order by a.relname asc";
             }
         }
 
+        public override void OptimizeTable(string name, bool final = false, bool deduplicate = false)
+        {
+            throw new NotImplementedException();
+        }
 
+        public override void OptimizeTable(string name, string partition, bool final = false, bool deduplicate = false)
+        {
+            throw new NotImplementedException();
+        }
     }
 }

@@ -11,19 +11,6 @@ namespace Test2
 {
     class TestClickHouse
     {
-        public static IDatabase db;
-        public static ITable<People> tablePe;
-        public static ITable<Student> tableStu;
-        public static ITable<Teacher> tableTc;
-
-        [SetUp]
-        public void Start()
-        {
-            db = DbHelper.ClientHouse.GetDatabase("test");
-            tablePe = db.GetTable<People>("people");
-            tableStu = db.GetTable<Student>("student");
-            tableTc = db.GetTable<Teacher>("teacher");
-        }
 
         [Test]
         public void CreateDatabase()
@@ -35,15 +22,15 @@ namespace Test2
         [Test]
         public void DropTable()
         {
-            db.DropTable("people");
-            db.DropTable("student");
-            db.DropTable("teacher");
+            DbHelper.Db.DropTable("people");
+            DbHelper.Db.DropTable("student");
+            DbHelper.Db.DropTable("teacher");
         }
 
         [Test]
         public void CreateCsFile()
         {
-            db.GeneratorClassFile("D:\\AClass");
+            DbHelper.Db.GeneratorClassFile("D:\\AClass");
         }
 
         [Test]
@@ -61,7 +48,7 @@ namespace Test2
                 Money = 10.5M
 
             };
-            tablePe.Insert(p);
+            DbHelper.peopleTable.Insert(p);
             Console.WriteLine(p.Id);
 
             var teacher = new Teacher
@@ -70,7 +57,7 @@ namespace Test2
                 Name = "王老师",
                 Age = 5
             };
-            tableTc.Insert(teacher);
+            DbHelper.teacherTable.Insert(teacher);
             Console.WriteLine(teacher.Id);
 
             var student = new Student
@@ -79,7 +66,7 @@ namespace Test2
                 Name = "李同学",
                 Age = 100
             };
-            tableStu.Insert(student);
+            DbHelper.studentTable.Insert(student);
             Console.WriteLine(student.Id);
 
         }
@@ -115,9 +102,9 @@ namespace Test2
                 Age = 100
             };
 
-            tablePe.Insert(p, new() { "Id" });
-            tableTc.Insert(teacher, new() { "Id" });    
-            tableStu.Insert(student, new() { "Id" });
+            DbHelper.peopleTable.Insert(p, new() { "Id" });
+            DbHelper.teacherTable.Insert(teacher, new() { "Id" });
+            DbHelper.studentTable.Insert(student, new() { "Id" });
             Console.WriteLine(teacher.Id);
             Console.WriteLine(p.Id);
             Console.WriteLine(student.Id);
@@ -154,9 +141,9 @@ namespace Test2
                 Age = 100
             };
 
-            tablePe.InsertIgnore(p, new() { "Name" });
-            tableTc.InsertIgnore(teacher, new() { "Name" });
-            tableStu.InsertIgnore(student, new() { "Name" });
+            DbHelper.peopleTable.InsertIgnore(p, new() { "Name" });
+            DbHelper.teacherTable.InsertIgnore(teacher, new() { "Name" });
+            DbHelper.studentTable.InsertIgnore(student, new() { "Name" });
             Console.WriteLine(teacher.Id);
             Console.WriteLine(p.Id);
             Console.WriteLine(student.Id);
@@ -203,9 +190,9 @@ namespace Test2
             }
             Stopwatch sw = new();
             sw.Start();
-            tablePe.Insert(pList);
-            tableStu.Insert(sList);
-            tableTc.Insert(tList);
+            DbHelper.peopleTable.Insert(pList);
+            DbHelper.studentTable.Insert(sList);
+            DbHelper.teacherTable.Insert(tList);
             sw.Stop();
             Assert.Pass($"毫秒数:{sw.ElapsedMilliseconds}");
         }
@@ -249,9 +236,9 @@ namespace Test2
                 sList.Add(student);
             }
 
-            tablePe.Insert(pList, new() { "Id" });
-            tableStu.Insert(sList, new() { "Id" });
-            tableTc.Insert(tList, new() { "Id" });
+            DbHelper.peopleTable.Insert(pList, new() { "Id" });
+            DbHelper.studentTable.Insert(sList, new() { "Id" });
+            DbHelper.teacherTable.Insert(tList, new() { "Id" });
 
             Assert.Pass();
         }
@@ -295,9 +282,9 @@ namespace Test2
                 sList.Add(student);
             }
 
-            tablePe.InsertIgnore(pList, new() { "Name" });
-            tableStu.InsertIgnore(sList, new() { "Name" });
-            tableTc.InsertIgnore(tList, new() { "Name" });
+            DbHelper.peopleTable.InsertIgnore(pList, new() { "Name" });
+            DbHelper.studentTable.InsertIgnore(sList, new() { "Name" });
+            DbHelper.teacherTable.InsertIgnore(tList, new() { "Name" });
 
             Assert.Pass();
         }

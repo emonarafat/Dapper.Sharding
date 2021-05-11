@@ -160,6 +160,16 @@ namespace Dapper.Sharding
             return sb.ToString();
         }
 
+        public override void OptimizeTable(string name, bool final = false, bool deduplicate = false)
+        {
+            throw new NotImplementedException();
+        }
+
+        public override void OptimizeTable(string name, string partition, bool final = false, bool deduplicate = false)
+        {
+            throw new NotImplementedException();
+        }
+
         public override void SetCharset(string chartset)
         {
             throw new NotImplementedException();

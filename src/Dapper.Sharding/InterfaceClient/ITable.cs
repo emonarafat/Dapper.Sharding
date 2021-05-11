@@ -37,7 +37,7 @@ namespace Dapper.Sharding
 
         #endregion
 
-        #region public method
+        #region public virtual
 
         public virtual bool Insert(T model)
         {
@@ -86,7 +86,7 @@ namespace Dapper.Sharding
             return true;
         }
 
-        public void InsertIfNoExists(T model)
+        public virtual void InsertIfNoExists(T model)
         {
             DpEntity.BulkInsert(model, opt =>
             {
@@ -94,7 +94,7 @@ namespace Dapper.Sharding
             });
         }
 
-        public void InsertIfNoExists(T model, List<string> fields)
+        public virtual void InsertIfNoExists(T model, List<string> fields)
         {
             DpEntity.BulkInsert(model, opt =>
             {
@@ -103,7 +103,7 @@ namespace Dapper.Sharding
             });
         }
 
-        public void InsertIfNoExistsIgnore(T model, List<string> fields)
+        public virtual void InsertIfNoExistsIgnore(T model, List<string> fields)
         {
             DpEntity.BulkInsert(model, opt =>
             {
@@ -112,7 +112,7 @@ namespace Dapper.Sharding
             });
         }
 
-        public void InsertIfNoExists(IEnumerable<T> modelList)
+        public virtual void InsertIfNoExists(IEnumerable<T> modelList)
         {
             DpEntity.BulkInsert(modelList, opt =>
             {
@@ -120,7 +120,7 @@ namespace Dapper.Sharding
             });
         }
 
-        public void InsertIfNoExists(IEnumerable<T> modelList, List<string> fields)
+        public virtual void InsertIfNoExists(IEnumerable<T> modelList, List<string> fields)
         {
             DpEntity.BulkInsert(modelList, opt =>
             {
@@ -129,7 +129,7 @@ namespace Dapper.Sharding
             });
         }
 
-        public void InsertIfNoExistsIgnore(IEnumerable<T> modelList, List<string> fields)
+        public virtual void InsertIfNoExistsIgnore(IEnumerable<T> modelList, List<string> fields)
         {
             DpEntity.BulkInsert(modelList, opt =>
             {
@@ -167,7 +167,7 @@ namespace Dapper.Sharding
             return true;
         }
 
-        public void InsertIdentity(IEnumerable<T> modelList)
+        public virtual void InsertIdentity(IEnumerable<T> modelList)
         {
             DpEntity.BulkInsert(modelList, opt =>
             {
@@ -175,7 +175,7 @@ namespace Dapper.Sharding
             });
         }
 
-        public void InsertIdentity(IEnumerable<T> modelList, List<string> fields)
+        public virtual void InsertIdentity(IEnumerable<T> modelList, List<string> fields)
         {
             DpEntity.BulkInsert(modelList, opt =>
             {
@@ -184,7 +184,7 @@ namespace Dapper.Sharding
             });
         }
 
-        public void InsertIdentityIgnore(IEnumerable<T> modelList, List<string> fields)
+        public virtual void InsertIdentityIgnore(IEnumerable<T> modelList, List<string> fields)
         {
             DpEntity.BulkInsert(modelList, opt =>
             {
@@ -193,7 +193,7 @@ namespace Dapper.Sharding
             });
         }
 
-        public void InsertIdentityIfNoExists(T model)
+        public virtual void InsertIdentityIfNoExists(T model)
         {
             DpEntity.BulkInsert(model, opt =>
             {
@@ -202,7 +202,7 @@ namespace Dapper.Sharding
             });
         }
 
-        public void InsertIdentityIfNoExists(T model, List<string> fields)
+        public virtual void InsertIdentityIfNoExists(T model, List<string> fields)
         {
             DpEntity.BulkInsert(model, opt =>
             {
@@ -212,7 +212,7 @@ namespace Dapper.Sharding
             });
         }
 
-        public void InsertIdentityIfNoExistsIgnore(T model, List<string> fields)
+        public virtual void InsertIdentityIfNoExistsIgnore(T model, List<string> fields)
         {
             DpEntity.BulkInsert(model, opt =>
             {
@@ -222,7 +222,7 @@ namespace Dapper.Sharding
             });
         }
 
-        public void InsertIdentityIfNoExists(IEnumerable<T> modelList)
+        public virtual void InsertIdentityIfNoExists(IEnumerable<T> modelList)
         {
             DpEntity.BulkInsert(modelList, opt =>
             {
@@ -231,7 +231,7 @@ namespace Dapper.Sharding
             });
         }
 
-        public void InsertIdentityIfNoExists(IEnumerable<T> modelList, List<string> fields)
+        public virtual void InsertIdentityIfNoExists(IEnumerable<T> modelList, List<string> fields)
         {
             DpEntity.BulkInsert(modelList, opt =>
             {
@@ -241,7 +241,7 @@ namespace Dapper.Sharding
             });
         }
 
-        public void InsertIdentityIfNoExistsIgnore(IEnumerable<T> modelList, List<string> fields)
+        public virtual void InsertIdentityIfNoExistsIgnore(IEnumerable<T> modelList, List<string> fields)
         {
             DpEntity.BulkInsert(modelList, opt =>
             {
@@ -264,7 +264,7 @@ namespace Dapper.Sharding
             return true;
         }
 
-        public void Update(IEnumerable<T> modelList, List<string> fields = null)
+        public virtual void Update(IEnumerable<T> modelList, List<string> fields = null)
         {
             DpEntity.BulkUpdate(modelList, opt =>
             {
@@ -285,7 +285,7 @@ namespace Dapper.Sharding
             return true;
         }
 
-        public void UpdateIgnore(IEnumerable<T> modelList, List<string> fields)
+        public virtual void UpdateIgnore(IEnumerable<T> modelList, List<string> fields)
         {
             DpEntity.BulkUpdate(modelList, opt =>
             {
@@ -293,17 +293,17 @@ namespace Dapper.Sharding
             });
         }
 
-        public void Delete(T model)
+        public virtual void Delete(T model)
         {
             DpEntity.BulkDelete(model, opt => { });
         }
 
-        public void Delete(IEnumerable<T> modelList)
+        public virtual void Delete(IEnumerable<T> modelList)
         {
             DpEntity.BulkDelete(modelList, opt => { });
         }
 
-        public void Merge(T model, List<string> fields = null)
+        public virtual void Merge(T model, List<string> fields = null)
         {
             DpEntity.BulkMerge(model, opt =>
             {
@@ -316,7 +316,7 @@ namespace Dapper.Sharding
             });
         }
 
-        public void Merge(IEnumerable<T> modelList, List<string> fields = null)
+        public virtual void Merge(IEnumerable<T> modelList, List<string> fields = null)
         {
             DpEntity.BulkMerge(modelList, opt =>
             {
@@ -329,7 +329,7 @@ namespace Dapper.Sharding
             });
         }
 
-        public void MergeIgnore(T model, List<string> fields = null)
+        public virtual void MergeIgnore(T model, List<string> fields = null)
         {
             DpEntity.BulkMerge(model, opt =>
             {
@@ -341,7 +341,7 @@ namespace Dapper.Sharding
             });
         }
 
-        public void MergeIgnore(IEnumerable<T> modelList, List<string> fields = null)
+        public virtual void MergeIgnore(IEnumerable<T> modelList, List<string> fields = null)
         {
             DpEntity.BulkMerge(modelList, opt =>
             {
@@ -352,6 +352,10 @@ namespace Dapper.Sharding
                 opt.MergeKeepIdentity = true;
             });
         }
+
+        #endregion
+
+        #region public
 
         public bool Exists(T model)
         {

@@ -1,9 +1,11 @@
-﻿using System;
+﻿using FastMember;
+using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Data;
+using System.Dynamic;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+using System.Linq.Dynamic.Core;
 
 namespace Dapper.Sharding
 {
@@ -14,7 +16,38 @@ namespace Dapper.Sharding
 
         }
 
-        #region virtual insert
+        #region method
+
+        private IEnumerable<T> GetInsertList(IEnumerable<T> modelList)
+        {
+            if (modelList.Count() == 0)
+            {
+                return Enumerable.Empty<T>();
+            }
+            var query = modelList.AsQueryable();
+            var ids = query.Where($"{SqlField.PrimaryKey}!=null").Select(SqlField.PrimaryKey).ToDynamicList();
+            if (ids.Count == 0)
+            {
+                return Enumerable.Empty<T>();
+            }
+
+            var sql = $"SELECT {SqlField.PrimaryKey} FROM {Name} WHERE {SqlField.PrimaryKey} IN (@ids)";
+            var dpar = new DynamicParameters();
+            dpar.Add("@ids", ids);
+            var data = DpEntity.Query(sql, dpar);
+            var existsIds = data.Select(s => ((IDictionary<string, object>)s).First().Value);
+
+            var insertIds = ids.Except(existsIds);          
+            if (insertIds.Count() == 0)
+            {
+                return Enumerable.Empty<T>();
+            }
+            return query.Where($"@0.Contains({SqlField.PrimaryKey})", insertIds).ToList();
+        }
+
+        #endregion
+
+        #region  insert
 
         public override bool Insert(T model)
         {
@@ -63,6 +96,61 @@ namespace Dapper.Sharding
 
         #endregion
 
+        #region insert if not exist
+
+        public override void InsertIfNoExists(T model)
+        {
+            if (!Exists(model))
+            {
+                Insert(model);
+            }
+        }
+
+        public override void InsertIfNoExists(T model, List<string> fields)
+        {
+            if (!Exists(model))
+            {
+                Insert(model, fields);
+            }
+        }
+
+        public override void InsertIfNoExistsIgnore(T model, List<string> fields)
+        {
+            if (!Exists(model))
+            {
+                InsertIgnore(model, fields);
+            }
+        }
+
+        public override void InsertIfNoExists(IEnumerable<T> modelList)
+        {
+            var list = GetInsertList(modelList);
+            if (list.Count() > 0)
+            {
+                Insert(list);
+            }
+        }
+
+        public override void InsertIfNoExists(IEnumerable<T> modelList, List<string> fields)
+        {
+            var list = GetInsertList(modelList);
+            if (list.Count() > 0)
+            {
+                Insert(list, fields);
+            }
+        }
+
+        public override void InsertIfNoExistsIgnore(IEnumerable<T> modelList, List<string> fields)
+        {
+            var list = GetInsertList(modelList);
+            if (list.Count() > 0)
+            {
+                InsertIgnore(list, fields);
+            }
+        }
+
+        #endregion
+
         #region update
 
         public override int UpdateByWhere(T model, string where, List<string> fields = null)
@@ -80,31 +168,171 @@ namespace Dapper.Sharding
             throw new NotImplementedException();
         }
 
+        public override bool Update(T model, List<string> fields = null)
+        {
+            throw new NotImplementedException();
+        }
+
+        public override void Update(IEnumerable<T> modelList, List<string> fields = null)
+        {
+            throw new NotImplementedException();
+        }
+
+        public override bool UpdateIgnore(T model, List<string> fields)
+        {
+            throw new NotImplementedException();
+        }
+
+        public override void UpdateIgnore(IEnumerable<T> modelList, List<string> fields)
+        {
+            throw new NotImplementedException();
+        }
         #endregion
 
         #region del
 
         public override bool Delete(object id)
         {
-            throw new NotImplementedException();
+            var sql = $"ALTER TABLE {Name} DELETE WHERE {SqlField.PrimaryKey}=@id";
+            return DpEntity.Execute(sql, new { id }) > 0;
         }
 
         public override int DeleteAll()
         {
-            throw new NotImplementedException();
+            DataBase.DropTable(Name);
+            DataBase.CreateTable<T>(Name);
+            return 1;
         }
 
         public override int DeleteByIds(object ids)
         {
-            throw new NotImplementedException();
+            if (CommonUtil.ObjectIsEmpty(ids))
+                return 0;
+            var dpar = new DynamicParameters();
+            dpar.Add("@ids", ids);
+            var sql = $"ALTER TABLE {Name} DELETE WHERE {SqlField.PrimaryKey} IN (@ids)";
+            return DpEntity.Execute(sql, dpar);
         }
 
         public override int DeleteByWhere(string where, object param = null)
+        {
+            var sql = $"ALTER TABLE {Name} DELETE {where}";
+            return DpEntity.Execute(sql, param);
+        }
+
+        public override void Delete(T model)
+        {
+            var accessor = TypeAccessor.Create(typeof(T));
+            var id = accessor[model, SqlField.PrimaryKey];
+            Delete(id);
+        }
+
+        public override void Delete(IEnumerable<T> modelList)
+        {
+            if (modelList.Count() == 0)
+            {
+                return;
+            }
+            var query = modelList.AsQueryable();
+            var ids = query.Where($"{SqlField.PrimaryKey}!=null").Select(SqlField.PrimaryKey).ToDynamicList();
+            if (ids.Count == 0)
+            {
+                return;
+            }
+            var dpar = new DynamicParameters();
+            dpar.Add("@ids", ids);
+            var sql = $"ALTER TABLE {Name} DELETE WHERE {SqlField.PrimaryKey} IN (@ids)";
+            DpEntity.Execute(sql, dpar);
+        }
+
+
+        #endregion
+
+        #region insert identity merge
+
+        public override bool InsertIdentity(T model)
+        {
+            throw new NotImplementedException();
+        }
+
+        public override bool InsertIdentity(T model, List<string> fields)
+        {
+            throw new NotImplementedException();
+        }
+
+        public override bool InsertIdentityIgnore(T model, List<string> fields)
+        {
+            throw new NotImplementedException();
+        }
+
+        public override void InsertIdentity(IEnumerable<T> modelList)
+        {
+            throw new NotImplementedException();
+        }
+
+        public override void InsertIdentity(IEnumerable<T> modelList, List<string> fields)
+        {
+            throw new NotImplementedException();
+        }
+
+        public override void InsertIdentityIgnore(IEnumerable<T> modelList, List<string> fields)
+        {
+            throw new NotImplementedException();
+        }
+
+        public override void InsertIdentityIfNoExists(T model)
+        {
+            throw new NotImplementedException();
+        }
+
+        public override void InsertIdentityIfNoExists(T model, List<string> fields)
+        {
+            throw new NotImplementedException();
+        }
+
+        public override void InsertIdentityIfNoExistsIgnore(T model, List<string> fields)
+        {
+            throw new NotImplementedException();
+        }
+
+        public override void InsertIdentityIfNoExists(IEnumerable<T> modelList)
+        {
+            throw new NotImplementedException();
+        }
+
+        public override void InsertIdentityIfNoExists(IEnumerable<T> modelList, List<string> fields)
+        {
+            throw new NotImplementedException();
+        }
+
+        public override void InsertIdentityIfNoExistsIgnore(IEnumerable<T> modelList, List<string> fields)
+        {
+            throw new NotImplementedException();
+        }
+
+        public override void Merge(T model, List<string> fields = null)
+        {
+            throw new NotImplementedException();
+        }
+
+        public override void Merge(IEnumerable<T> modelList, List<string> fields = null)
+        {
+            throw new NotImplementedException();
+        }
+
+        public override void MergeIgnore(T model, List<string> fields = null)
+        {
+            throw new NotImplementedException();
+        }
+
+        public override void MergeIgnore(IEnumerable<T> modelList, List<string> fields = null)
         {
             throw new NotImplementedException();
         }
 
         #endregion
+
+        #region abstract
 
         public override decimal Avg(string field, string where = null, object param = null)
         {
@@ -335,6 +563,8 @@ namespace Dapper.Sharding
         {
             throw new NotImplementedException();
         }
+
+        #endregion
 
     }
 }

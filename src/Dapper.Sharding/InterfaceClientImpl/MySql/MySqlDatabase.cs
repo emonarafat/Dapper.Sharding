@@ -183,5 +183,17 @@ namespace Dapper.Sharding
             return new MySqlTableManager(name, this);
         }
 
+        public override void OptimizeTable(string name, bool final = false, bool deduplicate = false)
+        {
+            using (var conn = GetConn())
+            {
+                conn.Execute($"optimize table {name}");
+            }
+        }
+
+        public override void OptimizeTable(string name, string partition, bool final = false, bool deduplicate = false)
+        {
+            throw new System.NotImplementedException();
+        }
     }
 }

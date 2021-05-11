@@ -152,6 +152,14 @@ on (a.object_id = g.major_id AND g.minor_id = 0) where a.Name='{name}'";
             }
         }
 
+        public override void OptimizeTable(string name, bool final = false, bool deduplicate = false)
+        {
+            throw new NotImplementedException();
+        }
 
+        public override void OptimizeTable(string name, string partition, bool final = false, bool deduplicate = false)
+        {
+            throw new NotImplementedException();
+        }
     }
 }

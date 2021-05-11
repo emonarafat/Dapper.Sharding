@@ -94,6 +94,40 @@ namespace Dapper.Sharding
             return sb.ToString();
         }
 
+        public override void OptimizeTable(string name, bool final = false, bool deduplicate = false)
+        {
+            var sql = $"OPTIMIZE TABLE {name}";
+            if (final)
+            {
+                sql += " FINAL";
+            }
+            if (deduplicate)
+            {
+                sql += " DEDUPLICATE";
+            }
+            using (var conn = GetConn())
+            {               
+                conn.Execute(sql);
+            }
+        }
+
+        public override void OptimizeTable(string name, string partition, bool final = false, bool deduplicate = false)
+        {
+            var sql = $"OPTIMIZE TABLE {name} PARTITION {partition}";
+            if (final)
+            {
+                sql += " FINAL";
+            }
+            if (deduplicate)
+            {
+                sql += " DEDUPLICATE";
+            }
+            using (var conn = GetConn())
+            {
+                conn.Execute(sql);
+            }
+        }
+
         public override void SetCharset(string chartset)
         {
             throw new NotImplementedException();

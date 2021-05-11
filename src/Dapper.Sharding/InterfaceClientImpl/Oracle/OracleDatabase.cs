@@ -195,5 +195,15 @@ WHERE C.TABLE_NAME = '{name.ToUpper()}' ORDER BY C.COLUMN_ID";
 
             }
         }
+
+        public override void OptimizeTable(string name, bool final = false, bool deduplicate = false)
+        {
+            throw new NotImplementedException();
+        }
+
+        public override void OptimizeTable(string name, string partition, bool final = false, bool deduplicate = false)
+        {
+            throw new NotImplementedException();
+        }
     }
 }

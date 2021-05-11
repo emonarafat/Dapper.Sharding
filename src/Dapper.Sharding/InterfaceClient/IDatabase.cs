@@ -204,6 +204,10 @@ namespace Dapper.Sharding
 
         public abstract ITableManager GetTableManager(string name);
 
+        public abstract void OptimizeTable(string name, bool final = false, bool deduplicate = false);
+
+        public abstract void OptimizeTable(string name, string partition, bool final = false, bool deduplicate = false);
+
         #endregion
 
 
