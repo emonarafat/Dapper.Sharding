@@ -2,6 +2,7 @@
 using NUnit.Framework;
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -182,7 +183,7 @@ namespace Test2
                     Money = 10.5M + i
 
                 };
-                pList.Add(p);
+                    pList.Add(p);
 
                 var teacher = new Teacher
                 {
@@ -200,12 +201,13 @@ namespace Test2
                 };
                 sList.Add(student);
             }
-
+            Stopwatch sw = new();
+            sw.Start();
             tablePe.Insert(pList);
             tableStu.Insert(sList);
             tableTc.Insert(tList);
-
-            Assert.Pass();
+            sw.Stop();
+            Assert.Pass($"毫秒数:{sw.ElapsedMilliseconds}");
         }
 
         [Test]
