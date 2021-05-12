@@ -45,6 +45,10 @@ namespace Dapper.Sharding
             {
                 sb.Append($";charset={config.CharSet}");
             }
+            if (!string.IsNullOrEmpty(config.OtherConfig))
+            {
+                sb.Append($";{config.OtherConfig}");
+            }
             return sb.ToString();
         }
 
@@ -85,6 +89,10 @@ namespace Dapper.Sharding
             if (config.TimeOut != 0)
             {
                 sb.Append($";timeout={config.TimeOut}");
+            }
+            if (!string.IsNullOrEmpty(config.OtherConfig))
+            {
+                sb.Append($";{config.OtherConfig}");
             }
             return sb.ToString();
         }
@@ -130,6 +138,10 @@ namespace Dapper.Sharding
             {
                 sb.Append($";encoding={config.CharSet}");
             }
+            if (!string.IsNullOrEmpty(config.OtherConfig))
+            {
+                sb.Append($";{config.OtherConfig}");
+            }
             return sb.ToString();
         }
 
@@ -167,6 +179,10 @@ namespace Dapper.Sharding
                 sb.Append($";connect timeout={config.TimeOut}");
             }
             sb.Append(";dba privilege=sysdba");
+            if (!string.IsNullOrEmpty(config.OtherConfig))
+            {
+                sb.Append($";{config.OtherConfig}");
+            }
             return sb.ToString();
         }
 
@@ -208,6 +224,10 @@ namespace Dapper.Sharding
             {
                 sb.Append($";connect timeout={config.TimeOut}");
             }
+            if (!string.IsNullOrEmpty(config.OtherConfig))
+            {
+                sb.Append($";{config.OtherConfig}");
+            }
             return sb.ToString();
         }
 
@@ -238,8 +258,11 @@ namespace Dapper.Sharding
                 databaseName = "default";
             }
             sb.Append($";Database={databaseName}");
-
             sb.Append(";Compress=True");
+            if (!string.IsNullOrEmpty(config.OtherConfig))
+            {
+                sb.Append($";{config.OtherConfig}");
+            }
             return sb.ToString();
         }
     }
