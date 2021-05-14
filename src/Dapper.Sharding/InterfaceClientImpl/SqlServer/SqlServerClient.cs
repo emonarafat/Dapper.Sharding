@@ -35,7 +35,7 @@ namespace Dapper.Sharding
 
         #endregion
 
-        public override void CreateDatabase(string name, bool useGis = false, string gisExt = null)
+        public override void CreateDatabase(string name, bool useGis = false, string ext = null)
         {
             var sb = new StringBuilder();
             sb.Append($"IF NOT EXISTS (SELECT 1 FROM sys.databases WHERE name='{name}') CREATE DATABASE [{name}] ");

@@ -15,6 +15,8 @@ namespace Dapper.Sharding
 
         public string Engine { get; set; }
 
+        public string Cluster { get; set; }
+
         public List<ColumnEntity> ColumnList { get; set; }
 
         public Dictionary<string, double> OtherColumnDict { get; set; }

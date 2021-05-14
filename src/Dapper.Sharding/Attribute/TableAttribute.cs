@@ -13,12 +13,15 @@ namespace Dapper.Sharding
 
         public string Engine;
 
-        public TableAttribute(string primaryKey, bool isIdentity = true, string comment = null, string engine = null)
+        public string Cluster;
+
+        public TableAttribute(string primaryKey, bool isIdentity = true, string comment = null, string engine = null, string cluster = null)
         {
             PrimaryKey = primaryKey;
             IsIdentity = isIdentity;
             Comment = comment;
             Engine = engine;
+            Cluster = cluster;
         }
 
     }

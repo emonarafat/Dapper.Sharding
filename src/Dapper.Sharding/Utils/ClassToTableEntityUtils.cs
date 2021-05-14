@@ -25,6 +25,7 @@ namespace Dapper.Sharding
             }
             entity.Comment = tableAttr.Comment;
             entity.Engine = tableAttr.Engine;
+            entity.Cluster = tableAttr.Cluster;
             var indexAttrs = t.GetCustomAttributes(false).Where(f => f is IndexAttribute).Select(s => s as IndexAttribute);
             if (indexAttrs.Any())
             {

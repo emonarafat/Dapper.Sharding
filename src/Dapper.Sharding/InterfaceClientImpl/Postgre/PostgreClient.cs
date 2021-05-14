@@ -26,7 +26,7 @@ namespace Dapper.Sharding
 
         #endregion
 
-        public override void CreateDatabase(string name, bool useGis = false, string gisExt = null)
+        public override void CreateDatabase(string name, bool useGis = false, string ext = null)
         {
             using (var conn = GetConn())
             {
@@ -35,20 +35,20 @@ namespace Dapper.Sharding
 
             if (useGis)
             {
-                if (string.IsNullOrEmpty(gisExt))
+                if (string.IsNullOrEmpty(ext))
                 {
-                    gisExt = "CREATE EXTENSION IF NOT EXISTS postgis";
+                    ext = "CREATE EXTENSION IF NOT EXISTS postgis";
                 }
-                else if (gisExt == "1")
+                else if (ext == "1")
                 {
                     var sb = new StringBuilder();
                     sb.Append("CREATE EXTENSION IF NOT EXISTS postgis;");
                     sb.Append("CREATE EXTENSION IF NOT EXISTS postgis_raster;");
                     sb.Append("CREATE EXTENSION IF NOT EXISTS postgis_sfcgal;");
                     sb.Append("CREATE EXTENSION IF NOT EXISTS postgis_topology;");
-                    gisExt = sb.ToString();
+                    ext = sb.ToString();
                 }
-                else if (gisExt == "2")
+                else if (ext == "2")
                 {
                     var sb = new StringBuilder();
                     sb.Append("CREATE EXTENSION IF NOT EXISTS postgis;");
@@ -59,9 +59,9 @@ namespace Dapper.Sharding
                     sb.Append("CREATE EXTENSION IF NOT EXISTS pgrouting;");
                     sb.Append("CREATE EXTENSION IF NOT EXISTS ogr_fdw;");
 
-                    gisExt = sb.ToString();
+                    ext = sb.ToString();
                 }
-                else if (gisExt == "3")
+                else if (ext == "3")
                 {
                     var sb = new StringBuilder();
                     sb.Append("CREATE EXTENSION IF NOT EXISTS postgis;");
@@ -76,12 +76,12 @@ namespace Dapper.Sharding
                     sb.Append("CREATE EXTENSION IF NOT EXISTS address_standardizer_data_us;");
                     sb.Append("CREATE EXTENSION IF NOT EXISTS fuzzystrmatch;");
                     sb.Append("CREATE EXTENSION IF NOT EXISTS postgis_tiger_geocoder;");
-                    gisExt = sb.ToString();
+                    ext = sb.ToString();
                 }
                 var db = CreateIDatabase(name);
                 db.Using(conn =>
                 {
-                    conn.Execute(gisExt);
+                    conn.Execute(ext);
                 });
             }
         }

@@ -80,7 +80,14 @@ namespace Dapper.Sharding
         {
             var tableEntity = ClassToTableEntityUtils.Get<T>(Client.DbType);
             var sb = new StringBuilder();
-            sb.Append($"CREATE TABLE IF NOT EXISTS {name} (");
+            if (string.IsNullOrEmpty(tableEntity.Cluster))
+            {
+                sb.Append($"CREATE TABLE IF NOT EXISTS {name} (");
+            }
+            else
+            {
+                sb.Append($"CREATE TABLE IF NOT EXISTS {name} ON CLUSTER {tableEntity.Cluster} (");
+            }
             foreach (var item in tableEntity.ColumnList)
             {
                 sb.Append($"{item.Name} {item.DbType}");

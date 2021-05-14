@@ -43,7 +43,7 @@ namespace Dapper.Sharding
             return conn;
         }
 
-        public override void CreateDatabase(string name, bool useGis = false, string gisExt = null)
+        public override void CreateDatabase(string name, bool useGis = false, string ext = null)
         {
             using (var conn = GetConn())
             {

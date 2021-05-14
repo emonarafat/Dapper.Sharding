@@ -39,7 +39,7 @@ namespace Dapper.Sharding
 
         public bool AutoCompareTableColumn { get; set; } = false;
 
-        public virtual IDatabase GetDatabase(string name, bool useGis = false, string gisExt = null)
+        public virtual IDatabase GetDatabase(string name, bool useGis = false, string ext = null)
         {
             var exists = DataBaseCache.TryGetValue(name, out var val);
             if (!exists)
@@ -52,7 +52,7 @@ namespace Dapper.Sharding
                         {
                             if (!ExistsDatabase(name))
                             {
-                                CreateDatabase(name, useGis, gisExt);
+                                CreateDatabase(name, useGis, ext);
                             }
                         }
                         val = CreateIDatabase(name);
@@ -67,7 +67,7 @@ namespace Dapper.Sharding
         {
             if (!string.IsNullOrEmpty(dbname))
             {
-                DataBaseCache.TryRemove(dbname, out _);              
+                DataBaseCache.TryRemove(dbname, out _);    
             }
             else
             {
@@ -85,7 +85,7 @@ namespace Dapper.Sharding
 
         public abstract Task<IDbConnection> GetConnAsync();
 
-        public abstract void CreateDatabase(string name, bool useGis = false, string gisExt = null);
+        public abstract void CreateDatabase(string name, bool useGis = false, string ext = null);
 
         public abstract void DropDatabase(string name);
 
