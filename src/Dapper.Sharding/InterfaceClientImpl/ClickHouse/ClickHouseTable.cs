@@ -35,7 +35,7 @@ namespace Dapper.Sharding
             var data = DpEntity.Query(sql, dpar);
             var existsIds = data.Select(s => ((IDictionary<string, object>)s).First().Value);
 
-            var insertIds = ids.Except(existsIds);          
+            var insertIds = ids.Except(existsIds);
             if (insertIds.Count() == 0)
             {
                 return Enumerable.Empty<T>();
@@ -151,40 +151,73 @@ namespace Dapper.Sharding
 
         #region update
 
-        public override int UpdateByWhere(T model, string where, List<string> fields = null)
-        {
-            throw new NotImplementedException();
-        }
-
-        public override int UpdateByWhere(string where, object param, List<string> fields = null)
-        {
-            throw new NotImplementedException();
-        }
-
-        public override int UpdateByWhereIgnore(T model, string where, List<string> fields)
-        {
-            throw new NotImplementedException();
-        }
-
         public override bool Update(T model, List<string> fields = null)
         {
-            throw new NotImplementedException();
+            string updatefields;
+            if (fields == null)
+                updatefields = SqlField.AllFieldsAtEqExceptKey;
+            else
+                updatefields = CommonUtil.GetFieldsAtEqStr(fields, "", "");
+            return DpEntity.Execute($"ALTER TABLE {Name} UPDATE {updatefields} WHERE {SqlField.PrimaryKey}=@{SqlField.PrimaryKey}", model) > 0;
         }
 
         public override void Update(IEnumerable<T> modelList, List<string> fields = null)
         {
-            throw new NotImplementedException();
+            foreach (var item in modelList)
+            {
+                Update(item, fields);
+            }
         }
 
         public override bool UpdateIgnore(T model, List<string> fields)
         {
-            throw new NotImplementedException();
+            string updateFields = CommonUtil.GetFieldsAtEqStr(SqlField.AllFieldExceptKeyList.Except(fields), "", "");
+            return DpEntity.Execute($"ALTER TABLE {Name} UPDATE {updateFields} WHERE {SqlField.PrimaryKey}=@{SqlField.PrimaryKey}", model) > 0;
         }
 
         public override void UpdateIgnore(IEnumerable<T> modelList, List<string> fields)
         {
-            throw new NotImplementedException();
+            foreach (var item in modelList)
+            {
+                UpdateIgnore(item, fields);
+            }
         }
+
+        public override int UpdateByWhere(T model, string where, List<string> fields = null)
+        {
+            string updatefields;
+            if (fields != null)
+            {
+                updatefields = CommonUtil.GetFieldsAtEqStr(fields, "", "");
+            }
+            else
+            {
+                updatefields = SqlField.AllFieldsAtEqExceptKey;
+            }
+            return DpEntity.Execute($"ALTER TABLE {Name} UPDATE {updatefields} {where}", model);
+        }
+
+        public override int UpdateByWhere(string where, object param, List<string> fields = null)
+        {
+            string updatefields;
+            if (fields != null)
+            {
+                updatefields = CommonUtil.GetFieldsAtEqStr(fields, "", "");
+            }
+            else
+            {
+                updatefields = SqlField.AllFieldsAtEqExceptKey;
+            }
+            return DpEntity.Execute($"ALTER TABLE {Name} UPDATE {updatefields} {where}", param);
+        }
+
+        public override int UpdateByWhereIgnore(T model, string where, List<string> fields)
+        {
+            string updateFields = CommonUtil.GetFieldsAtEqStr(SqlField.AllFieldExceptKeyList.Except(fields), "", "");
+            return DpEntity.Execute($"ALTER TABLE {Name} UPDATE {updateFields} {where}", model);
+
+        }
+
         #endregion
 
         #region del

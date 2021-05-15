@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Data;
+using System.Threading.Tasks;
 using Z.BulkOperations;
 using Z.Dapper.Plus;
 
@@ -26,6 +27,8 @@ namespace Dapper.Sharding
         private int? CommandTimeout { get; }
 
         public string TableName { get; }
+
+        #region no Async
 
         public int Execute(string sql, object param = null)
         {
@@ -135,6 +138,121 @@ namespace Dapper.Sharding
                 return Conn.Query<T>(sql, param, Tran, commandTimeout: CommandTimeout);
             }
         }
+
+        #endregion
+
+        #region Async
+
+        public Task<int> ExecuteAsync(string sql, object param = null)
+        {
+            if (Conn == null)
+            {
+                using (var cnn = DataBase.GetConn())
+                {
+                    return cnn.ExecuteAsync(sql, param);
+                }
+            }
+            else
+            {
+                return Conn.ExecuteAsync(sql, param, Tran, CommandTimeout);
+            }
+
+        }
+
+        public Task<object> ExecuteScalarAsync(string sql, object param = null)
+        {
+            if (Conn == null)
+            {
+                using (var cnn = DataBase.GetConn())
+                {
+                    return cnn.ExecuteScalarAsync(sql, param);
+                }
+            }
+            else
+            {
+                return Conn.ExecuteScalarAsync(sql, param, Tran, CommandTimeout);
+            }
+
+        }
+
+        public Task<T> ExecuteScalarAsync<T>(string sql, object param = null)
+        {
+            if (Conn == null)
+            {
+                using (var cnn = DataBase.GetConn())
+                {
+                    return cnn.ExecuteScalarAsync<T>(sql, param);
+                }
+            }
+            else
+            {
+                return Conn.ExecuteScalarAsync<T>(sql, param, Tran, CommandTimeout);
+            }
+        }
+
+        public Task<dynamic> QueryFirstOrDefaultAsync(string sql, object param = null)
+        {
+            if (Conn == null)
+            {
+                using (var cnn = DataBase.GetConn())
+                {
+                    return cnn.QueryFirstOrDefaultAsync(sql, param);
+                }
+            }
+            else
+            {
+                return Conn.QueryFirstOrDefaultAsync(sql, param, Tran, commandTimeout: CommandTimeout);
+            }
+
+        }
+
+        public Task<T> QueryFirstOrDefaultAsync<T>(string sql, object param = null)
+        {
+            if (Conn == null)
+            {
+                using (var cnn = DataBase.GetConn())
+                {
+                    return cnn.QueryFirstOrDefaultAsync<T>(sql, param);
+                }
+            }
+            else
+            {
+                return Conn.QueryFirstOrDefaultAsync<T>(sql, param, Tran, commandTimeout: CommandTimeout);
+            }
+        }
+
+        public Task<IEnumerable<dynamic>> QueryAsync(string sql, object param = null)
+        {
+            if (Conn == null)
+            {
+                using (var cnn = DataBase.GetConn())
+                {
+                    return cnn.QueryAsync(sql, param);
+                }
+            }
+            else
+            {
+                return Conn.QueryAsync(sql, param, Tran, commandTimeout: CommandTimeout);
+            }
+
+        }
+
+        public Task<IEnumerable<T>> QueryAsync<T>(string sql, object param = null)
+        {
+            if (Conn == null)
+            {
+                using (var cnn = DataBase.GetConn())
+                {
+                    return cnn.QueryAsync<T>(sql, param);
+                }
+            }
+            else
+            {
+                return Conn.QueryAsync<T>(sql, param, Tran, commandTimeout: CommandTimeout);
+            }
+        }
+
+        #endregion
 
         #region Bulk
 
