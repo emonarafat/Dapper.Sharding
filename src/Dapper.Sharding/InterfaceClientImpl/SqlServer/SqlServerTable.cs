@@ -122,10 +122,10 @@ namespace Dapper.Sharding
             return DpEntity.ExecuteScalar<TValue>($"SELECT SUM([{field}]) FROM [{Name}] {where}", param);
         }
 
-        public override void Truncate()
-        {
-            DataBase.TruncateTable(Name);
-        }
+        //public override void Truncate()
+        //{
+        //    DataBase.TruncateTable(Name);
+        //}
 
         public override int UpdateByWhere(T model, string where, List<string> fields = null)
         {

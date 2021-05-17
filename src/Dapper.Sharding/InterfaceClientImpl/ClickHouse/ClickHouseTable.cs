@@ -372,7 +372,11 @@ namespace Dapper.Sharding
 
         public override long Count(string where = null, object param = null)
         {
-            return DpEntity.ExecuteScalar<long>($"SELECT COUNT({SqlField.PrimaryKey}) FROM {Name} {where}", param);
+            if (!string.IsNullOrEmpty(SqlField.PrimaryKey))
+            {
+                return DpEntity.ExecuteScalar<long>($"SELECT COUNT({SqlField.PrimaryKey}) FROM {Name} {where}", param);
+            }
+            return DpEntity.ExecuteScalar<long>($"SELECT COUNT() FROM {Name} {where}", param);
         }
 
         public override ITable<T> CreateTranTable(IDbConnection conn, IDbTransaction tran, int? commandTimeout = null)
@@ -590,10 +594,10 @@ namespace Dapper.Sharding
             throw new NotImplementedException();
         }
 
-        public override void Truncate()
-        {
-            throw new NotImplementedException();
-        }
+        //public override void Truncate()
+        //{
+        //    throw new NotImplementedException();
+        //}
 
         #endregion
 

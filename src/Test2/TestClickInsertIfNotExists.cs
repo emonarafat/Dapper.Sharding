@@ -27,6 +27,7 @@ namespace Test2
                 list.Add(model);
             }
             DbHelper.treeTable.Insert(list);
+            DbHelper.treeTable.Optimize();
         }
         [Test]
         public void InsertNo()
@@ -40,7 +41,7 @@ namespace Test2
             };
 
             DbHelper.treeTable.InsertIfNoExists(model);
-            DbHelper.Db.OptimizeTable("tree");
+            DbHelper.treeTable.Optimize();
         }
 
         [Test]
@@ -59,7 +60,7 @@ namespace Test2
                 list.Add(model);
             }
             DbHelper.treeTable.InsertIfNoExists(list);
-            DbHelper.Db.OptimizeTable("tree");
+            DbHelper.treeTable.Optimize();
         }
 
     }

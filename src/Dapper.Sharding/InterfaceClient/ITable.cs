@@ -402,6 +402,20 @@ namespace Dapper.Sharding
             };
         }
 
+        public void Truncate()
+        {
+            DataBase.TruncateTable(Name);
+        }
+
+        public void Optimize(bool final = false, bool deduplicate = false)
+        {
+            DataBase.OptimizeTable(Name, final, deduplicate);
+        }
+
+        public void Optimize(string partition, bool final = false, bool deduplicate = false)
+        {
+            DataBase.OptimizeTable(Name, partition, final, deduplicate);
+        }
 
         #endregion
 
@@ -423,7 +437,7 @@ namespace Dapper.Sharding
 
         public abstract int DeleteAll();
 
-        public abstract void Truncate();
+        //public abstract void Truncate();
 
         public abstract bool Exists(object id);
 

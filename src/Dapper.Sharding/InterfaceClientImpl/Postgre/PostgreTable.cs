@@ -126,10 +126,10 @@ namespace Dapper.Sharding
             return DpEntity.Execute($"DELETE FROM {Name}");
         }
 
-        public override void Truncate()
-        {
-            DataBase.TruncateTable(Name);
-        }
+        //public override void Truncate()
+        //{
+        //    DataBase.TruncateTable(Name);
+        //}
 
         public override bool Exists(object id)
         {
