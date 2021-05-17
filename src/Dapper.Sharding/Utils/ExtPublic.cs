@@ -422,6 +422,10 @@ namespace Dapper.Sharding
             {
                 where = $"WHERE {mapField}=ANY(@ids) {and}";
             }
+            else if(table.DataBase.Client.DbType == DataBaseType.ClickHouse)
+            {
+                where = $"WHERE {mapField} IN (@ids) {and}";
+            }
             else
             {
                 where = $"WHERE {mapField} IN @ids {and}";
@@ -600,6 +604,10 @@ namespace Dapper.Sharding
             if (table.DataBase.Client.DbType == DataBaseType.Postgresql)
             {
                 where = $"WHERE {mapField}=ANY(@ids) {and}";
+            }
+            else if (table.DataBase.Client.DbType == DataBaseType.ClickHouse)
+            {
+                where = $"WHERE {mapField} IN (@ids) {and}";
             }
             else
             {
@@ -889,6 +897,10 @@ namespace Dapper.Sharding
                 if (mapTable.DataBase.Client.DbType == DataBaseType.Postgresql)
                 {
                     where = $"WHERE {mapField}=ANY(@ids) {and}";
+                }
+                else if (mapTable.DataBase.Client.DbType == DataBaseType.ClickHouse)
+                {
+                    where = $"WHERE {mapField} IN (@ids) {and}";
                 }
                 else
                 {
@@ -1184,6 +1196,10 @@ namespace Dapper.Sharding
                 if (mapTable.DataBase.Client.DbType == DataBaseType.Postgresql)
                 {
                     where = $"WHERE {mapField}=ANY(@ids) {and}";
+                }
+                else if (mapTable.DataBase.Client.DbType == DataBaseType.ClickHouse)
+                {
+                    where = $"WHERE {mapField} IN (@ids) {and}";
                 }
                 else
                 {
