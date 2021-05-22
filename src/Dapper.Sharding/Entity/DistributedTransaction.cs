@@ -15,6 +15,11 @@ namespace Dapper.Sharding
 
         public ITable<T> GetTranTable<T>(ITable<T> table) where T : class
         {
+            if (table.DbType == DataBaseType.ClickHouse)//如果是clickhouse直接返回
+            {
+                return table;
+            }
+
             var ok = dict.TryGetValue(table, out var val);
             if (!ok)
             {

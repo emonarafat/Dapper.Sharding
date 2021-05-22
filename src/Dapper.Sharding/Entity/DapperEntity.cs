@@ -139,6 +139,27 @@ namespace Dapper.Sharding
             }
         }
 
+        public void QueryMultiple(string sql, object param = null, Action<SqlMapper.GridReader> onReader = null)
+        {
+            if (Conn == null)
+            {
+                using (var cnn = DataBase.GetConn())
+                {
+                    using (var reader = cnn.QueryMultiple(sql, param))
+                    {
+                        onReader?.Invoke(reader);
+                    }
+                }
+            }
+            else
+            {
+                using (var reader = Conn.QueryMultiple(sql, param, Tran, CommandTimeout))
+                {
+                    onReader?.Invoke(reader);
+                }
+            }
+        }
+
         #endregion
 
         #region Async
@@ -249,6 +270,27 @@ namespace Dapper.Sharding
             else
             {
                 return Conn.QueryAsync<T>(sql, param, Tran, commandTimeout: CommandTimeout);
+            }
+        }
+
+        public async Task QueryMultipleAsync(string sql, object param = null, Action<SqlMapper.GridReader> onReader = null)
+        {
+            if (Conn == null)
+            {
+                using (var cnn = DataBase.GetConn())
+                {
+                    using (var reader = await cnn.QueryMultipleAsync(sql, param))
+                    {
+                        onReader?.Invoke(reader);
+                    }
+                }
+            }
+            else
+            {
+                using (var reader = await Conn.QueryMultipleAsync(sql, param, Tran, CommandTimeout))
+                {
+                    onReader?.Invoke(reader);
+                }
             }
         }
 
