@@ -36,7 +36,7 @@ namespace Dapper.Sharding
             {
                 foreach (var id in idsList)
                 {
-                    var table = GetTableById(id);
+                    var table = _GetTableById(id);
                     if (!dict.ContainsKey(table))
                     {
                         dict.Add(table, new List<object>());
@@ -52,7 +52,7 @@ namespace Dapper.Sharding
             var dict = new Dictionary<ITable<T>, List<T>>();
             foreach (var item in modelList)
             {
-                var table = GetTableByModel(item);
+                var table = _GetTableByModel(item);
                 if (!dict.ContainsKey(table))
                 {
                     dict.Add(table, new List<T>());

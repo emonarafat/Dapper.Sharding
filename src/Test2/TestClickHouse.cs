@@ -288,5 +288,28 @@ namespace Test2
 
             Assert.Pass();
         }
+
+        [Test]
+        public void TestSharding()
+        {
+            var p1 = DbHelper.Db.GetTable<Student>("p1");
+            var p2 = DbHelper.Db.GetTable<Student>("p2");
+            var p3 = DbHelper.Db.GetTable<Student>("p3");
+
+            var shard = ShardingFactory.CreateShardingAuto(p1, p2, p3);
+            var list = new List<Student>();
+            for (int i = 0; i < 20; i++)
+            {
+                var p = new Student
+                {
+                    Id = ShardingFactory.NextObjectId(),
+                    Name = "李四" + i
+                };
+                list.Add(p);
+            }
+
+            shard.Insert(list);
+            Assert.Pass();
+        }
     }
 }
