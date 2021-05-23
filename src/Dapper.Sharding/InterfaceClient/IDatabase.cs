@@ -105,6 +105,13 @@ namespace Dapper.Sharding
 
         public async Task<int> ExecuteAsync(string sql, object param = null, int? commandTimeout = null)
         {
+            if (DbType == DataBaseType.ClickHouse)
+            {
+                return await Task.Run(() =>
+                {
+                    return Execute(sql, param, commandTimeout);
+                });
+            }
             using (var cnn = await GetConnAsync())
             {
                 return await cnn.ExecuteAsync(sql, param, commandTimeout: commandTimeout);
@@ -114,6 +121,13 @@ namespace Dapper.Sharding
 
         public async Task<object> ExecuteScalarAsync(string sql, object param = null, int? commandTimeout = null)
         {
+            if (DbType == DataBaseType.ClickHouse)
+            {
+                return await Task.Run(() =>
+                {
+                    return ExecuteScalar(sql, param, commandTimeout);
+                });
+            }
             using (var cnn = await GetConnAsync())
             {
                 return await cnn.ExecuteScalarAsync(sql, param, commandTimeout: commandTimeout);
@@ -123,6 +137,13 @@ namespace Dapper.Sharding
 
         public async Task<T> ExecuteScalarAsync<T>(string sql, object param = null, int? commandTimeout = null)
         {
+            if (DbType == DataBaseType.ClickHouse)
+            {
+                return await Task.Run(() =>
+                {
+                    return ExecuteScalar<T>(sql, param, commandTimeout);
+                });
+            }
             using (var cnn = await GetConnAsync())
             {
                 return await cnn.ExecuteScalarAsync<T>(sql, param, commandTimeout: commandTimeout);
@@ -131,6 +152,13 @@ namespace Dapper.Sharding
 
         public async Task<dynamic> QueryFirstOrDefaultAsync(string sql, object param = null, int? commandTimeout = null)
         {
+            if (DbType == DataBaseType.ClickHouse)
+            {
+                return await Task.Run(() =>
+                {
+                    return QueryFirstOrDefault(sql, param, commandTimeout);
+                });
+            }
             using (var cnn = await GetConnAsync())
             {
                 return await cnn.QueryFirstOrDefaultAsync(sql, param, commandTimeout: commandTimeout);
@@ -140,6 +168,13 @@ namespace Dapper.Sharding
 
         public async Task<T> QueryFirstOrDefaultAsync<T>(string sql, object param = null, int? commandTimeout = null)
         {
+            if (DbType == DataBaseType.ClickHouse)
+            {
+                return await Task.Run(() =>
+                {
+                    return QueryFirstOrDefault<T>(sql, param, commandTimeout);
+                });
+            }
             using (var cnn = await GetConnAsync())
             {
                 return await cnn.QueryFirstOrDefaultAsync<T>(sql, param, commandTimeout: commandTimeout);
@@ -148,6 +183,13 @@ namespace Dapper.Sharding
 
         public async Task<IEnumerable<dynamic>> QueryAsync(string sql, object param = null, int? commandTimeout = null)
         {
+            if (DbType == DataBaseType.ClickHouse)
+            {
+                return await Task.Run(() =>
+                {
+                    return Query(sql, param, commandTimeout);
+                });
+            }
             using (var cnn = await GetConnAsync())
             {
                 return await cnn.QueryAsync(sql, param, commandTimeout: commandTimeout);
@@ -157,6 +199,13 @@ namespace Dapper.Sharding
 
         public async Task<IEnumerable<T>> QueryAsync<T>(string sql, object param = null, int? commandTimeout = null)
         {
+            if (DbType == DataBaseType.ClickHouse)
+            {
+                return await Task.Run(() =>
+                {
+                    return Query<T>(sql, param, commandTimeout);
+                });
+            }
             using (var cnn = await GetConnAsync())
             {
                 return await cnn.QueryAsync<T>(sql, param, commandTimeout: commandTimeout);
@@ -165,6 +214,13 @@ namespace Dapper.Sharding
 
         public async Task QueryMultipleAsync(string sql, object param = null, Action<SqlMapper.GridReader> onReader = null, int? commandTimeout = null)
         {
+            if (DbType == DataBaseType.ClickHouse)
+            {
+                await Task.Run(() =>
+                {
+                    QueryMultiple(sql, param, onReader, commandTimeout);
+                });
+            }
             using (var conn = await GetConnAsync())
             {
                 using (var reader = await conn.QueryMultipleAsync(sql, param, commandTimeout: commandTimeout))

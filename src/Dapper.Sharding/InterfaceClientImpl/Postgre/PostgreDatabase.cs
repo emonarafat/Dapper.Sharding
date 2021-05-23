@@ -29,19 +29,13 @@ namespace Dapper.Sharding
 
         public override void DropTable(string name)
         {
-            using (var conn = GetConn())
-            {
-                conn.Execute($"DROP TABLE IF EXISTS {name}");
-            }
+            Execute($"DROP TABLE IF EXISTS {name}");
             TableCache.TryRemove(name, out _);
         }
 
         public override bool ExistsTable(string name)
         {
-            using (var conn = GetConn())
-            {
-                return conn.ExecuteScalar<int>($"select count(1) from pg_class where relname='{name}'") > 0;
-            }
+            return ExecuteScalar<int>($"select count(1) from pg_class where relname='{name}'") > 0;
         }
 
         public override IDbConnection GetConn()
@@ -62,10 +56,7 @@ namespace Dapper.Sharding
 
         public override IEnumerable<string> GetTableColumnList(string name)
         {
-            using (var conn = GetConn())
-            {
-                return conn.Query<string>($"select column_name from information_schema.columns where table_schema='public' and table_name = '{name}'");
-            }
+            return Query<string>($"select column_name from information_schema.columns where table_schema='public' and table_name = '{name}'");
         }
 
         public override TableEntity GetTableEntityFromDatabase(string name)
@@ -77,13 +68,10 @@ left join (select * from pg_description where objsubid =0 ) b on a.oid = b.objoi
 where a.relname='{name}' and a.relname in (select tablename from pg_tables where schemaname = 'public')
 order by a.relname asc";
 
-            using (var conn = GetConn())
+            var row = QueryFirstOrDefault(sql);
+            if (row != null)
             {
-                var row = conn.QueryFirstOrDefault(sql);
-                if (row != null)
-                {
-                    entity.Comment = row.value;
-                }
+                entity.Comment = row.value;
             }
 
             var manager = GetTableManager(name);
@@ -107,10 +95,7 @@ order by a.relname asc";
 
         public override IEnumerable<string> GetTableList()
         {
-            using (var conn = GetConn())
-            {
-                return conn.Query<string>("select tablename from pg_tables where schemaname='public'");
-            }
+            return Query<string>("select tablename from pg_tables where schemaname='public'");
         }
 
         public override string GetTableScript<T>(string name)
@@ -206,10 +191,7 @@ order by a.relname asc";
 
         public override void TruncateTable(string name)
         {
-            using (var conn = GetConn())
-            {
-                conn.Execute($"TRUNCATE TABLE {name}");
-            }
+            Execute($"TRUNCATE TABLE {name}");
         }
 
         public override void OptimizeTable(string name, bool final = false, bool deduplicate = false)

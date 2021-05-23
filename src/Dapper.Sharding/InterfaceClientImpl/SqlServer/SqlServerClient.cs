@@ -62,28 +62,19 @@ namespace Dapper.Sharding
                 }
                 sb.Append(")");
             }
-            
-            using (var conn = GetConn())
-            {
-                conn.Execute(sb.ToString());
-            }
+
+            Execute(sb.ToString());
         }
 
         public override void DropDatabase(string name)
         {
-            using (var conn = GetConn())
-            {
-                conn.Execute($"IF EXISTS (SELECT 1 FROM sys.databases WHERE name='{name}') DROP DATABASE [{name}]");
-            }
+            Execute($"IF EXISTS (SELECT 1 FROM sys.databases WHERE name='{name}') DROP DATABASE [{name}]");
             DataBaseCache.TryRemove(name, out _);
         }
 
         public override bool ExistsDatabase(string name)
         {
-            using (var conn = GetConn())
-            {
-                return conn.ExecuteScalar<int>($"SELECT COUNT(1) FROM sys.databases WHERE name='{name}'") > 1;
-            }
+            return ExecuteScalar<int>($"SELECT COUNT(1) FROM sys.databases WHERE name='{name}'") > 1;
         }
 
         public override IDbConnection GetConn()
@@ -104,10 +95,7 @@ namespace Dapper.Sharding
 
         public override IEnumerable<string> ShowDatabases()
         {
-            using (var conn = GetConn())
-            {
-                return conn.Query<string>("SELECT name FROM sys.databases");
-            }
+            return Query<string>("SELECT name FROM sys.databases");
         }
 
         public override IEnumerable<string> ShowDatabasesExcludeSystem()

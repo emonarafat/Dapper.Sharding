@@ -51,6 +51,11 @@ namespace Dapper.Sharding
             return new ShardingQueryDb(dbList);
         }
 
+        public static ShardingQueryClient CreateShardingQueryClient(params IClient[] clientList)
+        {
+            return new ShardingQueryClient(clientList);
+        }
+
         public static ISharding<T> CreateShardingHash<T>(params ITable<T>[] tableList) where T : class
         {
             return new HashSharding<T>(tableList);

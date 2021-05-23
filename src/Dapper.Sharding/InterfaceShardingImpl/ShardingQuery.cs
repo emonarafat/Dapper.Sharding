@@ -401,86 +401,65 @@ namespace Dapper.Sharding
 
         }
 
-        public async Task<int[]> ExecuteAsync(string sql, object param = null)
+        public async Task<int[]> ExecuteAsync(string sql, object param = null, int? commandTimeout = null)
         {
             var taskList = TableList.Select(s =>
             {
-                return Task.Run(() =>
-                {
-                    return s.DpEntity.Execute(sql, param);
-                });
+                return s.DpEntity.ExecuteAsync(sql, param, commandTimeout);
             });
             return await Task.WhenAll(taskList);
         }
 
-        public async Task<object[]> ExecuteScalarAsync(string sql, object param = null)
+        public async Task<object[]> ExecuteScalarAsync(string sql, object param = null, int? commandTimeout = null)
         {
             var taskList = TableList.Select(s =>
             {
-                return Task.Run(() =>
-                {
-                    return s.DpEntity.ExecuteScalar(sql, param);
-                });
+                return s.DpEntity.ExecuteScalarAsync(sql, param, commandTimeout);
             });
             return await Task.WhenAll(taskList);
         }
 
-        public async Task<TResult[]> ExecuteScalarAsync<TResult>(string sql, object param = null)
+        public async Task<TResult[]> ExecuteScalarAsync<TResult>(string sql, object param = null, int? commandTimeout = null)
         {
             var taskList = TableList.Select(s =>
             {
-                return Task.Run(() =>
-                {
-                    return s.DpEntity.ExecuteScalar<TResult>(sql, param);
-                });
+                return s.DpEntity.ExecuteScalarAsync<TResult>(sql, param, commandTimeout);
             });
             return await Task.WhenAll(taskList);
         }
 
-        public async Task<dynamic[]> QueryFirstOrDefaultAsync(string sql, object param = null)
+        public async Task<dynamic[]> QueryFirstOrDefaultAsync(string sql, object param = null, int? commandTimeout = null)
         {
             var taskList = TableList.Select(s =>
             {
-                return Task.Run(() =>
-                {
-                    return s.DpEntity.QueryFirstOrDefault(sql, param);
-                });
+                return s.DpEntity.QueryFirstOrDefaultAsync(sql, param, commandTimeout);
             });
             return await Task.WhenAll(taskList);
         }
 
-        public async Task<TResult[]> QueryFirstOrDefaultAsync<TResult>(string sql, object param = null)
+        public async Task<TResult[]> QueryFirstOrDefaultAsync<TResult>(string sql, object param = null, int? commandTimeout = null)
         {
             var taskList = TableList.Select(s =>
             {
-                return Task.Run(() =>
-                {
-                    return s.DpEntity.QueryFirstOrDefault<TResult>(sql, param);
-                });
+                return s.DpEntity.QueryFirstOrDefaultAsync<TResult>(sql, param, commandTimeout);
             });
             return await Task.WhenAll(taskList);
         }
 
-        public async Task<IEnumerable<dynamic>[]> QueryAsync(string sql, object param = null)
+        public async Task<IEnumerable<dynamic>[]> QueryAsync(string sql, object param = null, int? commandTimeout = null)
         {
             var taskList = TableList.Select(s =>
             {
-                return Task.Run(() =>
-                {
-                    return s.DpEntity.Query(sql, param);
-                });
+                return s.DpEntity.QueryAsync(sql, param, commandTimeout);
             });
             return await Task.WhenAll(taskList);
         }
 
-        public async Task<IEnumerable<TResult>[]> QueryAsync<TResult>(string sql, object param = null)
+        public async Task<IEnumerable<TResult>[]> QueryAsync<TResult>(string sql, object param = null, int? commandTimeout = null)
         {
             var taskList = TableList.Select(s =>
             {
-                return Task.Run(() =>
-                {
-                    return s.DpEntity.Query<TResult>(sql, param);
-                });
+                return s.DpEntity.QueryAsync<TResult>(sql, param, commandTimeout);
             });
             return await Task.WhenAll(taskList);
         }

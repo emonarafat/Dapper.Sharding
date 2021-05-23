@@ -21,19 +21,13 @@ namespace Dapper.Sharding
 
         public override void DropTable(string name)
         {
-            using (var conn = GetConn())
-            {
-                conn.Execute($"DROP TABLE {name}");
-            }
+            Execute($"DROP TABLE {name}");
             TableCache.TryRemove(name, out _);
         }
 
         public override bool ExistsTable(string name)
         {
-            using (var conn = GetConn())
-            {
-                return conn.ExecuteScalar<int>($"SELECT COUNT(1) FROM sqlite_master WHERE name='{name}'") > 0;
-            }
+            return ExecuteScalar<int>($"SELECT COUNT(1) FROM sqlite_master WHERE name='{name}'") > 0;
         }
 
         public override IDbConnection GetConn()
@@ -54,23 +48,14 @@ namespace Dapper.Sharding
 
         public override IEnumerable<string> GetTableColumnList(string name)
         {
-            IEnumerable<dynamic> data;
-            using (var conn = GetConn())
-            {
-                data = conn.Query($"pragma table_info('{name}')");//字段信息
-            }
+            IEnumerable<dynamic> data = Query($"pragma table_info('{name}')");//字段信息;
             return data.Select(s => s.name as string);
         }
 
         public override TableEntity GetTableEntityFromDatabase(string name)
         {
-            dynamic dynamicTable;
-            IEnumerable<dynamic> dynamicColums;
-            using (var conn = GetConn())
-            {
-                dynamicTable = conn.QueryFirst($"SELECT * FROM sqlite_master where type='table' and tbl_name='{name}'");
-                dynamicColums = conn.Query($"pragma table_info('{name}')");
-            }
+            dynamic dynamicTable = QueryFirstOrDefault($"SELECT * FROM sqlite_master where type='table' and tbl_name='{name}'");
+            IEnumerable<dynamic> dynamicColums = Query($"pragma table_info('{name}')");
             var entity = new TableEntity();
             var tablesql = ((string)dynamicTable.sql).ToUpper();
             if (tablesql.Contains("AUTOINCREMENT"))
@@ -96,10 +81,7 @@ namespace Dapper.Sharding
 
         public override IEnumerable<string> GetTableList()
         {
-            using (var conn = GetConn())
-            {
-                return conn.Query<string>("select name from sqlite_master where type='table' and name!='sqlite_sequence'");
-            }
+            return Query<string>("select name from sqlite_master where type='table' and name!='sqlite_sequence'");
         }
 
         public override ITableManager GetTableManager(string name)
@@ -177,10 +159,7 @@ namespace Dapper.Sharding
 
         public override void TruncateTable(string name)
         {
-            using (var conn = GetConn())
-            {
-                conn.Execute($"DELETE FROM {name}");
-            }
+            Execute($"DELETE FROM {name}");
         }
 
         protected override ITable<T> CreateITable<T>(string name)

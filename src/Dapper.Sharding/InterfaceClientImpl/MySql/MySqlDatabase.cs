@@ -39,51 +39,33 @@ namespace Dapper.Sharding
 
         public override void SetCharset(string chartset)
         {
-            using (var conn = GetConn())
-            {
-                conn.Execute($"ALTER DATABASE `{Name}` DEFAULT CHARACTER SET {chartset} COLLATE {chartset}_general_ci");
-            }
+            Execute($"ALTER DATABASE `{Name}` DEFAULT CHARACTER SET {chartset} COLLATE {chartset}_general_ci");
         }
 
         public override void DropTable(string name)
         {
-            using (var conn = GetConn())
-            {
-                conn.Execute($"DROP TABLE IF EXISTS `{name}`");
-            }
+            Execute($"DROP TABLE IF EXISTS `{name}`");
             TableCache.TryRemove(name, out _);
         }
 
         public override void TruncateTable(string name)
         {
-            using (var conn = GetConn())
-            {
-                conn.Execute($"TRUNCATE TABLE `{name}`");
-            }
+            Execute($"TRUNCATE TABLE `{name}`");
         }
 
         public override IEnumerable<string> GetTableList()
         {
-            using (var conn = GetConn())
-            {
-                return conn.Query<string>("SHOW TABLES");
-            }
+            return Query<string>("SHOW TABLES");
         }
 
         public override IEnumerable<string> GetTableColumnList(string name)
         {
-            using (var conn = GetConn())
-            {
-                return conn.Query<string>($"SELECT COLUMN_NAME FROM information_schema.COLUMNS WHERE TABLE_SCHEMA='{Name}' AND TABLE_NAME='{name}'");
-            }
+            return Query<string>($"SELECT COLUMN_NAME FROM information_schema.COLUMNS WHERE TABLE_SCHEMA='{Name}' AND TABLE_NAME='{name}'");
         }
 
         public override bool ExistsTable(string name)
         {
-            using (var conn = GetConn())
-            {
-                return !string.IsNullOrEmpty(conn.QueryFirstOrDefault<string>($"SHOW TABLES LIKE '{name}'"));
-            }
+            return !string.IsNullOrEmpty(QueryFirstOrDefault<string>($"SHOW TABLES LIKE '{name}'"));
         }
 
         public override string GetTableScript<T>(string name)
@@ -147,11 +129,7 @@ namespace Dapper.Sharding
 
         public override TableEntity GetTableEntityFromDatabase(string name)
         {
-            dynamic data;
-            using (var conn = GetConn())
-            {
-                data = conn.QueryFirstOrDefault($"SHOW TABLE STATUS LIKE '{name}'");
-            }
+            dynamic data = QueryFirstOrDefault($"SHOW TABLE STATUS LIKE '{name}'");
             var entity = new TableEntity();
             if (data.Auto_increment != null)
             {
@@ -185,10 +163,7 @@ namespace Dapper.Sharding
 
         public override void OptimizeTable(string name, bool final = false, bool deduplicate = false)
         {
-            using (var conn = GetConn())
-            {
-                conn.Execute($"optimize table {name}");
-            }
+            Execute($"optimize table {name}");
         }
 
         public override void OptimizeTable(string name, string partition, bool final = false, bool deduplicate = false)

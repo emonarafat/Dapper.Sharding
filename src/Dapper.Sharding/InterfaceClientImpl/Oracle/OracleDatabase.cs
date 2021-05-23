@@ -29,19 +29,13 @@ namespace Dapper.Sharding
 
         public override void DropTable(string name)
         {
-            using (var conn = GetConn())
-            {
-                conn.Execute("DROP TABLE " + name);
-            }
+            Execute("DROP TABLE " + name);
             TableCache.TryRemove(name, out _);
         }
 
         public override bool ExistsTable(string name)
         {
-            using (var conn = GetConn())
-            {
-                return conn.ExecuteScalar<int>($"SELECT COUNT(*) FROM ALL_TABLES WHERE OWNER='{Client.Config.UserId.ToUpper()}' AND TABLE_NAME='{name.ToUpper()}'") > 0;
-            }
+            return ExecuteScalar<int>($"SELECT COUNT(*) FROM ALL_TABLES WHERE OWNER='{Client.Config.UserId.ToUpper()}' AND TABLE_NAME='{name.ToUpper()}'") > 0;
         }
 
         public override IDbConnection GetConn()
@@ -72,10 +66,7 @@ LEFT JOIN USER_CONSTRAINTS AU ON CU.CONSTRAINT_NAME = AU.CONSTRAINT_NAME
 WHERE CU.TABLE_NAME = '{name.ToUpper()}' AND AU.CONSTRAINT_TYPE= 'P'
 )P ON C.COLUMN_NAME = P.COLUMN_NAME
 WHERE C.TABLE_NAME = '{name.ToUpper()}' ORDER BY C.COLUMN_ID";
-            using (var conn = GetConn())
-            {
-                return conn.Query<string>(sql);
-            }
+            return Query<string>(sql);
         }
 
         public override TableEntity GetTableEntityFromDatabase(string name)
@@ -94,23 +85,17 @@ WHERE C.TABLE_NAME = '{name.ToUpper()}' ORDER BY C.COLUMN_ID";
             sql += $"LEFT JOIN USER_TAB_COMMENTS C ON T.TABLE_NAME = C.TABLE_NAME WHERE C.TABLE_NAME = '{name.ToUpper()}' ";
             sql += "UNION ALL SELECT T.VIEW_NAME AS \"Name\",'V' AS \"TypeName\",NVL(C.COMMENTS, T.VIEW_NAME) AS \"Description\" FROM USER_VIEWS T ";
             sql += "LEFT JOIN USER_TAB_COMMENTS C ON T.VIEW_NAME = C.TABLE_NAME";
-            using (var conn = GetConn())
+            var row = QueryFirstOrDefault(sql);
+            if (row != null)
             {
-                var row = conn.QueryFirstOrDefault(sql);
-                if (row != null)
-                {
-                    entity.Comment = row.comment;
-                }
+                entity.Comment = row.comment;
             }
             return entity;
         }
 
         public override IEnumerable<string> GetTableList()
         {
-            using (var conn = GetConn())
-            {
-                return conn.Query<string>($"SELECT OBJECT_NAME FROM DBA_OBJECTS WHERE OWNER='{Client.Config.UserId.ToUpper()}' AND OBJECT_TYPE='TABLE'");
-            }
+            return Query<string>($"SELECT OBJECT_NAME FROM DBA_OBJECTS WHERE OWNER='{Client.Config.UserId.ToUpper()}' AND OBJECT_TYPE='TABLE'");
         }
 
         public override string GetTableScript<T>(string name)
@@ -143,10 +128,7 @@ WHERE C.TABLE_NAME = '{name.ToUpper()}' ORDER BY C.COLUMN_ID";
 
         public override void TruncateTable(string name)
         {
-            using (var conn = GetConn())
-            {
-                conn.Execute("TRUNCATE TABLE " + name);
-            }
+            Execute("TRUNCATE TABLE " + name);
         }
 
         public override void CreateTable<T>(string name)
@@ -159,28 +141,28 @@ WHERE C.TABLE_NAME = '{name.ToUpper()}' ORDER BY C.COLUMN_ID";
                 {
                     try
                     {
-                        conn.Execute(script);
+                        conn.Execute(script, transaction: tran);
 
                         foreach (var item in tableEntity.IndexList)
                         {
                             if (item.Type == IndexType.Normal)
                             {
-                                conn.Execute($"CREATE INDEX {Client.Config.UserId.ToUpper()}.\"{name}_{item.Name}\" ON {Client.Config.UserId.ToUpper()}.\"{name.ToUpper()}\" ({item.Columns})");
+                                conn.Execute($"CREATE INDEX {Client.Config.UserId.ToUpper()}.\"{name}_{item.Name}\" ON {Client.Config.UserId.ToUpper()}.\"{name.ToUpper()}\" ({item.Columns})", transaction: tran);
                             }
                             else if (item.Type == IndexType.Unique)
                             {
-                                conn.Execute($"CREATE UNIQUE INDEX {Client.Config.UserId.ToUpper()}.\"{name}_{item.Name}\" ON {Client.Config.UserId.ToUpper()}.\"{name.ToUpper()}\" ({item.Columns})");
+                                conn.Execute($"CREATE UNIQUE INDEX {Client.Config.UserId.ToUpper()}.\"{name}_{item.Name}\" ON {Client.Config.UserId.ToUpper()}.\"{name.ToUpper()}\" ({item.Columns})", transaction: tran);
                             }
                         }
                         if (!string.IsNullOrEmpty(tableEntity.Comment))
                         {
-                            conn.Execute($"COMMENT ON TABLE {name.ToUpper()} IS '{tableEntity.Comment}'");
+                            conn.Execute($"COMMENT ON TABLE {name.ToUpper()} IS '{tableEntity.Comment}'", transaction: tran);
                         }
                         foreach (var item in tableEntity.ColumnList)
                         {
                             if (!string.IsNullOrEmpty(item.Comment))
                             {
-                                conn.Execute($"COMMENT ON COLUMN {name.ToUpper()}.{item.Name.ToUpper()} IS '{item.Comment}'");
+                                conn.Execute($"COMMENT ON COLUMN {name.ToUpper()}.{item.Name.ToUpper()} IS '{item.Comment}'", transaction: tran);
                             }
                         }
                         tran.Commit();

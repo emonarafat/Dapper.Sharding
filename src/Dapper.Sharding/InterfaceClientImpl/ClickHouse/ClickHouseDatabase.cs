@@ -19,19 +19,13 @@ namespace Dapper.Sharding
 
         public override void DropTable(string name)
         {
-            using (var conn = GetConn())
-            {
-                conn.Execute($"DROP TABLE IF EXISTS {name}");
-            }
+            Execute($"DROP TABLE IF EXISTS {name}");
             TableCache.TryRemove(name, out _);
         }
 
         public override bool ExistsTable(string name)
         {
-            using (var conn = GetConn())
-            {
-                return !string.IsNullOrEmpty(conn.QueryFirstOrDefault<string>($"SHOW TABLES LIKE '{name}'"));
-            }
+            return !string.IsNullOrEmpty(QueryFirstOrDefault<string>($"SHOW TABLES LIKE '{name}'"));
         }
 
         public override IDbConnection GetConn()
@@ -49,10 +43,7 @@ namespace Dapper.Sharding
 
         public override IEnumerable<string> GetTableColumnList(string name)
         {
-            using (var conn = GetConn())
-            {
-                return conn.Query($"DESCRIBE TABLE {name}").Select(s => (string)s.name);
-            }
+            return Query($"DESCRIBE TABLE {name}").Select(s => (string)s.name);
         }
 
         public override TableEntity GetTableEntityFromDatabase(string name)
@@ -65,10 +56,7 @@ namespace Dapper.Sharding
 
         public override IEnumerable<string> GetTableList()
         {
-            using (var conn = GetConn())
-            {
-                return conn.Query<string>("SHOW TABLES");
-            }
+            return Query<string>("SHOW TABLES");
         }
 
         public override ITableManager GetTableManager(string name)
@@ -112,10 +100,7 @@ namespace Dapper.Sharding
             {
                 sql += " DEDUPLICATE";
             }
-            using (var conn = GetConn())
-            {               
-                conn.Execute(sql);
-            }
+            Execute(sql);
         }
 
         public override void OptimizeTable(string name, string partition, bool final = false, bool deduplicate = false)
@@ -129,10 +114,7 @@ namespace Dapper.Sharding
             {
                 sql += " DEDUPLICATE";
             }
-            using (var conn = GetConn())
-            {
-                conn.Execute(sql);
-            }
+            Execute(sql);
         }
 
         public override void SetCharset(string chartset)

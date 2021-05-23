@@ -4,18 +4,18 @@ using System.Threading.Tasks;
 
 namespace Dapper.Sharding
 {
-    public class ShardingQueryDb
+    public class ShardingQueryClient
     {
-        public ShardingQueryDb(params IDatabase[] dbList)
+        public ShardingQueryClient(params IClient[] clientList)
         {
-            DbList = dbList;
+            ClientList = clientList;
         }
 
-        public IDatabase[] DbList { get; }
+        public IClient[] ClientList { get; }
 
         public async Task<int[]> ExecuteAsync(string sql, object param = null, int? commandTimeout = null)
         {
-            var taskList = DbList.Select(s =>
+            var taskList = ClientList.Select(s =>
             {
                 return s.ExecuteAsync(sql, param, commandTimeout);
             });
@@ -24,7 +24,7 @@ namespace Dapper.Sharding
 
         public async Task<object[]> ExecuteScalarAsync(string sql, object param = null, int? commandTimeout = null)
         {
-            var taskList = DbList.Select(s =>
+            var taskList = ClientList.Select(s =>
             {
                 return s.ExecuteScalarAsync(sql, param, commandTimeout);
             });
@@ -33,7 +33,7 @@ namespace Dapper.Sharding
 
         public async Task<TResult[]> ExecuteScalarAsync<TResult>(string sql, object param = null, int? commandTimeout = null)
         {
-            var taskList = DbList.Select(s =>
+            var taskList = ClientList.Select(s =>
             {
                 return s.ExecuteScalarAsync<TResult>(sql, param, commandTimeout);
             });
@@ -42,7 +42,7 @@ namespace Dapper.Sharding
 
         public async Task<dynamic[]> QueryFirstOrDefaultAsync(string sql, object param = null, int? commandTimeout = null)
         {
-            var taskList = DbList.Select(s =>
+            var taskList = ClientList.Select(s =>
             {
                 return s.QueryFirstOrDefaultAsync(sql, param, commandTimeout);
             });
@@ -51,7 +51,7 @@ namespace Dapper.Sharding
 
         public async Task<TResult[]> QueryFirstOrDefaultAsync<TResult>(string sql, object param = null, int? commandTimeout = null)
         {
-            var taskList = DbList.Select(s =>
+            var taskList = ClientList.Select(s =>
             {
                 return s.QueryFirstOrDefaultAsync<TResult>(sql, param, commandTimeout);
             });
@@ -60,7 +60,7 @@ namespace Dapper.Sharding
 
         public async Task<IEnumerable<dynamic>[]> QueryAsync(string sql, object param = null, int? commandTimeout = null)
         {
-            var taskList = DbList.Select(s =>
+            var taskList = ClientList.Select(s =>
             {
                 return s.QueryAsync(sql, param, commandTimeout);
             });
@@ -69,7 +69,7 @@ namespace Dapper.Sharding
 
         public async Task<IEnumerable<TResult>[]> QueryAsync<TResult>(string sql, object param = null, int? commandTimeout = null)
         {
-            var taskList = DbList.Select(s =>
+            var taskList = ClientList.Select(s =>
             {
                 return s.QueryAsync<TResult>(sql, param, commandTimeout);
             });

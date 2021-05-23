@@ -45,27 +45,18 @@ namespace Dapper.Sharding
 
         public override void CreateDatabase(string name, bool useGis = false, string ext = null)
         {
-            using (var conn = GetConn())
-            {
-                conn.Execute($"CREATE DATABASE IF NOT EXISTS `{name}` DEFAULT CHARACTER SET {Charset} COLLATE {Charset}_general_ci");
-            }
+            Execute($"CREATE DATABASE IF NOT EXISTS `{name}` DEFAULT CHARACTER SET {Charset} COLLATE {Charset}_general_ci");
         }
 
         public override void DropDatabase(string name)
         {
-            using (var conn = GetConn())
-            {
-                conn.Execute($"DROP DATABASE IF EXISTS `{name}`");
-            }
+            Execute($"DROP DATABASE IF EXISTS `{name}`");
             DataBaseCache.TryRemove(name, out _);
         }
 
         public override IEnumerable<string> ShowDatabases()
         {
-            using (var conn = GetConn())
-            {
-                return conn.Query<string>("SHOW DATABASES");
-            }
+            return Query<string>("SHOW DATABASES");
         }
 
         public override IEnumerable<string> ShowDatabasesExcludeSystem()
@@ -75,10 +66,7 @@ namespace Dapper.Sharding
 
         public override bool ExistsDatabase(string name)
         {
-            using (var conn = GetConn())
-            {
-                return conn.ExecuteScalar<int>($"select COUNT(1) from information_schema.schemata where schema_name='{name}'") > 0;
-            }
+            return ExecuteScalar<int>($"select COUNT(1) from information_schema.schemata where schema_name='{name}'") > 0;
         }
 
     }

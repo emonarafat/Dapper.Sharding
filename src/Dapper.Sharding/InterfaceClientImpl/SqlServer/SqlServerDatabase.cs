@@ -24,19 +24,13 @@ namespace Dapper.Sharding
 
         public override void DropTable(string name)
         {
-            using (var conn = GetConn())
-            {
-                conn.Execute($"IF EXISTS(SELECT 1 FROM sysObjects WHERE Id=OBJECT_ID(N'{name}') AND xtype='U')DROP TABLE [{name}]");
-            }
+            Execute($"IF EXISTS(SELECT 1 FROM sysObjects WHERE Id=OBJECT_ID(N'{name}') AND xtype='U')DROP TABLE [{name}]");
             TableCache.TryRemove(name, out _);
         }
 
         public override bool ExistsTable(string name)
         {
-            using (var conn = GetConn())
-            {
-                return conn.ExecuteScalar($"SELECT 1 FROM sysObjects WHERE Id=OBJECT_ID(N'{name}') AND xtype='U'") != null;
-            }
+            return ExecuteScalar($"SELECT 1 FROM sysObjects WHERE Id=OBJECT_ID(N'{name}') AND xtype='U'") != null;
         }
 
         public override IDbConnection GetConn()
@@ -57,10 +51,7 @@ namespace Dapper.Sharding
 
         public override IEnumerable<string> GetTableColumnList(string name)
         {
-            using (var conn = GetConn())
-            {
-                return conn.Query<string>($"Select Name FROM SysColumns Where id=Object_Id('{name}')");
-            }
+            return Query<string>($"Select Name FROM SysColumns Where id=Object_Id('{name}')");
         }
 
         public override TableEntity GetTableEntityFromDatabase(string name)
@@ -69,26 +60,20 @@ namespace Dapper.Sharding
             var manager = GetTableManager(name);
             entity.IndexList = manager.GetIndexEntityList();
             entity.ColumnList = manager.GetColumnEntityList(entity);
-            using (var conn = GetConn())
-            {
-                string sql = $@"select ROW_NUMBER() OVER (ORDER BY a.name) AS Num, 
+            string sql = $@"select ROW_NUMBER() OVER (ORDER BY a.name) AS Num, 
 a.name AS Name,
 CONVERT(NVARCHAR(100),isnull(g.[value],'')) AS Comment
 from
 sys.tables a left join sys.extended_properties g
 on (a.object_id = g.major_id AND g.minor_id = 0) where a.Name='{name}'";
-                var row = conn.QueryFirstOrDefault(sql);
-                entity.Comment = row.Comment;
-            }
+            var row = QueryFirstOrDefault(sql);
+            entity.Comment = row.Comment;
             return entity;
         }
 
         public override IEnumerable<string> GetTableList()
         {
-            using (var conn = GetConn())
-            {
-                return conn.Query<string>($"SELECT name FROM sysObjects WHERE xtype='U'");
-            }
+            return Query<string>($"SELECT name FROM sysObjects WHERE xtype='U'");
         }
 
         public override ITableManager GetTableManager(string name)
@@ -146,10 +131,7 @@ on (a.object_id = g.major_id AND g.minor_id = 0) where a.Name='{name}'";
 
         public override void TruncateTable(string name)
         {
-            using (var conn = GetConn())
-            {
-                conn.Execute($"TRUNCATE TABLE [{name}]");
-            }
+            Execute($"TRUNCATE TABLE [{name}]");
         }
 
         public override void OptimizeTable(string name, bool final = false, bool deduplicate = false)

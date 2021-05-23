@@ -277,5 +277,19 @@ namespace Test2
             table1.Insert(model);
             table1.Insert(new List<CCC> { model, model });
         }
+
+        [Test]
+        public void TestAsync()
+        {
+            var db = DbHelper.Client.GetDatabase("a1");
+            var sharddb = ShardingFactory.CreateShardingQueryDb(db);
+            var a = sharddb.ExecuteAsync("create table a3(name int)").Result;
+            foreach (var item in a)
+            {
+                Assert.Pass(item.ToString());
+            }
+
+
+        }
     }
 }

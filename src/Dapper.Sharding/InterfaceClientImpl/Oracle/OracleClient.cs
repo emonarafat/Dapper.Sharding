@@ -86,20 +86,14 @@ namespace Dapper.Sharding
         {
             var sql = $@"DROP USER {name.ToUpper()} CASCADE";
             var sql2 = $"DROP TABLESPACE {name.ToUpper()} INCLUDING CONTENTS AND DATAFILES";
-            using (var conn = GetConn())
-            {
-                conn.Execute(sql);
-                conn.Execute(sql2);
-            }
+            Execute(sql);
+            Execute(sql2);
             DataBaseCache.TryRemove(name, out _);
         }
 
         public override bool ExistsDatabase(string name)
         {
-            using (var conn = GetConn())
-            {
-                return conn.ExecuteScalar<long>($"SELECT COUNT(1) FROM dba_users WHERE USERNAME='{name.ToUpper()}'") > 0;
-            }
+            return ExecuteScalar<long>($"SELECT COUNT(1) FROM dba_users WHERE USERNAME='{name.ToUpper()}'") > 0;
         }
 
         public override IDbConnection GetConn()
@@ -120,18 +114,12 @@ namespace Dapper.Sharding
 
         public override IEnumerable<string> ShowDatabases()
         {
-            using (var conn = GetConn())
-            {
-                return conn.Query<string>("SELECT USERNAME FROM dba_users");
-            }
+            return Query<string>("SELECT USERNAME FROM dba_users");
         }
 
         public override IEnumerable<string> ShowDatabasesExcludeSystem()
         {
-            using (var conn = GetConn())
-            {
-                return conn.Query<string>("SELECT USERNAME FROM dba_users WHERE DEFAULT_TABLESPACE NOT IN('SYSTEM','SYSAUX','USERS')");
-            }
+            return Query<string>("SELECT USERNAME FROM dba_users WHERE DEFAULT_TABLESPACE NOT IN('SYSTEM','SYSAUX','USERS')");
         }
 
     }

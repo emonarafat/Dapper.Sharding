@@ -28,10 +28,7 @@ namespace Dapper.Sharding
 
         public override void CreateDatabase(string name, bool useGis = false, string ext = null)
         {
-            using (var conn = GetConn())
-            {
-                conn.Execute($"CREATE DATABASE {name}");
-            }
+            Execute($"CREATE DATABASE {name}");
 
             if (useGis)
             {
@@ -79,29 +76,19 @@ namespace Dapper.Sharding
                     ext = sb.ToString();
                 }
                 var db = CreateIDatabase(name);
-                db.Using(conn =>
-                {
-                    conn.Execute(ext);
-                });
+                db.Execute(ext);
             }
         }
 
         public override void DropDatabase(string name)
         {
-            using (var conn = GetConn())
-            {
-                conn.Execute($"DROP DATABASE IF EXISTS {name}");
-            }
+            Execute($"DROP DATABASE IF EXISTS {name}");
             DataBaseCache.TryRemove(name, out _);
         }
 
         public override bool ExistsDatabase(string name)
         {
-            using (var conn = GetConn())
-            {
-                return conn.ExecuteScalar<int>($"SELECT COUNT(1) FROM pg_database WHERE datname = '{name}'") > 0;
-
-            }
+           return ExecuteScalar<int>($"SELECT COUNT(1) FROM pg_database WHERE datname = '{name}'") > 0;
         }
 
         public override IDbConnection GetConn()
@@ -122,10 +109,7 @@ namespace Dapper.Sharding
 
         public override IEnumerable<string> ShowDatabases()
         {
-            using (var conn = GetConn())
-            {
-                return conn.Query<string>("select pg_database.datname from pg_database");
-            }
+            return Query<string>("select pg_database.datname from pg_database");
         }
 
         public override IEnumerable<string> ShowDatabasesExcludeSystem()

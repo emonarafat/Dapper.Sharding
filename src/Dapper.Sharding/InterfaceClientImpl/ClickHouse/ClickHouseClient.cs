@@ -18,35 +18,26 @@ namespace Dapper.Sharding
 
         public override void CreateDatabase(string name, bool useGis = false, string ext = null)
         {
-            using (var conn = GetConn())
+            if (string.IsNullOrEmpty(ext))
             {
-                if (string.IsNullOrEmpty(ext))
-                {
-                    conn.Execute($"CREATE DATABASE IF NOT EXISTS {name}");
-                }
-                else
-                {
-                    conn.Execute($"CREATE DATABASE IF NOT EXISTS {name} {ext}");
-                }
+                Execute($"CREATE DATABASE IF NOT EXISTS {name}");
+            }
+            else
+            {
+                Execute($"CREATE DATABASE IF NOT EXISTS {name} {ext}");
             }
         }
 
         public override void DropDatabase(string name)
         {
-            using (var conn = GetConn())
-            {
-                conn.Execute($"DROP DATABASE IF EXISTS {name}");
-            }
+            Execute($"DROP DATABASE IF EXISTS {name}");
             DataBaseCache.TryRemove(name, out _);
         }
 
         public override bool ExistsDatabase(string name)
         {
-            using (var conn = GetConn())
-            {
-                var dbname = conn.ExecuteScalar<string>($"SHOW DATABASES LIKE '{name}'");
-                return !string.IsNullOrEmpty(dbname);
-            }
+            var dbname = ExecuteScalar<string>($"SHOW DATABASES LIKE '{name}'");
+            return !string.IsNullOrEmpty(dbname);
         }
 
         public override IDbConnection GetConn()
@@ -59,15 +50,15 @@ namespace Dapper.Sharding
 
         public override Task<IDbConnection> GetConnAsync()
         {
-            throw new NotImplementedException();
+            var conn = new ClickHouseConnection(ConnectionString);
+            if (conn.State != ConnectionState.Open)
+                conn.Open();
+            return Task.FromResult<IDbConnection>(conn);
         }
 
         public override IEnumerable<string> ShowDatabases()
         {
-            using (var conn = GetConn())
-            {
-                return conn.Query<string>("SHOW DATABASES");
-            }
+            return Query<string>("SHOW DATABASES");
         }
 
         public override IEnumerable<string> ShowDatabasesExcludeSystem()
