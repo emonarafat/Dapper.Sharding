@@ -7,7 +7,7 @@ using System.Linq.Dynamic.Core;
 
 namespace Dapper.Sharding
 {
-    internal class ClickHouseTable<T> : ITable<T> where T : class
+    internal partial class ClickHouseTable<T> : ITable<T> where T : class
     {
         public ClickHouseTable(string name, IDatabase database, IDbConnection conn = null, IDbTransaction tran = null, int? commandTimeout = null) : base(name, database, SqlFieldCacheUtils.GetClickHouseFieldEntity<T>(), new DapperEntity(name, database, conn, tran, commandTimeout))
         {

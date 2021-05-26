@@ -5,7 +5,7 @@ using System.Linq;
 
 namespace Dapper.Sharding
 {
-    internal class OracleTable<T> : ITable<T> where T : class
+    internal partial class OracleTable<T> : ITable<T> where T : class
     {
         public OracleTable(string name, IDatabase database, IDbConnection conn = null, IDbTransaction tran = null, int? commandTimeout = null) : base(name, database, SqlFieldCacheUtils.GetOracleFieldEntity<T>(), new DapperEntity(name, database, conn, tran, commandTimeout))
         {

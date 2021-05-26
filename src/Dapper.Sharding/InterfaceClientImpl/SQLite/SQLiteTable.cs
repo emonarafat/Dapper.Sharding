@@ -6,7 +6,7 @@ using System.Linq;
 
 namespace Dapper.Sharding
 {
-    internal class SQLiteTable<T> : ITable<T> where T : class
+    internal partial class SQLiteTable<T> : ITable<T> where T : class
     {
         public SQLiteTable(string name, IDatabase database, IDbConnection conn = null, IDbTransaction tran = null, int? commandTimeout = null) : base(name, database, SqlFieldCacheUtils.GetSqliteFieldEntity<T>(), new DapperEntity(name, database, conn, tran, commandTimeout))
         {

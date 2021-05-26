@@ -5,7 +5,7 @@ using System.Linq;
 
 namespace Dapper.Sharding
 {
-    internal class PostgreTable<T> : ITable<T> where T : class
+    internal partial class PostgreTable<T> : ITable<T> where T : class
     {
         public PostgreTable(string name, IDatabase database, IDbConnection conn = null, IDbTransaction tran = null, int? commandTimeout = null) : base(name, database, SqlFieldCacheUtils.GetPostgreFieldEntity<T>(), new DapperEntity(name, database, conn, tran, commandTimeout))
         {

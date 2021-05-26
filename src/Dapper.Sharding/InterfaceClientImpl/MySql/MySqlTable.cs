@@ -5,7 +5,7 @@ using System.Linq;
 
 namespace Dapper.Sharding
 {
-    internal class MySqlTable<T> : ITable<T> where T : class
+    internal partial class MySqlTable<T> : ITable<T> where T : class
     {
         public MySqlTable(string name, IDatabase database, IDbConnection conn = null, IDbTransaction tran = null, int? commandTimeout = null) : base(name, database, SqlFieldCacheUtils.GetMySqlFieldEntity<T>(), new DapperEntity(name, database, conn, tran, commandTimeout))
         {
