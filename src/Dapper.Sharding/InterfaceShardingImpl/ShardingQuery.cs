@@ -133,13 +133,13 @@ namespace Dapper.Sharding
 
         public async Task<decimal> AvgAsync(string field, string where = null, object param = null)
         {
-            var task1 = await SumDecimalAsync(field, where, param);
-            var task2 = await CountAsync(where, param);
-            if (task2 == 0)
+            var count = await CountAsync(where, param);
+            if (count == 0)
             {
                 return 0;
             }
-            return task1 / task2;
+            var sum = await SumDecimalAsync(field, where, param);     
+            return sum / count;
         }
 
         public async Task<IEnumerable<T>> GetAllAsync(string returnFields = null, string orderby = null)
