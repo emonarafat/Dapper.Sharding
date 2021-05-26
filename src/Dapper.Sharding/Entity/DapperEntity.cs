@@ -36,10 +36,7 @@ namespace Dapper.Sharding
             {
                 return DataBase.Execute(sql, param, commandTimeout);
             }
-            else
-            {
-                return Conn.Execute(sql, param, Tran, CommandTimeout);
-            }
+            return Conn.Execute(sql, param, Tran, CommandTimeout);
 
         }
 
@@ -49,10 +46,7 @@ namespace Dapper.Sharding
             {
                 return DataBase.ExecuteScalar(sql, param, commandTimeout);
             }
-            else
-            {
-                return Conn.ExecuteScalar(sql, param, Tran, CommandTimeout);
-            }
+            return Conn.ExecuteScalar(sql, param, Tran, CommandTimeout);
 
         }
 
@@ -62,10 +56,7 @@ namespace Dapper.Sharding
             {
                 return DataBase.ExecuteScalar<T>(sql, param, commandTimeout);
             }
-            else
-            {
-                return Conn.ExecuteScalar<T>(sql, param, Tran, CommandTimeout);
-            }
+            return Conn.ExecuteScalar<T>(sql, param, Tran, CommandTimeout);
         }
 
         public dynamic QueryFirstOrDefault(string sql, object param = null, int? commandTimeout = null)
@@ -74,11 +65,7 @@ namespace Dapper.Sharding
             {
                 return DataBase.QueryFirstOrDefault(sql, param, commandTimeout);
             }
-            else
-            {
-                return Conn.QueryFirstOrDefault(sql, param, Tran, commandTimeout: CommandTimeout);
-            }
-
+            return Conn.QueryFirstOrDefault(sql, param, Tran, commandTimeout: CommandTimeout);
         }
 
         public T QueryFirstOrDefault<T>(string sql, object param = null, int? commandTimeout = null)
@@ -87,10 +74,7 @@ namespace Dapper.Sharding
             {
                 return DataBase.QueryFirstOrDefault<T>(sql, param, commandTimeout);
             }
-            else
-            {
-                return Conn.QueryFirstOrDefault<T>(sql, param, Tran, commandTimeout: CommandTimeout);
-            }
+            return Conn.QueryFirstOrDefault<T>(sql, param, Tran, commandTimeout: CommandTimeout);
         }
 
         public IEnumerable<dynamic> Query(string sql, object param = null, int? commandTimeout = null)
@@ -99,10 +83,7 @@ namespace Dapper.Sharding
             {
                 return DataBase.Query(sql, param, commandTimeout);
             }
-            else
-            {
-                return Conn.Query(sql, param, Tran, commandTimeout: CommandTimeout);
-            }
+            return Conn.Query(sql, param, Tran, commandTimeout: CommandTimeout);
 
         }
 
@@ -112,10 +93,7 @@ namespace Dapper.Sharding
             {
                 return DataBase.Query<T>(sql, param, commandTimeout);
             }
-            else
-            {
-                return Conn.Query<T>(sql, param, Tran, commandTimeout: CommandTimeout);
-            }
+            return Conn.Query<T>(sql, param, Tran, commandTimeout: CommandTimeout);
         }
 
         public void QueryMultiple(string sql, object param = null, Action<SqlMapper.GridReader> onReader = null, int? commandTimeout = null)
@@ -123,13 +101,11 @@ namespace Dapper.Sharding
             if (Conn == null)
             {
                 DataBase.QueryMultiple(sql, param, onReader, commandTimeout);
+                return;
             }
-            else
+            using (var reader = Conn.QueryMultiple(sql, param, Tran, CommandTimeout))
             {
-                using (var reader = Conn.QueryMultiple(sql, param, Tran, CommandTimeout))
-                {
-                    onReader?.Invoke(reader);
-                }
+                onReader?.Invoke(reader);
             }
         }
 
@@ -143,11 +119,11 @@ namespace Dapper.Sharding
             {
                 return DataBase.ExecuteAsync(sql, param, commandTimeout);
             }
-            else
+            if (DataBase.DbType == DataBaseType.ClickHouse)
             {
-                return Conn.ExecuteAsync(sql, param, Tran, CommandTimeout);
+                return DataBase.ExecuteAsync(sql, param, commandTimeout);
             }
-
+            return Conn.ExecuteAsync(sql, param, Tran, CommandTimeout);
         }
 
         public Task<object> ExecuteScalarAsync(string sql, object param = null, int? commandTimeout = null)
@@ -156,11 +132,11 @@ namespace Dapper.Sharding
             {
                 return DataBase.ExecuteScalarAsync(sql, param, commandTimeout);
             }
-            else
+            if (DataBase.DbType == DataBaseType.ClickHouse)
             {
-                return Conn.ExecuteScalarAsync(sql, param, Tran, CommandTimeout);
+                return DataBase.ExecuteScalarAsync(sql, param, commandTimeout);
             }
-
+            return Conn.ExecuteScalarAsync(sql, param, Tran, CommandTimeout);
         }
 
         public Task<T> ExecuteScalarAsync<T>(string sql, object param = null, int? commandTimeout = null)
@@ -169,10 +145,11 @@ namespace Dapper.Sharding
             {
                 return DataBase.ExecuteScalarAsync<T>(sql, param, commandTimeout);
             }
-            else
+            if (DataBase.DbType == DataBaseType.ClickHouse)
             {
-                return Conn.ExecuteScalarAsync<T>(sql, param, Tran, CommandTimeout);
+                return DataBase.ExecuteScalarAsync<T>(sql, param, commandTimeout);
             }
+            return Conn.ExecuteScalarAsync<T>(sql, param, Tran, CommandTimeout);
         }
 
         public Task<dynamic> QueryFirstOrDefaultAsync(string sql, object param = null, int? commandTimeout = null)
@@ -181,10 +158,11 @@ namespace Dapper.Sharding
             {
                 return DataBase.QueryFirstOrDefaultAsync(sql, param, commandTimeout);
             }
-            else
+            if (DataBase.DbType == DataBaseType.ClickHouse)
             {
-                return Conn.QueryFirstOrDefaultAsync(sql, param, Tran, commandTimeout: CommandTimeout);
+                return DataBase.QueryFirstOrDefaultAsync(sql, param, commandTimeout);
             }
+            return Conn.QueryFirstOrDefaultAsync(sql, param, Tran, commandTimeout: CommandTimeout);
 
         }
 
@@ -194,10 +172,11 @@ namespace Dapper.Sharding
             {
                 return DataBase.QueryFirstOrDefaultAsync<T>(sql, param, commandTimeout);
             }
-            else
+            if (DataBase.DbType == DataBaseType.ClickHouse)
             {
-                return Conn.QueryFirstOrDefaultAsync<T>(sql, param, Tran, commandTimeout: CommandTimeout);
+                return DataBase.QueryFirstOrDefaultAsync<T>(sql, param, commandTimeout);
             }
+            return Conn.QueryFirstOrDefaultAsync<T>(sql, param, Tran, commandTimeout: CommandTimeout);
         }
 
         public Task<IEnumerable<dynamic>> QueryAsync(string sql, object param = null, int? commandTimeout = null)
@@ -206,11 +185,11 @@ namespace Dapper.Sharding
             {
                 return DataBase.QueryAsync(sql, param, commandTimeout);
             }
-            else
+            if (DataBase.DbType == DataBaseType.ClickHouse)
             {
-                return Conn.QueryAsync(sql, param, Tran, commandTimeout: CommandTimeout);
+                return DataBase.QueryAsync(sql, param, commandTimeout);
             }
-
+            return Conn.QueryAsync(sql, param, Tran, commandTimeout: CommandTimeout);
         }
 
         public Task<IEnumerable<T>> QueryAsync<T>(string sql, object param = null, int? commandTimeout = null)
@@ -219,10 +198,11 @@ namespace Dapper.Sharding
             {
                 return DataBase.QueryAsync<T>(sql, param, commandTimeout);
             }
-            else
+            if (DataBase.DbType == DataBaseType.ClickHouse)
             {
-                return Conn.QueryAsync<T>(sql, param, Tran, commandTimeout: CommandTimeout);
+                return DataBase.QueryAsync<T>(sql, param, commandTimeout);
             }
+            return Conn.QueryAsync<T>(sql, param, Tran, commandTimeout: CommandTimeout);
         }
 
         public async Task QueryMultipleAsync(string sql, object param = null, Action<SqlMapper.GridReader> onReader = null, int? commandTimeout = null)
@@ -230,13 +210,16 @@ namespace Dapper.Sharding
             if (Conn == null)
             {
                 await DataBase.QueryMultipleAsync(sql, param, onReader, commandTimeout);
+                return;
             }
-            else
+            if (DataBase.DbType == DataBaseType.ClickHouse)
             {
-                using (var reader = await Conn.QueryMultipleAsync(sql, param, Tran, CommandTimeout))
-                {
-                    onReader?.Invoke(reader);
-                }
+                await DataBase.QueryMultipleAsync(sql, param, onReader, commandTimeout);
+                return;
+            }
+            using (var reader = await Conn.QueryMultipleAsync(sql, param, Tran, CommandTimeout))
+            {
+                onReader?.Invoke(reader);
             }
         }
 

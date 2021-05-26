@@ -273,6 +273,7 @@ namespace Dapper.Sharding
                 {
                     QueryMultiple(sql, param, onReader, commandTimeout);
                 });
+                return;
             }
             using (var conn = await GetConnAsync())
             {
