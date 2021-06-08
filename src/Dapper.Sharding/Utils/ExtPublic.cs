@@ -103,9 +103,9 @@ namespace Dapper.Sharding
 
         private static void ListOneToOne<T, T2>(this IEnumerable<T> list, string field, string propertyName, IEnumerable<T2> mapList, string mapField) where T : class where T2 : class
         {
-            if (list == null || list.Count() == 0)
+            if (list == null || !list.Any())
                 return;
-            if (mapList == null || mapList.Count() == 0)
+            if (mapList == null || !mapList.Any())
                 return;
             var accessor = TypeAccessor.Create(typeof(T));
             var queryable = mapList.AsQueryable();
@@ -149,9 +149,9 @@ namespace Dapper.Sharding
 
         private static void ListOneToMany<T, T2>(this IEnumerable<T> list, string field, string propertyName, IEnumerable<T2> mapList, string mapField) where T : class where T2 : class
         {
-            if (list == null || list.Count() == 0)
+            if (list == null || !list.Any())
                 return;
-            if (mapList == null || mapList.Count() == 0)
+            if (mapList == null || !mapList.Any())
                 return;
             var accessor = TypeAccessor.Create(typeof(T));
             var queryable = mapList.AsQueryable();
@@ -195,13 +195,13 @@ namespace Dapper.Sharding
 
         private static void ListCenterToMany<T, T2, T3>(this IEnumerable<T> list, string field, string propertyName, IEnumerable<T2> centerList, string prevField, string nextField, IEnumerable<T3> mapList, string mapField) where T : class where T2 : class where T3 : class
         {
-            if (list == null || list.Count() == 0)
+            if (list == null || !list.Any())
                 return;
-            if (centerList == null || centerList.Count() == 0)
+            if (centerList == null || !centerList.Any())
             {
                 return;
             }
-            if (mapList == null || mapList.Count() == 0)
+            if (mapList == null || !mapList.Any())
                 return;
             var accessor = TypeAccessor.Create(typeof(T));
             var centerqueryable = centerList.AsQueryable();
@@ -257,7 +257,7 @@ namespace Dapper.Sharding
 
         private static IEnumerable<T2> Com<T, T2>(this IEnumerable<T> list, string field, ITable<T2> table, string mapField, string returnFields = null) where T : class where T2 : class
         {
-            if (list == null || list.Count() == 0)
+            if (list == null || !list.Any())
                 return Enumerable.Empty<T2>();
             var ids = list.AsQueryable().Where($"{field}!=null").Select(field).Distinct();
             var idsCount = ids.Count();
@@ -386,7 +386,7 @@ namespace Dapper.Sharding
 
         public static void TableOneToMany<T, T2>(this IEnumerable<T> list, string field, string propertyName, ITable<T2> table, string mapField, string returnFields, string and, DynamicParameters par = null, string orderby = null) where T : class where T2 : class
         {
-            if (list == null || list.Count() == 0)
+            if (list == null || !list.Any())
                 return;
             var ids = list.AsQueryable().Where($"{field}!=null").Select(field).Distinct();
             var idsCount = ids.Count();
@@ -440,7 +440,7 @@ namespace Dapper.Sharding
 
         private static IEnumerable<dynamic> ComDynamic<T, T2>(this IEnumerable<T> list, string field, ITable<T2> table, string mapField, string returnFields = null) where T : class where T2 : class
         {
-            if (list == null || list.Count() == 0)
+            if (list == null || !list.Any())
                 return Enumerable.Empty<dynamic>();
             var ids = list.AsQueryable().Where($"{field}!=null").Select(field).Distinct();
             var idsCount = ids.Count();
@@ -569,7 +569,7 @@ namespace Dapper.Sharding
 
         public static void TableOneToManyDynamic<T, T2>(this IEnumerable<T> list, string field, string propertyName, ITable<T2> table, string mapField, string returnFields, string and, DynamicParameters par = null, string orderby = null) where T : class where T2 : class
         {
-            if (list == null || list.Count() == 0)
+            if (list == null || !list.Any())
                 return;
             var ids = list.AsQueryable().Where($"{field}!=null").Select(field).Distinct();
             var idsCount = ids.Count();
@@ -623,7 +623,7 @@ namespace Dapper.Sharding
 
         public static void TableCenterToMany<T, T2, T3>(this IEnumerable<T> list, string field, string propertyName, ITable<T2> centerTable, string prevField, string nextField, ITable<T3> mapTable, string mapField, string returnFields = null) where T : class where T2 : class where T3 : class
         {
-            if (list == null || list.Count() == 0)
+            if (list == null || !list.Any())
                 return;
             var ids = list.AsQueryable().Where($"{field}!=null").Select(field).Distinct();
             var idsCount = ids.Count();
@@ -803,7 +803,7 @@ namespace Dapper.Sharding
 
         public static void TableCenterToMany<T, T2, T3>(this IEnumerable<T> list, string field, string propertyName, ITable<T2> centerTable, string prevField, string nextField, ITable<T3> mapTable, string mapField, string returnFields, string and, DynamicParameters par = null, string orderby = null) where T : class where T2 : class where T3 : class
         {
-            if (list == null || list.Count() == 0)
+            if (list == null || !list.Any())
                 return;
             var ids = list.AsQueryable().Where($"{field}!=null").Select(field).Distinct();
             var idsCount = ids.Count();
@@ -922,7 +922,7 @@ namespace Dapper.Sharding
 
         public static void TableCenterToManyDynamic<T, T2, T3>(this IEnumerable<T> list, string field, string propertyName, ITable<T2> centerTable, string prevField, string nextField, ITable<T3> mapTable, string mapField, string returnFields = null) where T : class where T2 : class where T3 : class
         {
-            if (list == null || list.Count() == 0)
+            if (list == null || !list.Any())
                 return;
             var ids = list.AsQueryable().Where($"{field}!=null").Select(field).Distinct();
             var idsCount = ids.Count();
@@ -1102,7 +1102,7 @@ namespace Dapper.Sharding
 
         public static void TableCenterToManyDynamic<T, T2, T3>(this IEnumerable<T> list, string field, string propertyName, ITable<T2> centerTable, string prevField, string nextField, ITable<T3> mapTable, string mapField, string returnFields, string and, DynamicParameters par = null, string orderby = null) where T : class where T2 : class where T3 : class
         {
-            if (list == null || list.Count() == 0)
+            if (list == null || !list.Any())
                 return;
             var ids = list.AsQueryable().Where($"{field}!=null").Select(field).Distinct();
             var idsCount = ids.Count();

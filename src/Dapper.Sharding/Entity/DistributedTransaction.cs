@@ -1,67 +1,83 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Data;
+using System.Threading.Tasks;
 
 namespace Dapper.Sharding
 {
     public class DistributedTransaction
     {
-        private Dictionary<IDatabase, IDbConnection> dictConn = new Dictionary<IDatabase, IDbConnection>();
+        private readonly Dictionary<IDatabase, (IDbConnection, IDbTransaction)> dict = new Dictionary<IDatabase, (IDbConnection, IDbTransaction)>();
 
-        private Dictionary<IDatabase, IDbTransaction> dictTran = new Dictionary<IDatabase, IDbTransaction>();
-
-        private Dictionary<object, object> dict = new Dictionary<object, object>();
-
-        public int? CommandTimeout = null;
-
-        public ITable<T> GetTranTable<T>(ITable<T> table) where T : class
+        public (IDbConnection, IDbTransaction) GetVal(IDatabase db)
         {
-            if (table.DbType == DataBaseType.ClickHouse)//如果是clickhouse直接返回
-            {
-                return table;
-            }
-
-            var ok = dict.TryGetValue(table, out var val);
+            var ok = dict.TryGetValue(db, out var val);
             if (!ok)
             {
-                var db = table.DataBase;
-                IDbConnection conn;
-                IDbTransaction tran;
-
-                //不存在此db的conn进行添加
-                if (!dictConn.ContainsKey(db))
+                IDbConnection conn = null;
+                IDbTransaction tran = null;
+                try
                 {
                     conn = db.GetConn();
                     tran = conn.BeginTransaction();
-                    dictConn.Add(db, conn);
-                    dictTran.Add(db, tran);
+                    val = (conn, tran);
+                    dict.Add(db, val);
                 }
-                else //直接取出来
+                catch (Exception ex)
                 {
-                    conn = dictConn[db];
-                    tran = dictTran[db];
+                    if (conn != null)
+                    {
+                        conn.Dispose();
+                    }
+                    if (tran != null)
+                    {
+                        tran.Dispose();
+                    }
+                    throw ex;
                 }
-                val = table.CreateTranTable(conn, tran, CommandTimeout);
-                dict.Add(table, val);
             }
-            return (ITable<T>)val;
+            return val;
+        }
+
+        public async Task<(IDbConnection, IDbTransaction)> GetValAsync(IDatabase db)
+        {
+            var ok = dict.TryGetValue(db, out var val);
+            if (!ok)
+            {
+                IDbConnection conn = null;
+                IDbTransaction tran = null;
+                try
+                {
+                    conn = await db.GetConnAsync();
+                    tran = conn.BeginTransaction();
+                    val = (conn, tran);
+                    dict.Add(db, val);
+                }
+                catch(Exception ex)
+                {
+                    if (conn != null)
+                    {
+                        conn.Dispose();
+                    }
+                    if (tran != null)
+                    {
+                        tran.Dispose();
+                    }
+                    throw ex;
+                }
+
+            }
+            return val;
         }
 
         private void Close()
         {
-            foreach (var item in dictTran.Values)
+            foreach (var item in dict.Values)
             {
                 try
                 {
-                    item.Dispose();
-                }
-                catch { }
-            }
-
-            foreach (var item in dictConn.Values)
-            {
-                try
-                {
-                    item.Dispose();
+                    item.Item1.Dispose();
+                    item.Item2.Dispose();
                 }
                 catch { }
             }
@@ -69,20 +85,20 @@ namespace Dapper.Sharding
 
         public void Commit()
         {
-            foreach (var item in dictTran.Values)
+            foreach (var item in dict.Values)
             {
-                item.Commit();
+                item.Item2.Commit();
             }
             Close();
         }
 
         public void Rollback()
         {
-            foreach (var item in dictTran.Values)
+            foreach (var item in dict.Values)
             {
                 try
                 {
-                    item.Rollback();
+                    item.Item2.Rollback();
                 }
                 catch { }
             }

@@ -82,7 +82,7 @@ namespace Dapper.Sharding
                 sb.Append($" COMMENT '{item.Comment}'");
                 if (item != tableEntity.ColumnList.Last())
                 {
-                    sb.Append(",");
+                    sb.Append(',');
                 }
             }
             sb.Append($")ENGINE={tableEntity.Engine}");

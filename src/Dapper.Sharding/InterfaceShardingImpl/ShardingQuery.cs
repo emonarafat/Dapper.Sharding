@@ -413,7 +413,7 @@ namespace Dapper.Sharding
         {
             var taskList = TableList.Select(s =>
             {
-                return s.DpEntity.ExecuteAsync(InitTable(sql, s.Name), param, commandTimeout);
+                return s.DataBase.ExecuteAsync(InitTable(sql, s.Name), param, commandTimeout);
             });
             return await Task.WhenAll(taskList);
         }
@@ -422,7 +422,7 @@ namespace Dapper.Sharding
         {
             var taskList = TableList.Select(s =>
             {
-                return s.DpEntity.ExecuteScalarAsync(InitTable(sql, s.Name), param, commandTimeout);
+                return s.DataBase.ExecuteScalarAsync(InitTable(sql, s.Name), param, commandTimeout);
             });
             return await Task.WhenAll(taskList);
         }
@@ -431,7 +431,7 @@ namespace Dapper.Sharding
         {
             var taskList = TableList.Select(s =>
             {
-                return s.DpEntity.ExecuteScalarAsync<TResult>(InitTable(sql, s.Name), param, commandTimeout);
+                return s.DataBase.ExecuteScalarAsync<TResult>(InitTable(sql, s.Name), param, commandTimeout);
             });
             return await Task.WhenAll(taskList);
         }
@@ -440,7 +440,7 @@ namespace Dapper.Sharding
         {
             var taskList = TableList.Select(s =>
             {
-                return s.DpEntity.QueryFirstOrDefaultAsync(InitTable(sql, s.Name), param, commandTimeout);
+                return s.DataBase.QueryFirstOrDefaultAsync(InitTable(sql, s.Name), param, commandTimeout);
             });
             return await Task.WhenAll(taskList);
         }
@@ -449,7 +449,7 @@ namespace Dapper.Sharding
         {
             var taskList = TableList.Select(s =>
             {
-                return s.DpEntity.QueryFirstOrDefaultAsync<TResult>(InitTable(sql, s.Name), param, commandTimeout);
+                return s.DataBase.QueryFirstOrDefaultAsync<TResult>(InitTable(sql, s.Name), param, commandTimeout);
             });
             return await Task.WhenAll(taskList);
         }
@@ -458,7 +458,7 @@ namespace Dapper.Sharding
         {
             var taskList = TableList.Select(s =>
             {
-                return s.DpEntity.QueryAsync(InitTable(sql, s.Name), param, commandTimeout);
+                return s.DataBase.QueryAsync(InitTable(sql, s.Name), param, commandTimeout);
             });
             return await Task.WhenAll(taskList);
         }
@@ -467,7 +467,7 @@ namespace Dapper.Sharding
         {
             var taskList = TableList.Select(s =>
             {
-                return s.DpEntity.QueryAsync<TResult>(InitTable(sql, s.Name), param, commandTimeout);
+                return s.DataBase.QueryAsync<TResult>(InitTable(sql, s.Name), param, commandTimeout);
             });
             return await Task.WhenAll(taskList);
         }

@@ -1,15 +1,11 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Data;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace Dapper.Sharding
 {
     internal class ClickHouseTableManager : ITableManager
     {
-        public ClickHouseTableManager(string name, IDatabase database, IDbConnection conn = null, IDbTransaction tran = null, int? commandTimeout = null) : base(name, database, new DapperEntity(name, database, conn, tran, commandTimeout))
+        public ClickHouseTableManager(string name, IDatabase database) : base(name, database)
         {
 
         }
@@ -17,7 +13,7 @@ namespace Dapper.Sharding
         public override void AddColumn(string name, Type t, double length = 0, string comment = null)
         {
             var dbType = CsharpTypeToDbType.Create(DataBase.DbType, t, length);
-            DpEntity.Execute($"ALTER TABLE `{Name}` ADD COLUMN IF NOT EXISTS `{name}` {dbType} COMMENT '{comment}'");
+            DataBase.Execute($"ALTER TABLE `{Name}` ADD COLUMN IF NOT EXISTS `{name}` {dbType} COMMENT '{comment}'");
         }
 
         public override void AddColumnAfter(string name, string afterName, Type t, double length = 0, string comment = null)
@@ -40,14 +36,9 @@ namespace Dapper.Sharding
             throw new NotImplementedException();
         }
 
-        public override ITableManager CreateTranManager(IDbConnection conn, IDbTransaction tran, int? commandTimeout = null)
-        {
-            throw new NotImplementedException();
-        }
-
         public override void DropColumn(string name)
         {
-            DpEntity.Execute($"ALTER TABLE `{Name}` DROP COLUMN IF EXISTS `{name}`");
+            DataBase.Execute($"ALTER TABLE `{Name}` DROP COLUMN IF EXISTS `{name}`");
         }
 
         public override void DropIndex(string name)
@@ -58,7 +49,7 @@ namespace Dapper.Sharding
         public override List<ColumnEntity> GetColumnEntityList(TableEntity tb = null)
         {
             var list = new List<ColumnEntity>();
-            var columnList = DpEntity.Query($"DESCRIBE TABLE {Name}");
+            var columnList = DataBase.Query($"DESCRIBE TABLE {Name}");
             foreach (var item in columnList)
             {
                 var model = new ColumnEntity();
@@ -196,7 +187,7 @@ namespace Dapper.Sharding
         public override void ModifyColumn(string name, Type t, double length = 0, string comment = null)
         {
             var dbType = CsharpTypeToDbType.Create(DataBase.DbType, t, length);
-            DpEntity.Execute($"ALTER TABLE `{Name}` MODIFY COLUMN IF EXISTS `{name}` {dbType}");
+            DataBase.Execute($"ALTER TABLE `{Name}` MODIFY COLUMN IF EXISTS `{name}` {dbType}");
         }
 
         public override void ModifyColumnAfter(string name, string afterName, Type t, double length = 0, string comment = null)

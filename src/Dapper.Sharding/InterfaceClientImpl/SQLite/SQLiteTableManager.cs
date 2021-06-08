@@ -1,20 +1,14 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Data;
 using System.Linq;
 
 namespace Dapper.Sharding
 {
     internal class SQLiteTableManager : ITableManager
     {
-        public SQLiteTableManager(string name, IDatabase database, IDbConnection conn = null, IDbTransaction tran = null, int? commandTimeout = null) : base(name, database, new DapperEntity(name, database, conn, tran, commandTimeout))
+        public SQLiteTableManager(string name, IDatabase database) : base(name, database)
         {
 
-        }
-
-        public override ITableManager CreateTranManager(IDbConnection conn, IDbTransaction tran, int? commandTimeout = null)
-        {
-            return new SQLiteTableManager(Name, DataBase, conn, tran, commandTimeout);
         }
 
         public override void CreateIndex(string name, string columns, IndexType indexType)
@@ -25,13 +19,13 @@ namespace Dapper.Sharding
                 case IndexType.Normal: sql = $"CREATE INDEX {name} ON [{Name}] ({columns});"; break;
                 case IndexType.Unique: sql = $"CREATE UNIQUE INDEX {name} ON [{Name}] ({columns});"; break;
             }
-            DpEntity.Execute(sql);
+            DataBase.Execute(sql);
         }
 
 
         public override void DropIndex(string name)
         {
-            DpEntity.Execute($"DROP INDEX {name}");
+            DataBase.Execute($"DROP INDEX {name}");
         }
 
         public override void AlertIndex(string name, string columns, IndexType indexType)
@@ -41,7 +35,7 @@ namespace Dapper.Sharding
         }
         public override List<IndexEntity> GetIndexEntityList()
         {
-            IEnumerable<dynamic> data = DpEntity.Query($"SELECT * FROM sqlite_master where type='index' AND tbl_name='{Name}' AND Name NOT LIKE 'sqlite_autoindex%';");
+            IEnumerable<dynamic> data = DataBase.Query($"SELECT * FROM sqlite_master where type='index' AND tbl_name='{Name}' AND Name NOT LIKE 'sqlite_autoindex%';");
             var list = new List<IndexEntity>();
             foreach (var row in data)
             {
@@ -68,7 +62,7 @@ namespace Dapper.Sharding
             if (tb == null)
                 tb = new TableEntity();
             var list = new List<ColumnEntity>();
-            IEnumerable<dynamic> data = DpEntity.Query($"pragma table_info('{Name}')");
+            IEnumerable<dynamic> data = DataBase.Query($"pragma table_info('{Name}')");
             foreach (var row in data)
             {
                 var model = new ColumnEntity();
@@ -91,8 +85,8 @@ namespace Dapper.Sharding
 
         public override void AddColumn(string name, Type t, double length = 0, string comment = null)
         {
-            var dbType = CsharpTypeToDbType.Create(DataBase.Client.DbType, t, length);
-            DpEntity.Execute($"ALTER TABLE {Name} ADD COLUMN {name.ToLower()} {dbType}");
+            var dbType = CsharpTypeToDbType.Create(DataBase.DbType, t, length);
+            DataBase.Execute($"ALTER TABLE {Name} ADD COLUMN {name.ToLower()} {dbType}");
         }
 
         public override void AddColumnAfter(string name, string afterName, Type t, double length = 0, string comment = null)
@@ -132,7 +126,7 @@ namespace Dapper.Sharding
 
         public override void ReName(string name)
         {
-            DpEntity.Execute($"ALTER TABLE {Name} RENAME TO {name}");
+            DataBase.Execute($"ALTER TABLE {Name} RENAME TO {name}");
         }
 
         public override void SetCharset(string name)

@@ -2,38 +2,32 @@
 using System.Collections.Generic;
 using System.Data;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace Dapper.Sharding
 {
     internal class OracleTableManager : ITableManager
     {
-        public OracleTableManager(string name, IDatabase database, IDbConnection conn = null, IDbTransaction tran = null, int? commandTimeout = null) : base(name, database, new DapperEntity(name, database, conn, tran, commandTimeout))
+        public OracleTableManager(string name, IDatabase database) : base(name, database)
         {
 
         }
 
-        public override ITableManager CreateTranManager(IDbConnection conn, IDbTransaction tran, int? commandTimeout = null)
-        {
-            return new OracleTableManager(Name, DataBase, conn, tran, commandTimeout);
-        }
         public override void CreateIndex(string name, string columns, IndexType indexType)
         {
             if (indexType == IndexType.Normal)
             {
-                DpEntity.Execute($"CREATE INDEX {DataBase.Client.Config.UserId.ToUpper()}.\"{Name}_{name}\" ON {DataBase.Client.Config.UserId.ToUpper()}.\"{Name.ToUpper()}\" ({columns})");
+                DataBase.Execute($"CREATE INDEX {DataBase.Client.Config.UserId.ToUpper()}.\"{Name}_{name}\" ON {DataBase.Client.Config.UserId.ToUpper()}.\"{Name.ToUpper()}\" ({columns})");
             }
             else if (indexType == IndexType.Unique)
             {
-                DpEntity.Execute($"CREATE UNIQUE INDEX {DataBase.Client.Config.UserId.ToUpper()}.\"{Name}_{name}\" ON {DataBase.Client.Config.UserId.ToUpper()}.\"{Name.ToUpper()}\" ({columns})");
+                DataBase.Execute($"CREATE UNIQUE INDEX {DataBase.Client.Config.UserId.ToUpper()}.\"{Name}_{name}\" ON {DataBase.Client.Config.UserId.ToUpper()}.\"{Name.ToUpper()}\" ({columns})");
             }
         }
 
 
         public override void DropIndex(string name)
         {
-            DpEntity.Execute($"drop index \"{name}\"");
+            DataBase.Execute($"drop index \"{name}\"");
         }
 
         public override void AlertIndex(string name, string columns, IndexType indexType)
@@ -55,7 +49,7 @@ and col.table_owner = idx.table_owner
 and col.table_owner = '{DataBase.Client.Config.UserId.ToUpper()}'
 and col.table_name = '{Name.ToUpper()}'";
 
-            IEnumerable<dynamic> data = DpEntity.Query(sql);
+            IEnumerable<dynamic> data = DataBase.Query(sql);
             IEnumerable<string> nameList = data.Select(s => (string)s.INDEX_NAME).Distinct();
             var list = new List<IndexEntity>();
             foreach (var n in nameList)
@@ -105,7 +99,7 @@ LEFT JOIN USER_CONSTRAINTS AU ON CU.CONSTRAINT_NAME = AU.CONSTRAINT_NAME
 WHERE CU.TABLE_NAME = '{Name.ToUpper()}' AND AU.CONSTRAINT_TYPE= 'P'
 )P ON C.COLUMN_NAME = P.COLUMN_NAME
 WHERE C.TABLE_NAME = '{Name.ToUpper()}' ORDER BY C.COLUMN_ID";
-            var data = DpEntity.Query(sql);
+            var data = DataBase.Query(sql);
             var list = new List<ColumnEntity>();
             foreach (var row in data)
             {
@@ -195,8 +189,8 @@ WHERE C.TABLE_NAME = '{Name.ToUpper()}' ORDER BY C.COLUMN_ID";
 
         public override void AddColumn(string name, Type t, double length = 0, string comment = null)
         {
-            var dbType = CsharpTypeToDbType.Create(DataBase.Client.DbType, t, length);
-            DpEntity.Execute($"ALTER TABLE {DataBase.Client.Config.UserId.ToUpper()}.{Name.ToUpper()} ADD({name.ToUpper()} {dbType})");
+            var dbType = CsharpTypeToDbType.Create(DataBase.DbType, t, length);
+            DataBase.Execute($"ALTER TABLE {DataBase.Client.Config.UserId.ToUpper()}.{Name.ToUpper()} ADD({name.ToUpper()} {dbType})");
 
         }
 
@@ -212,7 +206,7 @@ WHERE C.TABLE_NAME = '{Name.ToUpper()}' ORDER BY C.COLUMN_ID";
 
         public override void DropColumn(string name)
         {
-            DpEntity.Execute($"ALTER TABLE {Name.ToUpper()} DROP COLUMN {name.ToUpper()}");
+            DataBase.Execute($"ALTER TABLE {Name.ToUpper()} DROP COLUMN {name.ToUpper()}");
         }
 
 

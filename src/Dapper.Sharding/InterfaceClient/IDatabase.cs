@@ -4,6 +4,8 @@ using System.Collections.Generic;
 using System.Data;
 using System.Linq;
 using System.Threading.Tasks;
+using Z.BulkOperations;
+using Z.Dapper.Plus;
 
 namespace Dapper.Sharding
 {
@@ -29,73 +31,114 @@ namespace Dapper.Sharding
 
         #region dapper method
 
-        public int Execute(string sql, object param = null, int? commandTimeout = null)
+        public int Execute(string sql, object param = null, DistributedTransaction tran = null, int? commandTimeout = null)
         {
-            using (var cnn = GetConn())
+            if (tran == null || DbType == DataBaseType.ClickHouse)
             {
-                return cnn.Execute(sql, param, commandTimeout: commandTimeout);
-            }
-        }
-
-        public object ExecuteScalar(string sql, object param = null, int? commandTimeout = null)
-        {
-            using (var cnn = GetConn())
-            {
-                return cnn.ExecuteScalar(sql, param, commandTimeout: commandTimeout);
-            }
-
-        }
-
-        public T ExecuteScalar<T>(string sql, object param = null, int? commandTimeout = null)
-        {
-            using (var cnn = GetConn())
-            {
-                return cnn.ExecuteScalar<T>(sql, param, commandTimeout: commandTimeout);
-            }
-        }
-
-        public dynamic QueryFirstOrDefault(string sql, object param = null, int? commandTimeout = null)
-        {
-            using (var cnn = GetConn())
-            {
-                return cnn.QueryFirstOrDefault(sql, param, commandTimeout: commandTimeout);
-            }
-
-        }
-
-        public T QueryFirstOrDefault<T>(string sql, object param = null, int? commandTimeout = null)
-        {
-            using (var cnn = GetConn())
-            {
-                return cnn.QueryFirstOrDefault<T>(sql, param, commandTimeout: commandTimeout);
-            }
-        }
-
-        public IEnumerable<dynamic> Query(string sql, object param = null, int? commandTimeout = null)
-        {
-            using (var cnn = GetConn())
-            {
-                return cnn.Query(sql, param, commandTimeout: commandTimeout);
-            }
-
-        }
-
-        public IEnumerable<T> Query<T>(string sql, object param = null, int? commandTimeout = null)
-        {
-            using (var cnn = GetConn())
-            {
-                return cnn.Query<T>(sql, param, commandTimeout: commandTimeout);
-            }
-        }
-
-        public void QueryMultiple(string sql, object param = null, Action<SqlMapper.GridReader> onReader = null, int? commandTimeout = null)
-        {
-            using (var conn = GetConn())
-            {
-                using (var reader = conn.QueryMultiple(sql, param, commandTimeout: commandTimeout))
+                using (var cnn = GetConn())
                 {
-                    onReader?.Invoke(reader);
+                    return cnn.Execute(sql, param, commandTimeout: commandTimeout);
                 }
+            }
+            var val = tran.GetVal(this);
+            return val.Item1.Execute(sql, param, val.Item2, commandTimeout);
+        }
+
+        public object ExecuteScalar(string sql, object param = null, DistributedTransaction tran = null, int? commandTimeout = null)
+        {
+            if (tran == null || DbType == DataBaseType.ClickHouse)
+            {
+                using (var cnn = GetConn())
+                {
+                    return cnn.ExecuteScalar(sql, param, commandTimeout: commandTimeout);
+                }
+            }
+            var val = tran.GetVal(this);
+            return val.Item1.ExecuteScalar(sql, param, val.Item2, commandTimeout);
+        }
+
+        public T ExecuteScalar<T>(string sql, object param = null, DistributedTransaction tran = null, int? commandTimeout = null)
+        {
+            if (tran == null || DbType == DataBaseType.ClickHouse)
+            {
+                using (var cnn = GetConn())
+                {
+                    return cnn.ExecuteScalar<T>(sql, param, commandTimeout: commandTimeout);
+                }
+            }
+            var val = tran.GetVal(this);
+            return val.Item1.ExecuteScalar<T>(sql, param, val.Item2, commandTimeout);
+        }
+
+        public dynamic QueryFirstOrDefault(string sql, object param = null, DistributedTransaction tran = null, int? commandTimeout = null)
+        {
+            if (tran == null || DbType == DataBaseType.ClickHouse)
+            {
+                using (var cnn = GetConn())
+                {
+                    return cnn.QueryFirstOrDefault(sql, param, commandTimeout: commandTimeout);
+                }
+            }
+            var val = tran.GetVal(this);
+            return val.Item1.QueryFirstOrDefault(sql, param, val.Item2, commandTimeout);
+        }
+
+        public T QueryFirstOrDefault<T>(string sql, object param = null, DistributedTransaction tran = null, int? commandTimeout = null)
+        {
+            if (tran == null || DbType == DataBaseType.ClickHouse)
+            {
+                using (var cnn = GetConn())
+                {
+                    return cnn.QueryFirstOrDefault<T>(sql, param, commandTimeout: commandTimeout);
+                }
+            }
+            var val = tran.GetVal(this);
+            return val.Item1.QueryFirstOrDefault<T>(sql, param, val.Item2, commandTimeout);
+        }
+
+        public IEnumerable<dynamic> Query(string sql, object param = null, DistributedTransaction tran = null, int? commandTimeout = null)
+        {
+            if (tran == null || DbType == DataBaseType.ClickHouse)
+            {
+                using (var cnn = GetConn())
+                {
+                    return cnn.Query(sql, param, commandTimeout: commandTimeout);
+                }
+            }
+            var val = tran.GetVal(this);
+            return val.Item1.Query(sql, param, val.Item2, commandTimeout: commandTimeout);
+        }
+
+        public IEnumerable<T> Query<T>(string sql, object param = null, DistributedTransaction tran = null, int? commandTimeout = null)
+        {
+            if (tran == null || DbType == DataBaseType.ClickHouse)
+            {
+                using (var cnn = GetConn())
+                {
+                    return cnn.Query<T>(sql, param, commandTimeout: commandTimeout);
+                }
+            }
+            var val = tran.GetVal(this);
+            return val.Item1.Query<T>(sql, param, val.Item2, commandTimeout: commandTimeout);
+        }
+
+        public void QueryMultiple(string sql, object param = null, Action<SqlMapper.GridReader> onReader = null, DistributedTransaction tran = null, int? commandTimeout = null)
+        {
+            if (tran == null || DbType == DataBaseType.ClickHouse)
+            {
+                using (var conn = GetConn())
+                {
+                    using (var reader = conn.QueryMultiple(sql, param, commandTimeout: commandTimeout))
+                    {
+                        onReader?.Invoke(reader);
+                    }
+                }
+                return;
+            }
+            var val = tran.GetVal(this);
+            using (var reader = val.Item1.QueryMultiple(sql, param, val.Item2, commandTimeout: commandTimeout))
+            {
+                onReader?.Invoke(reader);
             }
         }
 
@@ -103,131 +146,425 @@ namespace Dapper.Sharding
 
         #region dapper method async
 
-        public async Task<int> ExecuteAsync(string sql, object param = null, int? commandTimeout = null)
+        public async Task<int> ExecuteAsync(string sql, object param = null, DistributedTransaction tran = null, int? commandTimeout = null)
         {
             if (DbType == DataBaseType.ClickHouse)
             {
                 return await Task.Run(() =>
                 {
-                    return Execute(sql, param, commandTimeout);
+                    return Execute(sql, param, null, commandTimeout);
                 });
             }
-            using (var cnn = await GetConnAsync())
+            if (tran == null)
             {
-                return await cnn.ExecuteAsync(sql, param, commandTimeout: commandTimeout);
+                using (var cnn = await GetConnAsync())
+                {
+                    return await cnn.ExecuteAsync(sql, param, commandTimeout: commandTimeout);
+                }
             }
+            var val = await tran.GetValAsync(this);
+            return await val.Item1.ExecuteAsync(sql, param, val.Item2, commandTimeout);
 
         }
 
-        public async Task<object> ExecuteScalarAsync(string sql, object param = null, int? commandTimeout = null)
+        public async Task<object> ExecuteScalarAsync(string sql, object param = null, DistributedTransaction tran = null, int? commandTimeout = null)
         {
             if (DbType == DataBaseType.ClickHouse)
             {
                 return await Task.Run(() =>
                 {
-                    return ExecuteScalar(sql, param, commandTimeout);
+                    return ExecuteScalar(sql, param, null, commandTimeout);
                 });
             }
-            using (var cnn = await GetConnAsync())
+            if (tran == null)
             {
-                return await cnn.ExecuteScalarAsync(sql, param, commandTimeout: commandTimeout);
+                using (var cnn = await GetConnAsync())
+                {
+                    return await cnn.ExecuteScalarAsync(sql, param, commandTimeout: commandTimeout);
+                }
             }
-
+            var val = await tran.GetValAsync(this);
+            return await val.Item1.ExecuteScalarAsync(sql, param, val.Item2, commandTimeout);
         }
 
-        public async Task<T> ExecuteScalarAsync<T>(string sql, object param = null, int? commandTimeout = null)
+        public async Task<T> ExecuteScalarAsync<T>(string sql, object param = null, DistributedTransaction tran = null, int? commandTimeout = null)
         {
             if (DbType == DataBaseType.ClickHouse)
             {
                 return await Task.Run(() =>
                 {
-                    return ExecuteScalar<T>(sql, param, commandTimeout);
+                    return ExecuteScalar<T>(sql, param, null, commandTimeout);
                 });
             }
-            using (var cnn = await GetConnAsync())
+            if (tran == null)
             {
-                return await cnn.ExecuteScalarAsync<T>(sql, param, commandTimeout: commandTimeout);
+                using (var cnn = await GetConnAsync())
+                {
+                    return await cnn.ExecuteScalarAsync<T>(sql, param, commandTimeout: commandTimeout);
+                }
             }
+            var val = await tran.GetValAsync(this);
+            return await val.Item1.ExecuteScalarAsync<T>(sql, param, val.Item2, commandTimeout);
         }
 
-        public async Task<dynamic> QueryFirstOrDefaultAsync(string sql, object param = null, int? commandTimeout = null)
+        public async Task<dynamic> QueryFirstOrDefaultAsync(string sql, object param = null, DistributedTransaction tran = null, int? commandTimeout = null)
         {
             if (DbType == DataBaseType.ClickHouse)
             {
                 return await Task.Run(() =>
                 {
-                    return QueryFirstOrDefault(sql, param, commandTimeout);
+                    return QueryFirstOrDefault(sql, param, null, commandTimeout);
                 });
             }
-            using (var cnn = await GetConnAsync())
+            if (tran == null)
             {
-                return await cnn.QueryFirstOrDefaultAsync(sql, param, commandTimeout: commandTimeout);
+                using (var cnn = await GetConnAsync())
+                {
+                    return await cnn.QueryFirstOrDefaultAsync(sql, param, commandTimeout: commandTimeout);
+                }
             }
-
+            var val = await tran.GetValAsync(this);
+            return await val.Item1.QueryFirstOrDefaultAsync(sql, param, val.Item2, commandTimeout);
         }
 
-        public async Task<T> QueryFirstOrDefaultAsync<T>(string sql, object param = null, int? commandTimeout = null)
+        public async Task<T> QueryFirstOrDefaultAsync<T>(string sql, object param = null, DistributedTransaction tran = null, int? commandTimeout = null)
         {
             if (DbType == DataBaseType.ClickHouse)
             {
                 return await Task.Run(() =>
                 {
-                    return QueryFirstOrDefault<T>(sql, param, commandTimeout);
+                    return QueryFirstOrDefault<T>(sql, param, null, commandTimeout);
                 });
             }
-            using (var cnn = await GetConnAsync())
+            if (tran == null)
             {
-                return await cnn.QueryFirstOrDefaultAsync<T>(sql, param, commandTimeout: commandTimeout);
+                using (var cnn = await GetConnAsync())
+                {
+                    return await cnn.QueryFirstOrDefaultAsync<T>(sql, param, commandTimeout: commandTimeout);
+                }
             }
+            var val = await tran.GetValAsync(this);
+            return await val.Item1.QueryFirstOrDefaultAsync<T>(sql, param, val.Item2, commandTimeout);
         }
 
-        public async Task<IEnumerable<dynamic>> QueryAsync(string sql, object param = null, int? commandTimeout = null)
+        public async Task<IEnumerable<dynamic>> QueryAsync(string sql, object param = null, DistributedTransaction tran = null, int? commandTimeout = null)
         {
             if (DbType == DataBaseType.ClickHouse)
             {
                 return await Task.Run(() =>
                 {
-                    return Query(sql, param, commandTimeout);
+                    return Query(sql, param, null, commandTimeout);
                 });
             }
-            using (var cnn = await GetConnAsync())
+            if (tran == null)
             {
-                return await cnn.QueryAsync(sql, param, commandTimeout: commandTimeout);
+                using (var cnn = await GetConnAsync())
+                {
+                    return await cnn.QueryAsync(sql, param, commandTimeout: commandTimeout);
+                }
             }
-
+            var val = await tran.GetValAsync(this);
+            return await val.Item1.QueryAsync(sql, param, val.Item2, commandTimeout);
         }
 
-        public async Task<IEnumerable<T>> QueryAsync<T>(string sql, object param = null, int? commandTimeout = null)
+        public async Task<IEnumerable<T>> QueryAsync<T>(string sql, object param = null, DistributedTransaction tran = null, int? commandTimeout = null)
         {
             if (DbType == DataBaseType.ClickHouse)
             {
                 return await Task.Run(() =>
                 {
-                    return Query<T>(sql, param, commandTimeout);
+                    return Query<T>(sql, param, null, commandTimeout);
                 });
             }
-            using (var cnn = await GetConnAsync())
+            if (tran == null)
             {
-                return await cnn.QueryAsync<T>(sql, param, commandTimeout: commandTimeout);
+                using (var cnn = await GetConnAsync())
+                {
+                    return await cnn.QueryAsync<T>(sql, param, commandTimeout: commandTimeout);
+                }
             }
+            var val = await tran.GetValAsync(this);
+            return await val.Item1.QueryAsync<T>(sql, param, val.Item2, commandTimeout);
         }
 
-        public async Task QueryMultipleAsync(string sql, object param = null, Action<SqlMapper.GridReader> onReader = null, int? commandTimeout = null)
+        public async Task QueryMultipleAsync(string sql, object param = null, Action<SqlMapper.GridReader> onReader = null, DistributedTransaction tran = null, int? commandTimeout = null)
         {
             if (DbType == DataBaseType.ClickHouse)
             {
                 await Task.Run(() =>
                 {
-                    QueryMultiple(sql, param, onReader, commandTimeout);
+                    QueryMultiple(sql, param, onReader, null, commandTimeout);
                 });
                 return;
             }
-            using (var conn = await GetConnAsync())
+            if (tran == null)
             {
-                using (var reader = await conn.QueryMultipleAsync(sql, param, commandTimeout: commandTimeout))
+                using (var conn = await GetConnAsync())
                 {
-                    onReader?.Invoke(reader);
+                    using (var reader = await conn.QueryMultipleAsync(sql, param, commandTimeout: commandTimeout))
+                    {
+                        onReader?.Invoke(reader);
+                    }
                 }
+                return;
+            }
+            var val = await tran.GetValAsync(this);
+            using (var reader = await val.Item1.QueryMultipleAsync(sql, param, val.Item2, commandTimeout))
+            {
+                onReader?.Invoke(reader);
+            }
+        }
+
+        #endregion
+
+        #region z.dapper.plus method
+
+        public void BulkInsert<T>(string tableName, T model, Action<BulkOperation> action, DistributedTransaction tran = null) where T : class
+        {
+            var key = DapperPlusUtils.Map<T>(tableName);
+            if (tran == null)
+            {
+                using (var cnn = GetConn())
+                {
+                    cnn.UseBulkOptions(option =>
+                    {
+                        action(option);
+                    }).BulkInsert(key, model);
+                }
+            }
+            else
+            {
+                var val = tran.GetVal(this);
+                val.Item2.UseBulkOptions(option =>
+                {
+                    action(option);
+
+                }).BulkInsert(key, model);
+            }
+        }
+
+        public void BulkInsert<T>(string tableName, IEnumerable<T> modelList, Action<BulkOperation> action, DistributedTransaction tran = null) where T : class
+        {
+            var key = DapperPlusUtils.Map<T>(tableName);
+            if (tran == null)
+            {
+                using (var cnn = GetConn())
+                {
+                    using (var tr = cnn.BeginTransaction())
+                    {
+                        try
+                        {
+                            tr.UseBulkOptions(option =>
+                            {
+                                action(option);
+
+                            }).BulkInsert(key, modelList);
+                            tr.Commit();
+                        }
+                        catch (Exception ex)
+                        {
+                            tr.Rollback();
+                            throw ex;
+                        }
+                    }
+
+                }
+            }
+            else
+            {
+                var val = tran.GetVal(this);
+                val.Item2.UseBulkOptions(option =>
+                {
+                    action(option);
+
+                }).BulkInsert(key, modelList);
+            }
+        }
+
+        public void BulkUpdate<T>(string tableName, T model, Action<BulkOperation> action, DistributedTransaction tran = null) where T : class
+        {
+            var key = DapperPlusUtils.Map<T>(tableName);
+            if (tran == null)
+            {
+                using (var cnn = GetConn())
+                {
+                    cnn.UseBulkOptions(option =>
+                    {
+                        action(option);
+
+                    }).BulkUpdate(key, model);
+                }
+            }
+            else
+            {
+                var val = tran.GetVal(this);
+                val.Item2.UseBulkOptions(option =>
+                {
+                    action(option);
+
+                }).BulkUpdate(key, model);
+            }
+        }
+
+        public void BulkUpdate<T>(string tableName, IEnumerable<T> modelList, Action<BulkOperation> action, DistributedTransaction tran = null) where T : class
+        {
+            var key = DapperPlusUtils.Map<T>(tableName);
+            if (tran == null)
+            {
+                using (var cnn = GetConn())
+                {
+                    using (var tr = cnn.BeginTransaction())
+                    {
+                        try
+                        {
+                            tr.UseBulkOptions(option =>
+                            {
+                                action(option);
+
+                            }).BulkUpdate(key, modelList);
+                            tr.Commit();
+                        }
+                        catch (Exception ex)
+                        {
+                            tr.Rollback();
+                            throw ex;
+                        }
+                    }
+
+                }
+            }
+            else
+            {
+                var val = tran.GetVal(this);
+                val.Item2.UseBulkOptions(option =>
+                {
+                    action(option);
+
+                }).BulkUpdate(key, modelList);
+            }
+        }
+
+        public void BulkDelete<T>(string tableName, T model, Action<BulkOperation> action, DistributedTransaction tran = null) where T : class
+        {
+            var key = DapperPlusUtils.Map<T>(tableName);
+            if (tran == null)
+            {
+                using (var cnn = GetConn())
+                {
+                    cnn.UseBulkOptions(option =>
+                    {
+                        action(option);
+
+                    }).BulkDelete(key, model);
+                }
+            }
+            else
+            {
+                var val = tran.GetVal(this);
+                val.Item2.UseBulkOptions(option =>
+                {
+                    action(option);
+
+                }).BulkDelete(key, model);
+            }
+        }
+
+        public void BulkDelete<T>(string tableName, IEnumerable<T> modelList, Action<BulkOperation> action, DistributedTransaction tran = null) where T : class
+        {
+            var key = DapperPlusUtils.Map<T>(tableName);
+            if (tran == null)
+            {
+                using (var cnn = GetConn())
+                {
+                    using (var tr = cnn.BeginTransaction())
+                    {
+                        try
+                        {
+                            tr.UseBulkOptions(option =>
+                            {
+                                action(option);
+
+                            }).BulkDelete(key, modelList);
+                            tr.Commit();
+                        }
+                        catch (Exception ex)
+                        {
+                            tr.Rollback();
+                            throw ex;
+                        }
+                    }
+                }
+            }
+            else
+            {
+                var val = tran.GetVal(this);
+                val.Item2.UseBulkOptions(option =>
+                {
+                    action(option);
+
+                }).BulkDelete(key, modelList);
+            }
+        }
+
+        public void BulkMerge<T>(string tableName, T model, Action<BulkOperation> action, DistributedTransaction tran = null) where T : class
+        {
+            var key = DapperPlusUtils.Map<T>(tableName);
+            if (tran == null)
+            {
+                using (var cnn = GetConn())
+                {
+                    cnn.UseBulkOptions(option =>
+                    {
+                        action(option);
+
+                    }).BulkMerge(key, model);
+                }
+            }
+            else
+            {
+                var val = tran.GetVal(this);
+                val.Item2.UseBulkOptions(option =>
+                {
+                    action(option);
+
+                }).BulkMerge(key, model);
+            }
+        }
+
+        public void BulkMerge<T>(string tableName, IEnumerable<T> modelList, Action<BulkOperation> action, DistributedTransaction tran = null) where T : class
+        {
+            var key = DapperPlusUtils.Map<T>(tableName);
+            if (tran == null)
+            {
+                using (var cnn = GetConn())
+                {
+                    using (var tr = cnn.BeginTransaction())
+                    {
+                        try
+                        {
+                            tr.UseBulkOptions(option =>
+                            {
+                                action(option);
+
+                            }).BulkMerge(key, modelList);
+                            tr.Commit();
+                        }
+                        catch (Exception ex)
+                        {
+                            tr.Rollback();
+                            throw ex;
+                        }
+                    }
+                }
+            }
+            else
+            {
+                var val = tran.GetVal(this);
+                val.Item2.UseBulkOptions(option =>
+                {
+                    action(option);
+
+                }).BulkMerge(key, modelList);
             }
         }
 

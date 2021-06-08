@@ -1,20 +1,14 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Data;
 using System.Linq;
 
 namespace Dapper.Sharding
 {
     internal class SqlServerTableManager : ITableManager
     {
-        public SqlServerTableManager(string name, IDatabase database, IDbConnection conn = null, IDbTransaction tran = null, int? commandTimeout = null) : base(name, database, new DapperEntity(name, database, conn, tran, commandTimeout))
+        public SqlServerTableManager(string name, IDatabase database) : base(name, database)
         {
 
-        }
-
-        public override ITableManager CreateTranManager(IDbConnection conn, IDbTransaction tran, int? commandTimeout = null)
-        {
-            return new SqlServerTableManager(Name, DataBase, conn, tran, commandTimeout);
         }
 
         public override void CreateIndex(string name, string columns, IndexType indexType)
@@ -25,13 +19,13 @@ namespace Dapper.Sharding
                 case IndexType.Normal: sql = $"CREATE INDEX {name} ON [{Name}] ({columns});"; break;
                 case IndexType.Unique: sql = $"CREATE UNIQUE INDEX {name} ON [{Name}] ({columns});"; break;
             }
-            DpEntity.Execute(sql);
+            DataBase.Execute(sql);
         }
 
 
         public override void DropIndex(string name)
         {
-            DpEntity.Execute($"DROP INDEX {name} ON [{Name}]");
+            DataBase.Execute($"DROP INDEX {name} ON [{Name}]");
         }
 
         public override void AlertIndex(string name, string columns, IndexType indexType)
@@ -42,7 +36,7 @@ namespace Dapper.Sharding
 
         public override List<IndexEntity> GetIndexEntityList()
         {
-            IEnumerable<dynamic> data = DpEntity.Query($"EXEC sp_helpindex '{DataBase.Name}.dbo.{Name}'");
+            IEnumerable<dynamic> data = DataBase.Query($"EXEC sp_helpindex '{DataBase.Name}.dbo.{Name}'");
             var list = new List<IndexEntity>();
             foreach (var row in data)
             {
@@ -98,7 +92,7 @@ where d.name=@Name
 order by a.id,a.colorder";
 
             var list = new List<ColumnEntity>();
-            IEnumerable<dynamic> data = DpEntity.Query(sql, new { Name });
+            IEnumerable<dynamic> data = DataBase.Query(sql, new { Name });
             foreach (var row in data)
             {
                 var model = new ColumnEntity();
@@ -145,9 +139,9 @@ order by a.id,a.colorder";
 
         public override void AddColumn(string name, Type t, double length = 0, string comment = null)
         {
-            var dbType = CsharpTypeToDbType.Create(DataBase.Client.DbType, t, length);
-            DpEntity.Execute($"alter table [{Name}] add  [{name}] {dbType}");
-            DpEntity.Execute($"EXEC sp_addextendedproperty 'MS_Description', N'{comment}', 'SCHEMA', N'dbo','TABLE', N'{Name}','COLUMN', N'{name}'");
+            var dbType = CsharpTypeToDbType.Create(DataBase.DbType, t, length);
+            DataBase.Execute($"alter table [{Name}] add  [{name}] {dbType}");
+            DataBase.Execute($"EXEC sp_addextendedproperty 'MS_Description', N'{comment}', 'SCHEMA', N'dbo','TABLE', N'{Name}','COLUMN', N'{name}'");
         }
 
         public override void AddColumnAfter(string name, string afterName, Type t, double length = 0, string comment = null)
@@ -162,14 +156,14 @@ order by a.id,a.colorder";
 
         public override void DropColumn(string name)
         {
-            DpEntity.Execute($"alter table [{Name}] drop column [{name}]");
+            DataBase.Execute($"alter table [{Name}] drop column [{name}]");
         }
 
 
         public override void ModifyColumn(string name, Type t, double length = 0, string comment = null)
         {
-            var dbType = CsharpTypeToDbType.Create(DataBase.Client.DbType, t, length);
-            DpEntity.Execute($"alter table [{Name}] alter column [{name}] {dbType}");
+            var dbType = CsharpTypeToDbType.Create(DataBase.DbType, t, length);
+            DataBase.Execute($"alter table [{Name}] alter column [{name}] {dbType}");
         }
 
         public override void ModifyColumnAfter(string name, string afterName, Type t, double length = 0, string comment = null)

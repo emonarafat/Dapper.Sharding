@@ -7,14 +7,9 @@ namespace Dapper.Sharding
 {
     internal class MySqlTableManager : ITableManager
     {
-        public MySqlTableManager(string name, IDatabase database, IDbConnection conn = null, IDbTransaction tran = null, int? commandTimeout = null) : base(name, database, new DapperEntity(name, database, conn, tran, commandTimeout))
+        public MySqlTableManager(string name, IDatabase database) : base(name, database)
         {
 
-        }
-
-        public override ITableManager CreateTranManager(IDbConnection conn, IDbTransaction tran, int? commandTimeout = null)
-        {
-            return new MySqlTableManager(Name, DataBase, conn, tran, commandTimeout);
         }
 
         public override void CreateIndex(string name, string columns, IndexType indexType)
@@ -27,12 +22,12 @@ namespace Dapper.Sharding
                 case IndexType.FullText: sql = $"CREATE FULLTEXT INDEX `{name}` ON `{Name}` ({columns});"; break;
                 case IndexType.Spatial: sql = $"CREATE SPATIAL INDEX `{name}` ON `{Name}` ({columns});"; break;
             }
-            DpEntity.Execute(sql);
+            DataBase.Execute(sql);
         }
 
         public override void DropIndex(string name)
         {
-            DpEntity.Execute($"ALTER TABLE {Name} DROP INDEX {name}");
+            DataBase.Execute($"ALTER TABLE {Name} DROP INDEX {name}");
         }
 
         public override void AlertIndex(string name, string columns, IndexType indexType)
@@ -44,7 +39,7 @@ namespace Dapper.Sharding
         public override List<IndexEntity> GetIndexEntityList()
         {
             var list = new List<IndexEntity>();
-            var indexList = DpEntity.Query($"SHOW INDEX FROM `{Name}`");
+            var indexList = DataBase.Query($"SHOW INDEX FROM `{Name}`");
             var groupNames = indexList.Select(s => s.Key_name).Distinct();
 
             foreach (var g in groupNames)
@@ -101,7 +96,7 @@ namespace Dapper.Sharding
             if (tb == null)
                 tb = new TableEntity();
             var list = new List<ColumnEntity>();
-            var columnList = DpEntity.Query($"SHOW FULL COLUMNS FROM `{Name}`");
+            var columnList = DataBase.Query($"SHOW FULL COLUMNS FROM `{Name}`");
             foreach (var item in columnList)
             {
                 ColumnEntity model = new ColumnEntity();
@@ -155,64 +150,64 @@ namespace Dapper.Sharding
 
         public override void ReName(string name)
         {
-            DpEntity.Execute($"ALTER TABLE `{Name}` RENAME TO `{name}`");
+            DataBase.Execute($"ALTER TABLE `{Name}` RENAME TO `{name}`");
         }
 
         public override void SetComment(string comment)
         {
-            DpEntity.Execute($"ALTER TABLE `{Name}` COMMENT '{comment}'");
+            DataBase.Execute($"ALTER TABLE `{Name}` COMMENT '{comment}'");
         }
 
         public override void SetCharset(string name)
         {
-            DpEntity.Execute($"ALTER TABLE `{Name}` DEFAULT CHARACTER SET {name}");
+            DataBase.Execute($"ALTER TABLE `{Name}` DEFAULT CHARACTER SET {name}");
         }
 
         public override void AddColumn(string name, Type t, double length = 0, string comment = null)
         {
-            var dbType = CsharpTypeToDbType.Create(DataBase.Client.DbType, t, length);
-            DpEntity.Execute($"ALTER TABLE `{Name}` ADD  `{name}` {dbType} COMMENT '{comment}'");
+            var dbType = CsharpTypeToDbType.Create(DataBase.DbType, t, length);
+            DataBase.Execute($"ALTER TABLE `{Name}` ADD  `{name}` {dbType} COMMENT '{comment}'");
         }
 
         public override void DropColumn(string name)
         {
-            DpEntity.Execute($"ALTER TABLE `{Name}` DROP COLUMN `{name}`");
+            DataBase.Execute($"ALTER TABLE `{Name}` DROP COLUMN `{name}`");
         }
 
         public override void AddColumnAfter(string name, string afterName, Type t, double length = 0, string comment = null)
         {
-            var dbType = CsharpTypeToDbType.Create(DataBase.Client.DbType, t, length);
-            DpEntity.Execute($"ALTER TABLE `{Name}` ADD  `{name}` {dbType} COMMENT '{comment}' AFTER `{afterName}`");
+            var dbType = CsharpTypeToDbType.Create(DataBase.DbType, t, length);
+            DataBase.Execute($"ALTER TABLE `{Name}` ADD  `{name}` {dbType} COMMENT '{comment}' AFTER `{afterName}`");
         }
 
         public override void AddColumnFirst(string name, Type t, double length = 0, string comment = null)
         {
-            var dbType = CsharpTypeToDbType.Create(DataBase.Client.DbType, t, length);
-            DpEntity.Execute($"ALTER TABLE `{Name}` ADD  `{name}` {dbType} COMMENT '{comment}' FIRST");
+            var dbType = CsharpTypeToDbType.Create(DataBase.DbType, t, length);
+            DataBase.Execute($"ALTER TABLE `{Name}` ADD  `{name}` {dbType} COMMENT '{comment}' FIRST");
         }
 
         public override void ModifyColumn(string name, Type t, double length = 0, string comment = null)
         {
-            var dbType = CsharpTypeToDbType.Create(DataBase.Client.DbType, t, length);
-            DpEntity.Execute($"ALTER TABLE `{Name}` MODIFY COLUMN `{name}` {dbType} COMMENT '{comment}'");
+            var dbType = CsharpTypeToDbType.Create(DataBase.DbType, t, length);
+            DataBase.Execute($"ALTER TABLE `{Name}` MODIFY COLUMN `{name}` {dbType} COMMENT '{comment}'");
         }
 
         public override void ModifyColumnFirst(string name, Type t, double length = 0, string comment = null)
         {
-            var dbType = CsharpTypeToDbType.Create(DataBase.Client.DbType, t, length);
-            DpEntity.Execute($"ALTER TABLE `{Name}` MODIFY COLUMN `{name}` {dbType} COMMENT '{comment}' FIRST");
+            var dbType = CsharpTypeToDbType.Create(DataBase.DbType, t, length);
+            DataBase.Execute($"ALTER TABLE `{Name}` MODIFY COLUMN `{name}` {dbType} COMMENT '{comment}' FIRST");
         }
 
         public override void ModifyColumnAfter(string name, string afterName, Type t, double length = 0, string comment = null)
         {
-            var dbType = CsharpTypeToDbType.Create(DataBase.Client.DbType, t, length);
-            DpEntity.Execute($"ALTER TABLE `{Name}` MODIFY COLUMN `{name}` {dbType} COMMENT '{comment}' AFTER `{afterName}`");
+            var dbType = CsharpTypeToDbType.Create(DataBase.DbType, t, length);
+            DataBase.Execute($"ALTER TABLE `{Name}` MODIFY COLUMN `{name}` {dbType} COMMENT '{comment}' AFTER `{afterName}`");
         }
 
         public override void ModifyColumnName(string oldName, string newName, Type t, double length = 0, string comment = null)
         {
-            var dbType = CsharpTypeToDbType.Create(DataBase.Client.DbType, t, length);
-            DpEntity.Execute($"ALTER TABLE `{Name}` CHANGE `{oldName}` `{newName}` {dbType} COMMENT '{comment}'");
+            var dbType = CsharpTypeToDbType.Create(DataBase.DbType, t, length);
+            DataBase.Execute($"ALTER TABLE `{Name}` CHANGE `{oldName}` `{newName}` {dbType} COMMENT '{comment}'");
         }
     }
 }

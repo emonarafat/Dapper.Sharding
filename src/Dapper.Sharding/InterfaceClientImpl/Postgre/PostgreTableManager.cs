@@ -1,22 +1,15 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Data;
 using System.Linq;
 
 namespace Dapper.Sharding
 {
     internal class PostgreTableManager : ITableManager
     {
-        public PostgreTableManager(string name, IDatabase database, IDbConnection conn = null, IDbTransaction tran = null, int? commandTimeout = null) : base(name, database, new DapperEntity(name, database, conn, tran, commandTimeout))
+        public PostgreTableManager(string name, IDatabase database) : base(name, database)
         {
 
         }
-
-        public override ITableManager CreateTranManager(IDbConnection conn, IDbTransaction tran, int? commandTimeout = null)
-        {
-            return new PostgreTableManager(Name, DataBase, conn, tran, commandTimeout);
-        }
-
 
         public override void CreateIndex(string name, string columns, IndexType indexType)
         {
@@ -30,12 +23,12 @@ namespace Dapper.Sharding
                 case IndexType.JsonbGinPath: sql = $"CREATE INDEX {name} ON {Name} USING GIN({columns} JSONB_PATH_OPS);"; break;
                 case IndexType.JsonBtree: sql = $"CREATE INDEX {name} ON {Name} USING BTREE({columns});"; break;
             }
-            DpEntity.Execute(sql);
+            DataBase.Execute(sql);
         }
 
         public override void DropIndex(string name)
         {
-            DpEntity.Execute($"DROP INDEX {name}");
+            DataBase.Execute($"DROP INDEX {name}");
         }
 
         public override void AlertIndex(string name, string columns, IndexType indexType)
@@ -83,8 +76,8 @@ group by
 order by
     t.relname,
     i.relname;";
-            var data1 = DpEntity.Query(sql1);
-            var data2 = DpEntity.Query(sql2);
+            var data1 = DataBase.Query(sql1);
+            var data2 = DataBase.Query(sql2);
 
             var list = new List<IndexEntity>();
             foreach (var row in data2)
@@ -159,8 +152,8 @@ left join (
 )c on c.attname = information_schema.columns.column_name
 where table_schema='public' and table_name=current_setting('myapp.name') order by ordinal_position asc";
 
-            IEnumerable<dynamic> data = DpEntity.Query(sql1);
-            IEnumerable<dynamic> data2 = DpEntity.Query(sql2);
+            IEnumerable<dynamic> data = DataBase.Query(sql1);
+            IEnumerable<dynamic> data2 = DataBase.Query(sql2);
 
             var list = new List<ColumnEntity>();
 
@@ -223,8 +216,8 @@ where table_schema='public' and table_name=current_setting('myapp.name') order b
 
         public override void AddColumn(string name, Type t, double length = 0, string comment = null)
         {
-            var dbType = CsharpTypeToDbType.Create(DataBase.Client.DbType, t, length);
-            DpEntity.Execute($"ALTER TABLE {Name} ADD COLUMN {name} {dbType}");
+            var dbType = CsharpTypeToDbType.Create(DataBase.DbType, t, length);
+            DataBase.Execute($"ALTER TABLE {Name} ADD COLUMN {name} {dbType}");
         }
 
         public override void AddColumnAfter(string name, string afterName, Type t, double length = 0, string comment = null)
@@ -239,13 +232,13 @@ where table_schema='public' and table_name=current_setting('myapp.name') order b
 
         public override void ModifyColumn(string name, Type t, double length = 0, string comment = null)
         {
-            var dbType = CsharpTypeToDbType.Create(DataBase.Client.DbType, t, length);
-            DpEntity.Execute($"ALTER TABLE {Name} ALTER COLUMN {name} TYPE {dbType}");
+            var dbType = CsharpTypeToDbType.Create(DataBase.DbType, t, length);
+            DataBase.Execute($"ALTER TABLE {Name} ALTER COLUMN {name} TYPE {dbType}");
         }
 
         public override void DropColumn(string name)
         {
-            DpEntity.Execute($"ALTER TABLE {Name} DROP COLUMN {name}");
+            DataBase.Execute($"ALTER TABLE {Name} DROP COLUMN {name}");
         }
 
 

@@ -6,11 +6,10 @@ namespace Dapper.Sharding
 {
     public abstract class ITableManager
     {
-        public ITableManager(string name, IDatabase database, DapperEntity dpEntity)
+        public ITableManager(string name, IDatabase database)
         {
             Name = name;
             DataBase = database;
-            DpEntity = dpEntity;
         }
 
 
@@ -20,11 +19,7 @@ namespace Dapper.Sharding
 
         public IDatabase DataBase { get; }
 
-        public DapperEntity DpEntity { get; }
-
         #endregion
-
-        public abstract ITableManager CreateTranManager(IDbConnection conn, IDbTransaction tran, int? commandTimeout = null);
 
         public abstract void CreateIndex(string name, string columns, IndexType indexType);
 
