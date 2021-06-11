@@ -4,6 +4,8 @@ namespace Dapper.Sharding
 {
     public class ShardingFactory
     {
+        public static bool ClickHouseFixedString = false;
+
         public static void SetSnowFlakeWorker(long workerId, long datacenterId)
         {
             SnowflakeId.worker = new IdWorker(workerId, datacenterId);

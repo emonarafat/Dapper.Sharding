@@ -12,11 +12,8 @@ namespace Dapper.Sharding
 
         }
 
-    }
+        #region insert
 
-
-    internal partial class SqlServerTable<T> : ITable<T> where T : class
-    {
         protected override string SqlInsert()
         {
             if (SqlField.IsIdentity)
@@ -28,44 +25,19 @@ namespace Dapper.Sharding
                 return $"INSERT INTO [{Name}] ({SqlField.AllFields})VALUES({SqlField.AllFieldsAt})";
             }
         }
-    }
 
+        protected override string SqlInsertIdentity()
+        {
+            return $"INSERT INTO [{Name}] ({SqlField.AllFields})VALUES({SqlField.AllFieldsAt})";
+        }
+
+        #endregion
+    }
 
     #region virtual
 
     internal partial class SqlServerTable<T> : ITable<T> where T : class
     {
-
-        //public override bool Insert(T model)
-        //{
-        //    if (SqlField.IsIdentity)
-        //    {
-        //        var accessor = TypeAccessor.Create(typeof(T));
-        //        var sql = $"INSERT INTO [{Name}] ({SqlField.AllFieldsExceptKey})VALUES({SqlField.AllFieldsAtExceptKey});SELECT @@IDENTITY";
-        //        if (SqlField.PrimaryKeyType == typeof(int))
-        //        {
-        //            var id = DataBase.ExecuteScalar<int>(sql, model);
-        //            accessor[model, SqlField.PrimaryKey] = id;
-        //            return id > 0;
-        //        }
-        //        else
-        //        {
-        //            var id = DataBase.ExecuteScalar<long>(sql, model);
-        //            accessor[model, SqlField.PrimaryKey] = id;
-        //            return id > 0;
-        //        }
-        //    }
-        //    else
-        //    {
-        //        var sql = $"INSERT INTO [{Name}] ({SqlField.AllFields})VALUES({SqlField.AllFieldsAt})";
-        //        return DataBase.Execute(sql, model) > 0;
-        //    }
-        //}
-
-        public override bool InsertIdentity(T model)
-        {
-            return DataBase.Execute($"INSERT INTO [{Name}] ({SqlField.AllFields})VALUES({SqlField.AllFieldsAt})", model) > 0;
-        }
 
         public override bool Update(T model, List<string> fields = null)
         {

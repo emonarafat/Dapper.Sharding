@@ -44,7 +44,17 @@ namespace Dapper.Sharding
         {
             var conn = new ClickHouseConnection(ConnectionString);
             if (conn.State != ConnectionState.Open)
-                conn.Open();
+            {
+                try
+                {
+                    conn.Open();
+                }
+                catch (Exception ex)
+                {
+                    conn.Dispose();
+                    throw ex;
+                }
+            }
             return conn;
         }
 
@@ -52,7 +62,17 @@ namespace Dapper.Sharding
         {
             var conn = new ClickHouseConnection(ConnectionString);
             if (conn.State != ConnectionState.Open)
-                conn.Open();
+            {
+                try
+                {
+                    conn.Open();
+                }
+                catch (Exception ex)
+                {
+                    conn.Dispose();
+                    throw ex;
+                }
+            }
             return Task.FromResult<IDbConnection>(conn);
         }
 

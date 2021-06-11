@@ -12,32 +12,27 @@ namespace Dapper.Sharding
 
         }
 
+        #region insert
 
-    }
-
-    internal partial class OracleTable<T> : ITable<T> where T : class
-    {
         protected override string SqlInsert()
         {
             return $"INSERT INTO {Name} ({SqlField.AllFields})VALUES({SqlField.AllFieldsAt})";
         }
+
+        protected override string SqlInsertIdentity()
+        {
+            throw new NotImplementedException();
+        }
+
+        #endregion
+
+
     }
 
     #region virtual
 
     internal partial class OracleTable<T> : ITable<T> where T : class
     {
-        //public override bool Insert(T model)
-        //{
-        //    var sql = $"INSERT INTO {Name} ({SqlField.AllFields})VALUES({SqlField.AllFieldsAt})";
-        //    return DataBase.Execute(sql, model) > 0;
-        //}
-
-        public override bool InsertIdentity(T model)
-        {
-            return DataBase.Execute($"INSERT INTO {Name} ({SqlField.AllFields})VALUES({SqlField.AllFieldsAt})", model) > 0;
-        }
-
         public override bool Update(T model, List<string> fields = null)
         {
             string updatefields;

@@ -435,17 +435,9 @@ namespace Dapper.Sharding
 
             if (type == typeof(string))
             {
-                if (length > 0)
+                if (length > 0 && ShardingFactory.ClickHouseFixedString)
                 {
                     return $"FixedString({length})";
-                }
-                if (length == -1)
-                {
-                    return "Date";
-                }
-                if (length == -2)
-                {
-                    return "UUID";
                 }
                 return "String";
             }

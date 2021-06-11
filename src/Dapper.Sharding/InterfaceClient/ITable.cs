@@ -1,6 +1,7 @@
 ﻿using FastMember;
 using System.Collections.Generic;
 using System.Linq;
+using System.Threading;
 using System.Threading.Tasks;
 
 namespace Dapper.Sharding
@@ -98,7 +99,7 @@ namespace Dapper.Sharding
 
         #region insert
 
-        public bool Insert(T model, DistributedTransaction tran = null, int? timeout = null)
+        public void Insert(T model, DistributedTransaction tran = null, int? timeout = null)
         {
             var sql = SqlInsert();
             if (SqlField.IsIdentity)
@@ -108,22 +109,20 @@ namespace Dapper.Sharding
                 {
                     var id = DataBase.ExecuteScalar<int>(sql, model, tran, timeout);
                     accessor[model, SqlField.PrimaryKey] = id;
-                    return id > 0;
                 }
                 else
                 {
                     var id = DataBase.ExecuteScalar<long>(sql, model, tran, timeout);
                     accessor[model, SqlField.PrimaryKey] = id;
-                    return id > 0;
                 }
             }
             else
             {
-                return DataBase.Execute(sql, model, tran, timeout) > 0;
+                DataBase.Execute(sql, model, tran, timeout);
             }
         }
 
-        public async Task<bool> InsertAsync(T model, DistributedTransaction tran = null, int? timeout = null)
+        public async Task InsertAsync(T model, DistributedTransaction tran = null, int? timeout = null)
         {
             var sql = SqlInsert();
             if (SqlField.IsIdentity)
@@ -133,240 +132,292 @@ namespace Dapper.Sharding
                 {
                     var id = await DataBase.ExecuteScalarAsync<int>(sql, model, tran, timeout);
                     accessor[model, SqlField.PrimaryKey] = id;
-                    return id > 0;
                 }
                 else
                 {
                     var id = await DataBase.ExecuteScalarAsync<long>(sql, model, tran, timeout);
                     accessor[model, SqlField.PrimaryKey] = id;
-                    return id > 0;
                 }
             }
             else
             {
-                return await DataBase.ExecuteAsync(sql, model, tran, timeout) > 0;
+                await DataBase.ExecuteAsync(sql, model, tran, timeout);
             }
         }
 
+        public void InsertIdentity(T model, DistributedTransaction tran = null, int? timeout = null)
+        {
+            DataBase.Execute(SqlInsertIdentity(), model, tran, timeout);
+        }
+
+        public async Task InsertIdentityAsync(T model, DistributedTransaction tran = null, int? timeout = null)
+        {
+            await DataBase.ExecuteAsync(SqlInsertIdentity(), model, tran, timeout);
+        }
+
+        public virtual void Insert(T model, List<string> fields, DistributedTransaction tran = null, int? timeout = null)
+        {
+            DataBase.BulkInsert(Name, model, opt =>
+            {
+                opt.IgnoreOnInsertNames = SqlField.AllFieldExceptKeyList.Except(fields).ToList();
+            }, tran);
+        }
+
+        public virtual void InsertIgnore(T model, List<string> fields, DistributedTransaction tran = null, int? timeout = null)
+        {
+            DataBase.BulkInsert(Name, model, opt =>
+            {
+                opt.IgnoreOnInsertNames = fields;
+            }, tran);
+        }
+
+        public virtual void Insert(IEnumerable<T> modelList, DistributedTransaction tran = null, int? timeout = null)
+        {
+            DataBase.BulkInsert(Name, modelList, opt => { }, tran);
+        }
+
+        public virtual void Insert(IEnumerable<T> modelList, List<string> fields, DistributedTransaction tran = null, int? timeout = null)
+        {
+            DataBase.BulkInsert(Name, modelList, opt =>
+            {
+                opt.IgnoreOnInsertNames = SqlField.AllFieldExceptKeyList.Except(fields).ToList();
+            }, tran);
+        }
+
+        public virtual void InsertIgnore(IEnumerable<T> modelList, List<string> fields, DistributedTransaction tran = null, int? timeout = null)
+        {
+            DataBase.BulkInsert(Name, modelList, opt =>
+            {
+                opt.IgnoreOnInsertNames = fields;
+            }, tran);
+        }
+
+        public virtual void InsertIfNoExists(T model, DistributedTransaction tran = null, int? timeout = null)
+        {
+            DataBase.BulkInsert(Name, model, opt =>
+            {
+                opt.InsertIfNotExists = true;
+            }, tran);
+        }
+
+        public virtual void InsertIfNoExists(T model, List<string> fields, DistributedTransaction tran = null, int? timeout = null)
+        {
+            DataBase.BulkInsert(Name, model, opt =>
+            {
+                opt.IgnoreOnInsertNames = SqlField.AllFieldExceptKeyList.Except(fields).ToList();
+                opt.InsertIfNotExists = true;
+            }, tran);
+        }
+
+        public virtual void InsertIfNoExistsIgnore(T model, List<string> fields, DistributedTransaction tran = null, int? timeout = null)
+        {
+            DataBase.BulkInsert(Name, model, opt =>
+            {
+                opt.IgnoreOnInsertNames = fields;
+                opt.InsertIfNotExists = true;
+            }, tran);
+        }
+
+        public virtual void InsertIfNoExists(IEnumerable<T> modelList, DistributedTransaction tran = null, int? timeout = null)
+        {
+            DataBase.BulkInsert(Name, modelList, opt =>
+            {
+                opt.InsertIfNotExists = true;
+            }, tran);
+        }
+
+        public virtual void InsertIfNoExists(IEnumerable<T> modelList, List<string> fields, DistributedTransaction tran = null, int? timeout = null)
+        {
+            DataBase.BulkInsert(Name, modelList, opt =>
+            {
+                opt.IgnoreOnInsertNames = SqlField.AllFieldExceptKeyList.Except(fields).ToList();
+                opt.InsertIfNotExists = true;
+            }, tran);
+        }
+
+        public virtual void InsertIfNoExistsIgnore(IEnumerable<T> modelList, List<string> fields, DistributedTransaction tran = null, int? timeout = null)
+        {
+            DataBase.BulkInsert(Name, modelList, opt =>
+            {
+                opt.IgnoreOnInsertNames = fields;
+                opt.InsertIfNotExists = true;
+            }, tran);
+        }
+
+        public virtual void InsertIdentity(T model, List<string> fields, DistributedTransaction tran = null, int? timeout = null)
+        {
+            DataBase.BulkInsert(Name, model, opt =>
+            {
+                opt.IgnoreOnInsertNames = SqlField.AllFieldExceptKeyList.Except(fields).ToList();
+                opt.InsertKeepIdentity = true;
+            }, tran);
+        }
+
+        public virtual void InsertIdentityIgnore(T model, List<string> fields, DistributedTransaction tran = null, int? timeout = null)
+        {
+            DataBase.BulkInsert(Name, model, opt =>
+            {
+                opt.IgnoreOnInsertNames = fields;
+                opt.InsertKeepIdentity = true;
+            }, tran);
+        }
+
+        public virtual void InsertIdentity(IEnumerable<T> modelList, DistributedTransaction tran = null, int? timeout = null)
+        {
+            DataBase.BulkInsert(Name, modelList, opt =>
+            {
+                opt.InsertKeepIdentity = true;
+            }, tran);
+        }
+
+        public virtual void InsertIdentity(IEnumerable<T> modelList, List<string> fields, DistributedTransaction tran = null, int? timeout = null)
+        {
+            DataBase.BulkInsert(Name, modelList, opt =>
+            {
+                opt.IgnoreOnInsertNames = SqlField.AllFieldExceptKeyList.Except(fields).ToList();
+                opt.InsertKeepIdentity = true;
+            }, tran);
+        }
+
+        public virtual void InsertIdentityIgnore(IEnumerable<T> modelList, List<string> fields, DistributedTransaction tran = null, int? timeout = null)
+        {
+            DataBase.BulkInsert(Name, modelList, opt =>
+            {
+                opt.IgnoreOnInsertNames = fields;
+                opt.InsertKeepIdentity = true;
+            },tran);
+        }
+
+        public virtual void InsertIdentityIfNoExists(T model, DistributedTransaction tran = null, int? timeout = null)
+        {
+            DataBase.BulkInsert(Name, model, opt =>
+            {
+                opt.InsertKeepIdentity = true;
+                opt.InsertIfNotExists = true;
+            },tran);
+        }
+
+        public virtual void InsertIdentityIfNoExists(T model, List<string> fields, DistributedTransaction tran = null, int? timeout = null)
+        {
+            DataBase.BulkInsert(Name, model, opt =>
+            {
+                opt.IgnoreOnInsertNames = SqlField.AllFieldExceptKeyList.Except(fields).ToList();
+                opt.InsertKeepIdentity = true;
+                opt.InsertIfNotExists = true;
+            },tran);
+        }
+
+        public virtual void InsertIdentityIfNoExistsIgnore(T model, List<string> fields, DistributedTransaction tran = null, int? timeout = null)
+        {
+            DataBase.BulkInsert(Name, model, opt =>
+            {
+                opt.IgnoreOnInsertNames = fields;
+                opt.InsertKeepIdentity = true;
+                opt.InsertIfNotExists = true;
+            },tran);
+        }
+
+        public virtual void InsertIdentityIfNoExists(IEnumerable<T> modelList, DistributedTransaction tran = null, int? timeout = null)
+        {
+            DataBase.BulkInsert(Name, modelList, opt =>
+            {
+                opt.InsertKeepIdentity = true;
+                opt.InsertIfNotExists = true;
+            },tran);
+        }
+
+        public virtual void InsertIdentityIfNoExists(IEnumerable<T> modelList, List<string> fields, DistributedTransaction tran = null, int? timeout = null)
+        {
+            DataBase.BulkInsert(Name, modelList, opt =>
+            {
+                opt.IgnoreOnInsertNames = SqlField.AllFieldExceptKeyList.Except(fields).ToList();
+                opt.InsertKeepIdentity = true;
+                opt.InsertIfNotExists = true;
+            },tran);
+        }
+
+        public virtual void InsertIdentityIfNoExistsIgnore(IEnumerable<T> modelList, List<string> fields, DistributedTransaction tran = null, int? timeout = null)
+        {
+            DataBase.BulkInsert(Name, modelList, opt =>
+            {
+                opt.IgnoreOnInsertNames = fields;
+                opt.InsertKeepIdentity = true;
+                opt.InsertIfNotExists = true;
+            },tran);
+        }
+
+        public virtual void Merge(T model, List<string> fields = null, DistributedTransaction tran = null, int? timeout = null)
+        {
+            DataBase.BulkMerge(Name, model, opt =>
+            {
+                if (fields != null)
+                {
+                    var ignoreFileds = SqlField.AllFieldExceptKeyList.Except(fields).ToList();
+                    opt.IgnoreOnMergeUpdateNames = ignoreFileds;
+                }
+                opt.MergeKeepIdentity = true;
+            },tran);
+        }
+
+        public virtual void Merge(IEnumerable<T> modelList, List<string> fields = null, DistributedTransaction tran = null, int? timeout = null)
+        {
+            DataBase.BulkMerge(Name, modelList, opt =>
+            {
+                if (fields != null)
+                {
+                    var ignoreFileds = SqlField.AllFieldExceptKeyList.Except(fields).ToList();
+                    opt.IgnoreOnMergeUpdateNames = ignoreFileds;
+                }
+                opt.MergeKeepIdentity = true;
+            },tran);
+        }
+
+        public virtual void MergeIgnore(T model, List<string> fields = null, DistributedTransaction tran = null, int? timeout = null)
+        {
+            DataBase.BulkMerge(Name, model, opt =>
+            {
+                if (fields != null)
+                {
+                    opt.IgnoreOnMergeUpdateNames = fields;
+                }
+                opt.MergeKeepIdentity = true;
+            },tran);
+        }
+
+        public virtual void MergeIgnore(IEnumerable<T> modelList, List<string> fields = null, DistributedTransaction tran = null, int? timeout = null)
+        {
+            DataBase.BulkMerge(Name, modelList, opt =>
+            {
+                if (fields != null)
+                {
+                    opt.IgnoreOnMergeUpdateNames = fields;
+                }
+                opt.MergeKeepIdentity = true;
+            },tran);
+        }
+
         #endregion
+
+        #region update
+
+
+
+        #endregion
+
     }
 
 
     public abstract partial class ITable<T> where T : class
     {
         protected abstract string SqlInsert();
+
+        protected abstract string SqlInsertIdentity();
     }
 
     #region virtual
 
     public abstract partial class ITable<T> where T : class
     {
-        
-        public virtual bool Insert(T model, List<string> fields)
-        {
-            DataBase.BulkInsert(Name, model, opt =>
-            {
-                opt.IgnoreOnInsertNames = SqlField.AllFieldExceptKeyList.Except(fields).ToList();
-            });
-            return true;
-        }
-
-        public virtual bool InsertIgnore(T model, List<string> fields)
-        {
-            DataBase.BulkInsert(Name, model, opt =>
-            {
-                opt.IgnoreOnInsertNames = fields;
-            });
-            return true;
-        }
-
-        public virtual void Insert(IEnumerable<T> modelList)
-        {
-            DataBase.BulkInsert(Name, modelList, opt => { });
-        }
-
-        public virtual bool Insert(IEnumerable<T> modelList, List<string> fields)
-        {
-            DataBase.BulkInsert(Name, modelList, opt =>
-            {
-                opt.IgnoreOnInsertNames = SqlField.AllFieldExceptKeyList.Except(fields).ToList();
-            });
-            return true;
-        }
-
-        public virtual bool InsertIgnore(IEnumerable<T> modelList, List<string> fields)
-        {
-            DataBase.BulkInsert(Name, modelList, opt =>
-            {
-                opt.IgnoreOnInsertNames = fields;
-            });
-            return true;
-        }
-
-        public virtual void InsertIfNoExists(T model)
-        {
-            DataBase.BulkInsert(Name, model, opt =>
-            {
-                opt.InsertIfNotExists = true;
-            });
-        }
-
-        public virtual void InsertIfNoExists(T model, List<string> fields)
-        {
-            DataBase.BulkInsert(Name, model, opt =>
-            {
-                opt.IgnoreOnInsertNames = SqlField.AllFieldExceptKeyList.Except(fields).ToList();
-                opt.InsertIfNotExists = true;
-            });
-        }
-
-        public virtual void InsertIfNoExistsIgnore(T model, List<string> fields)
-        {
-            DataBase.BulkInsert(Name, model, opt =>
-            {
-                opt.IgnoreOnInsertNames = fields;
-                opt.InsertIfNotExists = true;
-            });
-        }
-
-        public virtual void InsertIfNoExists(IEnumerable<T> modelList)
-        {
-            DataBase.BulkInsert(Name, modelList, opt =>
-            {
-                opt.InsertIfNotExists = true;
-            });
-        }
-
-        public virtual void InsertIfNoExists(IEnumerable<T> modelList, List<string> fields)
-        {
-            DataBase.BulkInsert(Name, modelList, opt =>
-            {
-                opt.IgnoreOnInsertNames = SqlField.AllFieldExceptKeyList.Except(fields).ToList();
-                opt.InsertIfNotExists = true;
-            });
-        }
-
-        public virtual void InsertIfNoExistsIgnore(IEnumerable<T> modelList, List<string> fields)
-        {
-            DataBase.BulkInsert(Name, modelList, opt =>
-            {
-                opt.IgnoreOnInsertNames = fields;
-                opt.InsertIfNotExists = true;
-            });
-        }
-
-        public virtual bool InsertIdentity(T model)
-        {
-            DataBase.BulkInsert(Name, model, opt =>
-            {
-                opt.InsertKeepIdentity = true;
-            });
-            return true;
-        }
-
-        public virtual bool InsertIdentity(T model, List<string> fields)
-        {
-            DataBase.BulkInsert(Name, model, opt =>
-            {
-                opt.IgnoreOnInsertNames = SqlField.AllFieldExceptKeyList.Except(fields).ToList();
-                opt.InsertKeepIdentity = true;
-            });
-            return true;
-        }
-
-        public virtual bool InsertIdentityIgnore(T model, List<string> fields)
-        {
-            DataBase.BulkInsert(Name, model, opt =>
-            {
-                opt.IgnoreOnInsertNames = fields;
-                opt.InsertKeepIdentity = true;
-            });
-            return true;
-        }
-
-        public virtual void InsertIdentity(IEnumerable<T> modelList)
-        {
-            DataBase.BulkInsert(Name, modelList, opt =>
-            {
-                opt.InsertKeepIdentity = true;
-            });
-        }
-
-        public virtual void InsertIdentity(IEnumerable<T> modelList, List<string> fields)
-        {
-            DataBase.BulkInsert(Name, modelList, opt =>
-            {
-                opt.IgnoreOnInsertNames = SqlField.AllFieldExceptKeyList.Except(fields).ToList();
-                opt.InsertKeepIdentity = true;
-            });
-        }
-
-        public virtual void InsertIdentityIgnore(IEnumerable<T> modelList, List<string> fields)
-        {
-            DataBase.BulkInsert(Name, modelList, opt =>
-            {
-                opt.IgnoreOnInsertNames = fields;
-                opt.InsertKeepIdentity = true;
-            });
-        }
-
-        public virtual void InsertIdentityIfNoExists(T model)
-        {
-            DataBase.BulkInsert(Name, model, opt =>
-            {
-                opt.InsertKeepIdentity = true;
-                opt.InsertIfNotExists = true;
-            });
-        }
-
-        public virtual void InsertIdentityIfNoExists(T model, List<string> fields)
-        {
-            DataBase.BulkInsert(Name, model, opt =>
-            {
-                opt.IgnoreOnInsertNames = SqlField.AllFieldExceptKeyList.Except(fields).ToList();
-                opt.InsertKeepIdentity = true;
-                opt.InsertIfNotExists = true;
-            });
-        }
-
-        public virtual void InsertIdentityIfNoExistsIgnore(T model, List<string> fields)
-        {
-            DataBase.BulkInsert(Name, model, opt =>
-            {
-                opt.IgnoreOnInsertNames = fields;
-                opt.InsertKeepIdentity = true;
-                opt.InsertIfNotExists = true;
-            });
-        }
-
-        public virtual void InsertIdentityIfNoExists(IEnumerable<T> modelList)
-        {
-            DataBase.BulkInsert(Name, modelList, opt =>
-            {
-                opt.InsertKeepIdentity = true;
-                opt.InsertIfNotExists = true;
-            });
-        }
-
-        public virtual void InsertIdentityIfNoExists(IEnumerable<T> modelList, List<string> fields)
-        {
-            DataBase.BulkInsert(Name, modelList, opt =>
-            {
-                opt.IgnoreOnInsertNames = SqlField.AllFieldExceptKeyList.Except(fields).ToList();
-                opt.InsertKeepIdentity = true;
-                opt.InsertIfNotExists = true;
-            });
-        }
-
-        public virtual void InsertIdentityIfNoExistsIgnore(IEnumerable<T> modelList, List<string> fields)
-        {
-            DataBase.BulkInsert(Name, modelList, opt =>
-            {
-                opt.IgnoreOnInsertNames = fields;
-                opt.InsertKeepIdentity = true;
-                opt.InsertIfNotExists = true;
-            });
-        }
 
         public virtual bool Update(T model, List<string> fields = null)
         {
@@ -420,55 +471,6 @@ namespace Dapper.Sharding
             DataBase.BulkDelete(Name, modelList, opt => { });
         }
 
-        public virtual void Merge(T model, List<string> fields = null)
-        {
-            DataBase.BulkMerge(Name, model, opt =>
-            {
-                if (fields != null)
-                {
-                    var ignoreFileds = SqlField.AllFieldExceptKeyList.Except(fields).ToList();
-                    opt.IgnoreOnMergeUpdateNames = ignoreFileds;
-                }
-                opt.MergeKeepIdentity = true;
-            });
-        }
-
-        public virtual void Merge(IEnumerable<T> modelList, List<string> fields = null)
-        {
-            DataBase.BulkMerge(Name, modelList, opt =>
-            {
-                if (fields != null)
-                {
-                    var ignoreFileds = SqlField.AllFieldExceptKeyList.Except(fields).ToList();
-                    opt.IgnoreOnMergeUpdateNames = ignoreFileds;
-                }
-                opt.MergeKeepIdentity = true;
-            });
-        }
-
-        public virtual void MergeIgnore(T model, List<string> fields = null)
-        {
-            DataBase.BulkMerge(Name, model, opt =>
-            {
-                if (fields != null)
-                {
-                    opt.IgnoreOnMergeUpdateNames = fields;
-                }
-                opt.MergeKeepIdentity = true;
-            });
-        }
-
-        public virtual void MergeIgnore(IEnumerable<T> modelList, List<string> fields = null)
-        {
-            DataBase.BulkMerge(Name, modelList, opt =>
-            {
-                if (fields != null)
-                {
-                    opt.IgnoreOnMergeUpdateNames = fields;
-                }
-                opt.MergeKeepIdentity = true;
-            });
-        }
     }
 
     #endregion

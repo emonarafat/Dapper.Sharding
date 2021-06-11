@@ -41,14 +41,190 @@ namespace Dapper.Sharding
             return query.Where($"@0.Contains({SqlField.PrimaryKey})", insertIds).ToList();
         }
 
-    }
+        #region insert NotImplementedException
 
-    internal partial class ClickHouseTable<T> : ITable<T> where T : class
-    {
+
+        public override void InsertIdentity(T model, List<string> fields, DistributedTransaction tran = null, int? timeout = null)
+        {
+            throw new NotImplementedException();
+        }
+
+        public override void InsertIdentityIgnore(T model, List<string> fields, DistributedTransaction tran = null, int? timeout = null)
+        {
+            throw new NotImplementedException();
+        }
+
+        public override void InsertIdentity(IEnumerable<T> modelList, DistributedTransaction tran = null, int? timeout = null)
+        {
+            throw new NotImplementedException();
+        }
+
+        public override void InsertIdentity(IEnumerable<T> modelList, List<string> fields, DistributedTransaction tran = null, int? timeout = null)
+        {
+            throw new NotImplementedException();
+        }
+
+        public override void InsertIdentityIgnore(IEnumerable<T> modelList, List<string> fields, DistributedTransaction tran = null, int? timeout = null)
+        {
+            throw new NotImplementedException();
+        }
+
+        public override void InsertIdentityIfNoExists(T model, DistributedTransaction tran = null, int? timeout = null)
+        {
+            throw new NotImplementedException();
+        }
+
+        public override void InsertIdentityIfNoExists(T model, List<string> fields, DistributedTransaction tran = null, int? timeout = null)
+        {
+            throw new NotImplementedException();
+        }
+
+        public override void InsertIdentityIfNoExistsIgnore(T model, List<string> fields, DistributedTransaction tran = null, int? timeout = null)
+        {
+            throw new NotImplementedException();
+        }
+
+        public override void InsertIdentityIfNoExists(IEnumerable<T> modelList, DistributedTransaction tran = null, int? timeout = null)
+        {
+            throw new NotImplementedException();
+        }
+
+        public override void InsertIdentityIfNoExists(IEnumerable<T> modelList, List<string> fields, DistributedTransaction tran = null, int? timeout = null)
+        {
+            throw new NotImplementedException();
+        }
+
+        public override void InsertIdentityIfNoExistsIgnore(IEnumerable<T> modelList, List<string> fields, DistributedTransaction tran = null, int? timeout = null)
+        {
+            throw new NotImplementedException();
+        }
+
+        public override void Merge(T model, List<string> fields = null, DistributedTransaction tran = null, int? timeout = null)
+        {
+            throw new NotImplementedException();
+        }
+
+        public override void Merge(IEnumerable<T> modelList, List<string> fields = null, DistributedTransaction tran = null, int? timeout = null)
+        {
+            throw new NotImplementedException();
+        }
+
+        public override void MergeIgnore(T model, List<string> fields = null, DistributedTransaction tran = null, int? timeout = null)
+        {
+            throw new NotImplementedException();
+        }
+
+        public override void MergeIgnore(IEnumerable<T> modelList, List<string> fields = null, DistributedTransaction tran = null, int? timeout = null)
+        {
+            throw new NotImplementedException();
+        }
+
+        #endregion
+
+        #region insert
+
         protected override string SqlInsert()
         {
             return $"INSERT INTO {Name} ({SqlField.AllFields}) SELECT {SqlField.AllFieldsAt}";
         }
+
+        protected override string SqlInsertIdentity()
+        {
+            throw new NotImplementedException();
+        }
+
+        public override void Insert(T model, List<string> fields, DistributedTransaction tran = null, int? timeout = null)
+        {
+            var ff = CommonUtil.GetFieldsStr(fields, "", "");
+            var vv = CommonUtil.GetFieldsAtStr(fields, "@");
+            var sql = $"INSERT INTO {Name} ({ff}) SELECT {vv}";
+            DataBase.Execute(sql, model, null, timeout);
+        }
+
+        public override void InsertIgnore(T model, List<string> fields, DistributedTransaction tran = null, int? timeout = null)
+        {
+            var exList = SqlField.AllFieldList.Except(fields).ToList();
+            var ff = CommonUtil.GetFieldsStr(exList, "", "");
+            var vv = CommonUtil.GetFieldsAtStr(exList, "@");
+            var sql = $"INSERT INTO {Name} ({ff}) SELECT {vv}";
+            DataBase.Execute(sql, model, null, timeout);
+
+        }
+
+        public override void Insert(IEnumerable<T> modelList, DistributedTransaction tran = null, int? timeout = null)
+        {
+            var sql = $"INSERT INTO {Name} ({SqlField.AllFields}) VALUES @list";
+            DataBase.Execute(sql, new { list = modelList }, null, timeout);
+        }
+
+        public override void Insert(IEnumerable<T> modelList, List<string> fields, DistributedTransaction tran = null, int? timeout = null)
+        {
+            var ff = CommonUtil.GetFieldsStr(fields, "", "");
+            var sql = $"INSERT INTO {Name} ({ff}) VALUES @list";
+            DataBase.Execute(sql, new { list = modelList }, null, timeout);
+        }
+
+        public override void InsertIgnore(IEnumerable<T> modelList, List<string> fields, DistributedTransaction tran = null, int? timeout = null)
+        {
+            var exList = SqlField.AllFieldList.Except(fields).ToList();
+            var ff = CommonUtil.GetFieldsStr(exList, "", "");
+            var sql = $"INSERT INTO {Name} ({ff}) VALUES @list";
+            DataBase.Execute(sql, new { list = modelList }, null, timeout);
+        }
+
+        public override void InsertIfNoExists(T model, DistributedTransaction tran = null, int? timeout = null)
+        {
+            if (!Exists(model))
+            {
+                Insert(model, null, timeout);
+            }
+        }
+
+        public override void InsertIfNoExists(T model, List<string> fields, DistributedTransaction tran = null, int? timeout = null)
+        {
+            if (!Exists(model))
+            {
+                Insert(model, fields, null, timeout);
+            }
+        }
+
+        public override void InsertIfNoExistsIgnore(T model, List<string> fields, DistributedTransaction tran = null, int? timeout = null)
+        {
+            if (!Exists(model))
+            {
+                InsertIgnore(model, fields, null, timeout);
+            }
+        }
+
+        public override void InsertIfNoExists(IEnumerable<T> modelList, DistributedTransaction tran = null, int? timeout = null)
+        {
+            var list = GetInsertList(modelList);
+            if (list.Any())
+            {
+                Insert(list, null, timeout);
+            }
+        }
+
+        public override void InsertIfNoExists(IEnumerable<T> modelList, List<string> fields, DistributedTransaction tran = null, int? timeout = null)
+        {
+            var list = GetInsertList(modelList);
+            if (list.Any())
+            {
+                Insert(list, fields, null, timeout);
+            }
+        }
+
+        public override void InsertIfNoExistsIgnore(IEnumerable<T> modelList, List<string> fields, DistributedTransaction tran = null, int? timeout = null)
+        {
+            var list = GetInsertList(modelList);
+            if (list.Any())
+            {
+                InsertIgnore(list, fields, null, timeout);
+            }
+        }
+
+        #endregion
+
     }
 
 
@@ -56,186 +232,6 @@ namespace Dapper.Sharding
 
     internal partial class ClickHouseTable<T> : ITable<T> where T : class
     {
-
-        #region insert identity merge
-
-        public override bool InsertIdentity(T model)
-        {
-            throw new NotImplementedException();
-        }
-
-        public override bool InsertIdentity(T model, List<string> fields)
-        {
-            throw new NotImplementedException();
-        }
-
-        public override bool InsertIdentityIgnore(T model, List<string> fields)
-        {
-            throw new NotImplementedException();
-        }
-
-        public override void InsertIdentity(IEnumerable<T> modelList)
-        {
-            throw new NotImplementedException();
-        }
-
-        public override void InsertIdentity(IEnumerable<T> modelList, List<string> fields)
-        {
-            throw new NotImplementedException();
-        }
-
-        public override void InsertIdentityIgnore(IEnumerable<T> modelList, List<string> fields)
-        {
-            throw new NotImplementedException();
-        }
-
-        public override void InsertIdentityIfNoExists(T model)
-        {
-            throw new NotImplementedException();
-        }
-
-        public override void InsertIdentityIfNoExists(T model, List<string> fields)
-        {
-            throw new NotImplementedException();
-        }
-
-        public override void InsertIdentityIfNoExistsIgnore(T model, List<string> fields)
-        {
-            throw new NotImplementedException();
-        }
-
-        public override void InsertIdentityIfNoExists(IEnumerable<T> modelList)
-        {
-            throw new NotImplementedException();
-        }
-
-        public override void InsertIdentityIfNoExists(IEnumerable<T> modelList, List<string> fields)
-        {
-            throw new NotImplementedException();
-        }
-
-        public override void InsertIdentityIfNoExistsIgnore(IEnumerable<T> modelList, List<string> fields)
-        {
-            throw new NotImplementedException();
-        }
-
-        public override void Merge(T model, List<string> fields = null)
-        {
-            throw new NotImplementedException();
-        }
-
-        public override void Merge(IEnumerable<T> modelList, List<string> fields = null)
-        {
-            throw new NotImplementedException();
-        }
-
-        public override void MergeIgnore(T model, List<string> fields = null)
-        {
-            throw new NotImplementedException();
-        }
-
-        public override void MergeIgnore(IEnumerable<T> modelList, List<string> fields = null)
-        {
-            throw new NotImplementedException();
-        }
-
-        #endregion
-
-        //public override bool Insert(T model)
-        //{
-        //    var sql = $"INSERT INTO {Name} ({SqlField.AllFields}) SELECT {SqlField.AllFieldsAt}";
-        //    return DataBase.Execute(sql, model) > 0;
-        //}
-
-        public override bool Insert(T model, List<string> fields)
-        {
-            var ff = CommonUtil.GetFieldsStr(fields, "", "");
-            var vv = CommonUtil.GetFieldsAtStr(fields, "@");
-            var sql = $"INSERT INTO {Name} ({ff}) SELECT {vv}";
-            return DataBase.Execute(sql, model) > 0;
-        }
-
-        public override bool InsertIgnore(T model, List<string> fields)
-        {
-            var exList = SqlField.AllFieldList.Except(fields).ToList();
-            var ff = CommonUtil.GetFieldsStr(exList, "", "");
-            var vv = CommonUtil.GetFieldsAtStr(exList, "@");
-            var sql = $"INSERT INTO {Name} ({ff}) SELECT {vv}";
-            return DataBase.Execute(sql, model) > 0;
-
-        }
-
-        public override void Insert(IEnumerable<T> modelList)
-        {
-            var sql = $"INSERT INTO {Name} ({SqlField.AllFields}) VALUES @list";
-            DataBase.Execute(sql, new { list = modelList });
-        }
-
-        public override bool Insert(IEnumerable<T> modelList, List<string> fields)
-        {
-            var ff = CommonUtil.GetFieldsStr(fields, "", "");
-            var sql = $"INSERT INTO {Name} ({ff}) VALUES @list";
-            return DataBase.Execute(sql, new { list = modelList }) > 0;
-        }
-
-        public override bool InsertIgnore(IEnumerable<T> modelList, List<string> fields)
-        {
-            var exList = SqlField.AllFieldList.Except(fields).ToList();
-            var ff = CommonUtil.GetFieldsStr(exList, "", "");
-            var sql = $"INSERT INTO {Name} ({ff}) VALUES @list";
-            return DataBase.Execute(sql, new { list = modelList }) > 0;
-        }
-
-        public override void InsertIfNoExists(T model)
-        {
-            if (!Exists(model))
-            {
-                Insert(model);
-            }
-        }
-
-        public override void InsertIfNoExists(T model, List<string> fields)
-        {
-            if (!Exists(model))
-            {
-                Insert(model, fields);
-            }
-        }
-
-        public override void InsertIfNoExistsIgnore(T model, List<string> fields)
-        {
-            if (!Exists(model))
-            {
-                InsertIgnore(model, fields);
-            }
-        }
-
-        public override void InsertIfNoExists(IEnumerable<T> modelList)
-        {
-            var list = GetInsertList(modelList);
-            if (list.Any())
-            {
-                Insert(list);
-            }
-        }
-
-        public override void InsertIfNoExists(IEnumerable<T> modelList, List<string> fields)
-        {
-            var list = GetInsertList(modelList);
-            if (list.Any())
-            {
-                Insert(list, fields);
-            }
-        }
-
-        public override void InsertIfNoExistsIgnore(IEnumerable<T> modelList, List<string> fields)
-        {
-            var list = GetInsertList(modelList);
-            if (list.Any())
-            {
-                InsertIgnore(list, fields);
-            }
-        }
 
         public override bool Update(T model, List<string> fields = null)
         {

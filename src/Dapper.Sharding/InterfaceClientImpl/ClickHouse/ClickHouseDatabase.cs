@@ -32,13 +32,36 @@ namespace Dapper.Sharding
         {
             var conn = new ClickHouseConnection(ConnectionString);
             if (conn.State != ConnectionState.Open)
-                conn.Open();
+            {
+                try
+                {
+                    conn.Open();
+                }
+                catch (Exception ex)
+                {
+                    conn.Dispose();
+                    throw ex;
+                }
+            }
             return conn;
         }
 
         public override Task<IDbConnection> GetConnAsync()
         {
-            throw new NotImplementedException();
+            var conn = new ClickHouseConnection(ConnectionString);
+            if (conn.State != ConnectionState.Open)
+            {
+                try
+                {
+                    conn.Open();
+                }
+                catch (Exception ex)
+                {
+                    conn.Dispose();
+                    throw ex;
+                }
+            }
+            return Task.FromResult<IDbConnection>(conn);
         }
 
         public override IEnumerable<string> GetTableColumnList(string name)

@@ -5,9 +5,9 @@ namespace Dapper.Sharding
 {
     public class DapperPlusUtils
     {
-        private static object _dapperPlusLocker = new object();
+        private static readonly object _dapperPlusLocker = new object();
 
-        private static HashSet<string> _dapperPlusDict = new HashSet<string>();
+        private static readonly HashSet<string> _dapperPlusDict = new HashSet<string>();
 
         public static string Map<T>(string tableName) where T : class
         {

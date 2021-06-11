@@ -1,4 +1,5 @@
 ﻿using Npgsql;
+using System;
 using System.Collections.Generic;
 using System.Data;
 using System.Linq;
@@ -95,7 +96,17 @@ namespace Dapper.Sharding
         {
             var conn = new NpgsqlConnection(ConnectionString);
             if (conn.State != ConnectionState.Open)
-                conn.Open();
+            {
+                try
+                {
+                    conn.Open();
+                }
+                catch (Exception ex)
+                {
+                    conn.Dispose();
+                    throw ex;
+                }
+            }
             return conn;
         }
 
@@ -103,7 +114,17 @@ namespace Dapper.Sharding
         {
             var conn = new NpgsqlConnection(ConnectionString);
             if (conn.State != ConnectionState.Open)
-                await conn.OpenAsync();
+            {
+                try
+                {
+                    await conn.OpenAsync();
+                }
+                catch (Exception ex)
+                {
+                    await conn.DisposeAsync();
+                    throw ex;
+                }
+            }
             return conn;
         }
 

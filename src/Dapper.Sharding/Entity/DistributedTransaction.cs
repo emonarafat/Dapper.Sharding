@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Data;
+using System.Linq;
 using System.Threading.Tasks;
 
 namespace Dapper.Sharding
@@ -14,27 +15,10 @@ namespace Dapper.Sharding
             var ok = dict.TryGetValue(db, out var val);
             if (!ok)
             {
-                IDbConnection conn = null;
-                IDbTransaction tran = null;
-                try
-                {
-                    conn = db.GetConn();
-                    tran = conn.BeginTransaction();
-                    val = (conn, tran);
-                    dict.Add(db, val);
-                }
-                catch (Exception ex)
-                {
-                    if (conn != null)
-                    {
-                        conn.Dispose();
-                    }
-                    if (tran != null)
-                    {
-                        tran.Dispose();
-                    }
-                    throw ex;
-                }
+                var conn = db.GetConn();
+                var tran = conn.BeginTransaction();
+                val = (conn, tran);
+                dict.Add(db, val);
             }
             return val;
         }
@@ -44,65 +28,62 @@ namespace Dapper.Sharding
             var ok = dict.TryGetValue(db, out var val);
             if (!ok)
             {
-                IDbConnection conn = null;
-                IDbTransaction tran = null;
-                try
-                {
-                    conn = await db.GetConnAsync();
-                    tran = conn.BeginTransaction();
-                    val = (conn, tran);
-                    dict.Add(db, val);
-                }
-                catch(Exception ex)
-                {
-                    if (conn != null)
-                    {
-                        conn.Dispose();
-                    }
-                    if (tran != null)
-                    {
-                        tran.Dispose();
-                    }
-                    throw ex;
-                }
-
+                IDbConnection conn = await db.GetConnAsync();
+                IDbTransaction tran = conn.BeginTransaction();
+                val = (conn, tran);
+                dict.Add(db, val);
             }
             return val;
         }
 
-        private void Close()
-        {
-            foreach (var item in dict.Values)
-            {
-                try
-                {
-                    item.Item1.Dispose();
-                    item.Item2.Dispose();
-                }
-                catch { }
-            }
-        }
-
         public void Commit()
         {
+            if (dict.Count == 1)
+            {
+                var item = dict.First().Value;
+                item.Item2.Commit();
+                item.Item2.Dispose();
+                item.Item1.Dispose();
+                return;
+            }
             foreach (var item in dict.Values)
             {
                 item.Item2.Commit();
             }
-            Close();
+            foreach (var item in dict.Values)
+            {
+                item.Item2.Dispose();
+                item.Item1.Dispose();
+            }
         }
 
         public void Rollback()
         {
+            if (dict.Count == 1)
+            {
+                var item = dict.First().Value;
+                item.Item2.Rollback();
+                item.Item2.Dispose();
+                item.Item1.Dispose();
+                return;
+            }
+
             foreach (var item in dict.Values)
             {
                 try
                 {
                     item.Item2.Rollback();
                 }
-                catch { }
+                catch
+                {
+
+                }
+                finally
+                {
+                    item.Item2.Dispose();
+                    item.Item1.Dispose();
+                }
             }
-            Close();
         }
     }
 }

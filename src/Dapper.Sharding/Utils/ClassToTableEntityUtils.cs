@@ -15,7 +15,7 @@ namespace Dapper.Sharding
             var t = typeof(T);
             var tableAttr = t.GetCustomAttributes(false).First(f => f is TableAttribute) as TableAttribute;
             entity.PrimaryKey = tableAttr.PrimaryKey;
-            if (dbType == DataBaseType.ClickHouse) //clickhouse是没有自增的
+            if (dbType == DataBaseType.ClickHouse || dbType == DataBaseType.Oracle) //clickhouse oracle是没有自增的
             {
                 entity.IsIdentity = false;
             }
