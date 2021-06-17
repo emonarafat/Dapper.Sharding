@@ -100,6 +100,10 @@ namespace Dapper.Sharding
         }
 
         #endregion
+
+        #region aggregate
+
+        #endregion
     }
 
     #region abstract

@@ -420,6 +420,96 @@ namespace Dapper.Sharding
             }, tran);
         }
 
+        public void InsertOrUpdate(T model, List<string> updateFields = null, DistributedTransaction tran = null, int? timeout = null)
+        {
+            var accessor = TypeAccessor.Create(typeof(T));
+            var id = accessor[model, SqlField.PrimaryKey];
+            bool insert = true;
+            if (id is int val)
+            {
+                if (val > 0)
+                {
+                    insert = false;
+                }
+            }
+            else if (id is long val2)
+            {
+                if (val2 > 0)
+                {
+                    insert = false;
+                }
+            }
+            else if (id is string val3)
+            {
+                if (!string.IsNullOrEmpty(val3))
+                {
+                    insert = false;
+                }
+            }
+            else if (id is decimal val4)
+            {
+                if (val4 > 0)
+                {
+                    insert = false;
+                }
+            }
+
+            if (insert)
+            {
+                Insert(model, tran, timeout);
+            }
+            else
+            {
+                Update(model, updateFields, tran, timeout);
+            }
+
+        }
+
+        public async Task InsertOrUpdateAsync(T model, List<string> updateFields = null, DistributedTransaction tran = null, int? timeout = null)
+        {
+            var accessor = TypeAccessor.Create(typeof(T));
+            var id = accessor[model, SqlField.PrimaryKey];
+            bool insert = true;
+            if (id is int val)
+            {
+                if (val > 0)
+                {
+                    insert = false;
+                }
+            }
+            else if (id is long val2)
+            {
+                if (val2 > 0)
+                {
+                    insert = false;
+                }
+            }
+            else if (id is string val3)
+            {
+                if (!string.IsNullOrEmpty(val3))
+                {
+                    insert = false;
+                }
+            }
+            else if (id is decimal val4)
+            {
+                if (val4 > 0)
+                {
+                    insert = false;
+                }
+            }
+
+            if (insert)
+            {
+                await InsertAsync(model, tran, timeout);
+            }
+            else
+            {
+                await UpdateAsync(model, updateFields, tran, timeout);
+            }
+
+        }
+
         #endregion
 
         #region update
@@ -578,6 +668,10 @@ namespace Dapper.Sharding
         {
             DataBase.BulkDelete(Name, modelList, opt => { });
         }
+
+        #endregion
+
+        #region aggregate
 
         #endregion
     }
