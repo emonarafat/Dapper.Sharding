@@ -62,9 +62,15 @@ namespace Dapper.Sharding
             if (dict.Count == 1)
             {
                 var item = dict.First().Value;
-                item.Item2.Rollback();
-                item.Item2.Dispose();
-                item.Item1.Dispose();
+                try
+                {
+                    item.Item2.Rollback();
+                }
+                finally
+                {
+                    item.Item2.Dispose();
+                    item.Item1.Dispose();
+                }              
                 return;
             }
 
@@ -73,10 +79,6 @@ namespace Dapper.Sharding
                 try
                 {
                     item.Item2.Rollback();
-                }
-                catch
-                {
-
                 }
                 finally
                 {

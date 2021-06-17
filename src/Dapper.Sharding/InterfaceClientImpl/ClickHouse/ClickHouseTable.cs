@@ -43,7 +43,6 @@ namespace Dapper.Sharding
 
         #region insert NotImplementedException
 
-
         public override void InsertIdentity(T model, List<string> fields, DistributedTransaction tran = null, int? timeout = null)
         {
             throw new NotImplementedException();
@@ -130,7 +129,7 @@ namespace Dapper.Sharding
 
         protected override string SqlInsertIdentity()
         {
-            throw new NotImplementedException();
+            return $"INSERT INTO {Name} ({SqlField.AllFields}) SELECT {SqlField.AllFieldsAt}";
         }
 
         public override void Insert(T model, List<string> fields, DistributedTransaction tran = null, int? timeout = null)
@@ -225,25 +224,45 @@ namespace Dapper.Sharding
 
         #endregion
 
-    }
+        #region update
 
-
-    #region virtual
-
-    internal partial class ClickHouseTable<T> : ITable<T> where T : class
-    {
-
-        public override bool Update(T model, List<string> fields = null)
+        protected override string SqlUpdate(List<string> fields = null)
         {
             string updatefields;
             if (fields == null)
                 updatefields = SqlField.AllFieldsAtEqExceptKey;
             else
                 updatefields = CommonUtil.GetFieldsAtEqStr(fields, "", "");
-            return DataBase.Execute($"ALTER TABLE {Name} UPDATE {updatefields} WHERE {SqlField.PrimaryKey}=@{SqlField.PrimaryKey}", model) > 0;
+            return $"ALTER TABLE {Name} UPDATE {updatefields} WHERE {SqlField.PrimaryKey}=@{SqlField.PrimaryKey}";
         }
 
-        public override void Update(IEnumerable<T> modelList, List<string> fields = null)
+        protected override string SqlUpdateIgnore(List<string> fields)
+        {
+            string updateFields = CommonUtil.GetFieldsAtEqStr(SqlField.AllFieldExceptKeyList.Except(fields), "", "");
+            return $"ALTER TABLE {Name} UPDATE {updateFields} WHERE {SqlField.PrimaryKey}=@{SqlField.PrimaryKey}";
+        }
+
+        protected override string SqlUpdateByWhere(string where, List<string> fields = null)
+        {
+            string updatefields;
+            if (fields != null)
+            {
+                updatefields = CommonUtil.GetFieldsAtEqStr(fields, "", "");
+            }
+            else
+            {
+                updatefields = SqlField.AllFieldsAtEqExceptKey;
+            }
+            return $"ALTER TABLE {Name} UPDATE {updatefields} {where}";
+        }
+
+        protected override string SqlUpdateByWhereIgnore(string where, List<string> fields)
+        {
+            string updateFields = CommonUtil.GetFieldsAtEqStr(SqlField.AllFieldExceptKeyList.Except(fields), "", "");
+            return $"ALTER TABLE {Name} UPDATE {updateFields} {where}";
+        }
+
+        public override void Update(IEnumerable<T> modelList, List<string> fields = null, DistributedTransaction tran = null, int? timeout = null)
         {
             foreach (var item in modelList)
             {
@@ -251,13 +270,7 @@ namespace Dapper.Sharding
             }
         }
 
-        public override bool UpdateIgnore(T model, List<string> fields)
-        {
-            string updateFields = CommonUtil.GetFieldsAtEqStr(SqlField.AllFieldExceptKeyList.Except(fields), "", "");
-            return DataBase.Execute($"ALTER TABLE {Name} UPDATE {updateFields} WHERE {SqlField.PrimaryKey}=@{SqlField.PrimaryKey}", model) > 0;
-        }
-
-        public override void UpdateIgnore(IEnumerable<T> modelList, List<string> fields)
+        public override void UpdateIgnore(IEnumerable<T> modelList, List<string> fields, DistributedTransaction tran = null, int? timeout = null)
         {
             foreach (var item in modelList)
             {
@@ -265,12 +278,30 @@ namespace Dapper.Sharding
             }
         }
 
+        #endregion
 
-        public override void Delete(T model)
+        #region delete
+
+        protected override string SqlDeleteById()
         {
-            var accessor = TypeAccessor.Create(typeof(T));
-            var id = accessor[model, SqlField.PrimaryKey];
-            Delete(id);
+            return $"ALTER TABLE {Name} DELETE WHERE {SqlField.PrimaryKey}=@id";
+        }
+
+        protected override string SqlDeleteByIds()
+        {
+            return $"ALTER TABLE {Name} DELETE WHERE {SqlField.PrimaryKey} IN (@ids)";
+        }
+
+        protected override string SqlDeleteByWhere(string where)
+        {
+            return $"ALTER TABLE {Name} DELETE {where}";
+        }
+
+        protected override string SqlDeleteAll()
+        {
+            DataBase.DropTable(Name);
+            DataBase.CreateTable<T>(Name);
+            return null;
         }
 
         public override void Delete(IEnumerable<T> modelList)
@@ -290,78 +321,14 @@ namespace Dapper.Sharding
             var sql = $"ALTER TABLE {Name} DELETE WHERE {SqlField.PrimaryKey} IN (@ids)";
             DataBase.Execute(sql, dpar);
         }
-    }
 
-    #endregion
+        #endregion
+    }
 
     #region abstract
 
     internal partial class ClickHouseTable<T> : ITable<T> where T : class
     {
-        public override int UpdateByWhere(T model, string where, List<string> fields = null)
-        {
-            string updatefields;
-            if (fields != null)
-            {
-                updatefields = CommonUtil.GetFieldsAtEqStr(fields, "", "");
-            }
-            else
-            {
-                updatefields = SqlField.AllFieldsAtEqExceptKey;
-            }
-            return DataBase.Execute($"ALTER TABLE {Name} UPDATE {updatefields} {where}", model);
-        }
-
-        public override int UpdateByWhere(string where, object param, List<string> fields = null)
-        {
-            string updatefields;
-            if (fields != null)
-            {
-                updatefields = CommonUtil.GetFieldsAtEqStr(fields, "", "");
-            }
-            else
-            {
-                updatefields = SqlField.AllFieldsAtEqExceptKey;
-            }
-            return DataBase.Execute($"ALTER TABLE {Name} UPDATE {updatefields} {where}", param);
-        }
-
-        public override int UpdateByWhereIgnore(T model, string where, List<string> fields)
-        {
-            string updateFields = CommonUtil.GetFieldsAtEqStr(SqlField.AllFieldExceptKeyList.Except(fields), "", "");
-            return DataBase.Execute($"ALTER TABLE {Name} UPDATE {updateFields} {where}", model);
-
-        }
-
-        public override bool Delete(object id)
-        {
-            var sql = $"ALTER TABLE {Name} DELETE WHERE {SqlField.PrimaryKey}=@id";
-            return DataBase.Execute(sql, new { id }) > 0;
-        }
-
-        public override int DeleteAll()
-        {
-            DataBase.DropTable(Name);
-            DataBase.CreateTable<T>(Name);
-            return 1;
-        }
-
-        public override int DeleteByIds(object ids)
-        {
-            if (CommonUtil.ObjectIsEmpty(ids))
-                return 0;
-            var dpar = new DynamicParameters();
-            dpar.Add("@ids", ids);
-            var sql = $"ALTER TABLE {Name} DELETE WHERE {SqlField.PrimaryKey} IN (@ids)";
-            return DataBase.Execute(sql, dpar);
-        }
-
-        public override int DeleteByWhere(string where, object param = null)
-        {
-            var sql = $"ALTER TABLE {Name} DELETE {where}";
-            return DataBase.Execute(sql, param);
-        }
-
         public override long Count(string where = null, object param = null)
         {
             if (!string.IsNullOrEmpty(SqlField.PrimaryKey))

@@ -6,6 +6,30 @@ using System.Threading.Tasks;
 
 namespace Dapper.Sharding
 {
+
+    public abstract partial class ITable<T> where T : class
+    {
+        protected abstract string SqlInsert();
+
+        protected abstract string SqlInsertIdentity();
+
+        protected abstract string SqlUpdate(List<string> fields = null);
+
+        protected abstract string SqlUpdateIgnore(List<string> fields);
+
+        protected abstract string SqlUpdateByWhere(string where, List<string> fields = null);
+
+        protected abstract string SqlUpdateByWhereIgnore(string where, List<string> fields);
+
+        protected abstract string SqlDeleteById();
+
+        protected abstract string SqlDeleteByIds();
+
+        protected abstract string SqlDeleteByWhere(string where);
+
+        protected abstract string SqlDeleteAll();
+    }
+
     public abstract partial class ITable<T> where T : class
     {
         public ITable(string name, IDatabase database, SqlFieldEntity sqlField)
@@ -285,7 +309,7 @@ namespace Dapper.Sharding
             {
                 opt.IgnoreOnInsertNames = fields;
                 opt.InsertKeepIdentity = true;
-            },tran);
+            }, tran);
         }
 
         public virtual void InsertIdentityIfNoExists(T model, DistributedTransaction tran = null, int? timeout = null)
@@ -294,7 +318,7 @@ namespace Dapper.Sharding
             {
                 opt.InsertKeepIdentity = true;
                 opt.InsertIfNotExists = true;
-            },tran);
+            }, tran);
         }
 
         public virtual void InsertIdentityIfNoExists(T model, List<string> fields, DistributedTransaction tran = null, int? timeout = null)
@@ -304,7 +328,7 @@ namespace Dapper.Sharding
                 opt.IgnoreOnInsertNames = SqlField.AllFieldExceptKeyList.Except(fields).ToList();
                 opt.InsertKeepIdentity = true;
                 opt.InsertIfNotExists = true;
-            },tran);
+            }, tran);
         }
 
         public virtual void InsertIdentityIfNoExistsIgnore(T model, List<string> fields, DistributedTransaction tran = null, int? timeout = null)
@@ -314,7 +338,7 @@ namespace Dapper.Sharding
                 opt.IgnoreOnInsertNames = fields;
                 opt.InsertKeepIdentity = true;
                 opt.InsertIfNotExists = true;
-            },tran);
+            }, tran);
         }
 
         public virtual void InsertIdentityIfNoExists(IEnumerable<T> modelList, DistributedTransaction tran = null, int? timeout = null)
@@ -323,7 +347,7 @@ namespace Dapper.Sharding
             {
                 opt.InsertKeepIdentity = true;
                 opt.InsertIfNotExists = true;
-            },tran);
+            }, tran);
         }
 
         public virtual void InsertIdentityIfNoExists(IEnumerable<T> modelList, List<string> fields, DistributedTransaction tran = null, int? timeout = null)
@@ -333,7 +357,7 @@ namespace Dapper.Sharding
                 opt.IgnoreOnInsertNames = SqlField.AllFieldExceptKeyList.Except(fields).ToList();
                 opt.InsertKeepIdentity = true;
                 opt.InsertIfNotExists = true;
-            },tran);
+            }, tran);
         }
 
         public virtual void InsertIdentityIfNoExistsIgnore(IEnumerable<T> modelList, List<string> fields, DistributedTransaction tran = null, int? timeout = null)
@@ -343,7 +367,7 @@ namespace Dapper.Sharding
                 opt.IgnoreOnInsertNames = fields;
                 opt.InsertKeepIdentity = true;
                 opt.InsertIfNotExists = true;
-            },tran);
+            }, tran);
         }
 
         public virtual void Merge(T model, List<string> fields = null, DistributedTransaction tran = null, int? timeout = null)
@@ -356,7 +380,7 @@ namespace Dapper.Sharding
                     opt.IgnoreOnMergeUpdateNames = ignoreFileds;
                 }
                 opt.MergeKeepIdentity = true;
-            },tran);
+            }, tran);
         }
 
         public virtual void Merge(IEnumerable<T> modelList, List<string> fields = null, DistributedTransaction tran = null, int? timeout = null)
@@ -369,7 +393,7 @@ namespace Dapper.Sharding
                     opt.IgnoreOnMergeUpdateNames = ignoreFileds;
                 }
                 opt.MergeKeepIdentity = true;
-            },tran);
+            }, tran);
         }
 
         public virtual void MergeIgnore(T model, List<string> fields = null, DistributedTransaction tran = null, int? timeout = null)
@@ -381,7 +405,7 @@ namespace Dapper.Sharding
                     opt.IgnoreOnMergeUpdateNames = fields;
                 }
                 opt.MergeKeepIdentity = true;
-            },tran);
+            }, tran);
         }
 
         public virtual void MergeIgnore(IEnumerable<T> modelList, List<string> fields = null, DistributedTransaction tran = null, int? timeout = null)
@@ -393,77 +417,161 @@ namespace Dapper.Sharding
                     opt.IgnoreOnMergeUpdateNames = fields;
                 }
                 opt.MergeKeepIdentity = true;
-            },tran);
+            }, tran);
         }
 
         #endregion
 
         #region update
 
+        public int Update(T model, List<string> fields = null, DistributedTransaction tran = null, int? timeout = null)
+        {
+            return DataBase.Execute(SqlUpdate(fields), model, tran, timeout);
+        }
 
+        public Task<int> UpdateAsync(T model, List<string> fields = null, DistributedTransaction tran = null, int? timeout = null)
+        {
+            return DataBase.ExecuteAsync(SqlUpdate(fields), model, tran, timeout);
+        }
+
+        public int UpdateIgnore(T model, List<string> fields, DistributedTransaction tran = null, int? timeout = null)
+        {
+            return DataBase.Execute(SqlUpdateIgnore(fields), model, tran, timeout);
+        }
+
+        public Task<int> UpdateIgnoreAsync(T model, List<string> fields, DistributedTransaction tran = null, int? timeout = null)
+        {
+            return DataBase.ExecuteAsync(SqlUpdateIgnore(fields), model, tran, timeout);
+        }
+
+        public int UpdateByWhere(object model, string where, List<string> fields = null, DistributedTransaction tran = null, int? timeout = null)
+        {
+            return DataBase.Execute(SqlUpdateByWhere(where, fields), model, tran, timeout);
+        }
+
+        public Task<int> UpdateByWhereAsync(object model, string where, List<string> fields = null, DistributedTransaction tran = null, int? timeout = null)
+        {
+            return DataBase.ExecuteAsync(SqlUpdateByWhere(where, fields), model, tran, timeout);
+        }
+
+        public int UpdateByWhereIgnore(object model, string where, List<string> fields, DistributedTransaction tran = null, int? timeout = null)
+        {
+            return DataBase.Execute(SqlUpdateByWhereIgnore(where, fields), model, tran, timeout);
+        }
+
+        public Task<int> UpdateByWhereIgnoreAsync(object model, string where, List<string> fields, DistributedTransaction tran = null, int? timeout = null)
+        {
+            return DataBase.ExecuteAsync(SqlUpdateByWhereIgnore(where, fields), model, tran, timeout);
+        }
+
+        public virtual void Update(IEnumerable<T> modelList, List<string> fields = null, DistributedTransaction tran = null, int? timeout = null)
+        {
+            DataBase.BulkUpdate(Name, modelList, opt =>
+            {
+                if (fields != null)
+                {
+                    var ignoreFileds = SqlField.AllFieldExceptKeyList.Except(fields).ToList();
+                    opt.IgnoreOnUpdateNames = ignoreFileds;
+                }
+            }, tran);
+        }
+
+        public virtual void UpdateIgnore(IEnumerable<T> modelList, List<string> fields, DistributedTransaction tran = null, int? timeout = null)
+        {
+            DataBase.BulkUpdate(Name, modelList, opt =>
+            {
+                opt.IgnoreOnUpdateNames = fields;
+            }, tran);
+        }
 
         #endregion
 
-    }
+        #region delete
 
-
-    public abstract partial class ITable<T> where T : class
-    {
-        protected abstract string SqlInsert();
-
-        protected abstract string SqlInsertIdentity();
-    }
-
-    #region virtual
-
-    public abstract partial class ITable<T> where T : class
-    {
-
-        public virtual bool Update(T model, List<string> fields = null)
+        public int Delete(object id, DistributedTransaction tran = null, int? timeout = null)
         {
-            DataBase.BulkUpdate(Name, model, opt =>
-            {
-                if (fields != null)
-                {
-                    var ignoreFileds = SqlField.AllFieldExceptKeyList.Except(fields).ToList();
-                    opt.IgnoreOnUpdateNames = ignoreFileds;
-                }
-            });
-            return true;
+            return DataBase.Execute(SqlDeleteById(), new { id }, tran, timeout);
         }
 
-        public virtual void Update(IEnumerable<T> modelList, List<string> fields = null)
+        public Task<int> DeleteAsync(object id, DistributedTransaction tran = null, int? timeout = null)
         {
-            DataBase.BulkUpdate(Name, modelList, opt =>
-            {
-                if (fields != null)
-                {
-                    var ignoreFileds = SqlField.AllFieldExceptKeyList.Except(fields).ToList();
-                    opt.IgnoreOnUpdateNames = ignoreFileds;
-                }
-            });
+            return DataBase.ExecuteAsync(SqlDeleteById(), new { id }, tran, timeout);
         }
 
-        public virtual bool UpdateIgnore(T model, List<string> fields)
+        public int Delete(T model, DistributedTransaction tran = null, int? timeout = null)
         {
-            DataBase.BulkUpdate(Name, model, opt =>
-            {
-                opt.IgnoreOnUpdateNames = fields;
-            });
-            return true;
+            var accessor = TypeAccessor.Create(typeof(T));
+            var id = accessor[model, SqlField.PrimaryKey];
+            return Delete(id, tran, timeout);
         }
 
-        public virtual void UpdateIgnore(IEnumerable<T> modelList, List<string> fields)
+        public Task<int> DeleteAsync(T model, DistributedTransaction tran = null, int? timeout = null)
         {
-            DataBase.BulkUpdate(Name, modelList, opt =>
-            {
-                opt.IgnoreOnUpdateNames = fields;
-            });
+            var accessor = TypeAccessor.Create(typeof(T));
+            var id = accessor[model, SqlField.PrimaryKey];
+            return DeleteAsync(id, tran, timeout);
         }
 
-        public virtual void Delete(T model)
+        public int DeleteByIds(object ids, DistributedTransaction tran = null, int? timeout = null)
         {
-            DataBase.BulkDelete(Name, model, opt => { });
+            if (CommonUtil.ObjectIsEmpty(ids))
+                return 0;
+            var dpar = new DynamicParameters();
+            if (DbType != DataBaseType.Oracle)
+            {
+                dpar.Add("@ids", ids);
+            }
+            else
+            {
+                dpar.Add(":ids", ids);
+            }
+            return DataBase.Execute(SqlDeleteByIds(), dpar, tran, timeout);
+        }
+
+        public Task<int> DeleteByIdsAsync(object ids, DistributedTransaction tran = null, int? timeout = null)
+        {
+            if (CommonUtil.ObjectIsEmpty(ids))
+                return Task.FromResult(0);
+            var dpar = new DynamicParameters();
+            if (DbType != DataBaseType.Oracle)
+            {
+                dpar.Add("@ids", ids);
+            }
+            else
+            {
+                dpar.Add(":ids", ids);
+            }
+            return DataBase.ExecuteAsync(SqlDeleteByIds(), dpar, tran, timeout);
+        }
+
+        public int DeleteByWhere(string where, object param = null, DistributedTransaction tran = null, int? timeout = null)
+        {
+            return DataBase.Execute(SqlDeleteByWhere(where), param, tran, timeout);
+        }
+
+        public Task<int> DeleteByWhereAsync(string where, object param = null, DistributedTransaction tran = null, int? timeout = null)
+        {
+            return DataBase.ExecuteAsync(SqlDeleteByWhere(where), param, tran, timeout);
+        }
+
+        public int DeleteAll(DistributedTransaction tran = null, int? timeout = null)
+        {
+            var sql = SqlDeleteAll();
+            if (sql == null)
+            {
+                return 1;
+            }
+            return DataBase.Execute(sql, null, tran, timeout);
+        }
+
+        public Task<int> DeleteAllAsync(DistributedTransaction tran = null, int? timeout = null)
+        {
+            var sql = SqlDeleteAll();
+            if (sql == null)
+            {
+                return Task.FromResult(1);
+            }
+            return DataBase.ExecuteAsync(sql, null, tran, timeout);
         }
 
         public virtual void Delete(IEnumerable<T> modelList)
@@ -471,28 +579,14 @@ namespace Dapper.Sharding
             DataBase.BulkDelete(Name, modelList, opt => { });
         }
 
+        #endregion
     }
 
-    #endregion
 
     #region abstract
 
     public abstract partial class ITable<T> where T : class
     {
-        public abstract int UpdateByWhere(T model, string where, List<string> fields = null);
-
-        public abstract int UpdateByWhereIgnore(T model, string where, List<string> fields);
-
-        public abstract int UpdateByWhere(string where, object param, List<string> fields = null);
-
-        public abstract bool Delete(object id);
-
-        public abstract int DeleteByIds(object ids);
-
-        public abstract int DeleteByWhere(string where, object param = null);
-
-        public abstract int DeleteAll();
-
         public abstract bool Exists(object id);
 
         public abstract long Count(string where = null, object param = null);

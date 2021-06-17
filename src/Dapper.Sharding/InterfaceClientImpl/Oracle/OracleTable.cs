@@ -24,95 +24,78 @@ namespace Dapper.Sharding
             throw new NotImplementedException();
         }
 
+
+
         #endregion
 
+        #region update
 
-    }
-
-    #region virtual
-
-    internal partial class OracleTable<T> : ITable<T> where T : class
-    {
-        public override bool Update(T model, List<string> fields = null)
+        protected override string SqlUpdate(List<string> fields = null)
         {
             string updatefields;
             if (fields == null)
                 updatefields = SqlField.AllFieldsAtEqExceptKey;
             else
                 updatefields = CommonUtil.GetFieldsAtEqStr(fields, "", "", ":");
-            return DataBase.Execute($"UPDATE {Name} SET {updatefields} WHERE {SqlField.PrimaryKey}=:{SqlField.PrimaryKey}", model) > 0;
+            return $"UPDATE {Name} SET {updatefields} WHERE {SqlField.PrimaryKey}=:{SqlField.PrimaryKey}";
         }
 
-        public override bool UpdateIgnore(T model, List<string> fields)
+        protected override string SqlUpdateIgnore(List<string> fields)
         {
             string updateFields = CommonUtil.GetFieldsAtEqStr(SqlField.AllFieldExceptKeyList.Except(fields), "", "", ":");
-            return DataBase.Execute($"UPDATE {Name} SET {updateFields} WHERE {SqlField.PrimaryKey}=:{SqlField.PrimaryKey}", model) > 0;
+            return $"UPDATE {Name} SET {updateFields} WHERE {SqlField.PrimaryKey}=:{SqlField.PrimaryKey}";
         }
-    }
 
-    #endregion
+        protected override string SqlUpdateByWhere(string where, List<string> fields = null)
+        {
+            string updatefields;
+            if (fields != null)
+            {
+                updatefields = CommonUtil.GetFieldsAtEqStr(fields, "", "", ":");
+            }
+            else
+            {
+                updatefields = SqlField.AllFieldsAtEqExceptKey;
+            }
+            return $"UPDATE {Name} SET {updatefields} {where}";
+        }
+
+        protected override string SqlUpdateByWhereIgnore(string where, List<string> fields)
+        {
+            string updatefields = CommonUtil.GetFieldsAtEqStr(SqlField.AllFieldExceptKeyList.Except(fields), "", "", ":");
+            return $"UPDATE {Name} SET {updatefields} {where}";
+        }
+
+        #endregion
+
+        #region delete
+
+        protected override string SqlDeleteById()
+        {
+            return $"DELETE FROM {Name} WHERE {SqlField.PrimaryKey}=:id";
+        }
+
+        protected override string SqlDeleteByIds()
+        {
+            return $"DELETE FROM {Name} WHERE {SqlField.PrimaryKey} IN :ids";
+        }
+
+        protected override string SqlDeleteByWhere(string where)
+        {
+            return $"DELETE FROM {Name} {where}";
+        }
+
+        protected override string SqlDeleteAll()
+        {
+            return $"DELETE FROM {Name}";
+        }
+
+        #endregion
+    }
 
     #region abstract
     internal partial class OracleTable<T> : ITable<T> where T : class
     {
-        public override int UpdateByWhere(T model, string where, List<string> fields = null)
-        {
-            string updatefields;
-            if (fields != null)
-            {
-                updatefields = CommonUtil.GetFieldsAtEqStr(fields, "", "", ":");
-            }
-            else
-            {
-                updatefields = SqlField.AllFieldsAtEqExceptKey;
-            }
-            return DataBase.Execute($"UPDATE {Name} SET {updatefields} {where}", model);
-        }
-
-        public override int UpdateByWhereIgnore(T model, string where, List<string> fields)
-        {
-            string updatefields = CommonUtil.GetFieldsAtEqStr(SqlField.AllFieldExceptKeyList.Except(fields), "", "", ":");
-            return DataBase.Execute($"UPDATE {Name} SET {updatefields} {where}", model);
-        }
-
-        public override int UpdateByWhere(string where, object param, List<string> fields = null)
-        {
-            string updatefields;
-            if (fields != null)
-            {
-                updatefields = CommonUtil.GetFieldsAtEqStr(fields, "", "", ":");
-            }
-            else
-            {
-                updatefields = SqlField.AllFieldsAtEqExceptKey;
-            }
-            return DataBase.Execute($"UPDATE {Name} SET {updatefields} {where}", param);
-        }
-
-        public override bool Delete(object id)
-        {
-            return DataBase.Execute($"DELETE FROM {Name} WHERE {SqlField.PrimaryKey}=:id", new { id }) > 0;
-        }
-
-        public override int DeleteByIds(object ids)
-        {
-            if (CommonUtil.ObjectIsEmpty(ids))
-                return 0;
-            var dpar = new DynamicParameters();
-            dpar.Add(":ids", ids);
-            return DataBase.Execute($"DELETE FROM {Name} WHERE {SqlField.PrimaryKey} IN :ids", dpar);
-        }
-
-        public override int DeleteByWhere(string where, object param)
-        {
-            return DataBase.Execute($"DELETE FROM {Name} {where}", param);
-        }
-
-        public override int DeleteAll()
-        {
-            return DataBase.Execute($"DELETE FROM {Name}");
-        }
-
         public override bool Exists(object id)
         {
             return DataBase.ExecuteScalar($"SELECT 1 FROM {Name} WHERE {SqlField.PrimaryKey}=:id", new { id }) != null;
