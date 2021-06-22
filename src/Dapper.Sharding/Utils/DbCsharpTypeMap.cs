@@ -14,7 +14,7 @@ namespace Dapper.Sharding
 
         private static Dictionary<string, List<DbCsharpTypeEntity>> _dict;
 
-        private static object _lock = new object();
+        private static readonly object _lock = new object();
 
         private static Dictionary<string, List<DbCsharpTypeEntity>> Dict
         {
