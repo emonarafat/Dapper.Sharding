@@ -43,7 +43,7 @@ namespace Dapper.Sharding
         public override IDbConnection GetConn()
         {
             var conn = new ClickHouseConnection(ConnectionString);
-            if (conn.State != ConnectionState.Open)
+            if (conn.State == ConnectionState.Closed)
             {
                 try
                 {
@@ -61,7 +61,7 @@ namespace Dapper.Sharding
         public override Task<IDbConnection> GetConnAsync()
         {
             var conn = new ClickHouseConnection(ConnectionString);
-            if (conn.State != ConnectionState.Open)
+            if (conn.State == ConnectionState.Closed)
             {
                 try
                 {

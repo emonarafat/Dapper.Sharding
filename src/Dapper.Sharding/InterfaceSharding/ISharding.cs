@@ -1,14 +1,13 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Threading;
 using System.Threading.Tasks;
 
 namespace Dapper.Sharding
 {
     public abstract class ISharding<T> where T : class
     {
-        public ISharding(ITable<T>[] list, DistributedTransaction tran = null)
+        public ISharding(ITable<T>[] list)
         {
             if (list[0].SqlField.IsIdentity)
             {
@@ -17,7 +16,6 @@ namespace Dapper.Sharding
             TableList = list;
             Query = new ShardingQuery<T>(TableList);
             SqlField = list[0].SqlField;
-            DistributedTran = tran;
         }
 
         #region base
@@ -26,19 +24,16 @@ namespace Dapper.Sharding
 
         public ShardingQuery<T> Query { get; }
 
-        private DistributedTransaction DistributedTran { get; }
-
         protected SqlFieldEntity SqlField { get; }
 
-
-        protected void Wrap(Action<DistributedTransaction> action)
+        protected void Wrap(DistributedTransaction tran, Action action)
         {
-            if (DistributedTran == null)
+            if (tran == null)
             {
-                var tran = new DistributedTransaction();
+                tran = new DistributedTransaction();
                 try
                 {
-                    action(tran);
+                    action();
                     tran.Commit();
                 }
                 catch (Exception ex)
@@ -46,23 +41,22 @@ namespace Dapper.Sharding
                     tran.Rollback();
                     throw ex;
                 }
-
             }
             else
             {
-                action(DistributedTran);
+                action();
             }
         }
 
-        protected TResult Wrap<TResult>(Func<DistributedTransaction, TResult> func)
+        protected TResult Wrap<TResult>(DistributedTransaction tran, Func<TResult> func)
         {
-            if (DistributedTran == null)
+            if (tran == null)
             {
-                var tran = new DistributedTransaction();
+                tran = new DistributedTransaction();
                 TResult result;
                 try
                 {
-                    result = func(tran);
+                    result = func();
                     tran.Commit();
                 }
                 catch (Exception ex)
@@ -72,12 +66,12 @@ namespace Dapper.Sharding
                 }
                 return result;
             }
-            return func(DistributedTran);
+            return func();
         }
 
-        #endregion
+        public abstract ITable<T> GetTableById(object id);
 
-        #region method common
+        public abstract ITable<T> GetTableByModel(T model);
 
         public virtual Dictionary<ITable<T>, List<object>> GetTableByGroupIds(object ids)
         {
@@ -113,316 +107,238 @@ namespace Dapper.Sharding
             return dict;
         }
 
-        public int UpdateByWhere(T model, string where, List<string> fields = null)
+
+        #endregion
+
+
+        #region insert
+
+        public virtual void Insert(T model, DistributedTransaction tran = null, int? timeout = null)
         {
-            return Wrap(tran =>
-            {
-                int count = 0;
-                foreach (var item in TableList)
-                {
-                    var tb = tran.GetTranTable(item);
-                    count += tb.UpdateByWhere(model, where, fields);
-                }
-                return count;
-            });
+            var tb = GetTableByModel(model);
+            tb.Insert(model, tran, timeout);
         }
 
-
-        public int UpdateByWhereIgnore(T model, string where, List<string> fields)
+        public virtual void Insert(IEnumerable<T> modelList, DistributedTransaction tran = null, int? timeout = null)
         {
-            return Wrap(tran =>
-            {
-                int count = 0;
-                foreach (var item in TableList)
-                {
-                    var tb = tran.GetTranTable(item);
-                    count += tb.UpdateByWhereIgnore(model, where, fields);
-                }
-                return count;
-            });
+            Wrap(tran, () =>
+             {
+                 var dict = GetTableByGroupModelList(modelList);
+                 foreach (var item in dict)
+                 {
+                     item.Key.Insert(item.Value, tran, timeout);
+                 }
+             });
         }
 
-        public int DeleteByWhere(string where, object param = null)
+        public virtual void InsertIfNoExists(T model, DistributedTransaction tran = null, int? timeout = null)
         {
-            return Wrap(tran =>
-            {
-                int count = 0;
-                foreach (var item in TableList)
-                {
-                    var tb = tran.GetTranTable(item);
-                    count += tb.DeleteByWhere(where, param);
-                }
-                return count;
-            });
+            var tb = GetTableByModel(model);
+            tb.InsertIfNoExists(model, tran, timeout);
         }
 
-        public int DeleteAll()
+        public virtual void InsertIfNoExists(IEnumerable<T> modelList, DistributedTransaction tran = null, int? timeout = null)
         {
-            return Wrap(tran =>
-            {
-                int count = 0;
-                foreach (var item in TableList)
-                {
-                    var tb = tran.GetTranTable(item);
-                    count += tb.DeleteAll();
-                }
-                return count;
-            });
+            Wrap(tran, () =>
+             {
+                 var dict = GetTableByGroupModelList(modelList);
+                 foreach (var item in dict)
+                 {
+                     item.Key.InsertIfNoExists(item.Value, tran, timeout);
+                 }
+             });
         }
 
-        public void Truncate()
+        public virtual void Merge(T model, List<string> fields = null, DistributedTransaction tran = null, int? timeout = null)
         {
-            var taskList = TableList.Select(s =>
-            {
-                return Task.Run(() =>
-                {
-                    s.Truncate();
-                });
-            });
-            Task.WhenAll(taskList).Wait();
+            var tb = GetTableByModel(model);
+            tb.Merge(model, fields, tran, timeout);
+        }
+
+        public virtual void Merge(IEnumerable<T> modelList, List<string> fields = null, DistributedTransaction tran = null, int? timeout = null)
+        {
+            Wrap(tran, () =>
+             {
+                 var dict = GetTableByGroupModelList(modelList);
+                 foreach (var item in dict)
+                 {
+                     item.Key.Merge(item.Value, fields, tran, timeout);
+                 }
+             });
+        }
+
+        public virtual void MergeIgnore(T model, List<string> fields, DistributedTransaction tran = null, int? timeout = null)
+        {
+            var tb = GetTableByModel(model);
+            tb.MergeIgnore(model, fields, tran, timeout);
+        }
+
+        public virtual void MergeIgnore(IEnumerable<T> modelList, List<string> fields, DistributedTransaction tran = null, int? timeout = null)
+        {
+            Wrap(tran, () =>
+             {
+                 var dict = GetTableByGroupModelList(modelList);
+                 foreach (var item in dict)
+                 {
+                     item.Key.MergeIgnore(item.Value, fields, tran, timeout);
+                 }
+             });
         }
 
         #endregion
 
-        #region method curd
+        #region update
 
-        public virtual bool Insert(T model)
+        public virtual int Update(T model, List<string> fields = null, DistributedTransaction tran = null, int? timeout = null)
         {
-            return Wrap(tran =>
-            {
-                var tb = tran.GetTranTable(GetTableByModel(model));
-                return tb.Insert(model);
-            });
+            var tb = GetTableByModel(model);
+            return tb.Update(model, fields, tran, timeout);
         }
 
-        public virtual void Insert(IEnumerable<T> modelList)
+        public virtual void Update(IEnumerable<T> modelList, List<string> fields = null, DistributedTransaction tran = null, int? timeout = null)
         {
-            Wrap(tran =>
-            {
-                var dict = GetTableByGroupModelList(modelList);
-                foreach (var item in dict)
-                {
-                    var tb = tran.GetTranTable(item.Key);
-                    tb.Insert(item.Value);
-                }
-            });
+            Wrap(tran, () =>
+             {
+                 var dict = GetTableByGroupModelList(modelList);
+                 foreach (var item in dict)
+                 {
+                     item.Key.Update(item.Value, fields, tran, timeout);
+                 }
+             });
         }
 
-        public virtual void InsertIfNoExists(T model)
+        public virtual int UpdateIgnore(T model, List<string> fields, DistributedTransaction tran = null, int? timeout = null)
         {
-            Wrap(tran =>
-            {
-                var tb = tran.GetTranTable(GetTableByModel(model));
-                tb.InsertIfNoExists(model);
-            });
+            var tb = GetTableByModel(model);
+            return tb.UpdateIgnore(model, fields, tran, timeout);
         }
 
-        public virtual void InsertIfNoExists(IEnumerable<T> modelList)
+        public virtual void UpdateIgnore(IEnumerable<T> modelList, List<string> fields, DistributedTransaction tran = null, int? timeout = null)
         {
-            Wrap(tran =>
-            {
-                var dict = GetTableByGroupModelList(modelList);
-                foreach (var item in dict)
-                {
-                    var tb = tran.GetTranTable(item.Key);
-                    tb.InsertIfNoExists(item.Value);
-                }
-            });
+            Wrap(tran, () =>
+             {
+                 var dict = GetTableByGroupModelList(modelList);
+                 foreach (var item in dict)
+                 {
+                     item.Key.UpdateIgnore(item.Value, fields, tran, timeout);
+                 }
+             });
         }
 
-        public virtual bool InsertIdentity(T model)
+        public int UpdateByWhere(T model, string where, List<string> fields = null, DistributedTransaction tran = null, int? timeout = null)
         {
-            return Wrap(tran =>
-            {
-                var tb = tran.GetTranTable(GetTableByModel(model));
-                return tb.InsertIdentity(model);
-            });
+            return Wrap(tran, () =>
+             {
+                 int count = 0;
+                 foreach (var item in TableList)
+                 {
+                     count += item.UpdateByWhere(model, where, fields, tran, timeout);
+                 }
+                 return count;
+             });
         }
 
-        public virtual void InsertIdentity(IEnumerable<T> modelList)
+
+        public int UpdateByWhereIgnore(T model, string where, List<string> fields, DistributedTransaction tran = null, int? timeout = null)
         {
-            Wrap(tran =>
-            {
-                var dict = GetTableByGroupModelList(modelList);
-                foreach (var item in dict)
-                {
-                    var tb = tran.GetTranTable(item.Key);
-                    tb.InsertIdentity(item.Value);
-                }
-            });
+            return Wrap(tran, () =>
+             {
+                 int count = 0;
+                 foreach (var item in TableList)
+                 {
+                     count += item.UpdateByWhereIgnore(model, where, fields, tran, timeout);
+                 }
+                 return count;
+             });
         }
 
-        public virtual void InsertIdentityIfNoExists(T model)
+        #endregion
+
+        #region delete
+
+        public virtual int Delete(object id, DistributedTransaction tran = null, int? timeout = null)
         {
-            Wrap(tran =>
-            {
-                var tb = tran.GetTranTable(GetTableByModel(model));
-                tb.InsertIdentityIfNoExists(model);
-            });
+            var tb = GetTableById(id);
+            return tb.Delete(id, tran, timeout);
         }
 
-        public virtual void InsertIdentityIfNoExists(IEnumerable<T> modelList)
+        public virtual void Delete(T model, DistributedTransaction tran = null, int? timeout = null)
         {
-            Wrap(tran =>
-            {
-                var dict = GetTableByGroupModelList(modelList);
-                foreach (var item in dict)
-                {
-                    var tb = tran.GetTranTable(item.Key);
-                    tb.InsertIdentityIfNoExists(item.Value);
-                }
-            });
+            var tb = GetTableByModel(model);
+            tb.Delete(model, tran, timeout);
         }
 
-        public virtual bool Update(T model, List<string> fields = null)
-        {
-            return Wrap(tran =>
-            {
-                var tb = tran.GetTranTable(GetTableByModel(model));
-                return tb.Update(model, fields);
-            });
-        }
-
-        public virtual void Update(IEnumerable<T> modelList, List<string> fields = null)
-        {
-            Wrap(tran =>
-            {
-                var dict = GetTableByGroupModelList(modelList);
-                foreach (var item in dict)
-                {
-                    var tb = tran.GetTranTable(item.Key);
-                    tb.Update(item.Value, fields);
-                }
-            });
-        }
-
-        public virtual bool UpdateIgnore(T model, List<string> fields)
-        {
-            return Wrap(tran =>
-            {
-                var tb = tran.GetTranTable(GetTableByModel(model));
-                return tb.UpdateIgnore(model, fields);
-            });
-        }
-
-        public virtual void UpdateIgnore(IEnumerable<T> modelList, List<string> fields)
-        {
-            Wrap(tran =>
-            {
-                var dict = GetTableByGroupModelList(modelList);
-                foreach (var item in dict)
-                {
-                    var tb = tran.GetTranTable(item.Key);
-                    tb.UpdateIgnore(item.Value, fields);
-                }
-            });
-        }
-
-        public virtual void Merge(T model, List<string> fields = null)
-        {
-            Wrap(tran =>
-           {
-               var tb = tran.GetTranTable(GetTableByModel(model));
-               tb.Merge(model, fields);
-           });
-        }
-
-        public virtual void Merge(IEnumerable<T> modelList, List<string> fields = null)
-        {
-            Wrap(tran =>
-            {
-                var dict = GetTableByGroupModelList(modelList);
-                foreach (var item in dict)
-                {
-                    var tb = tran.GetTranTable(item.Key);
-                    tb.Merge(item.Value, fields);
-                }
-            });
-        }
-
-        public virtual void MergeIgnore(T model, List<string> fields)
-        {
-            Wrap(tran =>
-            {
-                var tb = tran.GetTranTable(GetTableByModel(model));
-                tb.MergeIgnore(model, fields);
-            });
-        }
-
-        public virtual void MergeIgnore(IEnumerable<T> modelList, List<string> fields)
-        {
-            Wrap(tran =>
-            {
-                var dict = GetTableByGroupModelList(modelList);
-                foreach (var item in dict)
-                {
-                    var tb = tran.GetTranTable(item.Key);
-                    tb.MergeIgnore(item.Value, fields);
-                }
-            });
-        }
-
-        public virtual bool Delete(object id)
-        {
-            return Wrap(tran =>
-            {
-                var tb = tran.GetTranTable(GetTableById(id));
-                return tb.Delete(id);
-            });
-        }
-
-        public virtual int DeleteByIds(object ids)
+        public virtual int DeleteByIds(object ids, DistributedTransaction tran = null, int? timeout = null)
         {
             if (CommonUtil.ObjectIsEmpty(ids))
                 return 0;
-            return Wrap(tran =>
-            {
-                int count = 0;
-                var dict = GetTableByGroupIds(ids);
-                foreach (var item in dict)
-                {
-                    var tb = tran.GetTranTable(item.Key);
-                    count += tb.DeleteByIds(item.Value);
-                }
-                return count;
-            });
+            return Wrap(tran, () =>
+             {
+                 int count = 0;
+                 var dict = GetTableByGroupIds(ids);
+                 foreach (var item in dict)
+                 {
+                     count += item.Key.DeleteByIds(item.Value, tran, timeout);
+                 }
+                 return count;
+             });
         }
 
-        public virtual void Delete(T model)
+        public virtual void Delete(IEnumerable<T> modelList, DistributedTransaction tran = null, int? timeout = null)
         {
-            Wrap(tran =>
-            {
-                var tb = tran.GetTranTable(GetTableByModel(model));
-                tb.Delete(model);
-            });
+            Wrap(tran, () =>
+             {
+                 var dict = GetTableByGroupModelList(modelList);
+                 foreach (var item in dict)
+                 {
+                     item.Key.Delete(item.Value, tran, timeout);
+                 }
+             });
         }
 
-        public virtual void Delete(IEnumerable<T> modelList)
+        public int DeleteByWhere(string where, object param = null, DistributedTransaction tran = null, int? timeout = null)
         {
-            Wrap(tran =>
-            {
-                var dict = GetTableByGroupModelList(modelList);
-                foreach (var item in dict)
-                {
-                    var tb = tran.GetTranTable(item.Key);
-                    tb.Delete(item.Value);
-                }
-            });
+            return Wrap(tran, () =>
+             {
+                 int count = 0;
+                 foreach (var item in TableList)
+                 {
+                     count += item.DeleteByWhere(where, param, tran, timeout);
+                 }
+                 return count;
+             });
         }
 
-        public virtual bool Exists(object id)
+        public int DeleteAll(DistributedTransaction tran = null, int? timeout = null)
         {
-            return GetTableById(id).Exists(id);
+            return Wrap(tran, () =>
+             {
+                 int count = 0;
+                 foreach (var item in TableList)
+                 {
+                     count += item.DeleteAll(tran, timeout);
+                 }
+                 return count;
+             });
         }
 
-        public virtual bool Exists(T model)
+        #endregion
+
+        #region query
+
+        public virtual Task<bool> ExistsAsync(object id)
         {
-            return GetTableByModel(model).Exists(model);
+            return GetTableById(id).ExistsAsync(id);
         }
 
-        public virtual T GetById(object id, string returnFields = null)
+        public virtual Task<bool> ExistsAsync(T model)
         {
-            return GetTableById(id).GetById(id, returnFields);
+            return GetTableByModel(model).ExistsAsync(model);
+        }
+
+        public virtual Task<T> GetByIdAsync(object id, string returnFields = null)
+        {
+            return GetTableById(id).GetByIdAsync(id, returnFields);
         }
 
         public virtual async Task<IEnumerable<T>> GetByIdsAsync(object ids, string returnFields = null)
@@ -432,25 +348,23 @@ namespace Dapper.Sharding
             var dict = GetTableByGroupIds(ids);
             var taskList = dict.Select(s =>
             {
-                return Task.Run(() =>
-                {
-                    return s.Key.GetByIds(s.Value, returnFields);
-                });
+                return s.Key.GetByIdsAsync(s.Value, returnFields);
             });
             var result = await Task.WhenAll(taskList);
             return result.ConcatItem();
         }
 
-        #endregion
-
-        #region method abstract
-
-        public abstract ITable<T> GetTableById(object id);
-
-        public abstract ITable<T> GetTableByModel(T model);
-
-        public abstract ISharding<T> CreateTranSharding(DistributedTransaction tran);
-
+        public async Task Truncate()
+        {
+            var taskList = TableList.Select(s =>
+            {
+                return Task.Run(() =>
+                {
+                    s.Truncate();
+                });
+            });
+            await Task.WhenAll(taskList);
+        }
 
         #endregion
 

@@ -1,8 +1,7 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
-using System.Threading.Tasks;
 using System.Linq.Dynamic.Core;
-using System.Xml.Serialization;
+using System.Threading.Tasks;
 
 namespace Dapper.Sharding
 {
@@ -18,16 +17,84 @@ namespace Dapper.Sharding
 
         public ITable<T>[] TableList { get; }
 
+        #region dapper method
+
+        private static string InitTable(string sql, string name)
+        {
+            return sql.Replace("$table", name);
+        }
+
+        public async Task<int[]> ExecuteAsync(string sql, object param = null, int? timeout = null)
+        {
+            var taskList = TableList.Select(s =>
+            {
+                return s.DataBase.ExecuteAsync(InitTable(sql, s.Name), param, null, timeout);
+            });
+            return await Task.WhenAll(taskList);
+        }
+
+        public async Task<object[]> ExecuteScalarAsync(string sql, object param = null, int? timeout = null)
+        {
+            var taskList = TableList.Select(s =>
+            {
+                return s.DataBase.ExecuteScalarAsync(InitTable(sql, s.Name), param, null, timeout);
+            });
+            return await Task.WhenAll(taskList);
+        }
+
+        public async Task<TResult[]> ExecuteScalarAsync<TResult>(string sql, object param = null, int? timeout = null)
+        {
+            var taskList = TableList.Select(s =>
+            {
+                return s.DataBase.ExecuteScalarAsync<TResult>(InitTable(sql, s.Name), param, null, timeout);
+            });
+            return await Task.WhenAll(taskList);
+        }
+
+        public async Task<dynamic[]> QueryFirstOrDefaultAsync(string sql, object param = null, int? timeout = null)
+        {
+            var taskList = TableList.Select(s =>
+            {
+                return s.DataBase.QueryFirstOrDefaultAsync(InitTable(sql, s.Name), param, null, timeout);
+            });
+            return await Task.WhenAll(taskList);
+        }
+
+        public async Task<TResult[]> QueryFirstOrDefaultAsync<TResult>(string sql, object param = null, int? timeout = null)
+        {
+            var taskList = TableList.Select(s =>
+            {
+                return s.DataBase.QueryFirstOrDefaultAsync<TResult>(InitTable(sql, s.Name), param, null, timeout);
+            });
+            return await Task.WhenAll(taskList);
+        }
+
+        public async Task<IEnumerable<dynamic>[]> QueryAsync(string sql, object param = null, int? timeout = null)
+        {
+            var taskList = TableList.Select(s =>
+            {
+                return s.DataBase.QueryAsync(InitTable(sql, s.Name), param, null, timeout);
+            });
+            return await Task.WhenAll(taskList);
+        }
+
+        public async Task<IEnumerable<TResult>[]> QueryAsync<TResult>(string sql, object param = null, int? timeout = null)
+        {
+            var taskList = TableList.Select(s =>
+            {
+                return s.DataBase.QueryAsync<TResult>(InitTable(sql, s.Name), param, null, timeout);
+            });
+            return await Task.WhenAll(taskList);
+        }
+
+        #endregion
+
         public async Task<bool> ExistsAsync(object id)
         {
             var taskList = TableList.Select(s =>
             {
-                return Task.Run(() =>
-                {
-                    return s.Exists(id);
-                });
+                return s.ExistsAsync(id);
             });
-
             var result = await Task.WhenAll(taskList);
             return result.Any(a => a == true);
         }
@@ -36,12 +103,8 @@ namespace Dapper.Sharding
         {
             var taskList = TableList.Select(s =>
             {
-                return Task.Run(() =>
-                {
-                    return s.Exists(model);
-                });
+                return s.ExistsAsync(model);
             });
-
             var result = await Task.WhenAll(taskList);
             return result.Any(a => a == true);
         }
@@ -50,12 +113,8 @@ namespace Dapper.Sharding
         {
             var taskList = TableList.Select(s =>
             {
-                return Task.Run(() =>
-                {
-                    return s.Count(where, param);
-                });
+                return s.CountAsync(where, param);
             });
-
             var result = await Task.WhenAll(taskList);
             return result.Sum();
         }
@@ -64,12 +123,8 @@ namespace Dapper.Sharding
         {
             var taskList = TableList.Select(s =>
             {
-                return Task.Run(() =>
-                {
-                    return s.Min<TResult>(field, where, param);
-                });
+                return s.MinAsync<TResult>(field, where, param);
             });
-
             var result = await Task.WhenAll(taskList);
             return result.Min();
         }
@@ -78,12 +133,8 @@ namespace Dapper.Sharding
         {
             var taskList = TableList.Select(s =>
             {
-                return Task.Run(() =>
-                {
-                    return s.Max<TResult>(field, where, param);
-                });
+                return s.MaxAsync<TResult>(field, where, param);
             });
-
             var result = await Task.WhenAll(taskList);
             return result.Max();
         }
@@ -92,12 +143,8 @@ namespace Dapper.Sharding
         {
             var taskList = TableList.Select(s =>
             {
-                return Task.Run(() =>
-                {
-                    return s.Sum<TResult>(field, where, param);
-                });
+                return s.SumAsync<TResult>(field, where, param);
             });
-
             return await Task.WhenAll(taskList);
         }
 
@@ -133,23 +180,22 @@ namespace Dapper.Sharding
 
         public async Task<decimal> AvgAsync(string field, string where = null, object param = null)
         {
-            var count = await CountAsync(where, param);
+            var countTask = CountAsync(where, param);
+            var sumTask = SumDecimalAsync(field, where, param);
+            await Task.WhenAll(countTask, sumTask);
+            var count = countTask.Result;
             if (count == 0)
             {
                 return 0;
             }
-            var sum = await SumDecimalAsync(field, where, param);     
-            return sum / count;
+            return sumTask.Result / count;
         }
 
         public async Task<IEnumerable<T>> GetAllAsync(string returnFields = null, string orderby = null)
         {
             var taskList = TableList.Select(s =>
             {
-                return Task.Run(() =>
-                {
-                    return s.GetAll(returnFields, orderby);
-                });
+                return s.GetAllAsync(returnFields, orderby);
             });
             if (string.IsNullOrEmpty(orderby))
             {
@@ -163,10 +209,7 @@ namespace Dapper.Sharding
         {
             var taskList = TableList.Select(s =>
             {
-                return Task.Run(() =>
-                {
-                    return s.GetById(id, returnFields);
-                });
+                return s.GetByIdAsync(id, returnFields);
             });
             var result = await Task.WhenAll(taskList);
             return result.FirstOrDefault(f => f != null);
@@ -176,10 +219,7 @@ namespace Dapper.Sharding
         {
             var taskList = TableList.Select(s =>
             {
-                return Task.Run(() =>
-                {
-                    return s.GetByIds(ids, returnFields);
-                });
+                return s.GetByIdsAsync(ids, returnFields);
             });
             var result = await Task.WhenAll(taskList);
             return result.ConcatItem();
@@ -189,10 +229,7 @@ namespace Dapper.Sharding
         {
             var taskList = TableList.Select(s =>
             {
-                return Task.Run(() =>
-                {
-                    return s.GetByIdsWithField(ids, field, returnFields);
-                });
+                return s.GetByIdsWithFieldAsync(ids, field, returnFields);
             });
             var result = await Task.WhenAll(taskList);
             return result.ConcatItem();
@@ -202,10 +239,7 @@ namespace Dapper.Sharding
         {
             var taskList = TableList.Select(s =>
             {
-                return Task.Run(() =>
-                {
-                    return s.GetByWhere(where, param, returnFields, orderby, limit);
-                });
+                return s.GetByWhereAsync(where, param, returnFields, orderby, limit);
             });
             var result = await Task.WhenAll(taskList);
             if (string.IsNullOrEmpty(orderby))
@@ -224,10 +258,7 @@ namespace Dapper.Sharding
         {
             var taskList = TableList.Select(s =>
             {
-                return Task.Run(() =>
-                {
-                    return s.GetByWhereFirst(where, param, returnFields);
-                });
+                return s.GetByWhereFirstAsync(where, param, returnFields);
             });
             var result = await Task.WhenAll(taskList);
             return result.FirstOrDefault(f => f != null);
@@ -237,10 +268,7 @@ namespace Dapper.Sharding
         {
             var taskList = TableList.Select(s =>
             {
-                return Task.Run(() =>
-                {
-                    return s.GetByWhere(where, param, returnFields, orderby, skip + take);
-                });
+                return s.GetByWhereAsync(where, param, returnFields, orderby, skip + take);
             });
             var result = await Task.WhenAll(taskList);
             if (string.IsNullOrEmpty(orderby))
@@ -265,9 +293,11 @@ namespace Dapper.Sharding
             var task1 = GetByPageAsync(page, pageSize, where, param, returnFields, orderby);
             var task2 = CountAsync(where, param);
             await Task.WhenAll(task1, task2);
-            var pageEntity = new PageEntity<T>();
-            pageEntity.Data = task1.Result;
-            pageEntity.Count = task2.Result;
+            var pageEntity = new PageEntity<T>
+            {
+                Data = task1.Result,
+                Count = task2.Result
+            };
             return pageEntity;
         }
 
@@ -275,49 +305,37 @@ namespace Dapper.Sharding
         {
             var taskList = TableList.Select(s =>
             {
-                return Task.Run(() =>
-                {
-                    return s.GetByAscFirstPage(pageSize, param, and, returnFields);
-                });
+                return s.GetByAscFirstPageAsync(pageSize, param, and, returnFields);
             });
             var result = await Task.WhenAll(taskList);
             return result.ConcatItem().AsQueryable().OrderBy(SqlField.PrimaryKey).Take(pageSize).AsEnumerable<T>();
         }
 
-        public async Task<IEnumerable<T>> GetByAscPrevPageAsync(int pageSize, T param, string and = null, string returnFields = null)
+        public async Task<IEnumerable<T>> GetByAscPrevPageAsync(int pageSize, object param, string and = null, string returnFields = null)
         {
             var taskList = TableList.Select(s =>
             {
-                return Task.Run(() =>
-                {
-                    return s.GetByAscPrevPage(pageSize, param, and, returnFields);
-                });
+                return s.GetByAscPrevPageAsync(pageSize, param, and, returnFields);
             });
             var result = await Task.WhenAll(taskList);
             return result.ConcatItem().AsQueryable().OrderBy(SqlField.PrimaryKey + " DESC").Take(pageSize).OrderBy(SqlField.PrimaryKey).AsEnumerable<T>();
         }
 
-        public async Task<IEnumerable<T>> GetByAscCurrentPageAsync(int pageSize, T param, string and = null, string returnFields = null)
+        public async Task<IEnumerable<T>> GetByAscCurrentPageAsync(int pageSize, object param, string and = null, string returnFields = null)
         {
             var taskList = TableList.Select(s =>
             {
-                return Task.Run(() =>
-                {
-                    return s.GetByAscCurrentPage(pageSize, param, and, returnFields);
-                });
+                return s.GetByAscCurrentPageAsync(pageSize, param, and, returnFields);
             });
             var result = await Task.WhenAll(taskList);
             return result.ConcatItem().AsQueryable().OrderBy(SqlField.PrimaryKey).Take(pageSize).AsEnumerable<T>();
         }
 
-        public async Task<IEnumerable<T>> GetByAscNextPageAsync(int pageSize, T param, string and = null, string returnFields = null)
+        public async Task<IEnumerable<T>> GetByAscNextPageAsync(int pageSize, object param, string and = null, string returnFields = null)
         {
             var taskList = TableList.Select(s =>
             {
-                return Task.Run(() =>
-                {
-                    return s.GetByAscNextPage(pageSize, param, and, returnFields);
-                });
+                return s.GetByAscNextPageAsync(pageSize, param, and, returnFields);
             });
             var result = await Task.WhenAll(taskList);
             return result.ConcatItem().AsQueryable().OrderBy(SqlField.PrimaryKey).Take(pageSize).AsEnumerable<T>();
@@ -327,10 +345,7 @@ namespace Dapper.Sharding
         {
             var taskList = TableList.Select(s =>
             {
-                return Task.Run(() =>
-                {
-                    return s.GetByAscLastPage(pageSize, param, and, returnFields);
-                });
+                return s.GetByAscLastPageAsync(pageSize, param, and, returnFields);
             });
             var result = await Task.WhenAll(taskList);
             return result.ConcatItem().AsQueryable().OrderBy(SqlField.PrimaryKey + " DESC").Take(pageSize).OrderBy(SqlField.PrimaryKey).AsEnumerable<T>();
@@ -340,49 +355,37 @@ namespace Dapper.Sharding
         {
             var taskList = TableList.Select(s =>
             {
-                return Task.Run(() =>
-                {
-                    return s.GetByDescFirstPage(pageSize, param, and, returnFields);
-                });
+                return s.GetByDescFirstPageAsync(pageSize, param, and, returnFields);
             });
             var result = await Task.WhenAll(taskList);
             return result.ConcatItem().AsQueryable().OrderBy(SqlField.PrimaryKey + " DESC").Take(pageSize).AsEnumerable<T>();
         }
 
-        public async Task<IEnumerable<T>> GetByDescPrevPageAsync(int pageSize, T param, string and = null, string returnFields = null)
+        public async Task<IEnumerable<T>> GetByDescPrevPageAsync(int pageSize, object param, string and = null, string returnFields = null)
         {
             var taskList = TableList.Select(s =>
             {
-                return Task.Run(() =>
-                {
-                    return s.GetByDescPrevPage(pageSize, param, and, returnFields);
-                });
+                return s.GetByDescPrevPageAsync(pageSize, param, and, returnFields);
             });
             var result = await Task.WhenAll(taskList);
             return result.ConcatItem().AsQueryable().OrderBy(SqlField.PrimaryKey).Take(pageSize).OrderBy(SqlField.PrimaryKey + " DESC").AsEnumerable<T>();
         }
 
-        public async Task<IEnumerable<T>> GetByDescCurrentPageAsync(int pageSize, T param, string and = null, string returnFields = null)
+        public async Task<IEnumerable<T>> GetByDescCurrentPageAsync(int pageSize, object param, string and = null, string returnFields = null)
         {
             var taskList = TableList.Select(s =>
             {
-                return Task.Run(() =>
-                {
-                    return s.GetByDescCurrentPage(pageSize, param, and, returnFields);
-                });
+                return s.GetByDescCurrentPageAsync(pageSize, param, and, returnFields);
             });
             var result = await Task.WhenAll(taskList);
             return result.ConcatItem().AsQueryable().OrderBy(SqlField.PrimaryKey + " DESC").Take(pageSize).AsEnumerable<T>();
         }
 
-        public async Task<IEnumerable<T>> GetByDescNextPageAsync(int pageSize, T param, string and = null, string returnFields = null)
+        public async Task<IEnumerable<T>> GetByDescNextPageAsync(int pageSize, object param, string and = null, string returnFields = null)
         {
             var taskList = TableList.Select(s =>
             {
-                return Task.Run(() =>
-                {
-                    return s.GetByDescNextPage(pageSize, param, and, returnFields);
-                });
+                return s.GetByDescNextPageAsync(pageSize, param, and, returnFields);
             });
             var result = await Task.WhenAll(taskList);
             return result.ConcatItem().AsQueryable().OrderBy(SqlField.PrimaryKey + " DESC").Take(pageSize).AsEnumerable<T>();
@@ -392,88 +395,49 @@ namespace Dapper.Sharding
         {
             var taskList = TableList.Select(s =>
             {
-                return Task.Run(() =>
-                {
-                    return s.GetByDescLastPage(pageSize, param, and, returnFields);
-                });
+                return s.GetByDescLastPageAsync(pageSize, param, and, returnFields);
             });
             var result = await Task.WhenAll(taskList);
             return result.ConcatItem().AsQueryable().OrderBy(SqlField.PrimaryKey).Take(pageSize).OrderBy(SqlField.PrimaryKey + " DESC").AsEnumerable<T>();
 
         }
 
-        #region dapper method
-
-        private static string InitTable(string sql, string name)
+        public Task<IEnumerable<T>> GetByAscDescPageAsync(bool asc, AscDescPage adPage, int pageSize, object param, string and = null, string returnFields = null)
         {
-            return sql.Replace("$table", name);
-        }
-
-        public async Task<int[]> ExecuteAsync(string sql, object param = null, int? commandTimeout = null)
-        {
-            var taskList = TableList.Select(s =>
+            if (asc)
             {
-                return s.DataBase.ExecuteAsync(InitTable(sql, s.Name), param, commandTimeout);
-            });
-            return await Task.WhenAll(taskList);
-        }
-
-        public async Task<object[]> ExecuteScalarAsync(string sql, object param = null, int? commandTimeout = null)
-        {
-            var taskList = TableList.Select(s =>
+                switch (adPage)
+                {
+                    case AscDescPage.Fist:
+                        return GetByAscFirstPageAsync(pageSize, param, and, returnFields);
+                    case AscDescPage.Prev:
+                        return GetByAscPrevPageAsync(pageSize, param, and, returnFields);
+                    case AscDescPage.Current:
+                        return GetByAscCurrentPageAsync(pageSize, param, and, returnFields);
+                    case AscDescPage.Next:
+                        return GetByAscNextPageAsync(pageSize, param, and, returnFields);
+                    case AscDescPage.Last:
+                        return GetByAscLastPageAsync(pageSize, param, and, returnFields);
+                }
+            }
+            else
             {
-                return s.DataBase.ExecuteScalarAsync(InitTable(sql, s.Name), param, commandTimeout);
-            });
-            return await Task.WhenAll(taskList);
+                switch (adPage)
+                {
+                    case AscDescPage.Fist:
+                        return GetByDescFirstPageAsync(pageSize, param, and, returnFields);
+                    case AscDescPage.Prev:
+                        return GetByDescPrevPageAsync(pageSize, param, and, returnFields);
+                    case AscDescPage.Current:
+                        return GetByDescCurrentPageAsync(pageSize, param, and, returnFields);
+                    case AscDescPage.Next:
+                        return GetByDescNextPageAsync(pageSize, param, and, returnFields);
+                    case AscDescPage.Last:
+                        return GetByDescLastPageAsync(pageSize, param, and, returnFields);
+                }
+            }
+            return null;
         }
-
-        public async Task<TResult[]> ExecuteScalarAsync<TResult>(string sql, object param = null, int? commandTimeout = null)
-        {
-            var taskList = TableList.Select(s =>
-            {
-                return s.DataBase.ExecuteScalarAsync<TResult>(InitTable(sql, s.Name), param, commandTimeout);
-            });
-            return await Task.WhenAll(taskList);
-        }
-
-        public async Task<dynamic[]> QueryFirstOrDefaultAsync(string sql, object param = null, int? commandTimeout = null)
-        {
-            var taskList = TableList.Select(s =>
-            {
-                return s.DataBase.QueryFirstOrDefaultAsync(InitTable(sql, s.Name), param, commandTimeout);
-            });
-            return await Task.WhenAll(taskList);
-        }
-
-        public async Task<TResult[]> QueryFirstOrDefaultAsync<TResult>(string sql, object param = null, int? commandTimeout = null)
-        {
-            var taskList = TableList.Select(s =>
-            {
-                return s.DataBase.QueryFirstOrDefaultAsync<TResult>(InitTable(sql, s.Name), param, commandTimeout);
-            });
-            return await Task.WhenAll(taskList);
-        }
-
-        public async Task<IEnumerable<dynamic>[]> QueryAsync(string sql, object param = null, int? commandTimeout = null)
-        {
-            var taskList = TableList.Select(s =>
-            {
-                return s.DataBase.QueryAsync(InitTable(sql, s.Name), param, commandTimeout);
-            });
-            return await Task.WhenAll(taskList);
-        }
-
-        public async Task<IEnumerable<TResult>[]> QueryAsync<TResult>(string sql, object param = null, int? commandTimeout = null)
-        {
-            var taskList = TableList.Select(s =>
-            {
-                return s.DataBase.QueryAsync<TResult>(InitTable(sql, s.Name), param, commandTimeout);
-            });
-            return await Task.WhenAll(taskList);
-        }
-
-        #endregion
-
 
     }
 }

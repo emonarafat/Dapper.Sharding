@@ -1,7 +1,6 @@
 ﻿using FastMember;
 using System.Collections.Generic;
 using System.Linq;
-using System.Threading;
 using System.Threading.Tasks;
 
 namespace Dapper.Sharding
@@ -28,6 +27,56 @@ namespace Dapper.Sharding
         protected abstract string SqlDeleteByWhere(string where);
 
         protected abstract string SqlDeleteAll();
+
+        protected abstract string SqlExists();
+
+        protected abstract string SqlCount(string where = null);
+
+        protected abstract string SqlMin(string field, string where = null);
+
+        protected abstract string SqlMax(string field, string where = null);
+
+        protected abstract string SqlSum(string field, string where = null);
+
+        protected abstract string SqlAvg(string field, string where = null);
+
+        protected abstract string SqlGetAll(string returnFields = null, string orderby = null, bool dy = false);
+
+        public abstract string SqlGetById(string returnFields = null, bool dy = false);
+
+        public abstract string SqlGetByIdForUpdate(string returnFields = null, bool dy = false);
+
+        public abstract string SqlGetByIds(string returnFields = null, bool dy = false);
+
+        public abstract string SqlGetByIdsForUpdate(string returnFields = null, bool dy = false);
+
+        public abstract string SqlGetByIdsWithField(string field, string returnFields = null, bool dy = false);
+
+        public abstract string SqlGetByWhere(string where, string returnFields = null, string orderby = null, int limit = 0, bool dy = false);
+
+        public abstract string SqlGetByWhereFirst(string where, string returnFields = null, bool dy = false);
+
+        public abstract string SqlGetBySkipTake(int skip, int take, string where = null, string returnFields = null, string orderby = null, bool dy = false);
+
+        public abstract string SqlGetByAscFirstPage(int pageSize, string and = null, string returnFields = null, bool dy = false);
+
+        public abstract string SqlGetByAscPrevPage(int pageSize, string and = null, string returnFields = null, bool dy = false);
+
+        public abstract string SqlGetByAscCurrentPage(int pageSize, string and = null, string returnFields = null, bool dy = false);
+
+        public abstract string SqlGetByAscNextPage(int pageSize, string and = null, string returnFields = null, bool dy = false);
+
+        public abstract string SqlGetByAscLastPage(int pageSize, string and = null, string returnFields = null, bool dy = false);
+
+        public abstract string SqlGetByDescFirstPage(int pageSize, string and = null, string returnFields = null, bool dy = false);
+
+        public abstract string SqlGetByDescPrevPage(int pageSize, string and = null, string returnFields = null, bool dy = false);
+
+        public abstract string SqlGetByDescCurrentPage(int pageSize, string and = null, string returnFields = null, bool dy = false);
+
+        public abstract string SqlGetByDescNextPage(int pageSize, string and = null, string returnFields = null, bool dy = false);
+
+        public abstract string SqlGetByDescLastPage(int pageSize, string and = null, string returnFields = null, bool dy = false);
     }
 
     public abstract partial class ITable<T> where T : class
@@ -54,70 +103,6 @@ namespace Dapper.Sharding
         }
 
         public SqlFieldEntity SqlField { get; }
-
-        #endregion
-
-        #region public
-
-        public bool Exists(T model)
-        {
-            var accessor = TypeAccessor.Create(typeof(T));
-            var id = accessor[model, SqlField.PrimaryKey];
-            return Exists(id);
-        }
-
-        public IEnumerable<T> GetByPage(int page, int pageSize, string where = null, object param = null, string returnFields = null, string orderby = null)
-        {
-            int skip = 0;
-            if (page > 0)
-            {
-                skip = (page - 1) * pageSize;
-            }
-            return GetBySkipTake(skip, pageSize, where, param, returnFields, orderby);
-        }
-
-        public PageEntity<T> GetByPageAndCount(int page, int pageSize, string where = null, object param = null, string returnFields = null, string orderby = null)
-        {
-            return new PageEntity<T>
-            {
-                Data = GetByPage(page, pageSize, where, param, returnFields, orderby),
-                Count = Count(where, param)
-            };
-        }
-
-        public IEnumerable<dynamic> GetByPageDynamic(int page, int pageSize, string where = null, object param = null, string returnFields = null, string orderby = null)
-        {
-            int skip = 0;
-            if (page > 0)
-            {
-                skip = (page - 1) * pageSize;
-            }
-            return GetBySkipTakeDynamic(skip, pageSize, where, param, returnFields, orderby);
-        }
-
-        public PageEntity<dynamic> GetByPageAndCountDynamic(int page, int pageSize, string where = null, object param = null, string returnFields = null, string orderby = null)
-        {
-            return new PageEntity<dynamic>
-            {
-                Data = GetByPageDynamic(page, pageSize, where, param, returnFields, orderby),
-                Count = Count(where, param)
-            };
-        }
-
-        public void Truncate()
-        {
-            DataBase.TruncateTable(Name);
-        }
-
-        public void Optimize(bool final = false, bool deduplicate = false)
-        {
-            DataBase.OptimizeTable(Name, final, deduplicate);
-        }
-
-        public void Optimize(string partition, bool final = false, bool deduplicate = false)
-        {
-            DataBase.OptimizeTable(Name, partition, final, deduplicate);
-        }
 
         #endregion
 
@@ -420,7 +405,7 @@ namespace Dapper.Sharding
             }, tran);
         }
 
-        public void InsertOrUpdate(T model, List<string> updateFields = null, DistributedTransaction tran = null, int? timeout = null)
+        public void InsertOrUpdate(T model, List<string> updateFields = null, bool useObjectId = true, DistributedTransaction tran = null, int? timeout = null)
         {
             var accessor = TypeAccessor.Create(typeof(T));
             var id = accessor[model, SqlField.PrimaryKey];
@@ -444,6 +429,18 @@ namespace Dapper.Sharding
                 if (!string.IsNullOrEmpty(val3))
                 {
                     insert = false;
+                }
+                else
+                {
+                    if (useObjectId)
+                    {
+                        accessor[model, SqlField.PrimaryKey] = ShardingFactory.NextObjectId();
+                    }
+                    else
+                    {
+                        accessor[model, SqlField.PrimaryKey] = ShardingFactory.NextSnowIdAsString();
+                    }
+
                 }
             }
             else if (id is decimal val4)
@@ -465,7 +462,7 @@ namespace Dapper.Sharding
 
         }
 
-        public async Task InsertOrUpdateAsync(T model, List<string> updateFields = null, DistributedTransaction tran = null, int? timeout = null)
+        public async Task InsertOrUpdateAsync(T model, List<string> updateFields = null, bool useObjectId = true, DistributedTransaction tran = null, int? timeout = null)
         {
             var accessor = TypeAccessor.Create(typeof(T));
             var id = accessor[model, SqlField.PrimaryKey];
@@ -490,6 +487,17 @@ namespace Dapper.Sharding
                 {
                     insert = false;
                 }
+                else
+                {
+                    if (useObjectId)
+                    {
+                        accessor[model, SqlField.PrimaryKey] = ShardingFactory.NextObjectId();
+                    }
+                    else
+                    {
+                        accessor[model, SqlField.PrimaryKey] = ShardingFactory.NextSnowIdAsString();
+                    }
+                }
             }
             else if (id is decimal val4)
             {
@@ -506,6 +514,118 @@ namespace Dapper.Sharding
             else
             {
                 await UpdateAsync(model, updateFields, tran, timeout);
+            }
+
+        }
+
+        public void InsertOrUpdateIgnore(T model, List<string> ignoreFields, bool useObjectId = true, DistributedTransaction tran = null, int? timeout = null)
+        {
+            var accessor = TypeAccessor.Create(typeof(T));
+            var id = accessor[model, SqlField.PrimaryKey];
+            bool insert = true;
+            if (id is int val)
+            {
+                if (val > 0)
+                {
+                    insert = false;
+                }
+            }
+            else if (id is long val2)
+            {
+                if (val2 > 0)
+                {
+                    insert = false;
+                }
+            }
+            else if (id is string val3)
+            {
+                if (!string.IsNullOrEmpty(val3))
+                {
+                    insert = false;
+                }
+                else
+                {
+                    if (useObjectId)
+                    {
+                        accessor[model, SqlField.PrimaryKey] = ShardingFactory.NextObjectId();
+                    }
+                    else
+                    {
+                        accessor[model, SqlField.PrimaryKey] = ShardingFactory.NextSnowIdAsString();
+                    }
+                }
+            }
+            else if (id is decimal val4)
+            {
+                if (val4 > 0)
+                {
+                    insert = false;
+                }
+            }
+
+            if (insert)
+            {
+                Insert(model, tran, timeout);
+            }
+            else
+            {
+                UpdateIgnore(model, ignoreFields, tran, timeout);
+            }
+
+        }
+
+        public async Task InsertOrUpdateIgnoreAsync(T model, List<string> ignoreFields, bool useObjectId = true, DistributedTransaction tran = null, int? timeout = null)
+        {
+            var accessor = TypeAccessor.Create(typeof(T));
+            var id = accessor[model, SqlField.PrimaryKey];
+            bool insert = true;
+            if (id is int val)
+            {
+                if (val > 0)
+                {
+                    insert = false;
+                }
+            }
+            else if (id is long val2)
+            {
+                if (val2 > 0)
+                {
+                    insert = false;
+                }
+            }
+            else if (id is string val3)
+            {
+                if (!string.IsNullOrEmpty(val3))
+                {
+                    insert = false;
+                }
+                else
+                {
+                    if (useObjectId)
+                    {
+                        accessor[model, SqlField.PrimaryKey] = ShardingFactory.NextObjectId();
+                    }
+                    else
+                    {
+                        accessor[model, SqlField.PrimaryKey] = ShardingFactory.NextSnowIdAsString();
+                    }
+                }
+            }
+            else if (id is decimal val4)
+            {
+                if (val4 > 0)
+                {
+                    insert = false;
+                }
+            }
+
+            if (insert)
+            {
+                await InsertAsync(model, tran, timeout);
+            }
+            else
+            {
+                await UpdateIgnoreAsync(model, ignoreFields, tran, timeout);
             }
 
         }
@@ -673,118 +793,941 @@ namespace Dapper.Sharding
 
         #region aggregate
 
+        public bool Exists(object id, DistributedTransaction tran = null, int? timeout = null)
+        {
+            return DataBase.ExecuteScalar(SqlExists(), new { id }, tran, timeout) != null;
+        }
+
+        public async Task<bool> ExistsAsync(object id, DistributedTransaction tran = null, int? timeout = null)
+        {
+            return await DataBase.ExecuteScalarAsync(SqlExists(), new { id }, tran, timeout) != null;
+        }
+
+        public bool Exists(T model, DistributedTransaction tran = null, int? timeout = null)
+        {
+            var accessor = TypeAccessor.Create(typeof(T));
+            var id = accessor[model, SqlField.PrimaryKey];
+            return Exists(id, tran, timeout);
+        }
+
+        public Task<bool> ExistsAsync(T model, DistributedTransaction tran = null, int? timeout = null)
+        {
+            var accessor = TypeAccessor.Create(typeof(T));
+            var id = accessor[model, SqlField.PrimaryKey];
+            return ExistsAsync(id, tran, timeout);
+        }
+
+        public long Count(string where = null, object param = null, DistributedTransaction tran = null, int? timeout = null)
+        {
+            return DataBase.ExecuteScalar<long>(SqlCount(where), param, tran, timeout);
+        }
+
+        public Task<long> CountAsync(string where = null, object param = null, DistributedTransaction tran = null, int? timeout = null)
+        {
+            return DataBase.ExecuteScalarAsync<long>(SqlCount(where), param, tran, timeout);
+        }
+
+        public TValue Min<TValue>(string field, string where = null, object param = null, DistributedTransaction tran = null, int? timeout = null)
+        {
+            return DataBase.ExecuteScalar<TValue>(SqlMin(field, where), param, tran, timeout);
+        }
+
+        public Task<TValue> MinAsync<TValue>(string field, string where = null, object param = null, DistributedTransaction tran = null, int? timeout = null)
+        {
+            return DataBase.ExecuteScalarAsync<TValue>(SqlMin(field, where), param, tran, timeout);
+        }
+
+        public TValue Max<TValue>(string field, string where = null, object param = null, DistributedTransaction tran = null, int? timeout = null)
+        {
+            return DataBase.ExecuteScalar<TValue>(SqlMax(field, where), param, tran, timeout);
+        }
+
+        public Task<TValue> MaxAsync<TValue>(string field, string where = null, object param = null, DistributedTransaction tran = null, int? timeout = null)
+        {
+            return DataBase.ExecuteScalarAsync<TValue>(SqlMax(field, where), param, tran, timeout);
+        }
+
+        public TValue Sum<TValue>(string field, string where = null, object param = null, DistributedTransaction tran = null, int? timeout = null)
+        {
+            return DataBase.ExecuteScalar<TValue>(SqlSum(field, where), param, tran, timeout);
+        }
+
+        public Task<TValue> SumAsync<TValue>(string field, string where = null, object param = null, DistributedTransaction tran = null, int? timeout = null)
+        {
+            return DataBase.ExecuteScalarAsync<TValue>(SqlSum(field, where), param, tran, timeout);
+        }
+
+        public decimal Avg(string field, string where = null, object param = null, DistributedTransaction tran = null, int? timeout = null)
+        {
+            return DataBase.ExecuteScalar<decimal>(SqlAvg(field, where), param, tran, timeout);
+        }
+
+        public Task<decimal> AvgAsync(string field, string where = null, object param = null, DistributedTransaction tran = null, int? timeout = null)
+        {
+            return DataBase.ExecuteScalarAsync<decimal>(SqlAvg(field, where), param, tran, timeout);
+        }
+
         #endregion
+
+        #region GetAll
+
+        public IEnumerable<T> GetAll(string returnFields = null, string orderby = null, DistributedTransaction tran = null, int? timeout = null)
+        {
+            return DataBase.Query<T>(SqlGetAll(returnFields, orderby), null, tran, timeout);
+        }
+
+        public Task<IEnumerable<T>> GetAllAsync(string returnFields = null, string orderby = null, DistributedTransaction tran = null, int? timeout = null)
+        {
+            return DataBase.QueryAsync<T>(SqlGetAll(returnFields, orderby), null, tran, timeout);
+        }
+
+        public IEnumerable<dynamic> GetAllDynamic(string returnFields = null, string orderby = null, DistributedTransaction tran = null, int? timeout = null)
+        {
+            return DataBase.Query(SqlGetAll(returnFields, orderby, true), null, tran, timeout);
+        }
+
+        public Task<IEnumerable<dynamic>> GetAllDynamicAsync(string returnFields = null, string orderby = null, DistributedTransaction tran = null, int? timeout = null)
+        {
+            return DataBase.QueryAsync(SqlGetAll(returnFields, orderby, true), null, tran, timeout);
+        }
+
+        #endregion
+
+        #region GetById
+
+        public T GetById(object id, string returnFields = null, DistributedTransaction tran = null, int? timeout = null)
+        {
+            return DataBase.QueryFirstOrDefault<T>(SqlGetById(returnFields), new { id }, tran, timeout);
+        }
+
+        public Task<T> GetByIdAsync(object id, string returnFields = null, DistributedTransaction tran = null, int? timeout = null)
+        {
+            return DataBase.QueryFirstOrDefaultAsync<T>(SqlGetById(returnFields), new { id }, tran, timeout);
+        }
+
+        public dynamic GetByIdDynamic(object id, string returnFields = null, DistributedTransaction tran = null, int? timeout = null)
+        {
+            return DataBase.QueryFirstOrDefault(SqlGetById(returnFields, true), new { id }, tran, timeout);
+        }
+
+        public Task<dynamic> GetByIdDynamicAsync(object id, string returnFields = null, DistributedTransaction tran = null, int? timeout = null)
+        {
+            return DataBase.QueryFirstOrDefaultAsync(SqlGetById(returnFields, true), new { id }, tran, timeout);
+        }
+
+        #endregion
+
+        #region GetByIdForUpdate
+
+        public T GetByIdForUpdate(object id, string returnFields = null, DistributedTransaction tran = null, int? timeout = null)
+        {
+            return DataBase.QueryFirstOrDefault<T>(SqlGetByIdForUpdate(returnFields), new { id }, tran, timeout);
+        }
+
+        public Task<T> GetByIdForUpdateAsync(object id, string returnFields = null, DistributedTransaction tran = null, int? timeout = null)
+        {
+            return DataBase.QueryFirstOrDefaultAsync<T>(SqlGetByIdForUpdate(returnFields), new { id }, tran, timeout);
+        }
+
+        public dynamic GetByIdForUpdateDynamic(object id, string returnFields = null, DistributedTransaction tran = null, int? timeout = null)
+        {
+            return DataBase.QueryFirstOrDefault(SqlGetByIdForUpdate(returnFields, true), new { id }, tran, timeout);
+        }
+
+        public Task<dynamic> GetByIdForUpdateDynamicAsync(object id, string returnFields = null, DistributedTransaction tran = null, int? timeout = null)
+        {
+            return DataBase.QueryFirstOrDefaultAsync(SqlGetByIdForUpdate(returnFields, true), new { id }, tran, timeout);
+        }
+
+        #endregion
+
+        #region GetByIds
+
+        public IEnumerable<T> GetByIds(object ids, string returnFields = null, DistributedTransaction tran = null, int? timeout = null)
+        {
+            if (CommonUtil.ObjectIsEmpty(ids))
+                return Enumerable.Empty<T>();
+            var dpar = new DynamicParameters();
+            if (DbType != DataBaseType.Oracle)
+            {
+                dpar.Add("@ids", ids);
+            }
+            else
+            {
+                dpar.Add(":ids", ids);
+            }
+            return DataBase.Query<T>(SqlGetByIds(returnFields), dpar, tran, timeout);
+        }
+
+        public Task<IEnumerable<T>> GetByIdsAsync(object ids, string returnFields = null, DistributedTransaction tran = null, int? timeout = null)
+        {
+            if (CommonUtil.ObjectIsEmpty(ids))
+                return Task.FromResult(Enumerable.Empty<T>());
+            var dpar = new DynamicParameters();
+            if (DbType != DataBaseType.Oracle)
+            {
+                dpar.Add("@ids", ids);
+            }
+            else
+            {
+                dpar.Add(":ids", ids);
+            }
+            return DataBase.QueryAsync<T>(SqlGetByIds(returnFields), dpar, tran, timeout);
+        }
+
+        public IEnumerable<dynamic> GetByIdsDynamic(object ids, string returnFields = null, DistributedTransaction tran = null, int? timeout = null)
+        {
+            if (CommonUtil.ObjectIsEmpty(ids))
+                return Enumerable.Empty<dynamic>();
+            var dpar = new DynamicParameters();
+            if (DbType != DataBaseType.Oracle)
+            {
+                dpar.Add("@ids", ids);
+            }
+            else
+            {
+                dpar.Add(":ids", ids);
+            }
+            return DataBase.Query(SqlGetByIds(returnFields, true), dpar, tran, timeout);
+        }
+
+        public Task<IEnumerable<dynamic>> GetByIdsDynamicAsync(object ids, string returnFields = null, DistributedTransaction tran = null, int? timeout = null)
+        {
+            if (CommonUtil.ObjectIsEmpty(ids))
+                return Task.FromResult(Enumerable.Empty<dynamic>());
+            var dpar = new DynamicParameters();
+            if (DbType != DataBaseType.Oracle)
+            {
+                dpar.Add("@ids", ids);
+            }
+            else
+            {
+                dpar.Add(":ids", ids);
+            }
+            return DataBase.QueryAsync(SqlGetByIds(returnFields, true), dpar, tran, timeout);
+        }
+
+        #endregion
+
+        #region GetByIdsForUpdate
+
+        public IEnumerable<T> GetByIdsForUpdate(object ids, string returnFields = null, DistributedTransaction tran = null, int? timeout = null)
+        {
+            if (CommonUtil.ObjectIsEmpty(ids))
+                return Enumerable.Empty<T>();
+            var dpar = new DynamicParameters();
+            if (DbType != DataBaseType.Oracle)
+            {
+                dpar.Add("@ids", ids);
+            }
+            else
+            {
+                dpar.Add(":ids", ids);
+            }
+            return DataBase.Query<T>(SqlGetByIdsForUpdate(returnFields), dpar, tran, timeout);
+        }
+
+        public Task<IEnumerable<T>> GetByIdsForUpdateAsync(object ids, string returnFields = null, DistributedTransaction tran = null, int? timeout = null)
+        {
+            if (CommonUtil.ObjectIsEmpty(ids))
+                return Task.FromResult(Enumerable.Empty<T>());
+            var dpar = new DynamicParameters();
+            if (DbType != DataBaseType.Oracle)
+            {
+                dpar.Add("@ids", ids);
+            }
+            else
+            {
+                dpar.Add(":ids", ids);
+            }
+            return DataBase.QueryAsync<T>(SqlGetByIdsForUpdate(returnFields), dpar, tran, timeout);
+        }
+
+        public IEnumerable<dynamic> GetByIdsForUpdateDynamic(object ids, string returnFields = null, DistributedTransaction tran = null, int? timeout = null)
+        {
+            if (CommonUtil.ObjectIsEmpty(ids))
+                return Enumerable.Empty<dynamic>();
+            var dpar = new DynamicParameters();
+            if (DbType != DataBaseType.Oracle)
+            {
+                dpar.Add("@ids", ids);
+            }
+            else
+            {
+                dpar.Add(":ids", ids);
+            }
+            return DataBase.Query(SqlGetByIdsForUpdate(returnFields, true), dpar, tran, timeout);
+        }
+
+        public Task<IEnumerable<dynamic>> GetByIdsForUpdateDynamicAsync(object ids, string returnFields = null, DistributedTransaction tran = null, int? timeout = null)
+        {
+            if (CommonUtil.ObjectIsEmpty(ids))
+                return Task.FromResult(Enumerable.Empty<dynamic>());
+            var dpar = new DynamicParameters();
+            if (DbType != DataBaseType.Oracle)
+            {
+                dpar.Add("@ids", ids);
+            }
+            else
+            {
+                dpar.Add(":ids", ids);
+            }
+            return DataBase.QueryAsync(SqlGetByIdsForUpdate(returnFields, true), dpar, tran, timeout);
+        }
+
+        #endregion
+
+        #region GetByIdsWithField
+
+        public IEnumerable<T> GetByIdsWithField(object ids, string field, string returnFields = null, DistributedTransaction tran = null, int? timeout = null)
+        {
+            if (CommonUtil.ObjectIsEmpty(ids))
+                return Enumerable.Empty<T>();
+            var dpar = new DynamicParameters();
+            if (DbType != DataBaseType.Oracle)
+            {
+                dpar.Add("@ids", ids);
+            }
+            else
+            {
+                dpar.Add(":ids", ids);
+            }
+            return DataBase.Query<T>(SqlGetByIdsWithField(field, returnFields), dpar, tran, timeout);
+        }
+
+        public Task<IEnumerable<T>> GetByIdsWithFieldAsync(object ids, string field, string returnFields = null, DistributedTransaction tran = null, int? timeout = null)
+        {
+            if (CommonUtil.ObjectIsEmpty(ids))
+                return Task.FromResult(Enumerable.Empty<T>());
+            var dpar = new DynamicParameters();
+            if (DbType != DataBaseType.Oracle)
+            {
+                dpar.Add("@ids", ids);
+            }
+            else
+            {
+                dpar.Add(":ids", ids);
+            }
+            return DataBase.QueryAsync<T>(SqlGetByIdsWithField(field, returnFields), dpar, tran, timeout);
+        }
+
+        public IEnumerable<dynamic> GetByIdsWithFieldDynamic(object ids, string field, string returnFields = null, DistributedTransaction tran = null, int? timeout = null)
+        {
+            if (CommonUtil.ObjectIsEmpty(ids))
+                return Enumerable.Empty<dynamic>();
+            var dpar = new DynamicParameters();
+            if (DbType != DataBaseType.Oracle)
+            {
+                dpar.Add("@ids", ids);
+            }
+            else
+            {
+                dpar.Add(":ids", ids);
+            }
+            return DataBase.Query(SqlGetByIdsWithField(field, returnFields, true), dpar, tran, timeout);
+        }
+
+        public Task<IEnumerable<dynamic>> GetByIdsWithFieldDynamicAsync(object ids, string field, string returnFields = null, DistributedTransaction tran = null, int? timeout = null)
+        {
+            if (CommonUtil.ObjectIsEmpty(ids))
+                return Task.FromResult(Enumerable.Empty<dynamic>());
+            var dpar = new DynamicParameters();
+            if (DbType != DataBaseType.Oracle)
+            {
+                dpar.Add("@ids", ids);
+            }
+            else
+            {
+                dpar.Add(":ids", ids);
+            }
+            return DataBase.QueryAsync(SqlGetByIdsWithField(field, returnFields, true), dpar, tran, timeout);
+        }
+
+        #endregion
+
+        #region GetByWhere
+
+        public IEnumerable<T> GetByWhere(string where, object param = null, string returnFields = null, string orderby = null, int limit = 0, DistributedTransaction tran = null, int? timeout = null)
+        {
+            return DataBase.Query<T>(SqlGetByWhere(where, returnFields, orderby, limit), param, tran, timeout);
+        }
+
+        public Task<IEnumerable<T>> GetByWhereAsync(string where, object param = null, string returnFields = null, string orderby = null, int limit = 0, DistributedTransaction tran = null, int? timeout = null)
+        {
+            return DataBase.QueryAsync<T>(SqlGetByWhere(where, returnFields, orderby, limit), param, tran, timeout);
+        }
+
+        public IEnumerable<dynamic> GetByWhereDynamic(string where, object param = null, string returnFields = null, string orderby = null, int limit = 0, DistributedTransaction tran = null, int? timeout = null)
+        {
+            return DataBase.Query(SqlGetByWhere(where, returnFields, orderby, limit, true), param, tran, timeout);
+        }
+
+        public Task<IEnumerable<dynamic>> GetByWhereDynamicAsync(string where, object param = null, string returnFields = null, string orderby = null, int limit = 0, DistributedTransaction tran = null, int? timeout = null)
+        {
+            return DataBase.QueryAsync(SqlGetByWhere(where, returnFields, orderby, limit, true), param, tran, timeout);
+        }
+
+        #endregion
+
+        #region GetByWhereFirst
+
+        public T GetByWhereFirst(string where, object param = null, string returnFields = null, DistributedTransaction tran = null, int? timeout = null)
+        {
+            return DataBase.QueryFirstOrDefault<T>(SqlGetByWhereFirst(where, returnFields), param, tran, timeout);
+        }
+
+        public Task<T> GetByWhereFirstAsync(string where, object param = null, string returnFields = null, DistributedTransaction tran = null, int? timeout = null)
+        {
+            return DataBase.QueryFirstOrDefaultAsync<T>(SqlGetByWhereFirst(where, returnFields), param, tran, timeout);
+        }
+
+        public dynamic GetByWhereFirstDynamic(string where, object param = null, string returnFields = null, DistributedTransaction tran = null, int? timeout = null)
+        {
+            return DataBase.QueryFirstOrDefault(SqlGetByWhereFirst(where, returnFields, true), param, tran, timeout);
+        }
+
+        public Task<dynamic> GetByWhereFirstDynamicAsync(string where, object param = null, string returnFields = null, DistributedTransaction tran = null, int? timeout = null)
+        {
+            return DataBase.QueryFirstOrDefaultAsync(SqlGetByWhereFirst(where, returnFields, true), param, tran, timeout);
+        }
+
+        #endregion
+
+        #region GetBySkipTake
+
+        public IEnumerable<T> GetBySkipTake(int skip, int take, string where = null, object param = null, string returnFields = null, string orderby = null, DistributedTransaction tran = null, int? timeout = null)
+        {
+            return DataBase.Query<T>(SqlGetBySkipTake(skip, take, where, returnFields, orderby), param, tran, timeout);
+        }
+
+        public Task<IEnumerable<T>> GetBySkipTakeAsync(int skip, int take, string where = null, object param = null, string returnFields = null, string orderby = null, DistributedTransaction tran = null, int? timeout = null)
+        {
+            return DataBase.QueryAsync<T>(SqlGetBySkipTake(skip, take, where, returnFields, orderby), param, tran, timeout);
+        }
+
+        public IEnumerable<dynamic> GetBySkipTakeDynamic(int skip, int take, string where = null, object param = null, string returnFields = null, string orderby = null, DistributedTransaction tran = null, int? timeout = null)
+        {
+            return DataBase.Query(SqlGetBySkipTake(skip, take, where, returnFields, orderby, true), param, tran, timeout);
+        }
+
+        public Task<IEnumerable<dynamic>> GetBySkipTakeDynamicAsync(int skip, int take, string where = null, object param = null, string returnFields = null, string orderby = null, DistributedTransaction tran = null, int? timeout = null)
+        {
+            return DataBase.QueryAsync(SqlGetBySkipTake(skip, take, where, returnFields, orderby, true), param, tran, timeout);
+        }
+
+        #endregion
+
+        #region GetByAscFirstPage
+
+        public IEnumerable<T> GetByAscFirstPage(int pageSize, object param = null, string and = null, string returnFields = null, DistributedTransaction tran = null, int? timeout = null)
+        {
+            return DataBase.Query<T>(SqlGetByAscFirstPage(pageSize, and, returnFields), param, tran, timeout);
+        }
+
+        public Task<IEnumerable<T>> GetByAscFirstPageAsync(int pageSize, object param = null, string and = null, string returnFields = null, DistributedTransaction tran = null, int? timeout = null)
+        {
+            return DataBase.QueryAsync<T>(SqlGetByAscFirstPage(pageSize, and, returnFields), param, tran, timeout);
+        }
+
+        public IEnumerable<dynamic> GetByAscFirstPageDynamic(int pageSize, object param = null, string and = null, string returnFields = null, DistributedTransaction tran = null, int? timeout = null)
+        {
+            return DataBase.Query(SqlGetByAscFirstPage(pageSize, and, returnFields, true), param, tran, timeout);
+        }
+
+        public Task<IEnumerable<dynamic>> GetByAscFirstPageDynamicAsync(int pageSize, object param = null, string and = null, string returnFields = null, DistributedTransaction tran = null, int? timeout = null)
+        {
+            return DataBase.QueryAsync(SqlGetByAscFirstPage(pageSize, and, returnFields, true), param, tran, timeout);
+        }
+
+        #endregion
+
+        #region GetByAscPrevPage
+
+        public IEnumerable<T> GetByAscPrevPage(int pageSize, object param, string and = null, string returnFields = null, DistributedTransaction tran = null, int? timeout = null)
+        {
+            return DataBase.Query<T>(SqlGetByAscPrevPage(pageSize, and, returnFields), param, tran, timeout);
+        }
+
+        public Task<IEnumerable<T>> GetByAscPrevPageAsync(int pageSize, object param, string and = null, string returnFields = null, DistributedTransaction tran = null, int? timeout = null)
+        {
+            return DataBase.QueryAsync<T>(SqlGetByAscPrevPage(pageSize, and, returnFields), param, tran, timeout);
+        }
+
+        public IEnumerable<dynamic> GetByAscPrevPageDynamic(int pageSize, object param, string and = null, string returnFields = null, DistributedTransaction tran = null, int? timeout = null)
+        {
+            return DataBase.Query(SqlGetByAscPrevPage(pageSize, and, returnFields, true), param, tran, timeout);
+        }
+
+        public Task<IEnumerable<dynamic>> GetByAscPrevPageDynamicAsync(int pageSize, object param, string and = null, string returnFields = null, DistributedTransaction tran = null, int? timeout = null)
+        {
+            return DataBase.QueryAsync(SqlGetByAscPrevPage(pageSize, and, returnFields, true), param, tran, timeout);
+        }
+
+        #endregion
+
+        #region GetByAscCurrentPage
+
+        public IEnumerable<T> GetByAscCurrentPage(int pageSize, object param, string and = null, string returnFields = null, DistributedTransaction tran = null, int? timeout = null)
+        {
+            return DataBase.Query<T>(SqlGetByAscCurrentPage(pageSize, and, returnFields), param, tran, timeout);
+        }
+
+        public Task<IEnumerable<T>> GetByAscCurrentPageAsync(int pageSize, object param, string and = null, string returnFields = null, DistributedTransaction tran = null, int? timeout = null)
+        {
+            return DataBase.QueryAsync<T>(SqlGetByAscCurrentPage(pageSize, and, returnFields), param, tran, timeout);
+        }
+
+        public IEnumerable<dynamic> GetByAscCurrentPageDynamic(int pageSize, object param, string and = null, string returnFields = null, DistributedTransaction tran = null, int? timeout = null)
+        {
+            return DataBase.Query(SqlGetByAscCurrentPage(pageSize, and, returnFields, true), param, tran, timeout);
+        }
+
+        public Task<IEnumerable<dynamic>> GetByAscCurrentPageDynamicAsync(int pageSize, object param, string and = null, string returnFields = null, DistributedTransaction tran = null, int? timeout = null)
+        {
+            return DataBase.QueryAsync(SqlGetByAscCurrentPage(pageSize, and, returnFields, true), param, tran, timeout);
+        }
+
+        #endregion
+
+        #region GetByAscNextPage
+
+        public IEnumerable<T> GetByAscNextPage(int pageSize, object param, string and = null, string returnFields = null, DistributedTransaction tran = null, int? timeout = null)
+        {
+            return DataBase.Query<T>(SqlGetByAscNextPage(pageSize, and, returnFields), param, tran, timeout);
+        }
+
+        public Task<IEnumerable<T>> GetByAscNextPageAsync(int pageSize, object param, string and = null, string returnFields = null, DistributedTransaction tran = null, int? timeout = null)
+        {
+            return DataBase.QueryAsync<T>(SqlGetByAscNextPage(pageSize, and, returnFields), param, tran, timeout);
+        }
+
+        public IEnumerable<dynamic> GetByAscNextPageDynamic(int pageSize, object param, string and = null, string returnFields = null, DistributedTransaction tran = null, int? timeout = null)
+        {
+            return DataBase.Query(SqlGetByAscNextPage(pageSize, and, returnFields, true), param, tran, timeout);
+        }
+
+        public Task<IEnumerable<dynamic>> GetByAscNextPageDynamicAsync(int pageSize, object param, string and = null, string returnFields = null, DistributedTransaction tran = null, int? timeout = null)
+        {
+            return DataBase.QueryAsync(SqlGetByAscNextPage(pageSize, and, returnFields, true), param, tran, timeout);
+        }
+
+        #endregion
+
+        #region GetByAscLastPage
+
+
+        public IEnumerable<T> GetByAscLastPage(int pageSize, object param, string and = null, string returnFields = null, DistributedTransaction tran = null, int? timeout = null)
+        {
+            return DataBase.Query<T>(SqlGetByAscLastPage(pageSize, and, returnFields), param, tran, timeout);
+        }
+
+        public Task<IEnumerable<T>> GetByAscLastPageAsync(int pageSize, object param, string and = null, string returnFields = null, DistributedTransaction tran = null, int? timeout = null)
+        {
+            return DataBase.QueryAsync<T>(SqlGetByAscLastPage(pageSize, and, returnFields), param, tran, timeout);
+        }
+
+        public IEnumerable<dynamic> GetByAscLastPageDynamic(int pageSize, object param, string and = null, string returnFields = null, DistributedTransaction tran = null, int? timeout = null)
+        {
+            return DataBase.Query(SqlGetByAscLastPage(pageSize, and, returnFields, true), param, tran, timeout);
+        }
+
+        public Task<IEnumerable<dynamic>> GetByAscLastPageDynamicAsync(int pageSize, object param, string and = null, string returnFields = null, DistributedTransaction tran = null, int? timeout = null)
+        {
+            return DataBase.QueryAsync(SqlGetByAscLastPage(pageSize, and, returnFields, true), param, tran, timeout);
+        }
+
+
+        #endregion
+
+        #region GetByDescFirstPage
+
+        public IEnumerable<T> GetByDescFirstPage(int pageSize, object param, string and = null, string returnFields = null, DistributedTransaction tran = null, int? timeout = null)
+        {
+            return DataBase.Query<T>(SqlGetByDescFirstPage(pageSize, and, returnFields), param, tran, timeout);
+        }
+
+        public Task<IEnumerable<T>> GetByDescFirstPageAsync(int pageSize, object param, string and = null, string returnFields = null, DistributedTransaction tran = null, int? timeout = null)
+        {
+            return DataBase.QueryAsync<T>(SqlGetByDescFirstPage(pageSize, and, returnFields), param, tran, timeout);
+        }
+
+        public IEnumerable<dynamic> GetByDescFirstPageDynamic(int pageSize, object param, string and = null, string returnFields = null, DistributedTransaction tran = null, int? timeout = null)
+        {
+            return DataBase.Query(SqlGetByDescFirstPage(pageSize, and, returnFields, true), param, tran, timeout);
+        }
+
+        public Task<IEnumerable<dynamic>> GetByDescFirstPageDynamicAsync(int pageSize, object param, string and = null, string returnFields = null, DistributedTransaction tran = null, int? timeout = null)
+        {
+            return DataBase.QueryAsync(SqlGetByDescFirstPage(pageSize, and, returnFields, true), param, tran, timeout);
+        }
+
+        #endregion
+
+        #region GetByDescPrevPage
+
+        public IEnumerable<T> GetByDescPrevPage(int pageSize, object param, string and = null, string returnFields = null, DistributedTransaction tran = null, int? timeout = null)
+        {
+            return DataBase.Query<T>(SqlGetByDescPrevPage(pageSize, and, returnFields), param, tran, timeout);
+        }
+
+        public Task<IEnumerable<T>> GetByDescPrevPageAsync(int pageSize, object param, string and = null, string returnFields = null, DistributedTransaction tran = null, int? timeout = null)
+        {
+            return DataBase.QueryAsync<T>(SqlGetByDescPrevPage(pageSize, and, returnFields), param, tran, timeout);
+        }
+
+        public IEnumerable<dynamic> GetByDescPrevPageDynamic(int pageSize, object param, string and = null, string returnFields = null, DistributedTransaction tran = null, int? timeout = null)
+        {
+            return DataBase.Query(SqlGetByDescPrevPage(pageSize, and, returnFields, true), param, tran, timeout);
+        }
+
+        public Task<IEnumerable<dynamic>> GetByDescPrevPageDynamicAsync(int pageSize, object param, string and = null, string returnFields = null, DistributedTransaction tran = null, int? timeout = null)
+        {
+            return DataBase.QueryAsync(SqlGetByDescPrevPage(pageSize, and, returnFields, true), param, tran, timeout);
+        }
+
+
+        #endregion
+
+        #region GetByDescCurrentPage
+
+        public IEnumerable<T> GetByDescCurrentPage(int pageSize, object param, string and = null, string returnFields = null, DistributedTransaction tran = null, int? timeout = null)
+        {
+            return DataBase.Query<T>(SqlGetByDescCurrentPage(pageSize, and, returnFields), param, tran, timeout);
+        }
+
+        public Task<IEnumerable<T>> GetByDescCurrentPageAsync(int pageSize, object param, string and = null, string returnFields = null, DistributedTransaction tran = null, int? timeout = null)
+        {
+            return DataBase.QueryAsync<T>(SqlGetByDescCurrentPage(pageSize, and, returnFields), param, tran, timeout);
+        }
+
+        public IEnumerable<dynamic> GetByDescCurrentPageDynamic(int pageSize, object param, string and = null, string returnFields = null, DistributedTransaction tran = null, int? timeout = null)
+        {
+            return DataBase.Query(SqlGetByDescCurrentPage(pageSize, and, returnFields, true), param, tran, timeout);
+        }
+
+        public Task<IEnumerable<dynamic>> GetByDescCurrentPageDynamicAsync(int pageSize, object param, string and = null, string returnFields = null, DistributedTransaction tran = null, int? timeout = null)
+        {
+            return DataBase.QueryAsync(SqlGetByDescCurrentPage(pageSize, and, returnFields, true), param, tran, timeout);
+        }
+
+        #endregion
+
+        #region GetByDescNextPage
+
+        public IEnumerable<T> GetByDescNextPage(int pageSize, object param, string and = null, string returnFields = null, DistributedTransaction tran = null, int? timeout = null)
+        {
+            return DataBase.Query<T>(SqlGetByDescNextPage(pageSize, and, returnFields), param, tran, timeout);
+        }
+
+        public Task<IEnumerable<T>> GetByDescNextPageAsync(int pageSize, object param, string and = null, string returnFields = null, DistributedTransaction tran = null, int? timeout = null)
+        {
+            return DataBase.QueryAsync<T>(SqlGetByDescNextPage(pageSize, and, returnFields), param, tran, timeout);
+        }
+
+        public IEnumerable<dynamic> GetByDescNextPageDynamic(int pageSize, object param, string and = null, string returnFields = null, DistributedTransaction tran = null, int? timeout = null)
+        {
+            return DataBase.Query(SqlGetByDescNextPage(pageSize, and, returnFields, true), param, tran, timeout);
+        }
+
+        public Task<IEnumerable<dynamic>> GetByDescNextPageDynamicAsync(int pageSize, object param, string and = null, string returnFields = null, DistributedTransaction tran = null, int? timeout = null)
+        {
+            return DataBase.QueryAsync(SqlGetByDescNextPage(pageSize, and, returnFields, true), param, tran, timeout);
+        }
+
+        #endregion
+
+        #region GetByDescLastPage
+
+        public IEnumerable<T> GetByDescLastPage(int pageSize, object param, string and = null, string returnFields = null, DistributedTransaction tran = null, int? timeout = null)
+        {
+            return DataBase.Query<T>(SqlGetByDescLastPage(pageSize, and, returnFields), param, tran, timeout);
+        }
+
+        public Task<IEnumerable<T>> GetByDescLastPageAsync(int pageSize, object param, string and = null, string returnFields = null, DistributedTransaction tran = null, int? timeout = null)
+        {
+            return DataBase.QueryAsync<T>(SqlGetByDescLastPage(pageSize, and, returnFields), param, tran, timeout);
+        }
+
+        public IEnumerable<dynamic> GetByDescLastPageDynamic(int pageSize, object param, string and = null, string returnFields = null, DistributedTransaction tran = null, int? timeout = null)
+        {
+            return DataBase.Query(SqlGetByDescLastPage(pageSize, and, returnFields, true), param, tran, timeout);
+        }
+
+        public Task<IEnumerable<dynamic>> GetByDescLastPageDynamicAsync(int pageSize, object param, string and = null, string returnFields = null, DistributedTransaction tran = null, int? timeout = null)
+        {
+            return DataBase.QueryAsync(SqlGetByDescLastPage(pageSize, and, returnFields, true), param, tran, timeout);
+        }
+
+        #endregion
+
+        /*******以下方法仅调用上面方法********/
+
+        #region GetByPage
+
+        public IEnumerable<T> GetByPage(int page, int pageSize, string where = null, object param = null, string returnFields = null, string orderby = null, DistributedTransaction tran = null, int? timeout = null)
+        {
+            int skip = 0;
+            if (page > 0)
+            {
+                skip = (page - 1) * pageSize;
+            }
+            return GetBySkipTake(skip, pageSize, where, param, returnFields, orderby, tran, timeout);
+        }
+
+        public Task<IEnumerable<T>> GetByPageAsync(int page, int pageSize, string where = null, object param = null, string returnFields = null, string orderby = null, DistributedTransaction tran = null, int? timeout = null)
+        {
+            int skip = 0;
+            if (page > 0)
+            {
+                skip = (page - 1) * pageSize;
+            }
+            return GetBySkipTakeAsync(skip, pageSize, where, param, returnFields, orderby, tran, timeout);
+        }
+
+        public IEnumerable<dynamic> GetByPageDynamic(int page, int pageSize, string where = null, object param = null, string returnFields = null, string orderby = null, DistributedTransaction tran = null, int? timeout = null)
+        {
+            int skip = 0;
+            if (page > 0)
+            {
+                skip = (page - 1) * pageSize;
+            }
+            return GetBySkipTakeDynamic(skip, pageSize, where, param, returnFields, orderby, tran, timeout);
+        }
+
+        public Task<IEnumerable<dynamic>> GetByPageDynamicAsync(int page, int pageSize, string where = null, object param = null, string returnFields = null, string orderby = null, DistributedTransaction tran = null, int? timeout = null)
+        {
+            int skip = 0;
+            if (page > 0)
+            {
+                skip = (page - 1) * pageSize;
+            }
+            return GetBySkipTakeDynamicAsync(skip, pageSize, where, param, returnFields, orderby, tran, timeout);
+        }
+
+        #endregion
+
+        #region GetByPageAndCount
+
+        public PageEntity<T> GetByPageAndCount(int page, int pageSize, string where = null, object param = null, string returnFields = null, string orderby = null, DistributedTransaction tran = null, int? timeout = null)
+        {
+            return new PageEntity<T>
+            {
+                Data = GetByPage(page, pageSize, where, param, returnFields, orderby, tran, timeout),
+                Count = Count(where, param, tran, timeout)
+            };
+        }
+
+        public async Task<PageEntity<T>> GetByPageAndCountAsync(int page, int pageSize, string where = null, object param = null, string returnFields = null, string orderby = null)
+        {
+            var task1 = GetByPageAsync(page, pageSize, where, param, returnFields, orderby);
+            var task2 = CountAsync(where, param);
+            await Task.WhenAll(task1, task2);
+            return new PageEntity<T>
+            {
+                Data = task1.Result,
+                Count = task2.Result
+            };
+        }
+
+        public PageEntity<dynamic> GetByPageAndCountDynamic(int page, int pageSize, string where = null, object param = null, string returnFields = null, string orderby = null, DistributedTransaction tran = null, int? timeout = null)
+        {
+            return new PageEntity<dynamic>
+            {
+                Data = GetByPageDynamic(page, pageSize, where, param, returnFields, orderby, tran, timeout),
+                Count = Count(where, param, tran, timeout)
+            };
+        }
+
+        public async Task<PageEntity<dynamic>> GetByPageAndCountDynamicAsync(int page, int pageSize, string where = null, object param = null, string returnFields = null, string orderby = null)
+        {
+            var task1 = GetByPageDynamicAsync(page, pageSize, where, param, returnFields, orderby);
+            var task2 = CountAsync(where, param);
+            await Task.WhenAll(task1, task2);
+            return new PageEntity<dynamic>
+            {
+                Data = task1.Result,
+                Count = task2.Result
+            };
+        }
+
+        #endregion
+
+        #region GetByAscDescPage
+
+        public IEnumerable<T> GetByAscDescPage(bool asc, AscDescPage adPage, int pageSize, object param, string and = null, string returnFields = null, DistributedTransaction tran = null, int? timeout = null)
+        {
+            if (asc)
+            {
+                switch (adPage)
+                {
+                    case AscDescPage.Fist:
+                        return GetByAscFirstPage(pageSize, param, and, returnFields, tran, timeout);
+                    case AscDescPage.Prev:
+                        return GetByAscPrevPage(pageSize, param, and, returnFields, tran, timeout);
+                    case AscDescPage.Current:
+                        return GetByAscCurrentPage(pageSize, param, and, returnFields, tran, timeout);
+                    case AscDescPage.Next:
+                        return GetByAscNextPage(pageSize, param, and, returnFields, tran, timeout);
+                    case AscDescPage.Last:
+                        return GetByAscLastPage(pageSize, param, and, returnFields, tran, timeout);
+                }
+            }
+            else
+            {
+                switch (adPage)
+                {
+                    case AscDescPage.Fist:
+                        return GetByDescFirstPage(pageSize, param, and, returnFields, tran, timeout);
+                    case AscDescPage.Prev:
+                        return GetByDescPrevPage(pageSize, param, and, returnFields, tran, timeout);
+                    case AscDescPage.Current:
+                        return GetByDescCurrentPage(pageSize, param, and, returnFields, tran, timeout);
+                    case AscDescPage.Next:
+                        return GetByDescNextPage(pageSize, param, and, returnFields, tran, timeout);
+                    case AscDescPage.Last:
+                        return GetByDescLastPage(pageSize, param, and, returnFields, tran, timeout);
+                }
+            }
+            return null;
+        }
+
+        public Task<IEnumerable<T>> GetByAscDescPageAsync(bool asc, AscDescPage adPage, int pageSize, object param, string and = null, string returnFields = null, DistributedTransaction tran = null, int? timeout = null)
+        {
+            if (asc)
+            {
+                switch (adPage)
+                {
+                    case AscDescPage.Fist:
+                        return GetByAscFirstPageAsync(pageSize, param, and, returnFields, tran, timeout);
+                    case AscDescPage.Prev:
+                        return GetByAscPrevPageAsync(pageSize, param, and, returnFields, tran, timeout);
+                    case AscDescPage.Current:
+                        return GetByAscCurrentPageAsync(pageSize, param, and, returnFields, tran, timeout);
+                    case AscDescPage.Next:
+                        return GetByAscNextPageAsync(pageSize, param, and, returnFields, tran, timeout);
+                    case AscDescPage.Last:
+                        return GetByAscLastPageAsync(pageSize, param, and, returnFields, tran, timeout);
+                }
+            }
+            else
+            {
+                switch (adPage)
+                {
+                    case AscDescPage.Fist:
+                        return GetByDescFirstPageAsync(pageSize, param, and, returnFields, tran, timeout);
+                    case AscDescPage.Prev:
+                        return GetByDescPrevPageAsync(pageSize, param, and, returnFields, tran, timeout);
+                    case AscDescPage.Current:
+                        return GetByDescCurrentPageAsync(pageSize, param, and, returnFields, tran, timeout);
+                    case AscDescPage.Next:
+                        return GetByDescNextPageAsync(pageSize, param, and, returnFields, tran, timeout);
+                    case AscDescPage.Last:
+                        return GetByDescLastPageAsync(pageSize, param, and, returnFields, tran, timeout);
+                }
+            }
+            return null;
+        }
+
+        public IEnumerable<dynamic> GetByAscDescPageDynamic(bool asc, AscDescPage adPage, int pageSize, object param, string and = null, string returnFields = null, DistributedTransaction tran = null, int? timeout = null)
+        {
+            if (asc)
+            {
+                switch (adPage)
+                {
+                    case AscDescPage.Fist:
+                        return GetByAscFirstPageDynamic(pageSize, param, and, returnFields, tran, timeout);
+                    case AscDescPage.Prev:
+                        return GetByAscPrevPageDynamic(pageSize, param, and, returnFields, tran, timeout);
+                    case AscDescPage.Current:
+                        return GetByAscCurrentPageDynamic(pageSize, param, and, returnFields, tran, timeout);
+                    case AscDescPage.Next:
+                        return GetByAscNextPageDynamic(pageSize, param, and, returnFields, tran, timeout);
+                    case AscDescPage.Last:
+                        return GetByAscLastPageDynamic(pageSize, param, and, returnFields, tran, timeout);
+                }
+            }
+            else
+            {
+                switch (adPage)
+                {
+                    case AscDescPage.Fist:
+                        return GetByDescFirstPageDynamic(pageSize, param, and, returnFields, tran, timeout);
+                    case AscDescPage.Prev:
+                        return GetByDescPrevPageDynamic(pageSize, param, and, returnFields, tran, timeout);
+                    case AscDescPage.Current:
+                        return GetByDescCurrentPageDynamic(pageSize, param, and, returnFields, tran, timeout);
+                    case AscDescPage.Next:
+                        return GetByDescNextPageDynamic(pageSize, param, and, returnFields, tran, timeout);
+                    case AscDescPage.Last:
+                        return GetByDescLastPageDynamic(pageSize, param, and, returnFields, tran, timeout);
+                }
+            }
+            return null;
+        }
+
+        public Task<IEnumerable<dynamic>> GetByAscDescPageDynamicAsync(bool asc, AscDescPage adPage, int pageSize, object param, string and = null, string returnFields = null, DistributedTransaction tran = null, int? timeout = null)
+        {
+            if (asc)
+            {
+                switch (adPage)
+                {
+                    case AscDescPage.Fist:
+                        return GetByAscFirstPageDynamicAsync(pageSize, param, and, returnFields, tran, timeout);
+                    case AscDescPage.Prev:
+                        return GetByAscPrevPageDynamicAsync(pageSize, param, and, returnFields, tran, timeout);
+                    case AscDescPage.Current:
+                        return GetByAscCurrentPageDynamicAsync(pageSize, param, and, returnFields, tran, timeout);
+                    case AscDescPage.Next:
+                        return GetByAscNextPageDynamicAsync(pageSize, param, and, returnFields, tran, timeout);
+                    case AscDescPage.Last:
+                        return GetByAscLastPageDynamicAsync(pageSize, param, and, returnFields, tran, timeout);
+                }
+            }
+            else
+            {
+                switch (adPage)
+                {
+                    case AscDescPage.Fist:
+                        return GetByDescFirstPageDynamicAsync(pageSize, param, and, returnFields, tran, timeout);
+                    case AscDescPage.Prev:
+                        return GetByDescPrevPageDynamicAsync(pageSize, param, and, returnFields, tran, timeout);
+                    case AscDescPage.Current:
+                        return GetByDescCurrentPageDynamicAsync(pageSize, param, and, returnFields, tran, timeout);
+                    case AscDescPage.Next:
+                        return GetByDescNextPageDynamicAsync(pageSize, param, and, returnFields, tran, timeout);
+                    case AscDescPage.Last:
+                        return GetByDescLastPageDynamicAsync(pageSize, param, and, returnFields, tran, timeout);
+                }
+            }
+            return null;
+        }
+
+
+        #endregion
+
+        #region Truncate
+
+        public void Truncate()
+        {
+            DataBase.TruncateTable(Name);
+        }
+
+        #endregion
+
+        #region Optimize
+
+        public void Optimize(bool final = false, bool deduplicate = false)
+        {
+            DataBase.OptimizeTable(Name, final, deduplicate);
+        }
+
+        public void Optimize(string partition, bool final = false, bool deduplicate = false)
+        {
+            DataBase.OptimizeTable(Name, partition, final, deduplicate);
+        }
+
+        #endregion
+
     }
 
-
-    #region abstract
-
-    public abstract partial class ITable<T> where T : class
-    {
-        public abstract bool Exists(object id);
-
-        public abstract long Count(string where = null, object param = null);
-
-        public abstract TValue Min<TValue>(string field, string where = null, object param = null);
-
-        public abstract TValue Max<TValue>(string field, string where = null, object param = null);
-
-        public abstract TValue Sum<TValue>(string field, string where = null, object param = null);
-
-        public abstract decimal Avg(string field, string where = null, object param = null);
-    }
-
-    #endregion
-
-    #region abstract query method
-
-    public abstract partial class ITable<T> where T : class
-    {
-        public abstract IEnumerable<T> GetAll(string returnFields = null, string orderby = null);
-
-        public abstract T GetById(object id, string returnFields = null);
-
-        public abstract T GetByIdForUpdate(object id, string returnFields = null);
-
-        public abstract IEnumerable<T> GetByIds(object ids, string returnFields = null);
-
-        public abstract IEnumerable<T> GetByIdsForUpdate(object ids, string returnFields = null);
-
-        public abstract IEnumerable<T> GetByIdsWithField(object ids, string field, string returnFields = null);
-
-        public abstract IEnumerable<T> GetByWhere(string where, object param = null, string returnFields = null, string orderby = null, int limit = 0);
-
-        public abstract T GetByWhereFirst(string where, object param = null, string returnFields = null);
-
-        public abstract IEnumerable<T> GetBySkipTake(int skip, int take, string where = null, object param = null, string returnFields = null, string orderby = null);
-
-        public abstract IEnumerable<T> GetByAscFirstPage(int pageSize, object param = null, string and = null, string returnFields = null);
-
-        public abstract IEnumerable<T> GetByAscPrevPage(int pageSize, T param, string and = null, string returnFields = null);
-
-        public abstract IEnumerable<T> GetByAscCurrentPage(int pageSize, T param, string and = null, string returnFields = null);
-
-        public abstract IEnumerable<T> GetByAscNextPage(int pageSize, T param, string and = null, string returnFields = null);
-
-        public abstract IEnumerable<T> GetByAscLastPage(int pageSize, object param = null, string and = null, string returnFields = null);
-
-        public abstract IEnumerable<T> GetByDescFirstPage(int pageSize, object param = null, string and = null, string returnFields = null);
-
-        public abstract IEnumerable<T> GetByDescPrevPage(int pageSize, T param, string and = null, string returnFields = null);
-
-        public abstract IEnumerable<T> GetByDescCurrentPage(int pageSize, T param, string and = null, string returnFields = null);
-
-        public abstract IEnumerable<T> GetByDescNextPage(int pageSize, T param, string and = null, string returnFields = null);
-
-        public abstract IEnumerable<T> GetByDescLastPage(int pageSize, object param = null, string and = null, string returnFields = null);
-
-    }
-
-    #endregion
-
-    #region abstract query method dynamic
-
-    public abstract partial class ITable<T> where T : class
-    {
-        public abstract IEnumerable<dynamic> GetAllDynamic(string returnFields = null, string orderby = null);
-
-        public abstract dynamic GetByIdDynamic(object id, string returnFields = null);
-
-        public abstract dynamic GetByIdForUpdateDynamic(object id, string returnFields = null);
-
-        public abstract IEnumerable<dynamic> GetByIdsDynamic(object ids, string returnFields = null);
-
-        public abstract IEnumerable<dynamic> GetByIdsForUpdateDynamic(object ids, string returnFields = null);
-
-        public abstract IEnumerable<dynamic> GetByIdsWithFieldDynamic(object ids, string field, string returnFields = null);
-
-        public abstract IEnumerable<dynamic> GetByWhereDynamic(string where, object param = null, string returnFields = null, string orderby = null, int limit = 0);
-
-        public abstract dynamic GetByWhereFirstDynamic(string where, object param = null, string returnFields = null);
-
-        public abstract IEnumerable<dynamic> GetBySkipTakeDynamic(int skip, int take, string where = null, object param = null, string returnFields = null, string orderby = null);
-
-        public abstract IEnumerable<dynamic> GetByAscFirstPageDynamic(int pageSize, object param = null, string and = null, string returnFields = null);
-
-        public abstract IEnumerable<dynamic> GetByAscPrevPageDynamic(int pageSize, T param, string and = null, string returnFields = null);
-
-        public abstract IEnumerable<dynamic> GetByAscCurrentPageDynamic(int pageSize, T param, string and = null, string returnFields = null);
-
-        public abstract IEnumerable<dynamic> GetByAscNextPageDynamic(int pageSize, T param, string and = null, string returnFields = null);
-
-        public abstract IEnumerable<dynamic> GetByAscLastPageDynamic(int pageSize, object param = null, string and = null, string returnFields = null);
-
-        public abstract IEnumerable<dynamic> GetByDescFirstPageDynamic(int pageSize, object param = null, string and = null, string returnFields = null);
-
-        public abstract IEnumerable<dynamic> GetByDescPrevPageDynamic(int pageSize, T param, string and = null, string returnFields = null);
-
-        public abstract IEnumerable<dynamic> GetByDescCurrentPageDynamic(int pageSize, T param, string and = null, string returnFields = null);
-
-        public abstract IEnumerable<dynamic> GetByDescNextPageDynamic(int pageSize, T param, string and = null, string returnFields = null);
-
-        public abstract IEnumerable<dynamic> GetByDescLastPageDynamic(int pageSize, object param = null, string and = null, string returnFields = null);
-
-    }
-
-    #endregion
 }

@@ -4,7 +4,7 @@ namespace Dapper.Sharding
 {
     public class ShardingFactory
     {
-        public static bool ClickHouseFixedString = false;
+        public static bool ClickHouseFixedString { get; set; } = false;
 
         public static void SetSnowFlakeWorker(long workerId, long datacenterId)
         {
@@ -43,40 +43,40 @@ namespace Dapper.Sharding
             return new ReadWirteClient(writeClient, readClientList);
         }
 
-        //public static ShardingQuery<T> CreateShardingQuery<T>(params ITable<T>[] tableList) where T : class
-        //{
-        //    return new ShardingQuery<T>(tableList);
-        //}
+        public static ShardingQuery<T> CreateShardingQuery<T>(params ITable<T>[] tableList) where T : class
+        {
+            return new ShardingQuery<T>(tableList);
+        }
 
-        //public static ShardingQueryDb CreateShardingQueryDb(params IDatabase[] dbList)
-        //{
-        //    return new ShardingQueryDb(dbList);
-        //}
+        public static ShardingQueryDb CreateShardingQueryDb(params IDatabase[] dbList)
+        {
+            return new ShardingQueryDb(dbList);
+        }
 
-        //public static ShardingQueryClient CreateShardingQueryClient(params IClient[] clientList)
-        //{
-        //    return new ShardingQueryClient(clientList);
-        //}
+        public static ShardingQueryClient CreateShardingQueryClient(params IClient[] clientList)
+        {
+            return new ShardingQueryClient(clientList);
+        }
 
-        //public static ISharding<T> CreateShardingHash<T>(params ITable<T>[] tableList) where T : class
-        //{
-        //    return new HashSharding<T>(tableList);
-        //}
+        public static ISharding<T> CreateShardingHash<T>(params ITable<T>[] tableList) where T : class
+        {
+            return new HashSharding<T>(tableList);
+        }
 
-        //public static ISharding<T> CreateShardingRange<T>(Dictionary<long, ITable<T>> dict) where T : class
-        //{
-        //    return new RangeSharding<T>(dict);
-        //}
+        public static ISharding<T> CreateShardingRange<T>(Dictionary<long, ITable<T>> dict) where T : class
+        {
+            return new RangeSharding<T>(dict);
+        }
 
-        //public static ISharding<T> CreateShardingAuto<T>(params ITable<T>[] tableList) where T : class
-        //{
-        //    return new AutoSharding<T>(tableList);
-        //}
+        public static ISharding<T> CreateShardingAuto<T>(params ITable<T>[] tableList) where T : class
+        {
+            return new AutoSharding<T>(tableList);
+        }
 
-        //public static ReadWirteSharding<T> CreateReadWirteSharding<T>(ISharding<T> write, params ISharding<T>[] readList) where T : class
-        //{
-        //    return new ReadWirteSharding<T>(write, readList);
-        //}
+        public static ReadWirteSharding<T> CreateReadWirteSharding<T>(ISharding<T> write, params ISharding<T>[] readList) where T : class
+        {
+            return new ReadWirteSharding<T>(write, readList);
+        }
 
         public static string NextObjectId()
         {

@@ -9,15 +9,10 @@ namespace Dapper.Sharding
         private Dictionary<long, ITable<T>> _dict;
         private IEnumerable<long> _rangeList;
 
-        public RangeSharding(Dictionary<long, ITable<T>> dict, DistributedTransaction tran = null) : base(dict.Values.ToArray(), tran)
+        public RangeSharding(Dictionary<long, ITable<T>> dict) : base(dict.Values.ToArray())
         {
             _dict = dict;
             _rangeList = dict.Keys.AsEnumerable().OrderBy(b => b).AsEnumerable();
-        }
-
-        public override ISharding<T> CreateTranSharding(DistributedTransaction tran)
-        {
-            return new RangeSharding<T>(_dict, tran);
         }
 
         public override ITable<T> GetTableById(object id)

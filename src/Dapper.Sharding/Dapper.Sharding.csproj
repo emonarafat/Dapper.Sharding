@@ -3,14 +3,6 @@
 		<TargetFrameworks>netstandard2.0;net5.0</TargetFrameworks>
 	</PropertyGroup>
 	<ItemGroup>
-	  <Compile Remove="InterfaceShardingImpl\**" />
-	  <Compile Remove="InterfaceSharding\**" />
-	  <EmbeddedResource Remove="InterfaceShardingImpl\**" />
-	  <EmbeddedResource Remove="InterfaceSharding\**" />
-	  <None Remove="InterfaceShardingImpl\**" />
-	  <None Remove="InterfaceSharding\**" />
-	</ItemGroup>
-	<ItemGroup>
 		<None Remove="DbTypeMap.xml" />
 	</ItemGroup>
 	<ItemGroup>

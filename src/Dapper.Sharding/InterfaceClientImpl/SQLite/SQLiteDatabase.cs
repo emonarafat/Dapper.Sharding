@@ -33,7 +33,7 @@ namespace Dapper.Sharding
         public override IDbConnection GetConn()
         {
             var conn = new SQLiteConnection(ConnectionString);
-            if (conn.State != ConnectionState.Open)
+            if (conn.State == ConnectionState.Closed)
                 try
                 {
                     conn.Open();
@@ -49,7 +49,7 @@ namespace Dapper.Sharding
         public override async Task<IDbConnection> GetConnAsync()
         {
             var conn = new SQLiteConnection(ConnectionString);
-            if (conn.State != ConnectionState.Open)
+            if (conn.State == ConnectionState.Closed)
             {
                 try
                 {

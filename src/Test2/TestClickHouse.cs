@@ -86,14 +86,14 @@ namespace Test2
                 Money = 10.5M
 
             };
-            
+
             var teacher = new Teacher
             {
                 Id = ShardingFactory.NextSnowId(),
                 Name = "王老师",
                 Age = 5
             };
-           
+
 
             var student = new Student
             {
@@ -102,9 +102,9 @@ namespace Test2
                 Age = 100
             };
 
-            DbHelper.peopleTable.Insert(p, new() { "Id" });
-            DbHelper.teacherTable.Insert(teacher, new() { "Id" });
-            DbHelper.studentTable.Insert(student, new() { "Id" });
+            DbHelper.peopleTable.Insert(p, new List<string> { "Id" });
+            DbHelper.teacherTable.Insert(teacher, new List<string> { "Id" });
+            DbHelper.studentTable.Insert(student, new List<string> { "Id" });
             Console.WriteLine(teacher.Id);
             Console.WriteLine(p.Id);
             Console.WriteLine(student.Id);
@@ -126,14 +126,14 @@ namespace Test2
                 Money = 10.5M
 
             };
-            
+
             var teacher = new Teacher
             {
                 Id = ShardingFactory.NextSnowId(),
                 Name = "王老师",
                 Age = 5
             };
-            
+
             var student = new Student
             {
                 Id = ShardingFactory.NextObjectId(),
@@ -170,7 +170,7 @@ namespace Test2
                     Money = 10.5M + i
 
                 };
-                    pList.Add(p);
+                pList.Add(p);
 
                 var teacher = new Teacher
                 {
@@ -236,9 +236,9 @@ namespace Test2
                 sList.Add(student);
             }
 
-            DbHelper.peopleTable.Insert(pList, new() { "Id" });
-            DbHelper.studentTable.Insert(sList, new() { "Id" });
-            DbHelper.teacherTable.Insert(tList, new() { "Id" });
+            DbHelper.peopleTable.Insert(pList, new List<string> { "Id" });
+            DbHelper.studentTable.Insert(sList, new List<string> { "Id" });
+            DbHelper.teacherTable.Insert(tList, new List<string> { "Id" });
 
             Assert.Pass();
         }

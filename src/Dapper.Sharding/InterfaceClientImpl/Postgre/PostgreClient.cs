@@ -95,7 +95,7 @@ namespace Dapper.Sharding
         public override IDbConnection GetConn()
         {
             var conn = new NpgsqlConnection(ConnectionString);
-            if (conn.State != ConnectionState.Open)
+            if (conn.State == ConnectionState.Closed)
             {
                 try
                 {
@@ -113,7 +113,7 @@ namespace Dapper.Sharding
         public override async Task<IDbConnection> GetConnAsync()
         {
             var conn = new NpgsqlConnection(ConnectionString);
-            if (conn.State != ConnectionState.Open)
+            if (conn.State == ConnectionState.Closed)
             {
                 try
                 {

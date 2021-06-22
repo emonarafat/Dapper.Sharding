@@ -65,7 +65,7 @@ namespace Test2
                 age = 10,
             };
             string where = "WHERE id=@id";
-            DbHelper.treeTable.UpdateByWhere(where, model, new() { "age", "time" });
+            DbHelper.treeTable.UpdateByWhere(model, where, new() { "age", "time" });
             DbHelper.treeTable.Optimize();
         }
     }

@@ -17,7 +17,7 @@ namespace Dapper.Sharding
         {
             var taskList = DbList.Select(s =>
             {
-                return s.ExecuteAsync(sql, param, commandTimeout);
+                return s.ExecuteAsync(sql, param, null, commandTimeout);
             });
             return await Task.WhenAll(taskList);
         }
@@ -26,7 +26,7 @@ namespace Dapper.Sharding
         {
             var taskList = DbList.Select(s =>
             {
-                return s.ExecuteScalarAsync(sql, param, commandTimeout);
+                return s.ExecuteScalarAsync(sql, param, null, commandTimeout);
             });
             return await Task.WhenAll(taskList);
         }
@@ -35,7 +35,7 @@ namespace Dapper.Sharding
         {
             var taskList = DbList.Select(s =>
             {
-                return s.ExecuteScalarAsync<TResult>(sql, param, commandTimeout);
+                return s.ExecuteScalarAsync<TResult>(sql, param, null, commandTimeout);
             });
             return await Task.WhenAll(taskList);
         }
@@ -44,7 +44,7 @@ namespace Dapper.Sharding
         {
             var taskList = DbList.Select(s =>
             {
-                return s.QueryFirstOrDefaultAsync(sql, param, commandTimeout);
+                return s.QueryFirstOrDefaultAsync(sql, param, null, commandTimeout);
             });
             return await Task.WhenAll(taskList);
         }
@@ -53,7 +53,7 @@ namespace Dapper.Sharding
         {
             var taskList = DbList.Select(s =>
             {
-                return s.QueryFirstOrDefaultAsync<TResult>(sql, param, commandTimeout);
+                return s.QueryFirstOrDefaultAsync<TResult>(sql, param, null, commandTimeout);
             });
             return await Task.WhenAll(taskList);
         }
@@ -62,7 +62,7 @@ namespace Dapper.Sharding
         {
             var taskList = DbList.Select(s =>
             {
-                return s.QueryAsync(sql, param, commandTimeout);
+                return s.QueryAsync(sql, param, null, commandTimeout);
             });
             return await Task.WhenAll(taskList);
         }
@@ -71,7 +71,7 @@ namespace Dapper.Sharding
         {
             var taskList = DbList.Select(s =>
             {
-                return s.QueryAsync<TResult>(sql, param, commandTimeout);
+                return s.QueryAsync<TResult>(sql, param, null, commandTimeout);
             });
             return await Task.WhenAll(taskList);
         }

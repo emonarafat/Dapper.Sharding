@@ -2,14 +2,9 @@
 {
     internal class HashSharding<T> : ISharding<T> where T : class
     {
-        public HashSharding(ITable<T>[] tableList, DistributedTransaction tran = null) : base(tableList, tran)
+        public HashSharding(ITable<T>[] tableList) : base(tableList)
         {
 
-        }
-
-        public override ISharding<T> CreateTranSharding(DistributedTransaction tran)
-        {
-            return new HashSharding<T>(TableList, tran);
         }
 
         public override ITable<T> GetTableById(object id)

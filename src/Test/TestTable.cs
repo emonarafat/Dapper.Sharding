@@ -13,30 +13,25 @@ namespace Test
         [Test]
         public void BeginTran()
         {
-            Factory.Db.UsingTran((conn, tran) =>
+            var tran = ShardingFactory.CreateDistributedTransaction();
+            try
             {
-                var table = Factory.peopleTable;
-                var tableTran = table.CreateTranTable(conn, tran);
-                try
+                var p = new People
                 {
-                    var p = new People
-                    {
-                        Name = "李四",
-                        Age = 50,
-                        AddTime = DateTime.Now,
-                        IsAdmin = 1,
-                        Text = "你好"
-                    };
-                    tableTran.Insert(p);
-                    throw new Exception("an exception");
-                    tran.Commit();
-                }
-                catch
-                {
-                    tran.Rollback();
-                }
-
-            });
+                    Name = "李四",
+                    Age = 50,
+                    AddTime = DateTime.Now,
+                    IsAdmin = 1,
+                    Text = "你好"
+                };
+                Factory.peopleTable.Insert(p, tran);
+                throw new Exception("an exception");
+                tran.Commit();
+            }
+            catch
+            {
+                tran.Rollback();
+            }
         }
 
         [Test]
@@ -300,8 +295,9 @@ namespace Test
         public void DataTable()
         {
             DataTable dt = null;
-            Factory.Db.Using(conn => {
-                 dt = conn.GetDataTable("SELECT * FROM people LIMIT 0");              
+            Factory.Db.Using(conn =>
+            {
+                dt = conn.GetDataTable("SELECT * FROM people LIMIT 0");
             });
 
             Console.WriteLine(JsonConvert.SerializeObject(dt));

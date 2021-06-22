@@ -187,14 +187,14 @@ namespace Test
             var data4 = Factory.peopleTable.GetByAscNextPage(2, new People { Id = 6 });
             Console.WriteLine(JsonConvert.SerializeObject(data4));
 
-            var data5 = Factory.peopleTable.GetByAscLastPage(2);
+            var data5 = Factory.peopleTable.GetByAscLastPage(2, null);
             Console.WriteLine(JsonConvert.SerializeObject(data5));
         }
 
         [Test]
         public void GetByDescPage()
         {
-            var data1 = Factory.peopleTable.GetByDescFirstPage(2);
+            var data1 = Factory.peopleTable.GetByDescFirstPage(2, null);
             Console.WriteLine(JsonConvert.SerializeObject(data1));
 
             var data2 = Factory.peopleTable.GetByDescPrevPage(2, new People { Id = 19 });
@@ -206,7 +206,7 @@ namespace Test
             var data4 = Factory.peopleTable.GetByDescNextPage(2, new People { Id = 18 });
             Console.WriteLine(JsonConvert.SerializeObject(data4));
 
-            var data5 = Factory.peopleTable.GetByDescLastPage(2);
+            var data5 = Factory.peopleTable.GetByDescLastPage(2, null);
             Console.WriteLine(JsonConvert.SerializeObject(data5));
         }
 
