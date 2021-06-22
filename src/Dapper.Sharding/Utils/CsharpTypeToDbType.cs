@@ -121,7 +121,7 @@ namespace Dapper.Sharding
                     return "text";
                 if (length == -2)
                     return "longtext";
-                if (length == 0)
+                if (length <= 0)
                     length = 50;
                 return $"varchar({length})";
 
@@ -285,7 +285,7 @@ namespace Dapper.Sharding
                         return "geometry";
                     }
                 }
-                if (length == 0)
+                if (length <= 0)
                     length = 50;
                 return $"varchar({length})";
 
@@ -364,7 +364,7 @@ namespace Dapper.Sharding
             {
                 if (length <= -1)
                     return "CLOB";
-                if (length == 0)
+                if (length <= 0)
                     length = 50;
                 return $"VARCHAR2({length})";
 

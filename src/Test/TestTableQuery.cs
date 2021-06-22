@@ -79,6 +79,9 @@ namespace Test
 
             var model2 = Factory.peopleTable.GetById(1, "Id,Name,Text");
             Console.WriteLine(JsonConvert.SerializeObject(model2));
+
+            var model3 = Factory.peopleTable.GetByIdDynamic(1, "Id,Name,Text");
+            Console.WriteLine(JsonConvert.SerializeObject(model3));
         }
 
         [Test]
@@ -112,7 +115,7 @@ namespace Test
         [Test]
         public void GetByWhere()
         {
-            var list = Factory.peopleTable.GetByWhere("WHERE Id>@Id", new { Id = 8 });
+            var list = Factory.peopleTable.GetByWhere("WHERE Id>@Id", new { Id = 8 },limit:10);
             Console.WriteLine(JsonConvert.SerializeObject(list));
 
             var list2 = Factory.peopleTable.GetByWhere("WHERE Id>@Id", new { Id = 8 }, "Id,Name", "ID DESC", limit: 10);
@@ -194,19 +197,19 @@ namespace Test
         [Test]
         public void GetByDescPage()
         {
-            var data1 = Factory.peopleTable.GetByDescFirstPage(2, null);
+            var data1 = Factory.peopleTable.GetByDescFirstPage(1, null);
             Console.WriteLine(JsonConvert.SerializeObject(data1));
 
-            var data2 = Factory.peopleTable.GetByDescPrevPage(2, new People { Id = 19 });
+            var data2 = Factory.peopleTable.GetByDescPrevPage(1, new People { Id = 19 });
             Console.WriteLine(JsonConvert.SerializeObject(data2));
 
-            var data3 = Factory.peopleTable.GetByDescCurrentPage(2, new People { Id = 19 });
+            var data3 = Factory.peopleTable.GetByDescCurrentPage(1, new People { Id = 19 });
             Console.WriteLine(JsonConvert.SerializeObject(data3));
 
-            var data4 = Factory.peopleTable.GetByDescNextPage(2, new People { Id = 18 });
+            var data4 = Factory.peopleTable.GetByDescNextPage(1, new People { Id = 19 });
             Console.WriteLine(JsonConvert.SerializeObject(data4));
 
-            var data5 = Factory.peopleTable.GetByDescLastPage(2, null);
+            var data5 = Factory.peopleTable.GetByDescLastPage(1, null);
             Console.WriteLine(JsonConvert.SerializeObject(data5));
         }
 

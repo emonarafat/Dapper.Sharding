@@ -31,6 +31,7 @@ namespace Test
             catch
             {
                 tran.Rollback();
+                Assert.Pass("事务回滚");
             }
         }
 
@@ -92,7 +93,7 @@ namespace Test
         public void InsertList()
         {
             var modelList = new List<People>();
-            for (int i = 0; i < 10; i++)
+            for (int i = 0; i < 40000; i++)
             {
                 modelList.Add(new People { Id = i, Name = "李白" + i, AddTime = DateTime.Now });
             }
@@ -297,7 +298,7 @@ namespace Test
             DataTable dt = null;
             Factory.Db.Using(conn =>
             {
-                dt = conn.GetDataTable("SELECT * FROM people LIMIT 0");
+                dt = conn.GetDataTable("SELECT * FROM people LIMIT 1");
             });
 
             Console.WriteLine(JsonConvert.SerializeObject(dt));

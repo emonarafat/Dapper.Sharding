@@ -84,7 +84,7 @@ namespace Dapper.Sharding
             var entity = new TableEntity();
 
             string sql = $@"select a.relname as name , b.description as value from pg_class a 
-left join (select * from pg_description where objsubid =0 ) b on a.oid = b.objoid
+left join (select * from pg_description where objsubid=0) b on a.oid = b.objoid
 where a.relname='{name}' and a.relname in (select tablename from pg_tables where schemaname = 'public')
 order by a.relname asc";
 
@@ -104,10 +104,13 @@ order by a.relname asc";
             }
             entity.ColumnList = manager.GetColumnEntityList(entity);
 
-            var col = entity.ColumnList.FirstOrDefault(w => w.Name.ToLower() == entity.PrimaryKey.ToLower());
-            if (col != null)
+            if (entity.PrimaryKey != null)
             {
-                entity.PrimaryKeyType = col.CsType;
+                var col = entity.ColumnList.FirstOrDefault(w => w.Name.ToLower() == entity.PrimaryKey.ToLower());
+                if (col != null)
+                {
+                    entity.PrimaryKeyType = col.CsType;
+                }
             }
             return entity;
 

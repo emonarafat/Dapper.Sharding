@@ -135,7 +135,7 @@ namespace Dapper.Sharding
 
         public override IEnumerable<string> ShowDatabasesExcludeSystem()
         {
-            return ShowDatabases().Where(w => w != "template1" && w != "template0");
+            return ShowDatabases().Where(w => w != "template1" && w != "template0" && w!= "postgres");
         }
     }
 }
