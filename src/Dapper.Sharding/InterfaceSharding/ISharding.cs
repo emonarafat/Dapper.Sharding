@@ -31,12 +31,9 @@ namespace Dapper.Sharding
 
         protected void Wrap(DistributedTransaction tran, Action action)
         {
-            if (tran == null)
+            if (tran == null && !AllClickHouse)
             {
-                if (!AllClickHouse)
-                {
-                    tran = new DistributedTransaction();
-                }
+                tran = new DistributedTransaction();
                 try
                 {
                     action();
@@ -56,12 +53,9 @@ namespace Dapper.Sharding
 
         protected TResult Wrap<TResult>(DistributedTransaction tran, Func<TResult> func)
         {
-            if (tran == null)
+            if (tran == null && !AllClickHouse)
             {
-                if (!AllClickHouse)
-                {
-                    tran = new DistributedTransaction();
-                }
+                tran = new DistributedTransaction();
                 TResult result;
                 try
                 {
