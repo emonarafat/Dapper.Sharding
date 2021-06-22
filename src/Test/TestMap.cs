@@ -1,13 +1,8 @@
-﻿using Dapper;
-using Dapper.Sharding;
+﻿using Dapper.Sharding;
 using Newtonsoft.Json;
 using NUnit.Framework;
 using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Security.AccessControl;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace Test
 {
@@ -93,7 +88,7 @@ namespace Test
 
             var data1 = table1.GetAll();
             data1.TableCenterToMany("Id", "_NextList", centerTable, "FirstId", "NextId", table3, "Id");
-            data1.TableCenterToMany("Id", "_NextList", centerTable, "FirstId", "NextId", table3, "Id",null,"AND Id>5");
+            data1.TableCenterToMany("Id", "_NextList", centerTable, "FirstId", "NextId", table3, "Id", null, "AND Id>5");
             Console.WriteLine(JsonConvert.SerializeObject(data1));
 
 

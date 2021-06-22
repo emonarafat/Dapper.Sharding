@@ -9,6 +9,6 @@
         Postgresql = 5,
         Oracle = 6,
         ClickHouse = 7
-        
+
     }
 }

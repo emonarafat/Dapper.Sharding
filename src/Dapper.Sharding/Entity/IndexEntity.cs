@@ -8,13 +8,13 @@
 
         public IndexType Type { get; set; }
 
-        public string StringType 
-        { 
-            get 
+        public string StringType
+        {
+            get
             {
                 switch (Type)
                 {
-                    case IndexType.PrimaryKey:return "IndexType.PrimaryKey";
+                    case IndexType.PrimaryKey: return "IndexType.PrimaryKey";
                     case IndexType.Unique: return "IndexType.Unique";
                     case IndexType.Normal: return "IndexType.Normal";
                     case IndexType.FullText: return "IndexType.FullText";
@@ -25,7 +25,7 @@
                     case IndexType.JsonBtree: return "IndexType.JsonBtree";
                 }
                 return null;
-            } 
+            }
         }
     }
 }

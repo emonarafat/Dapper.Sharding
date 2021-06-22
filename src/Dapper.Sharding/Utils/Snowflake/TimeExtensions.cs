@@ -5,7 +5,7 @@ namespace Dapper.Sharding
     internal static class TimeExtensions
     {
         public static Func<long> currentTimeFunc = InternalCurrentTimeMillis;
- 
+
         public static long CurrentTimeMillis()
         {
             return currentTimeFunc();
@@ -17,7 +17,7 @@ namespace Dapper.Sharding
             return new DisposableAction(() =>
             {
                 currentTimeFunc = InternalCurrentTimeMillis;
-            });  
+            });
         }
 
         public static IDisposable StubCurrentTime(long millis)
@@ -35,6 +35,6 @@ namespace Dapper.Sharding
         private static long InternalCurrentTimeMillis()
         {
             return (long)(DateTime.UtcNow - Jan1st1970).TotalMilliseconds;
-        }        
+        }
     }
 }

@@ -119,8 +119,8 @@ WHERE C.TABLE_NAME = '{Name.ToUpper()}' ORDER BY C.COLUMN_ID";
                 model.CsType = map.CsType;
                 model.DbType = t;
 
-                var len = (int)row.len; 
-                
+                var len = (int)row.len;
+
                 if (t == "VARCHAR2")
                 {
                     model.Length = len;
@@ -140,7 +140,7 @@ WHERE C.TABLE_NAME = '{Name.ToUpper()}' ORDER BY C.COLUMN_ID";
                     model.Length = Convert.ToDouble($"{len2}.{scale}");
                     model.DbLength = len2.ToString();
                     if (scale != 0)
-                    {                      
+                    {
                         model.DbLength = $"{len2},{scale}";
                         if (len2 == 7 && scale == 3)
                         {

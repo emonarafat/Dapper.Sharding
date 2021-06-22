@@ -1,10 +1,6 @@
 ﻿using Newtonsoft.Json;
 using NUnit.Framework;
-using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace Test2
 {
@@ -27,14 +23,14 @@ namespace Test2
         [Test]
         public void GetByWhere()
         {
-            var data = DbHelper.treeTable.GetByWhere("WHERE id=id",new { id="6"});
+            var data = DbHelper.treeTable.GetByWhere("WHERE id=id", new { id = "6" });
             Assert.Pass(JsonConvert.SerializeObject(data));
         }
 
         [Test]
         public void GetByIds()
         {
-            var ids = new List<string> { "0","1"};
+            var ids = new List<string> { "0", "1" };
             var data = DbHelper.treeTable.GetByIds(ids);
             Assert.Pass(JsonConvert.SerializeObject(data));
         }

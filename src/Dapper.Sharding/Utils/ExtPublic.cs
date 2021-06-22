@@ -422,7 +422,7 @@ namespace Dapper.Sharding
             {
                 where = $"WHERE {mapField}=ANY(@ids) {and}";
             }
-            else if(table.DataBase.Client.DbType == DataBaseType.ClickHouse)
+            else if (table.DataBase.Client.DbType == DataBaseType.ClickHouse)
             {
                 where = $"WHERE {mapField} IN (@ids) {and}";
             }

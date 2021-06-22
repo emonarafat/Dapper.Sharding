@@ -89,7 +89,7 @@ namespace Dapper.Sharding
 
         public override bool ExistsDatabase(string name)
         {
-           return ExecuteScalar<int>($"SELECT COUNT(1) FROM pg_database WHERE datname = '{name}'") > 0;
+            return ExecuteScalar<int>($"SELECT COUNT(1) FROM pg_database WHERE datname = '{name}'") > 0;
         }
 
         public override IDbConnection GetConn()
@@ -135,7 +135,7 @@ namespace Dapper.Sharding
 
         public override IEnumerable<string> ShowDatabasesExcludeSystem()
         {
-            return ShowDatabases().Where(w => w != "template1" && w != "template0" && w!= "postgres");
+            return ShowDatabases().Where(w => w != "template1" && w != "template0" && w != "postgres");
         }
     }
 }

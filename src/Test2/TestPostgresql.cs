@@ -2,8 +2,6 @@
 using NUnit.Framework;
 using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
 using System.Text.Json;
 using System.Text.Unicode;
 using System.Threading.Tasks;
@@ -279,15 +277,13 @@ namespace Test2
         }
 
         [Test]
-        public void TestAsync()
+        public async Task TestAsync()
         {
-            var db = DbHelper.Client.GetDatabase("a1");
-            var sharddb = ShardingFactory.CreateShardingQueryDb(db);
-            var a = sharddb.ExecuteAsync("create table a3(name int)").Result;
-            foreach (var item in a)
-            {
-                Assert.Pass(item.ToString());
-            }
+            var db1 = DbHelper.Client.GetDatabase("a1");
+            var db2 = DbHelper.Client.GetDatabase("a2");
+            var db3 = DbHelper.Client.GetDatabase("a3");
+            var sharddb = ShardingFactory.CreateShardingQueryDb(db1, db2, db3);
+            await sharddb.ExecuteAsync("create table test(name int)");
 
 
         }

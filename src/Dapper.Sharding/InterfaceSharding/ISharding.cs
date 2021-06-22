@@ -16,6 +16,7 @@ namespace Dapper.Sharding
             TableList = list;
             Query = new ShardingQuery<T>(TableList);
             SqlField = list[0].SqlField;
+            AllClickHouse = TableList.Any(a => a.DbType != DataBaseType.ClickHouse);
         }
 
         #region base
@@ -26,11 +27,16 @@ namespace Dapper.Sharding
 
         protected SqlFieldEntity SqlField { get; }
 
+        protected bool AllClickHouse { get; }
+
         protected void Wrap(DistributedTransaction tran, Action action)
         {
             if (tran == null)
             {
-                tran = new DistributedTransaction();
+                if (!AllClickHouse)
+                {
+                    tran = new DistributedTransaction();
+                }
                 try
                 {
                     action();
@@ -52,7 +58,10 @@ namespace Dapper.Sharding
         {
             if (tran == null)
             {
-                tran = new DistributedTransaction();
+                if (!AllClickHouse)
+                {
+                    tran = new DistributedTransaction();
+                }
                 TResult result;
                 try
                 {

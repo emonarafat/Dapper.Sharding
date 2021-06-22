@@ -1,13 +1,8 @@
 ﻿using Dapper.Sharding;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace Test2
 {
-    [Table("Id", false, "学生表","Memory")]
+    [Table("Id", false, "学生表", "Memory")]
     public class Student
     {
         [Column(24, "主键id")]

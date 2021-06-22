@@ -1,9 +1,9 @@
-﻿using System;
+﻿using ClickHouse.Ado;
+using System;
 using System.Collections.Generic;
 using System.Data;
 using System.Linq;
 using System.Threading.Tasks;
-using ClickHouse.Ado;
 
 namespace Dapper.Sharding
 {

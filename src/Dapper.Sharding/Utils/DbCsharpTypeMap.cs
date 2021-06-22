@@ -59,7 +59,7 @@ namespace Dapper.Sharding
                                 }
 
                             }
-                           
+
                             stream.Dispose();
                         }
                     }

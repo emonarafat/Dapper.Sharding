@@ -1,9 +1,5 @@
 ﻿using NUnit.Framework;
-using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace Test2
 {
@@ -49,7 +45,7 @@ namespace Test2
         public void DeleteList()
         {
             var list = new List<TreeTable>
-            { 
+            {
                 new TreeTable { id = "0" },
                 new TreeTable { id = "1" }
             };
