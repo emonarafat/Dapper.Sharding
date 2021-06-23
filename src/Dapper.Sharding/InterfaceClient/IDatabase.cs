@@ -31,104 +31,104 @@ namespace Dapper.Sharding
 
         #region dapper method
 
-        public int Execute(string sql, object param = null, DistributedTransaction tran = null, int? commandTimeout = null)
+        public int Execute(string sql, object param = null, DistributedTransaction tran = null, int? timeout = null)
         {
             if (tran == null || DbType == DataBaseType.ClickHouse)
             {
                 using (var cnn = GetConn())
                 {
-                    return cnn.Execute(sql, param, commandTimeout: commandTimeout);
+                    return cnn.Execute(sql, param, commandTimeout: timeout);
                 }
             }
             var val = tran.GetVal(this);
-            return val.Item1.Execute(sql, param, val.Item2, commandTimeout);
+            return val.Item1.Execute(sql, param, val.Item2, timeout);
         }
 
-        public object ExecuteScalar(string sql, object param = null, DistributedTransaction tran = null, int? commandTimeout = null)
+        public object ExecuteScalar(string sql, object param = null, DistributedTransaction tran = null, int? timeout = null)
         {
             if (tran == null || DbType == DataBaseType.ClickHouse)
             {
                 using (var cnn = GetConn())
                 {
-                    return cnn.ExecuteScalar(sql, param, commandTimeout: commandTimeout);
+                    return cnn.ExecuteScalar(sql, param, commandTimeout: timeout);
                 }
             }
             var val = tran.GetVal(this);
-            return val.Item1.ExecuteScalar(sql, param, val.Item2, commandTimeout);
+            return val.Item1.ExecuteScalar(sql, param, val.Item2, timeout);
         }
 
-        public T ExecuteScalar<T>(string sql, object param = null, DistributedTransaction tran = null, int? commandTimeout = null)
+        public T ExecuteScalar<T>(string sql, object param = null, DistributedTransaction tran = null, int? timeout = null)
         {
             if (tran == null || DbType == DataBaseType.ClickHouse)
             {
                 using (var cnn = GetConn())
                 {
-                    return cnn.ExecuteScalar<T>(sql, param, commandTimeout: commandTimeout);
+                    return cnn.ExecuteScalar<T>(sql, param, commandTimeout: timeout);
                 }
             }
             var val = tran.GetVal(this);
-            return val.Item1.ExecuteScalar<T>(sql, param, val.Item2, commandTimeout);
+            return val.Item1.ExecuteScalar<T>(sql, param, val.Item2, timeout);
         }
 
-        public dynamic QueryFirstOrDefault(string sql, object param = null, DistributedTransaction tran = null, int? commandTimeout = null)
+        public dynamic QueryFirstOrDefault(string sql, object param = null, DistributedTransaction tran = null, int? timeout = null)
         {
             if (tran == null || DbType == DataBaseType.ClickHouse)
             {
                 using (var cnn = GetConn())
                 {
-                    return cnn.QueryFirstOrDefault(sql, param, commandTimeout: commandTimeout);
+                    return cnn.QueryFirstOrDefault(sql, param, commandTimeout: timeout);
                 }
             }
             var val = tran.GetVal(this);
-            return val.Item1.QueryFirstOrDefault(sql, param, val.Item2, commandTimeout);
+            return val.Item1.QueryFirstOrDefault(sql, param, val.Item2, timeout);
         }
 
-        public T QueryFirstOrDefault<T>(string sql, object param = null, DistributedTransaction tran = null, int? commandTimeout = null)
+        public T QueryFirstOrDefault<T>(string sql, object param = null, DistributedTransaction tran = null, int? timeout = null)
         {
             if (tran == null || DbType == DataBaseType.ClickHouse)
             {
                 using (var cnn = GetConn())
                 {
-                    return cnn.QueryFirstOrDefault<T>(sql, param, commandTimeout: commandTimeout);
+                    return cnn.QueryFirstOrDefault<T>(sql, param, commandTimeout: timeout);
                 }
             }
             var val = tran.GetVal(this);
-            return val.Item1.QueryFirstOrDefault<T>(sql, param, val.Item2, commandTimeout);
+            return val.Item1.QueryFirstOrDefault<T>(sql, param, val.Item2, timeout);
         }
 
-        public IEnumerable<dynamic> Query(string sql, object param = null, DistributedTransaction tran = null, int? commandTimeout = null)
+        public IEnumerable<dynamic> Query(string sql, object param = null, DistributedTransaction tran = null, int? timeout = null)
         {
             if (tran == null || DbType == DataBaseType.ClickHouse)
             {
                 using (var cnn = GetConn())
                 {
-                    return cnn.Query(sql, param, commandTimeout: commandTimeout);
+                    return cnn.Query(sql, param, commandTimeout: timeout);
                 }
             }
             var val = tran.GetVal(this);
-            return val.Item1.Query(sql, param, val.Item2, commandTimeout: commandTimeout);
+            return val.Item1.Query(sql, param, val.Item2, commandTimeout: timeout);
         }
 
-        public IEnumerable<T> Query<T>(string sql, object param = null, DistributedTransaction tran = null, int? commandTimeout = null)
+        public IEnumerable<T> Query<T>(string sql, object param = null, DistributedTransaction tran = null, int? timeout = null)
         {
             if (tran == null || DbType == DataBaseType.ClickHouse)
             {
                 using (var cnn = GetConn())
                 {
-                    return cnn.Query<T>(sql, param, commandTimeout: commandTimeout);
+                    return cnn.Query<T>(sql, param, commandTimeout: timeout);
                 }
             }
             var val = tran.GetVal(this);
-            return val.Item1.Query<T>(sql, param, val.Item2, commandTimeout: commandTimeout);
+            return val.Item1.Query<T>(sql, param, val.Item2, commandTimeout: timeout);
         }
 
-        public void QueryMultiple(string sql, object param = null, Action<SqlMapper.GridReader> onReader = null, DistributedTransaction tran = null, int? commandTimeout = null)
+        public void QueryMultiple(string sql, object param = null, Action<SqlMapper.GridReader> onReader = null, DistributedTransaction tran = null, int? timeout = null)
         {
             if (tran == null || DbType == DataBaseType.ClickHouse)
             {
                 using (var conn = GetConn())
                 {
-                    using (var reader = conn.QueryMultiple(sql, param, commandTimeout: commandTimeout))
+                    using (var reader = conn.QueryMultiple(sql, param, commandTimeout: timeout))
                     {
                         onReader?.Invoke(reader);
                     }
@@ -136,7 +136,7 @@ namespace Dapper.Sharding
                 return;
             }
             var val = tran.GetVal(this);
-            using (var reader = val.Item1.QueryMultiple(sql, param, val.Item2, commandTimeout: commandTimeout))
+            using (var reader = val.Item1.QueryMultiple(sql, param, val.Item2, commandTimeout: timeout))
             {
                 onReader?.Invoke(reader);
             }
@@ -146,154 +146,154 @@ namespace Dapper.Sharding
 
         #region dapper method async
 
-        public async Task<int> ExecuteAsync(string sql, object param = null, DistributedTransaction tran = null, int? commandTimeout = null)
+        public async Task<int> ExecuteAsync(string sql, object param = null, DistributedTransaction tran = null, int? timeout = null)
         {
             if (DbType == DataBaseType.ClickHouse)
             {
                 return await Task.Run(() =>
                 {
-                    return Execute(sql, param, null, commandTimeout);
+                    return Execute(sql, param, null, timeout);
                 });
             }
             if (tran == null)
             {
                 using (var cnn = await GetConnAsync())
                 {
-                    return await cnn.ExecuteAsync(sql, param, commandTimeout: commandTimeout);
+                    return await cnn.ExecuteAsync(sql, param, commandTimeout: timeout);
                 }
             }
             var val = await tran.GetValAsync(this);
-            return await val.Item1.ExecuteAsync(sql, param, val.Item2, commandTimeout);
+            return await val.Item1.ExecuteAsync(sql, param, val.Item2, timeout);
 
         }
 
-        public async Task<object> ExecuteScalarAsync(string sql, object param = null, DistributedTransaction tran = null, int? commandTimeout = null)
+        public async Task<object> ExecuteScalarAsync(string sql, object param = null, DistributedTransaction tran = null, int? timeout = null)
         {
             if (DbType == DataBaseType.ClickHouse)
             {
                 return await Task.Run(() =>
                 {
-                    return ExecuteScalar(sql, param, null, commandTimeout);
+                    return ExecuteScalar(sql, param, null, timeout);
                 });
             }
             if (tran == null)
             {
                 using (var cnn = await GetConnAsync())
                 {
-                    return await cnn.ExecuteScalarAsync(sql, param, commandTimeout: commandTimeout);
+                    return await cnn.ExecuteScalarAsync(sql, param, commandTimeout: timeout);
                 }
             }
             var val = await tran.GetValAsync(this);
-            return await val.Item1.ExecuteScalarAsync(sql, param, val.Item2, commandTimeout);
+            return await val.Item1.ExecuteScalarAsync(sql, param, val.Item2, timeout);
         }
 
-        public async Task<T> ExecuteScalarAsync<T>(string sql, object param = null, DistributedTransaction tran = null, int? commandTimeout = null)
+        public async Task<T> ExecuteScalarAsync<T>(string sql, object param = null, DistributedTransaction tran = null, int? timeout = null)
         {
             if (DbType == DataBaseType.ClickHouse)
             {
                 return await Task.Run(() =>
                 {
-                    return ExecuteScalar<T>(sql, param, null, commandTimeout);
+                    return ExecuteScalar<T>(sql, param, null, timeout);
                 });
             }
             if (tran == null)
             {
                 using (var cnn = await GetConnAsync())
                 {
-                    return await cnn.ExecuteScalarAsync<T>(sql, param, commandTimeout: commandTimeout);
+                    return await cnn.ExecuteScalarAsync<T>(sql, param, commandTimeout: timeout);
                 }
             }
             var val = await tran.GetValAsync(this);
-            return await val.Item1.ExecuteScalarAsync<T>(sql, param, val.Item2, commandTimeout);
+            return await val.Item1.ExecuteScalarAsync<T>(sql, param, val.Item2, timeout);
         }
 
-        public async Task<dynamic> QueryFirstOrDefaultAsync(string sql, object param = null, DistributedTransaction tran = null, int? commandTimeout = null)
+        public async Task<dynamic> QueryFirstOrDefaultAsync(string sql, object param = null, DistributedTransaction tran = null, int? timeout = null)
         {
             if (DbType == DataBaseType.ClickHouse)
             {
                 return await Task.Run(() =>
                 {
-                    return QueryFirstOrDefault(sql, param, null, commandTimeout);
+                    return QueryFirstOrDefault(sql, param, null, timeout);
                 });
             }
             if (tran == null)
             {
                 using (var cnn = await GetConnAsync())
                 {
-                    return await cnn.QueryFirstOrDefaultAsync(sql, param, commandTimeout: commandTimeout);
+                    return await cnn.QueryFirstOrDefaultAsync(sql, param, commandTimeout: timeout);
                 }
             }
             var val = await tran.GetValAsync(this);
-            return await val.Item1.QueryFirstOrDefaultAsync(sql, param, val.Item2, commandTimeout);
+            return await val.Item1.QueryFirstOrDefaultAsync(sql, param, val.Item2, timeout);
         }
 
-        public async Task<T> QueryFirstOrDefaultAsync<T>(string sql, object param = null, DistributedTransaction tran = null, int? commandTimeout = null)
+        public async Task<T> QueryFirstOrDefaultAsync<T>(string sql, object param = null, DistributedTransaction tran = null, int? timeout = null)
         {
             if (DbType == DataBaseType.ClickHouse)
             {
                 return await Task.Run(() =>
                 {
-                    return QueryFirstOrDefault<T>(sql, param, null, commandTimeout);
+                    return QueryFirstOrDefault<T>(sql, param, null, timeout);
                 });
             }
             if (tran == null)
             {
                 using (var cnn = await GetConnAsync())
                 {
-                    return await cnn.QueryFirstOrDefaultAsync<T>(sql, param, commandTimeout: commandTimeout);
+                    return await cnn.QueryFirstOrDefaultAsync<T>(sql, param, commandTimeout: timeout);
                 }
             }
             var val = await tran.GetValAsync(this);
-            return await val.Item1.QueryFirstOrDefaultAsync<T>(sql, param, val.Item2, commandTimeout);
+            return await val.Item1.QueryFirstOrDefaultAsync<T>(sql, param, val.Item2, timeout);
         }
 
-        public async Task<IEnumerable<dynamic>> QueryAsync(string sql, object param = null, DistributedTransaction tran = null, int? commandTimeout = null)
+        public async Task<IEnumerable<dynamic>> QueryAsync(string sql, object param = null, DistributedTransaction tran = null, int? timeout = null)
         {
             if (DbType == DataBaseType.ClickHouse)
             {
                 return await Task.Run(() =>
                 {
-                    return Query(sql, param, null, commandTimeout);
+                    return Query(sql, param, null, timeout);
                 });
             }
             if (tran == null)
             {
                 using (var cnn = await GetConnAsync())
                 {
-                    return await cnn.QueryAsync(sql, param, commandTimeout: commandTimeout);
+                    return await cnn.QueryAsync(sql, param, commandTimeout: timeout);
                 }
             }
             var val = await tran.GetValAsync(this);
-            return await val.Item1.QueryAsync(sql, param, val.Item2, commandTimeout);
+            return await val.Item1.QueryAsync(sql, param, val.Item2, timeout);
         }
 
-        public async Task<IEnumerable<T>> QueryAsync<T>(string sql, object param = null, DistributedTransaction tran = null, int? commandTimeout = null)
+        public async Task<IEnumerable<T>> QueryAsync<T>(string sql, object param = null, DistributedTransaction tran = null, int? timeout = null)
         {
             if (DbType == DataBaseType.ClickHouse)
             {
                 return await Task.Run(() =>
                 {
-                    return Query<T>(sql, param, null, commandTimeout);
+                    return Query<T>(sql, param, null, timeout);
                 });
             }
             if (tran == null)
             {
                 using (var cnn = await GetConnAsync())
                 {
-                    return await cnn.QueryAsync<T>(sql, param, commandTimeout: commandTimeout);
+                    return await cnn.QueryAsync<T>(sql, param, commandTimeout: timeout);
                 }
             }
             var val = await tran.GetValAsync(this);
-            return await val.Item1.QueryAsync<T>(sql, param, val.Item2, commandTimeout);
+            return await val.Item1.QueryAsync<T>(sql, param, val.Item2, timeout);
         }
 
-        public async Task QueryMultipleAsync(string sql, object param = null, Action<SqlMapper.GridReader> onReader = null, DistributedTransaction tran = null, int? commandTimeout = null)
+        public async Task QueryMultipleAsync(string sql, object param = null, Action<SqlMapper.GridReader> onReader = null, DistributedTransaction tran = null, int? timeout = null)
         {
             if (DbType == DataBaseType.ClickHouse)
             {
                 await Task.Run(() =>
                 {
-                    QueryMultiple(sql, param, onReader, null, commandTimeout);
+                    QueryMultiple(sql, param, onReader, null, timeout);
                 });
                 return;
             }
@@ -301,7 +301,7 @@ namespace Dapper.Sharding
             {
                 using (var conn = await GetConnAsync())
                 {
-                    using (var reader = await conn.QueryMultipleAsync(sql, param, commandTimeout: commandTimeout))
+                    using (var reader = await conn.QueryMultipleAsync(sql, param, commandTimeout: timeout))
                     {
                         onReader?.Invoke(reader);
                     }
@@ -309,7 +309,7 @@ namespace Dapper.Sharding
                 return;
             }
             var val = await tran.GetValAsync(this);
-            using (var reader = await val.Item1.QueryMultipleAsync(sql, param, val.Item2, commandTimeout))
+            using (var reader = await val.Item1.QueryMultipleAsync(sql, param, val.Item2, timeout))
             {
                 onReader?.Invoke(reader);
             }
