@@ -42,41 +42,41 @@ namespace Dapper.Sharding
 
         protected abstract string SqlGetAll(string returnFields = null, string orderby = null, bool dy = false);
 
-        public abstract string SqlGetById(string returnFields = null, bool dy = false);
+        protected abstract string SqlGetById(string returnFields = null, bool dy = false);
 
-        public abstract string SqlGetByIdForUpdate(string returnFields = null, bool dy = false);
+        protected abstract string SqlGetByIdForUpdate(string returnFields = null, bool dy = false);
 
-        public abstract string SqlGetByIds(string returnFields = null, bool dy = false);
+        protected abstract string SqlGetByIds(string returnFields = null, bool dy = false);
 
-        public abstract string SqlGetByIdsForUpdate(string returnFields = null, bool dy = false);
+        protected abstract string SqlGetByIdsForUpdate(string returnFields = null, bool dy = false);
 
-        public abstract string SqlGetByIdsWithField(string field, string returnFields = null, bool dy = false);
+        protected abstract string SqlGetByIdsWithField(string field, string returnFields = null, bool dy = false);
 
-        public abstract string SqlGetByWhere(string where, string returnFields = null, string orderby = null, int limit = 0, bool dy = false);
+        protected abstract string SqlGetByWhere(string where, string returnFields = null, string orderby = null, int limit = 0, bool dy = false);
 
-        public abstract string SqlGetByWhereFirst(string where, string returnFields = null, bool dy = false);
+        protected abstract string SqlGetByWhereFirst(string where, string returnFields = null, bool dy = false);
 
-        public abstract string SqlGetBySkipTake(int skip, int take, string where = null, string returnFields = null, string orderby = null, bool dy = false);
+        protected abstract string SqlGetBySkipTake(int skip, int take, string where = null, string returnFields = null, string orderby = null, bool dy = false);
 
-        public abstract string SqlGetByAscFirstPage(int pageSize, string and = null, string returnFields = null, bool dy = false);
+        protected abstract string SqlGetByAscFirstPage(int pageSize, string and = null, string returnFields = null, bool dy = false);
 
-        public abstract string SqlGetByAscPrevPage(int pageSize, string and = null, string returnFields = null, bool dy = false);
+        protected abstract string SqlGetByAscPrevPage(int pageSize, string and = null, string returnFields = null, bool dy = false);
 
-        public abstract string SqlGetByAscCurrentPage(int pageSize, string and = null, string returnFields = null, bool dy = false);
+        protected abstract string SqlGetByAscCurrentPage(int pageSize, string and = null, string returnFields = null, bool dy = false);
 
-        public abstract string SqlGetByAscNextPage(int pageSize, string and = null, string returnFields = null, bool dy = false);
+        protected abstract string SqlGetByAscNextPage(int pageSize, string and = null, string returnFields = null, bool dy = false);
 
-        public abstract string SqlGetByAscLastPage(int pageSize, string and = null, string returnFields = null, bool dy = false);
+        protected abstract string SqlGetByAscLastPage(int pageSize, string and = null, string returnFields = null, bool dy = false);
 
-        public abstract string SqlGetByDescFirstPage(int pageSize, string and = null, string returnFields = null, bool dy = false);
+        protected abstract string SqlGetByDescFirstPage(int pageSize, string and = null, string returnFields = null, bool dy = false);
 
-        public abstract string SqlGetByDescPrevPage(int pageSize, string and = null, string returnFields = null, bool dy = false);
+        protected abstract string SqlGetByDescPrevPage(int pageSize, string and = null, string returnFields = null, bool dy = false);
 
-        public abstract string SqlGetByDescCurrentPage(int pageSize, string and = null, string returnFields = null, bool dy = false);
+        protected abstract string SqlGetByDescCurrentPage(int pageSize, string and = null, string returnFields = null, bool dy = false);
 
-        public abstract string SqlGetByDescNextPage(int pageSize, string and = null, string returnFields = null, bool dy = false);
+        protected abstract string SqlGetByDescNextPage(int pageSize, string and = null, string returnFields = null, bool dy = false);
 
-        public abstract string SqlGetByDescLastPage(int pageSize, string and = null, string returnFields = null, bool dy = false);
+        protected abstract string SqlGetByDescLastPage(int pageSize, string and = null, string returnFields = null, bool dy = false);
     }
 
     public abstract partial class ITable<T> where T : class

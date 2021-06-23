@@ -142,38 +142,38 @@ namespace Dapper.Sharding
             return $"SELECT {returnFields} FROM {Name} {orderby.SetOrderBy(SqlField.PrimaryKey)}";
         }
 
-        public override string SqlGetById(string returnFields = null, bool dy = false)
+        protected override string SqlGetById(string returnFields = null, bool dy = false)
         {
             if (string.IsNullOrEmpty(returnFields))
                 returnFields = SqlField.AllFields;
             return $"SELECT {returnFields} FROM {Name} WHERE {SqlField.PrimaryKey}=@id";
         }
 
-        public override string SqlGetByIdForUpdate(string returnFields = null, bool dy = false)
+        protected override string SqlGetByIdForUpdate(string returnFields = null, bool dy = false)
         {
             throw new NotImplementedException();
         }
 
-        public override string SqlGetByIds(string returnFields = null, bool dy = false)
+        protected override string SqlGetByIds(string returnFields = null, bool dy = false)
         {
             if (string.IsNullOrEmpty(returnFields))
                 returnFields = SqlField.AllFields;
             return $"SELECT {returnFields} FROM {Name} WHERE {SqlField.PrimaryKey} IN @ids";
         }
 
-        public override string SqlGetByIdsForUpdate(string returnFields = null, bool dy = false)
+        protected override string SqlGetByIdsForUpdate(string returnFields = null, bool dy = false)
         {
             throw new NotImplementedException();
         }
 
-        public override string SqlGetByIdsWithField(string field, string returnFields = null, bool dy = false)
+        protected override string SqlGetByIdsWithField(string field, string returnFields = null, bool dy = false)
         {
             if (string.IsNullOrEmpty(returnFields))
                 returnFields = SqlField.AllFields;
             return $"SELECT {returnFields} FROM {Name} WHERE {field} IN @ids";
         }
 
-        public override string SqlGetByWhere(string where, string returnFields = null, string orderby = null, int limit = 0, bool dy = false)
+        protected override string SqlGetByWhere(string where, string returnFields = null, string orderby = null, int limit = 0, bool dy = false)
         {
             if (string.IsNullOrEmpty(returnFields))
                 returnFields = SqlField.AllFields;
@@ -185,84 +185,84 @@ namespace Dapper.Sharding
             return $"SELECT {returnFields} FROM {Name} {where} {orderby.SetOrderBy(SqlField.PrimaryKey)} {limitStr}";
         }
 
-        public override string SqlGetByWhereFirst(string where, string returnFields = null, bool dy = false)
+        protected override string SqlGetByWhereFirst(string where, string returnFields = null, bool dy = false)
         {
             if (string.IsNullOrEmpty(returnFields))
                 returnFields = SqlField.AllFields;
             return $"SELECT {returnFields} FROM {Name} {where} LIMIT 1";
         }
 
-        public override string SqlGetBySkipTake(int skip, int take, string where = null, string returnFields = null, string orderby = null, bool dy = false)
+        protected override string SqlGetBySkipTake(int skip, int take, string where = null, string returnFields = null, string orderby = null, bool dy = false)
         {
             if (string.IsNullOrEmpty(returnFields))
                 returnFields = SqlField.AllFields;
             return $"SELECT {returnFields} FROM {Name} {where} {orderby.SetOrderBy(SqlField.PrimaryKey)} LIMIT {skip},{take}";
         }
 
-        public override string SqlGetByAscFirstPage(int pageSize, string and = null, string returnFields = null, bool dy = false)
+        protected override string SqlGetByAscFirstPage(int pageSize, string and = null, string returnFields = null, bool dy = false)
         {
             if (string.IsNullOrEmpty(returnFields))
                 returnFields = SqlField.AllFields;
             return $"SELECT {returnFields} FROM {Name} AS A WHERE 1=1 {and} ORDER BY {SqlField.PrimaryKey} LIMIT {pageSize}";
         }
 
-        public override string SqlGetByAscPrevPage(int pageSize, string and = null, string returnFields = null, bool dy = false)
+        protected override string SqlGetByAscPrevPage(int pageSize, string and = null, string returnFields = null, bool dy = false)
         {
             if (string.IsNullOrEmpty(returnFields))
                 returnFields = SqlField.AllFields;
             return $"SELECT * FROM (SELECT {returnFields} FROM {Name} AS A WHERE {SqlField.PrimaryKey}<@{SqlField.PrimaryKey} {and} ORDER BY {SqlField.PrimaryKey} DESC LIMIT {pageSize}) AS B ORDER BY {SqlField.PrimaryKey}";
         }
 
-        public override string SqlGetByAscCurrentPage(int pageSize, string and = null, string returnFields = null, bool dy = false)
+        protected override string SqlGetByAscCurrentPage(int pageSize, string and = null, string returnFields = null, bool dy = false)
         {
             if (string.IsNullOrEmpty(returnFields))
                 returnFields = SqlField.AllFields;
             return $"SELECT {returnFields} FROM {Name} AS A WHERE {SqlField.PrimaryKey}>=@{SqlField.PrimaryKey} {and} ORDER BY {SqlField.PrimaryKey} LIMIT {pageSize}";
         }
 
-        public override string SqlGetByAscNextPage(int pageSize, string and = null, string returnFields = null, bool dy = false)
+        protected override string SqlGetByAscNextPage(int pageSize, string and = null, string returnFields = null, bool dy = false)
         {
             if (string.IsNullOrEmpty(returnFields))
                 returnFields = SqlField.AllFields;
             return $"SELECT {returnFields} FROM {Name} AS A WHERE {SqlField.PrimaryKey}>@{SqlField.PrimaryKey} {and} ORDER BY {SqlField.PrimaryKey} LIMIT {pageSize}";
         }
 
-        public override string SqlGetByAscLastPage(int pageSize, string and = null, string returnFields = null, bool dy = false)
+        protected override string SqlGetByAscLastPage(int pageSize, string and = null, string returnFields = null, bool dy = false)
         {
             if (string.IsNullOrEmpty(returnFields))
                 returnFields = SqlField.AllFields;
             return $"SELECT * FROM (SELECT {returnFields} FROM {Name} AS A WHERE 1=1 {and} ORDER BY {SqlField.PrimaryKey} DESC LIMIT {pageSize}) AS B ORDER BY {SqlField.PrimaryKey}";
         }
 
-        public override string SqlGetByDescFirstPage(int pageSize, string and = null, string returnFields = null, bool dy = false)
+        protected override string SqlGetByDescFirstPage(int pageSize, string and = null, string returnFields = null, bool dy = false)
         {
             if (string.IsNullOrEmpty(returnFields))
                 returnFields = SqlField.AllFields;
             return $"SELECT {returnFields} FROM {Name} AS A WHERE 1=1 {and} ORDER BY {SqlField.PrimaryKey} DESC LIMIT {pageSize}";
         }
 
-        public override string SqlGetByDescPrevPage(int pageSize, string and = null, string returnFields = null, bool dy = false)
+        protected override string SqlGetByDescPrevPage(int pageSize, string and = null, string returnFields = null, bool dy = false)
         {
             if (string.IsNullOrEmpty(returnFields))
                 returnFields = SqlField.AllFields;
             return $"SELECT * FROM (SELECT {returnFields} FROM {Name} AS A WHERE {SqlField.PrimaryKey}>@{SqlField.PrimaryKey} {and} ORDER BY {SqlField.PrimaryKey} LIMIT {pageSize}) AS B ORDER BY {SqlField.PrimaryKey} DESC";
         }
 
-        public override string SqlGetByDescCurrentPage(int pageSize, string and = null, string returnFields = null, bool dy = false)
+        protected override string SqlGetByDescCurrentPage(int pageSize, string and = null, string returnFields = null, bool dy = false)
         {
             if (string.IsNullOrEmpty(returnFields))
                 returnFields = SqlField.AllFields;
             return $"SELECT {returnFields} FROM {Name} AS A WHERE {SqlField.PrimaryKey}<=@{SqlField.PrimaryKey} {and} ORDER BY {SqlField.PrimaryKey} DESC LIMIT {pageSize}";
         }
 
-        public override string SqlGetByDescNextPage(int pageSize, string and = null, string returnFields = null, bool dy = false)
+        protected override string SqlGetByDescNextPage(int pageSize, string and = null, string returnFields = null, bool dy = false)
         {
             if (string.IsNullOrEmpty(returnFields))
                 returnFields = SqlField.AllFields;
             return $"SELECT {returnFields} FROM {Name} AS A WHERE {SqlField.PrimaryKey}<@{SqlField.PrimaryKey} {and} ORDER BY {SqlField.PrimaryKey} DESC LIMIT {pageSize}";
         }
 
-        public override string SqlGetByDescLastPage(int pageSize, string and = null, string returnFields = null, bool dy = false)
+        protected override string SqlGetByDescLastPage(int pageSize, string and = null, string returnFields = null, bool dy = false)
         {
             if (string.IsNullOrEmpty(returnFields))
                 returnFields = SqlField.AllFields;
