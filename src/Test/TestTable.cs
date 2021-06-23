@@ -4,6 +4,7 @@ using NUnit.Framework;
 using System;
 using System.Collections.Generic;
 using System.Data;
+using System.Threading.Tasks.Dataflow;
 using Test.Com;
 
 namespace Test
@@ -32,6 +33,32 @@ namespace Test
             {
                 tran.Rollback();
                 Assert.Pass("事务回滚");
+            }
+        }
+
+        [Test]
+        public void BeginTran2()
+        {
+            var db1 = Factory.Client.GetDatabase("z1");
+            var db2 = Factory.Client.GetDatabase("z2");
+            var db3 = Factory.Client3.GetDatabase("z1");
+            var s1 = db1.GetTable<Student>("student");
+            var s2 = db2.GetTable<Student>("student");
+            var s3 = db3.GetTable<Student>("student");
+            var tran = ShardingFactory.CreateDistributedTransaction();
+            try
+            {
+                var model = new Student { Id = ShardingFactory.NextObjectId(), Name = "李四" };
+                s1.Insert(model, tran);
+                s3.Insert(model, tran);
+                //throw new Exception("发生错误");
+                s2.Insert(model, tran);
+                
+                tran.Commit();
+            }
+            catch
+            {
+                tran.Rollback();
             }
         }
 
