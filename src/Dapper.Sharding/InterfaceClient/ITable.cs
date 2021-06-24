@@ -405,7 +405,9 @@ namespace Dapper.Sharding
             }, tran);
         }
 
-        public void InsertOrUpdate(T model, List<string> updateFields = null, bool useObjectId = true, DistributedTransaction tran = null, int? timeout = null)
+        #region InsertOrUpdate com method
+
+        private bool InitInsertOrUpdateModel(T model, IdType t)
         {
             var accessor = TypeAccessor.Create(typeof(T));
             var id = accessor[model, SqlField.PrimaryKey];
@@ -423,6 +425,20 @@ namespace Dapper.Sharding
                 {
                     insert = false;
                 }
+                else
+                {
+                    if (!SqlField.IsIdentity)
+                    {
+                        if (t == IdType.SnowId)
+                        {
+                            accessor[model, SqlField.PrimaryKey] = ShardingFactory.NextSnowId();
+                        }
+                        else
+                        {
+                            accessor[model, SqlField.PrimaryKey] = ShardingFactory.NextLongId();
+                        }
+                    }
+                }
             }
             else if (id is string val3)
             {
@@ -432,13 +448,17 @@ namespace Dapper.Sharding
                 }
                 else
                 {
-                    if (useObjectId)
+                    if (t == IdType.ObjectId)
                     {
                         accessor[model, SqlField.PrimaryKey] = ShardingFactory.NextObjectId();
                     }
-                    else
+                    else if (t == IdType.SnowId)
                     {
                         accessor[model, SqlField.PrimaryKey] = ShardingFactory.NextSnowIdAsString();
+                    }
+                    else
+                    {
+                        accessor[model, SqlField.PrimaryKey] = ShardingFactory.NextLongIdAsString();
                     }
 
                 }
@@ -450,7 +470,14 @@ namespace Dapper.Sharding
                     insert = false;
                 }
             }
+            return insert;
+        }
 
+        #endregion
+
+        public void InsertOrUpdate(T model, List<string> updateFields = null, DistributedTransaction tran = null, int? timeout = null, IdType t = IdType.ObjectId)
+        {
+            var insert = InitInsertOrUpdateModel(model, t);
             if (insert)
             {
                 Insert(model, tran, timeout);
@@ -462,51 +489,9 @@ namespace Dapper.Sharding
 
         }
 
-        public async Task InsertOrUpdateAsync(T model, List<string> updateFields = null, bool useObjectId = true, DistributedTransaction tran = null, int? timeout = null)
+        public async Task InsertOrUpdateAsync(T model, List<string> updateFields = null, DistributedTransaction tran = null, int? timeout = null, IdType t = IdType.ObjectId)
         {
-            var accessor = TypeAccessor.Create(typeof(T));
-            var id = accessor[model, SqlField.PrimaryKey];
-            bool insert = true;
-            if (id is int val)
-            {
-                if (val > 0)
-                {
-                    insert = false;
-                }
-            }
-            else if (id is long val2)
-            {
-                if (val2 > 0)
-                {
-                    insert = false;
-                }
-            }
-            else if (id is string val3)
-            {
-                if (!string.IsNullOrEmpty(val3))
-                {
-                    insert = false;
-                }
-                else
-                {
-                    if (useObjectId)
-                    {
-                        accessor[model, SqlField.PrimaryKey] = ShardingFactory.NextObjectId();
-                    }
-                    else
-                    {
-                        accessor[model, SqlField.PrimaryKey] = ShardingFactory.NextSnowIdAsString();
-                    }
-                }
-            }
-            else if (id is decimal val4)
-            {
-                if (val4 > 0)
-                {
-                    insert = false;
-                }
-            }
-
+            var insert = InitInsertOrUpdateModel(model, t);
             if (insert)
             {
                 await InsertAsync(model, tran, timeout);
@@ -518,51 +503,9 @@ namespace Dapper.Sharding
 
         }
 
-        public void InsertOrUpdateIgnore(T model, List<string> ignoreFields, bool useObjectId = true, DistributedTransaction tran = null, int? timeout = null)
+        public void InsertOrUpdateIgnore(T model, List<string> ignoreFields, DistributedTransaction tran = null, int? timeout = null, IdType t = IdType.ObjectId)
         {
-            var accessor = TypeAccessor.Create(typeof(T));
-            var id = accessor[model, SqlField.PrimaryKey];
-            bool insert = true;
-            if (id is int val)
-            {
-                if (val > 0)
-                {
-                    insert = false;
-                }
-            }
-            else if (id is long val2)
-            {
-                if (val2 > 0)
-                {
-                    insert = false;
-                }
-            }
-            else if (id is string val3)
-            {
-                if (!string.IsNullOrEmpty(val3))
-                {
-                    insert = false;
-                }
-                else
-                {
-                    if (useObjectId)
-                    {
-                        accessor[model, SqlField.PrimaryKey] = ShardingFactory.NextObjectId();
-                    }
-                    else
-                    {
-                        accessor[model, SqlField.PrimaryKey] = ShardingFactory.NextSnowIdAsString();
-                    }
-                }
-            }
-            else if (id is decimal val4)
-            {
-                if (val4 > 0)
-                {
-                    insert = false;
-                }
-            }
-
+            var insert = InitInsertOrUpdateModel(model, t);
             if (insert)
             {
                 Insert(model, tran, timeout);
@@ -574,51 +517,9 @@ namespace Dapper.Sharding
 
         }
 
-        public async Task InsertOrUpdateIgnoreAsync(T model, List<string> ignoreFields, bool useObjectId = true, DistributedTransaction tran = null, int? timeout = null)
+        public async Task InsertOrUpdateIgnoreAsync(T model, List<string> ignoreFields, DistributedTransaction tran = null, int? timeout = null, IdType t = IdType.ObjectId)
         {
-            var accessor = TypeAccessor.Create(typeof(T));
-            var id = accessor[model, SqlField.PrimaryKey];
-            bool insert = true;
-            if (id is int val)
-            {
-                if (val > 0)
-                {
-                    insert = false;
-                }
-            }
-            else if (id is long val2)
-            {
-                if (val2 > 0)
-                {
-                    insert = false;
-                }
-            }
-            else if (id is string val3)
-            {
-                if (!string.IsNullOrEmpty(val3))
-                {
-                    insert = false;
-                }
-                else
-                {
-                    if (useObjectId)
-                    {
-                        accessor[model, SqlField.PrimaryKey] = ShardingFactory.NextObjectId();
-                    }
-                    else
-                    {
-                        accessor[model, SqlField.PrimaryKey] = ShardingFactory.NextSnowIdAsString();
-                    }
-                }
-            }
-            else if (id is decimal val4)
-            {
-                if (val4 > 0)
-                {
-                    insert = false;
-                }
-            }
-
+            var insert = InitInsertOrUpdateModel(model, t);
             if (insert)
             {
                 await InsertAsync(model, tran, timeout);

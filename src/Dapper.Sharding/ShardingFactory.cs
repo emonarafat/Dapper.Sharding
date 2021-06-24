@@ -11,6 +11,22 @@ namespace Dapper.Sharding
             SnowflakeId.worker = new IdWorker(workerId, datacenterId);
         }
 
+        public static void SetLongIdWorker(ushort workerId = 0, byte length = 6)
+        {
+            //https://gitee.com/yitter/idgenerator
+            //https://github.com/yitter/IdGenerator
+            var opt = new IdGeneratorOptions();
+            if (workerId != 0)
+            {
+                opt.WorkerId = workerId; //最大值 2 ^ WorkerIdBitLength - 1
+            }
+            if (length != 6)
+            {
+                opt.WorkerIdBitLength = length; //默认值6，取值范围 [1, 15]（要求：序列数位长+机器码位长不超过22）
+            }
+            IdHelper.IdGenInstance = new DefaultIdGenerator(opt);
+        }
+
         public static IClient CreateClient(DataBaseType dbType, DataBaseConfig config)
         {
             switch (dbType)
@@ -91,6 +107,16 @@ namespace Dapper.Sharding
         public static string NextSnowIdAsString()
         {
             return NextSnowId().ToString();
+        }
+
+        public static long NextLongId()
+        {
+            return IdHelper.IdGenInstance.NewLong();
+        }
+
+        public static string NextLongIdAsString()
+        {
+            return NextLongId().ToString();
         }
     }
 }

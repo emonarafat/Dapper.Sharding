@@ -1,4 +1,5 @@
-﻿using Newtonsoft.Json;
+﻿using Dapper.Sharding;
+using Newtonsoft.Json;
 using NUnit.Framework;
 using System;
 
@@ -51,6 +52,15 @@ namespace Test
         public void ClearCache()
         {
             Factory.Client.ClearCache();
+        }
+
+        [Test]
+        public void NextId()
+        {
+            var id = ShardingFactory.NextLongIdAsString();
+            var id2 = ShardingFactory.NextObjectId();
+            var id3 = ShardingFactory.NextSnowIdAsString();
+            Assert.Pass($"{id}\n{id2}\n{id3}");
         }
 
     }
