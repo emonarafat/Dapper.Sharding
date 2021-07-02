@@ -23,7 +23,7 @@
 			<HintPath>..\..\Lib\Z.Dapper.Plus\netstandard2.0\Z.Dapper.Plus.dll</HintPath>
 		</Reference>
 		<PackageReference Include="Microsoft.CSharp" Version="4.7.0" />
-		<PackageReference Include="Oracle.ManagedDataAccess.Core" Version="2.19.101" />
+		<PackageReference Include="Oracle.ManagedDataAccess.Core" Version="2.19.110" />
 	</ItemGroup>
 	<ItemGroup Condition="'$(TargetFramework)'=='net5.0'">		
 		<Reference Include="Z.Dapper.Plus">
