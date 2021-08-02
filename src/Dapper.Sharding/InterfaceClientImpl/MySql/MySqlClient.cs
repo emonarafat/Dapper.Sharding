@@ -12,7 +12,8 @@ namespace Dapper.Sharding
 
         public MySqlClient(DataBaseConfig config) : base(DataBaseType.MySql, config)
         {
-            Charset = "utf8";
+            //Charset = "utf8";
+            Charset = "utf8mb4";
             ConnectionString = ConnectionStringBuilder.BuilderMySql(config);
         }
 
