@@ -71,6 +71,10 @@ namespace Dapper.Sharding
                         sb.AppendLine();
                     }
                 }
+                if (!string.IsNullOrEmpty(entity.Comment))
+                {
+                    entity.Comment = entity.Comment.Replace("\r", "").Replace("\n", "");
+                }
                 sb.Append($"    [Table(\"{entity.PrimaryKey}\", {entity.IsIdentity.ToString().ToLower()}, \"{entity.Comment}\")]");
                 sb.AppendLine();
                 if (partialClass)
@@ -88,6 +92,10 @@ namespace Dapper.Sharding
                 {
                     if (item.Length != 0 || !string.IsNullOrEmpty(item.Comment))
                     {
+                        if (!string.IsNullOrEmpty(item.Comment))
+                        {
+                            item.Comment = entity.Comment.Replace("\r", "").Replace("\n", "");
+                        }
                         sb.Append($"        [Column({item.Length}, \"{item.Comment}\")]");
                         sb.AppendLine();
                     }

@@ -152,6 +152,7 @@ namespace Dapper.Sharding
         {
             dynamic data = QueryFirstOrDefault($"SHOW TABLE STATUS LIKE '{name}'");
             var entity = new TableEntity();
+            entity.PrimaryKey = "";
             if (data.Auto_increment != null)
             {
                 entity.IsIdentity = (data.Auto_increment >= 1);

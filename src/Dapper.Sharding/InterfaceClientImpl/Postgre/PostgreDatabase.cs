@@ -82,7 +82,7 @@ namespace Dapper.Sharding
         public override TableEntity GetTableEntityFromDatabase(string name)
         {
             var entity = new TableEntity();
-
+            entity.PrimaryKey = "";
             string sql = $@"select a.relname as name , b.description as value from pg_class a 
 left join (select * from pg_description where objsubid=0) b on a.oid = b.objoid
 where a.relname='{name}' and a.relname in (select tablename from pg_tables where schemaname = 'public')

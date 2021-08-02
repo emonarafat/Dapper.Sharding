@@ -92,6 +92,7 @@ WHERE C.TABLE_NAME = '{name.ToUpper()}' ORDER BY C.COLUMN_ID";
         public override TableEntity GetTableEntityFromDatabase(string name)
         {
             var entity = new TableEntity();
+            entity.PrimaryKey = "";
             var manager = GetTableManager(name);
             entity.IndexList = manager.GetIndexEntityList();
             entity.ColumnList = manager.GetColumnEntityList(entity);

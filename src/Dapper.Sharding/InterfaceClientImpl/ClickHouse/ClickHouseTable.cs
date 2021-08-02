@@ -303,7 +303,7 @@ namespace Dapper.Sharding
             return null;
         }
 
-        public override void Delete(IEnumerable<T> modelList)
+        public override void Delete(IEnumerable<T> modelList, DistributedTransaction tran = null, int? timeout = null)
         {
             if (!modelList.Any())
             {

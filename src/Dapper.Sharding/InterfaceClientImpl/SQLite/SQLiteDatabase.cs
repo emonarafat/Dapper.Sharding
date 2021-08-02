@@ -75,6 +75,7 @@ namespace Dapper.Sharding
             dynamic dynamicTable = QueryFirstOrDefault($"SELECT * FROM sqlite_master where type='table' and tbl_name='{name}'");
             IEnumerable<dynamic> dynamicColums = Query($"pragma table_info('{name}')");
             var entity = new TableEntity();
+            entity.PrimaryKey = "";
             var tablesql = ((string)dynamicTable.sql).ToUpper();
             if (tablesql.Contains("AUTOINCREMENT"))
             {

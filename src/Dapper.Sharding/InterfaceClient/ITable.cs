@@ -685,9 +685,9 @@ namespace Dapper.Sharding
             return DataBase.ExecuteAsync(sql, null, tran, timeout);
         }
 
-        public virtual void Delete(IEnumerable<T> modelList)
+        public virtual void Delete(IEnumerable<T> modelList, DistributedTransaction tran = null, int? timeout = null)
         {
-            DataBase.BulkDelete(Name, modelList, opt => { });
+            DataBase.BulkDelete(Name, modelList, opt => { }, tran);
         }
 
         #endregion
@@ -1418,10 +1418,10 @@ namespace Dapper.Sharding
             };
         }
 
-        public async Task<PageEntity<T>> GetByPageAndCountAsync(int page, int pageSize, string where = null, object param = null, string returnFields = null, string orderby = null)
+        public async Task<PageEntity<T>> GetByPageAndCountAsync(int page, int pageSize, string where = null, object param = null, string returnFields = null, string orderby = null, DistributedTransaction tran = null, int? timeout = null)
         {
-            var task1 = GetByPageAsync(page, pageSize, where, param, returnFields, orderby);
-            var task2 = CountAsync(where, param);
+            var task1 = GetByPageAsync(page, pageSize, where, param, returnFields, orderby, tran, timeout);
+            var task2 = CountAsync(where, param, tran, timeout);
             await Task.WhenAll(task1, task2);
             return new PageEntity<T>
             {
@@ -1439,10 +1439,10 @@ namespace Dapper.Sharding
             };
         }
 
-        public async Task<PageEntity<dynamic>> GetByPageAndCountDynamicAsync(int page, int pageSize, string where = null, object param = null, string returnFields = null, string orderby = null)
+        public async Task<PageEntity<dynamic>> GetByPageAndCountDynamicAsync(int page, int pageSize, string where = null, object param = null, string returnFields = null, string orderby = null, DistributedTransaction tran = null, int? timeout = null)
         {
-            var task1 = GetByPageDynamicAsync(page, pageSize, where, param, returnFields, orderby);
-            var task2 = CountAsync(where, param);
+            var task1 = GetByPageDynamicAsync(page, pageSize, where, param, returnFields, orderby, tran, timeout);
+            var task2 = CountAsync(where, param, tran, timeout);
             await Task.WhenAll(task1, task2);
             return new PageEntity<dynamic>
             {

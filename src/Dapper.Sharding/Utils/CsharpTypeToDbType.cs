@@ -121,6 +121,10 @@ namespace Dapper.Sharding
                     return "text";
                 if (length == -2)
                     return "longtext";
+                if (length == -3)
+                    return "mediumtext";
+                if (length == -4)
+                    return "tinytext";
                 if (length <= 0)
                     length = 50;
                 return $"varchar({length})";

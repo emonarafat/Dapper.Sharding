@@ -136,6 +136,14 @@ namespace Dapper.Sharding
                     {
                         model.Length = -2;
                     }
+                    else if (t.ToLower() == "mediumtext")
+                    {
+                        model.Length = -3;
+                    }
+                    else if (t.ToLower() == "tinytext")
+                    {
+                        model.Length = -4;
+                    }
                     else
                     {
                         model.Length = 0;
