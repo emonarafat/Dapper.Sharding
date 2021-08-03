@@ -10,9 +10,9 @@ static IClient client = ShardingFactory.CreateClient(DataBaseType.MySql, config)
 //client.AutoCompareTableColumn = false;
 
 var db = client.GetDatabase("test");
-//var db2 = client.GetDatabase("test2"); //this will create test2 database
+//var db2 = client.GetDatabase("test2"); //this will create test2 database(自由分库吧)
 
-var table = db.GetTable<Student>("student");
+var table = db.GetTable<Student>("student"); //自由分表吧
 table.Insert(new Student { Id = ShardingFactory.NextObjectId(), Name = "lina" });
 
 var table2 = db.GetTable<Student>("student2");
