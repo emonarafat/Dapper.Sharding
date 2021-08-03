@@ -78,5 +78,8 @@ namespace ConsoleApp
 
 ```csharp
 GeneratorClassFile(can create class entity file from database)
-db.GeneratorClassFile("D:\Class")
+
+db.GeneratorTableFile("D:\Class"); //创建表实体类
+
+db.GeneratorDbContextFile("D:\Class", "DAL"); //创建请求上下文文件
 ```
