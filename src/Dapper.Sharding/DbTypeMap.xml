@@ -92,6 +92,7 @@
 		<DbType Name="text" To="string"/>
 		<DbType Name="longtext" To="string" />
 		<DbType Name="timestamp" To="DateTime" />
+		<DbType Name="enum" To="string" />
 	</Database>
 	<Database DbProvider="PostgreSql"  Language="CSharp">
 		<DbType Name="bool" To="bool"/>

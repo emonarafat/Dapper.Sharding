@@ -32,7 +32,7 @@ namespace Dapper.Sharding
 
         #region IDatabase
 
-        public static void CreateFiles(this IDatabase database, string savePath, List<string> tableList = null, string nameSpace = "Model", string Suffix = "Table", bool partialClass = false)
+        public static void CreateTableFiles(this IDatabase database, string savePath, List<string> tableList = null, string nameSpace = "Model", string suffix = "", bool partialClass = false)
         {
             if (!Directory.Exists(savePath))
             {
@@ -50,7 +50,7 @@ namespace Dapper.Sharding
                     entity.IsIdentity = false;
                     entity.PrimaryKey = entity.ColumnList[0].Name;
                 }
-                var className = name.ToLower().FirstCharToUpper() + Suffix;
+                var className = name.FirstCharToUpper() + suffix;
                 var sb = new StringBuilder();
                 sb.Append("using System;");
                 sb.AppendLine();
@@ -123,6 +123,46 @@ namespace Dapper.Sharding
                 File.WriteAllText(path, sb.ToString(), Encoding.UTF8);
             }
 
+        }
+
+        public static void CreateDbContextFile(this IDatabase database, string savePath, string nameSpace, string modelNameSpace = "Model", string modelSuffix = "", bool proSuffix = false)
+        {
+            if (!Directory.Exists(savePath))
+            {
+                Directory.CreateDirectory(savePath);
+            }
+            var tableList = database.GetTableList().ToList();
+            var sb = new StringBuilder();
+
+            sb.Append("using Dapper.Sharding;\n");
+            sb.Append($"using {modelNameSpace};\n\n");
+            sb.Append($"namespace {nameSpace}\n");
+            sb.Append("{\n");
+            sb.Append("    public class DbContext\n");
+            sb.Append("    {\n");
+            sb.Append("        public readonly IDatabase Db;\n\n");
+            sb.Append("        public DbContext(IDatabase db)\n");
+            sb.Append("        {\n");
+            sb.Append("            Db = db;\n");
+            sb.Append("        }\n\n");
+            foreach (var name in tableList)
+            {
+                var className = name.FirstCharToUpper() + modelSuffix;
+                string className2;
+                if (proSuffix)
+                {
+                    className2 = className;
+                }
+                else
+                {
+                    className2 = name.FirstCharToUpper();
+                }
+                sb.Append($"        public ITable<{className}> {className2} => Db.GetTable<{className}>(\"{name}\");\n\n");
+            }
+            sb.Append("    }\n\n");
+            sb.Append("}");
+            var path = Path.Combine(savePath, "DbContext.cs");
+            File.WriteAllText(path, sb.ToString(), Encoding.UTF8);
         }
 
         #endregion

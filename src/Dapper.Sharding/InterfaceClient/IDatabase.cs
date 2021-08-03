@@ -699,9 +699,14 @@ namespace Dapper.Sharding
             return (ITable<T>)val;
         }
 
-        public void GeneratorClassFile(string savePath, List<string> tableList = null, string nameSpace = "Model", string Suffix = "Table", bool partialClass = false)
+        public void GeneratorTableFile(string savePath, List<string> tableList = null, string nameSpace = "Model", string suffix = "", bool partialClass = false)
         {
-            this.CreateFiles(savePath, tableList, nameSpace, Suffix, partialClass);
+            this.CreateTableFiles(savePath, tableList, nameSpace, suffix, partialClass);
+        }
+
+        public void GeneratorDbContextFile(string savePath, string nameSpace, string modelNameSpace = "Model", string modelSuffix = "", bool proSuffix = false)
+        {
+            this.CreateDbContextFile(savePath, nameSpace, modelNameSpace, modelSuffix, proSuffix);
         }
 
         public void ClearCache(string tablename = null)

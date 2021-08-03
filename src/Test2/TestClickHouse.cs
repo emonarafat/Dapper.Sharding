@@ -27,7 +27,7 @@ namespace Test2
         [Test]
         public void CreateCsFile()
         {
-            DbHelper.Db.GeneratorClassFile("D:\\AClass");
+            DbHelper.Db.GeneratorTableFile("D:\\AClass");
         }
 
         [Test]

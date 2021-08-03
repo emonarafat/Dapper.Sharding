@@ -181,7 +181,21 @@ namespace Dapper.Sharding
 
             if (type == typeof(DateTime))
             {
-                return "datetime";
+                if (length >= 0)
+                    return "datetime";
+                if (length == -1)
+                    return "datetime2";
+                if (length == -2)
+                    return "date";
+                if (length == -3)
+                    return "smalldatetime";
+                return "timestamp";
+
+            }
+
+            if (type == typeof(DateTimeOffset))
+            {
+                return "datetimeoffset";
             }
 
             if (length >= 0)
@@ -345,7 +359,23 @@ namespace Dapper.Sharding
 
             if (type == typeof(DateTime))
             {
-                return "timestamp";
+                if (length >= 0)
+                    return "timestamp";
+                if (length == -1)
+                    return "timestamptz";
+                return "date";
+            }
+
+            if (type == typeof(DateTimeOffset))
+            {
+                return "timetz";
+            }
+
+            if (type == typeof(TimeSpan))
+            {
+                if (length >= 0)
+                    return "time";
+                return "interval";
             }
 
             return "bytea";

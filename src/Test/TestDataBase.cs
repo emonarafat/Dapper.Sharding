@@ -65,9 +65,15 @@ namespace Test
         }
 
         [Test]
-        public void GeneratorClassFile()
+        public void GeneratorTableFile()
         {
-            Factory.Db.GeneratorClassFile("D:\\Class");
+            Factory.Db.GeneratorTableFile("D:\\Class");
+        }
+
+        [Test]
+        public void GeneratorDbContextFile()
+        {
+            Factory.Db.GeneratorDbContextFile("D:\\Class", "DAL");
         }
 
     }
