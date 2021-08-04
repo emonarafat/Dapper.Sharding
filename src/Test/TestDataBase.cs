@@ -73,7 +73,7 @@ namespace Test
         [Test]
         public void GeneratorDbContextFile()
         {
-            Factory.Db.GeneratorDbContextFile("D:\\Class", "DAL");
+            Factory.Db.GeneratorDbContextFile("D:\\Class","DAL");
         }
 
     }

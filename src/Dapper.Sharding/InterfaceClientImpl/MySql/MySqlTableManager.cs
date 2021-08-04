@@ -120,7 +120,7 @@ namespace Dapper.Sharding
                 model.CsType = map.CsType;
                 model.DbType = t;
 
-                if (array.Length == 2)
+                if (array.Length == 2 && t != "enum")
                 {
                     var length = array[1].Split(')')[0];
                     model.DbLength = length;

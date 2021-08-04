@@ -704,9 +704,9 @@ namespace Dapper.Sharding
             this.CreateTableFiles(savePath, tableList, nameSpace, suffix, partialClass);
         }
 
-        public void GeneratorDbContextFile(string savePath, string nameSpace, string modelNameSpace = "Model", string modelSuffix = "", bool proSuffix = false)
+        public void GeneratorDbContextFile(string savePath, string nameSpace = "Model", string modelNameSpace = "Model", string modelSuffix = "", bool proSuffix = false, bool tableNameLower = false)
         {
-            this.CreateDbContextFile(savePath, nameSpace, modelNameSpace, modelSuffix, proSuffix);
+            this.CreateDbContextFile(savePath, nameSpace, modelNameSpace, modelSuffix, proSuffix, tableNameLower);
         }
 
         public void ClearCache(string tablename = null)
