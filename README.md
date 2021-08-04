@@ -2,16 +2,25 @@
 
 ```csharp
 var config = new DataBaseConfig { Server = "127.0.0.1", UserId = "root", Password = "123", Port = 3306 };
+
 //client must be singleton mode(必须是单例模式)
 static IClient client = ShardingFactory.CreateClient(DataBaseType.MySql, config); 
 //client.AutoCreateDatabase = true;
 //client.AutoCreateTable = true;
 //client.AutoCompareTableColumn = false;
-var table = client.GetDatabase("test").GetTable<Student>("student");
-//var table2 = client.GetDatabase("test").GetTable<Student>("student2");
-//var table3 = client.GetDatabase("test").GetTable<Student>("student3");
 
+var db = client.GetDatabase("test");
+//var db2 = client.GetDatabase("test2"); //this will create test2 database(自由分库)
+
+var table = db.GetTable<Student>("student"); //自由分表
 table.Insert(new Student { Id = ShardingFactory.NextObjectId(), Name = "lina" });
+
+var table2 = db.GetTable<Student>("student2");
+table2.Insert(new Student { Id = ShardingFactory.NextObjectId(), Name = "lina2" });
+
+var table3 = db.GetTable<Student>("student3");
+table3.Insert(new Student { Id = ShardingFactory.NextObjectId(), Name = "lina3" });
+
 
 namespace ConsoleApp
 {
@@ -68,6 +77,9 @@ namespace ConsoleApp
 ```
 
 ```csharp
-GeneratorClassFile(can create class entity file from database)
-db.GeneratorClassFile("D:\Class")
+GeneratorClassFile(can create class entity file from database) //代码生成器
+
+db.GeneratorTableFile("D:\Class"); //生成表实体类
+
+db.GeneratorDbContextFile("D:\Class", "DAL"); //生成请求上下文文件
 ```
