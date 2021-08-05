@@ -21,7 +21,7 @@ table2.Insert(new Student { Id = ShardingFactory.NextObjectId(), Name = "lina2" 
 var table3 = db.GetTable<Student>("student3");
 table3.Insert(new Student { Id = ShardingFactory.NextObjectId(), Name = "lina3" });
 
-//sharding query on all table
+//sharding query on all table(分片查询)
 var query = new ShardingQuery(table, table2, table3); 
 var total = await query.CountAsync();
 or
