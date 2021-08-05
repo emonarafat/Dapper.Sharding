@@ -174,15 +174,18 @@ where table_schema='public' and table_name=current_setting('myapp.name') order b
                 string columnType = row.type;//数据类型
                 var array = columnType.Split('(');
                 var t = array[0].ToLower();
+                model.DbType = t;
                 var map = DbCsharpTypeMap.PostgreSqlMap.FirstOrDefault(f => f.DbType == t);
                 if (map != null)
+                {
                     model.CsStringType = map.CsStringType;
+                    model.CsType = map.CsType;
+                }
                 else
+                {
                     model.CsStringType = "object";
-
-                model.CsType = map.CsType;
-                model.DbType = t;
-
+                    model.CsType = typeof(object);
+                }
                 if (array.Length == 2)
                 {
                     var length = array[1].Split(')')[0];

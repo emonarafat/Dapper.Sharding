@@ -110,15 +110,18 @@ WHERE C.TABLE_NAME = '{Name.ToUpper()}' ORDER BY C.COLUMN_ID";
                 model.Comment = row.comment;
 
                 var t = ((string)row.type).Split('(')[0];
+                model.DbType = t;
                 var map = DbCsharpTypeMap.OracleMap.FirstOrDefault(f => f.DbType == t);
                 if (map != null)
+                {
                     model.CsStringType = map.CsStringType;
+                    model.CsType = map.CsType;
+                }
                 else
+                {
                     model.CsStringType = "object";
-
-                model.CsType = map.CsType;
-                model.DbType = t;
-
+                    model.CsType = typeof(object);
+                }               
                 var len = (int)row.len;
 
                 if (t == "VARCHAR2")

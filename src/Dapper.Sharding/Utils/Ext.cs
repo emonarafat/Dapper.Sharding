@@ -52,32 +52,42 @@ namespace Dapper.Sharding
                 }
                 var className = name.FirstCharToUpper() + suffix;
                 var sb = new StringBuilder();
-                sb.Append("using System;\n");
-                sb.Append("using Dapper.Sharding;\n\n");
-                sb.Append($"namespace {nameSpace}\n");
-                sb.Append("{\n");
+                sb.Append("using System;");
+                sb.AppendLine();
+                sb.Append("using Dapper.Sharding;");
+                sb.AppendLine();
+                sb.AppendLine();
+                sb.Append($"namespace {nameSpace}");
+                sb.AppendLine();
+                sb.Append("{");
+                sb.AppendLine();
                 if (entity.IndexList != null)
                 {
                     var indexList = entity.IndexList.Where(w => w.Type != IndexType.PrimaryKey);
                     foreach (var item in indexList)
                     {
-                        sb.Append($"    [Index(\"{item.Name}\", \"{item.Columns}\", {item.StringType})]\n");
+                        sb.Append($"    [Index(\"{item.Name}\", \"{item.Columns}\", {item.StringType})]");
+                        sb.AppendLine();
                     }
                 }
                 if (!string.IsNullOrEmpty(entity.Comment))
                 {
                     entity.Comment = entity.Comment.Replace("\r", "").Replace("\n", "");
                 }
-                sb.Append($"    [Table(\"{entity.PrimaryKey}\", {entity.IsIdentity.ToString().ToLower()}, \"{entity.Comment}\")]\n");
+                sb.Append($"    [Table(\"{entity.PrimaryKey}\", {entity.IsIdentity.ToString().ToLower()}, \"{entity.Comment}\")]");
+                sb.AppendLine();
                 if (partialClass)
                 {
-                    sb.Append($"    public partial class {className}\n");
+                    sb.Append($"    public partial class {className}");
+                    sb.AppendLine();
                 }
                 else
                 {
-                    sb.Append($"    public class {className}\n");
+                    sb.Append($"    public class {className}");
+                    sb.AppendLine();
                 }
-                sb.Append("    {\n");
+                sb.Append("    {");
+                sb.AppendLine();
                 foreach (var item in entity.ColumnList)
                 {
                     if (item.Length != 0 || !string.IsNullOrEmpty(item.Comment))
@@ -86,23 +96,26 @@ namespace Dapper.Sharding
                         {
                             item.Comment = item.Comment.Replace("\r", "").Replace("\n", "");
                         }
-                        sb.Append($"        [Column({item.Length}, \"{item.Comment}\")]\n");
+                        sb.Append($"        [Column({item.Length}, \"{item.Comment}\")]");
+                        sb.AppendLine();
                     }
                     if (database.DbType == DataBaseType.ClickHouse)
                     {
-                        sb.Append("        public " + item.CsStringType + " " + item.Name + " { get; set; }\n");
+                        sb.Append("        public " + item.CsStringType + " " + item.Name + " { get; set; }");
+                        sb.AppendLine();
                     }
                     else
                     {
-                        sb.Append("        public " + item.CsStringType + " " + item.Name.FirstCharToUpper() + " { get; set; }\n");
+                        sb.Append("        public " + item.CsStringType + " " + item.Name.FirstCharToUpper() + " { get; set; }");
+                        sb.AppendLine();
                     }
                     if (item != entity.ColumnList.Last())
                     {
                         sb.AppendLine();
                     }
                 }
+                sb.Append("    }");
                 sb.AppendLine();
-                sb.Append("    }\n\n");
                 sb.Append("}");
 
                 var path = Path.Combine(savePath, $"{className}.cs");
@@ -119,25 +132,38 @@ namespace Dapper.Sharding
             }
             var tableList = database.GetTableList().ToList();
             var sb = new StringBuilder();
-
-            sb.Append("using Dapper.Sharding;\n");
+            sb.Append("using Dapper.Sharding;");
+            sb.AppendLine();
             if (nameSpace != modelNameSpace)
             {
-                sb.Append($"using {modelNameSpace};\n\n");
+                sb.Append($"using {modelNameSpace};");
+                sb.AppendLine();
+                sb.AppendLine();
             }
             else
             {
-                sb.Append("\n");
+                sb.AppendLine();
             }
-            sb.Append($"namespace {nameSpace}\n");
-            sb.Append("{\n");
-            sb.Append("    public class DbContext\n");
-            sb.Append("    {\n");
-            sb.Append("        public readonly IDatabase Db;\n\n");
-            sb.Append("        public DbContext(IDatabase db)\n");
-            sb.Append("        {\n");
-            sb.Append("            Db = db;\n");
-            sb.Append("        }\n\n");
+            sb.Append($"namespace {nameSpace}");
+            sb.AppendLine();
+            sb.Append("{");
+            sb.AppendLine();
+            sb.Append("    public class DbContext");
+            sb.AppendLine();
+            sb.Append("    {");
+            sb.AppendLine();
+            sb.Append("        public readonly IDatabase Db;");
+            sb.AppendLine();
+            sb.AppendLine();
+            sb.Append("        public DbContext(IDatabase db)");
+            sb.AppendLine();
+            sb.Append("        {");
+            sb.AppendLine();
+            sb.Append("            Db = db;");
+            sb.AppendLine();
+            sb.Append("        }");
+            sb.AppendLine();
+            sb.AppendLine();
             foreach (var name in tableList)
             {
                 var className = name.FirstCharToUpper() + modelSuffix;
@@ -155,9 +181,11 @@ namespace Dapper.Sharding
                 {
                     tablename = tablename.ToLower();
                 }
-                sb.Append($"        public ITable<{className}> {className2} => Db.GetTable<{className}>(\"{tablename}\");\n");
+                sb.Append($"        public ITable<{className}> {className2} => Db.GetTable<{className}>(\"{tablename}\");");
+                sb.AppendLine();
             }
-            sb.Append("    }\n\n");
+            sb.Append("    }");
+            sb.AppendLine();
             sb.Append("}");
             var path = Path.Combine(savePath, "DbContext.cs");
             File.WriteAllText(path, sb.ToString(), Encoding.UTF8);

@@ -52,7 +52,7 @@ namespace Test
         {
             get
             {
-                return Client.GetDatabase("test");
+                return Client.GetDatabase("demo");
             }
         }
 

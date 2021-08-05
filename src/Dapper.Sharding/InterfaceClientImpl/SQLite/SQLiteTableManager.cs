@@ -68,13 +68,18 @@ namespace Dapper.Sharding
                 var model = new ColumnEntity();
                 model.Name = ((string)row.name).FirstCharToUpper(); //列名
                 string columnType = row.type;//数据类型
+                model.DbType = columnType;
                 var map = DbCsharpTypeMap.SqLiteMap.FirstOrDefault(f => f.DbType == columnType);
                 if (map != null)
+                {
                     model.CsStringType = map.CsStringType;
+                    model.CsType = map.CsType;
+                }
                 else
+                {
                     model.CsStringType = "object";
-                model.CsType = map.CsType;
-                model.DbType = columnType;
+                    model.CsType = typeof(object);
+                }       
                 list.Add(model);
 
             }

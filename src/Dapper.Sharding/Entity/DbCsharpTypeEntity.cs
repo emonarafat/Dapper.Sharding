@@ -16,8 +16,12 @@ namespace Dapper.Sharding
                 {
                     case "Guid": return typeof(Guid);
                     case "string": return typeof(string);
+                    case "short": return typeof(short);
+                    case "ushort": return typeof(ushort);
                     case "int": return typeof(int);
+                    case "uint": return typeof(uint);
                     case "long": return typeof(long);
+                    case "ulong": return typeof(ulong);
                     case "float": return typeof(float);
                     case "double": return typeof(double);
                     case "decimal": return typeof(decimal);
@@ -26,8 +30,7 @@ namespace Dapper.Sharding
                     case "byte[]": return typeof(byte[]);
                     case "TimeSpan": return typeof(TimeSpan);
                     case "DateTimeOffset": return typeof(DateTimeOffset);
-                    case "byte": return typeof(byte);
-                    case "short": return typeof(short);
+                    case "byte": return typeof(byte);          
                     default: return typeof(object);
                 }
             }

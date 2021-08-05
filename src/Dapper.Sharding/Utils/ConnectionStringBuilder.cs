@@ -57,7 +57,7 @@ namespace Dapper.Sharding
             var sb = new StringBuilder();
             if (string.IsNullOrEmpty(config.Server))
             {
-                config.Server = "127.0.0.1";
+                config.Server = ".";
             }
             sb.Append($"server={config.Server}");
             if (config.Port != 0) //1433

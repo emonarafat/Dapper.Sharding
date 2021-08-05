@@ -81,7 +81,6 @@
 		<DbType Name="decimal" To="decimal" />
 		<DbType Name="bfile" To="byte[]" />
 		<DbType Name="float" To="float" />
-		<DbType Name="uniqueidentifier" To="Guid" />
 		<DbType Name="binary" To="byte[]" />
 		<DbType Name="number" To="decimal" />
 		<DbType Name="varbinary" To="byte[]" />
@@ -93,6 +92,9 @@
 		<DbType Name="longtext" To="string" />
 		<DbType Name="timestamp" To="DateTime" />
 		<DbType Name="enum" To="string" />
+		<DbType Name="longblob" To="byte[]" />
+		<DbType Name="tinyblob" To="byte[]" />
+		<DbType Name="mediumblob" To="byte[]" />
 	</Database>
 	<Database DbProvider="PostgreSql"  Language="CSharp">
 		<DbType Name="bool" To="bool"/>

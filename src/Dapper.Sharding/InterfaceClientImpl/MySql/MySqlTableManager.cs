@@ -108,18 +108,24 @@ namespace Dapper.Sharding
                 {
                     columnType = "(0)";
                 }
-
+                else
+                {
+                    columnType = columnType.Replace(" unsigned", "");
+                }
                 var array = columnType.Split('(');
                 var t = array[0].ToLower();
+                model.DbType = t;
                 var map = DbCsharpTypeMap.MySqlMap.FirstOrDefault(f => f.DbType == t);
                 if (map != null)
+                {
                     model.CsStringType = map.CsStringType;
+                    model.CsType = map.CsType;
+                }
                 else
+                {
                     model.CsStringType = "object";
-
-                model.CsType = map.CsType;
-                model.DbType = t;
-
+                    model.CsType = typeof(object);
+                }                  
                 if (array.Length == 2 && t != "enum")
                 {
                     var length = array[1].Split(')')[0];
@@ -128,21 +134,27 @@ namespace Dapper.Sharding
                 }
                 else
                 {
-                    if (t.ToLower() == "text")
+                    var tlow = t.ToLower();
+                    if (tlow == "text")
                     {
                         model.Length = -1;
                     }
-                    else if (t.ToLower() == "longtext")
+                    else if (tlow == "longtext")
                     {
                         model.Length = -2;
                     }
-                    else if (t.ToLower() == "mediumtext")
+                    else if (tlow == "mediumtext")
                     {
                         model.Length = -3;
                     }
-                    else if (t.ToLower() == "tinytext")
+                    else if (tlow == "tinytext")
                     {
                         model.Length = -4;
+                    }
+                    else if (tlow == "enum")
+                    {
+                        model.Length = 20;
+                        model.DbLength = "20";
                     }
                     else
                     {

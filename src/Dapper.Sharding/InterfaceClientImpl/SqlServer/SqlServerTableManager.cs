@@ -101,16 +101,19 @@ order by a.id,a.colorder";
                 model.Comment = row.ColumnCommnent;
 
                 var t = (string)row.ColumnType;
+                model.DbType = t.ToLower();
 
                 var map = DbCsharpTypeMap.SqlServerMap.FirstOrDefault(f => f.DbType == t);
                 if (map != null)
+                {
                     model.CsStringType = map.CsStringType;
+                    model.CsType = map.CsType;
+                }
                 else
+                {
                     model.CsStringType = "object";
-
-                model.CsType = map.CsType;
-                model.DbType = t.ToLower();
-
+                    model.CsType = typeof(object);
+                }                   
                 if (model.DbType == "decimal")
                 {
                     model.Length = Convert.ToDouble($"{row.ColumnLength}.{row.DecimalDigit}");
