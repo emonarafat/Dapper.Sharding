@@ -32,6 +32,9 @@ var tran = new DistributedTransaction();
 try
 {
     table.Insert(new Student { Id = ShardingFactory.NextObjectId(), Name = "lina" }, tran);
+    table.Delete("1", tran);
+    table2.Delete("2", tran);
+    table3.Delete("3", tran);
     tran.Commit();
 }
 catch
