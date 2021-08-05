@@ -28,7 +28,7 @@ or
 var data = await query.QueryAsync("SELECT * FROM $table"); //$table is each table name
 
 //Transaction(分布式事务)
-var tran = new CreateDistributedTransaction();
+var tran = new DistributedTransaction();
 try
 {
     table.Insert(new Student { Id = ShardingFactory.NextObjectId(), Name = "lina" }, tran);
