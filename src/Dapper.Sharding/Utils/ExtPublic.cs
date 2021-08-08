@@ -6,6 +6,7 @@ using System.Linq;
 using System.Linq.Dynamic.Core;
 using System.Linq.Dynamic.Core.CustomTypeProviders;
 using System.Text;
+using System.Threading.Tasks;
 
 namespace Dapper.Sharding
 {
@@ -64,12 +65,9 @@ namespace Dapper.Sharding
 
         public static DataTable GetDataTable(this IDbConnection conn, string sql, object param = null, IDbTransaction tran = null, int? commandTimeout = null, CommandType? commandType = null)
         {
-            if (conn.State == ConnectionState.Closed)
-                conn.Open();
-
-            using (IDataReader reader = conn.ExecuteReader(sql, param, tran, commandTimeout, commandType))
+            using (var reader = conn.ExecuteReader(sql, param, tran, commandTimeout, commandType))
             {
-                DataTable dt = new DataTable();
+                var dt = new DataTable();
                 dt.Load(reader);
                 return dt;
             }
@@ -77,21 +75,45 @@ namespace Dapper.Sharding
 
         public static DataSet GetDataSet(this IDbConnection conn, string sql, object param = null, IDbTransaction tran = null, int? commandTimeout = null, CommandType? commandType = null)
         {
-            //oracle do no support GetDataSet
-
-            if (conn.State == ConnectionState.Closed)
-                conn.Open();
-            using (IDataReader reader = conn.ExecuteReader(sql, param, tran, commandTimeout, commandType))
+            using (var reader = conn.ExecuteReader(sql, param, tran, commandTimeout, commandType))
             {
-                DataSet ds = new DataSet();
+                var ds = new DataSet();
+                int i = 0;
+                while (!reader.IsClosed)
+                {        
+                    var dt = new DataTable();
+                    dt.TableName = "t" + i;
+                    dt.Load(reader);
+                    ds.Tables.Add(dt);
+                    i++;
+                }
+                return ds;
+            }
+        }
+
+        public static async Task<DataTable> GetDataTableAsync(this IDbConnection conn, string sql, object param = null, IDbTransaction tran = null, int? commandTimeout = null, CommandType? commandType = null)
+        {
+            using (var reader = await conn.ExecuteReaderAsync(sql, param, tran, commandTimeout, commandType))
+            {
+                var dt = new DataTable();
+                dt.Load(reader);
+                return dt;
+            }
+        }
+
+        public static async Task<DataSet> GetDataSetAsync(this IDbConnection conn, string sql, object param = null, IDbTransaction tran = null, int? commandTimeout = null, CommandType? commandType = null)
+        {
+            using (var reader = await conn.ExecuteReaderAsync(sql, param, tran, commandTimeout, commandType))
+            {
+                var ds = new DataSet();
                 int i = 0;
                 while (!reader.IsClosed)
                 {
-                    i++;
-                    DataTable dt = new DataTable();
-                    dt.TableName = "T" + i;
+                    var dt = new DataTable();
+                    dt.TableName = "t" + i;
                     dt.Load(reader);
                     ds.Tables.Add(dt);
+                    i++;
                 }
                 return ds;
             }

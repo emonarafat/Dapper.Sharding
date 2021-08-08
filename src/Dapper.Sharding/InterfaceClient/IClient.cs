@@ -150,6 +150,22 @@ namespace Dapper.Sharding
             }
         }
 
+        public DataTable QueryDataTable(string sql, object param = null, int? timeout = null)
+        {
+            using (var cnn = GetConn())
+            {
+                return cnn.GetDataTable(sql, param, commandTimeout: timeout);
+            }
+        }
+
+        public DataSet QueryDataSet(string sql, object param = null, int? timeout = null)
+        {
+            using (var cnn = GetConn())
+            {
+                return cnn.GetDataSet(sql, param, commandTimeout: timeout);
+            }
+        }
+
         #endregion
 
         #region dapper method async
@@ -280,6 +296,36 @@ namespace Dapper.Sharding
                 {
                     onReader?.Invoke(reader);
                 }
+            }
+        }
+
+        public async Task<DataTable> QueryDataTableAsync(string sql, object param = null, int? timeout = null)
+        {
+            if (DbType == DataBaseType.ClickHouse)
+            {
+                return await Task.Run(() =>
+                {
+                    return QueryDataTable(sql, param, timeout);
+                });
+            }
+            using (var cnn = await GetConnAsync())
+            {
+                return await cnn.GetDataTableAsync(sql, param, commandTimeout: timeout);
+            }
+        }
+
+        public async Task<DataSet> QueryDataSetAsync(string sql, object param = null, int? timeout = null)
+        {
+            if (DbType == DataBaseType.ClickHouse)
+            {
+                return await Task.Run(() =>
+                {
+                    return QueryDataSet(sql, param, timeout);
+                });
+            }
+            using (var cnn = await GetConnAsync())
+            {
+                return await cnn.GetDataSetAsync(sql, param, commandTimeout: timeout);
             }
         }
 

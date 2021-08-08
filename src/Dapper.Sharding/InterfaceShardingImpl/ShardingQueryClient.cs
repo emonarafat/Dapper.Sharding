@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using System.Data;
 using System.Linq;
 using System.Threading.Tasks;
 
@@ -72,6 +73,24 @@ namespace Dapper.Sharding
             var taskList = ClientList.Select(s =>
             {
                 return s.QueryAsync<TResult>(sql, param, timeout);
+            });
+            return await Task.WhenAll(taskList);
+        }
+
+        public async Task<DataTable[]> QueryDataTableAsync(string sql, object param = null, int? timeout = null)
+        {
+            var taskList = ClientList.Select(s =>
+            {
+                return s.QueryDataTableAsync(sql, param, timeout);
+            });
+            return await Task.WhenAll(taskList);
+        }
+
+        public async Task<DataSet[]> QueryDataSetAsync(string sql, object param = null, int? timeout = null)
+        {
+            var taskList = ClientList.Select(s =>
+            {
+                return s.QueryDataSetAsync(sql, param, timeout);
             });
             return await Task.WhenAll(taskList);
         }

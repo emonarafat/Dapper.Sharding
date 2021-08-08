@@ -142,6 +142,32 @@ namespace Dapper.Sharding
             }
         }
 
+        public DataTable QueryDataTable(string sql, object param = null, DistributedTransaction tran = null, int? timeout = null)
+        {
+            if (tran == null || DbType == DataBaseType.ClickHouse)
+            {
+                using (var cnn = GetConn())
+                {
+                    return cnn.GetDataTable(sql, param, commandTimeout: timeout);
+                }
+            }
+            var val = tran.GetVal(this);
+            return val.Item1.GetDataTable(sql, param, val.Item2, timeout);
+        }
+
+        public DataSet QueryDataSet(string sql, object param = null, DistributedTransaction tran = null, int? timeout = null)
+        {
+            if (tran == null || DbType == DataBaseType.ClickHouse)
+            {
+                using (var cnn = GetConn())
+                {
+                    return cnn.GetDataSet(sql, param, commandTimeout: timeout);
+                }
+            }
+            var val = tran.GetVal(this);
+            return val.Item1.GetDataSet(sql, param, val.Item2, timeout);
+        }
+
         #endregion
 
         #region dapper method async
@@ -164,7 +190,6 @@ namespace Dapper.Sharding
             }
             var val = await tran.GetValAsync(this);
             return await val.Item1.ExecuteAsync(sql, param, val.Item2, timeout);
-
         }
 
         public async Task<object> ExecuteScalarAsync(string sql, object param = null, DistributedTransaction tran = null, int? timeout = null)
@@ -314,6 +339,47 @@ namespace Dapper.Sharding
                 onReader?.Invoke(reader);
             }
         }
+
+        public async Task<DataTable> QueryDataTableAsync(string sql, object param = null, DistributedTransaction tran = null, int? timeout = null)
+        {
+            if (DbType == DataBaseType.ClickHouse)
+            {
+                return await Task.Run(() =>
+                {
+                    return QueryDataTable(sql, param, null, timeout);
+                });
+            }
+            if (tran == null)
+            {
+                using (var cnn = await GetConnAsync())
+                {
+                    return await cnn.GetDataTableAsync(sql, param, commandTimeout: timeout);
+                }
+            }
+            var val = await tran.GetValAsync(this);
+            return await val.Item1.GetDataTableAsync(sql, param, val.Item2, timeout);
+        }
+
+        public async Task<DataSet> QueryDataSetAsync(string sql, object param = null, DistributedTransaction tran = null, int? timeout = null)
+        {
+            if (DbType == DataBaseType.ClickHouse)
+            {
+                return await Task.Run(() =>
+                {
+                    return QueryDataSet(sql, param, null, timeout);
+                });
+            }
+            if (tran == null)
+            {
+                using (var cnn = await GetConnAsync())
+                {
+                    return await cnn.GetDataSetAsync(sql, param, commandTimeout: timeout);
+                }
+            }
+            var val = await tran.GetValAsync(this);
+            return await val.Item1.GetDataSetAsync(sql, param, val.Item2, timeout);
+        }
+
 
         #endregion
 
