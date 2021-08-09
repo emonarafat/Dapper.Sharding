@@ -20,11 +20,11 @@ namespace Dapper.Sharding
             {
                 opt.WorkerIdBitLength = workLength; //默认值6，取值范围 [1, 15]（要求：序列数位长+机器码位长不超过22）
             }
-            if (workerId != 0) //当workLength等于6，workerId最大值63
+            if (workerId != 0) //当workLength等于6,workerId最大值63
             {
                 opt.WorkerId = workerId; //最大值 2 ^ WorkerIdBitLength - 1
             }
-            if (seqLength != 6) //默认6支持10万并发,10才能支持50万并发,取值范围[3,21]
+            if (seqLength != 6) //默认6支持10万并发,10才能支持50-200万并发,取值范围[3,21]
             {
                 opt.SeqBitLength = seqLength;
             }
