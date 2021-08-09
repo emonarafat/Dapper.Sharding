@@ -6,23 +6,27 @@ namespace Dapper.Sharding
     {
         public static bool ClickHouseFixedString { get; set; } = false;
 
-        public static void SetSnowFlakeWorker(long workerId, long datacenterId)
+        public static void SetSnowFlakeWorker(long workerId, long datacenterId, long seqLength = 0)
         {
-            SnowflakeId.worker = new IdWorker(workerId, datacenterId);
+            SnowflakeId.worker = new IdWorker(workerId, datacenterId, seqLength);
         }
 
-        public static void SetLongIdWorker(ushort workerId = 0, byte length = 6)
+        public static void SetLongIdWorker(ushort workerId = 0, byte workLength = 6, byte seqLength = 6)
         {
             //https://gitee.com/yitter/idgenerator
             //https://github.com/yitter/IdGenerator
             var opt = new IdGeneratorOptions();
-            if (workerId != 0)
+            if (workLength != 6)
+            {
+                opt.WorkerIdBitLength = workLength; //默认值6，取值范围 [1, 15]（要求：序列数位长+机器码位长不超过22）
+            }
+            if (workerId != 0) //当workLength等于6，workerId最大值63
             {
                 opt.WorkerId = workerId; //最大值 2 ^ WorkerIdBitLength - 1
             }
-            if (length != 6)
+            if (seqLength != 6) //默认6支持10万并发,10才能支持50万并发,取值范围[3,21]
             {
-                opt.WorkerIdBitLength = length; //默认值6，取值范围 [1, 15]（要求：序列数位长+机器码位长不超过22）
+                opt.SeqBitLength = seqLength;
             }
             IdHelper.IdGenInstance = new DefaultIdGenerator(opt);
         }
