@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Data;
 using System.Linq;
 using System.Threading.Tasks;
@@ -37,42 +38,22 @@ namespace Dapper.Sharding
 
         public void Commit()
         {
-            if (dict.Count == 1)
-            {
-                var item = dict.First().Value;
-                item.Item2.Commit();
-                item.Item2.Dispose();
-                item.Item1.Dispose();
-                return;
-            }
             foreach (var item in dict.Values)
             {
-                item.Item2.Commit();
-            }
-            foreach (var item in dict.Values)
-            {
-                item.Item2.Dispose();
-                item.Item1.Dispose();
-            }
-        }
-
-        public void Rollback()
-        {
-            if (dict.Count == 1)
-            {
-                var item = dict.First().Value;
                 try
                 {
-                    item.Item2.Rollback();
+                    item.Item2.Commit();
                 }
                 finally
                 {
                     item.Item2.Dispose();
                     item.Item1.Dispose();
                 }
-                return;
             }
+        }
 
+        public void Rollback()
+        {
             foreach (var item in dict.Values)
             {
                 try

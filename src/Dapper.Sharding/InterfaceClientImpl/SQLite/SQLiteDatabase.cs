@@ -34,6 +34,7 @@ namespace Dapper.Sharding
         {
             var conn = new SQLiteConnection(ConnectionString);
             if (conn.State == ConnectionState.Closed)
+            {
                 try
                 {
                     conn.Open();
@@ -43,6 +44,7 @@ namespace Dapper.Sharding
                     conn.Dispose();
                     throw ex;
                 }
+            }
             return conn;
         }
 
