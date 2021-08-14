@@ -321,8 +321,6 @@ namespace Dapper.Sharding
             DataBase.Execute(sql, dpar);
         }
 
-
-
         #endregion
 
         #region aggregate

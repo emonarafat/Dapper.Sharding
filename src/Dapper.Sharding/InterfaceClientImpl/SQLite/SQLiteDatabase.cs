@@ -131,6 +131,10 @@ namespace Dapper.Sharding
                 else
                 {
                     sb.Append($"[{item.Name}] {item.DbType}");
+                    if (item.CsType.IsValueType && item.CsType != typeof(DateTime) && item.CsType != typeof(DateTimeOffset))
+                    {
+                        sb.Append(" DEFAULT 0");
+                    }
                 }
 
                 if (item != tableEntity.ColumnList.Last())
@@ -169,11 +173,6 @@ namespace Dapper.Sharding
         }
 
         public override void OptimizeTable(string name, string partition, bool final = false, bool deduplicate = false)
-        {
-            throw new NotImplementedException();
-        }
-
-        public override void SetCharset(string chartset)
         {
             throw new NotImplementedException();
         }

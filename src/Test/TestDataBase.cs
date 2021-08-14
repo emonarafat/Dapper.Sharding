@@ -13,7 +13,6 @@ namespace Test
             Factory.Db.GetTable<People>("people");
             Factory.Db.GetTable<Teacher>("teacher");
             Factory.Db.GetTable<Student>("student");
-            Factory.Db.GetTable<People>("p2");
         }
 
         [Test]

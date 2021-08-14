@@ -169,6 +169,10 @@ namespace Dapper.Sharding
             DataBase.BulkInsert(Name, model, opt =>
             {
                 opt.IgnoreOnInsertNames = SqlField.AllFieldExceptKeyList.Except(fields).ToList();
+                if (timeout != null)
+                {
+                    opt.BatchTimeout = timeout.Value;
+                }
             }, tran);
         }
 
@@ -177,12 +181,23 @@ namespace Dapper.Sharding
             DataBase.BulkInsert(Name, model, opt =>
             {
                 opt.IgnoreOnInsertNames = fields;
+                if (timeout != null)
+                {
+                    opt.BatchTimeout = timeout.Value;
+                }
             }, tran);
         }
 
         public virtual void Insert(IEnumerable<T> modelList, DistributedTransaction tran = null, int? timeout = null)
         {
-            DataBase.BulkInsert(Name, modelList, opt => { }, tran);
+            DataBase.BulkInsert(Name, modelList, opt =>
+            {
+                if (timeout != null)
+                {
+                    opt.BatchTimeout = timeout.Value;
+                }
+
+            }, tran);
         }
 
         public virtual void Insert(IEnumerable<T> modelList, List<string> fields, DistributedTransaction tran = null, int? timeout = null)
@@ -190,6 +205,10 @@ namespace Dapper.Sharding
             DataBase.BulkInsert(Name, modelList, opt =>
             {
                 opt.IgnoreOnInsertNames = SqlField.AllFieldExceptKeyList.Except(fields).ToList();
+                if (timeout != null)
+                {
+                    opt.BatchTimeout = timeout.Value;
+                }
             }, tran);
         }
 
@@ -198,6 +217,10 @@ namespace Dapper.Sharding
             DataBase.BulkInsert(Name, modelList, opt =>
             {
                 opt.IgnoreOnInsertNames = fields;
+                if (timeout != null)
+                {
+                    opt.BatchTimeout = timeout.Value;
+                }
             }, tran);
         }
 
@@ -206,6 +229,10 @@ namespace Dapper.Sharding
             DataBase.BulkInsert(Name, model, opt =>
             {
                 opt.InsertIfNotExists = true;
+                if (timeout != null)
+                {
+                    opt.BatchTimeout = timeout.Value;
+                }
             }, tran);
         }
 
@@ -215,6 +242,10 @@ namespace Dapper.Sharding
             {
                 opt.IgnoreOnInsertNames = SqlField.AllFieldExceptKeyList.Except(fields).ToList();
                 opt.InsertIfNotExists = true;
+                if (timeout != null)
+                {
+                    opt.BatchTimeout = timeout.Value;
+                }
             }, tran);
         }
 
@@ -224,6 +255,10 @@ namespace Dapper.Sharding
             {
                 opt.IgnoreOnInsertNames = fields;
                 opt.InsertIfNotExists = true;
+                if (timeout != null)
+                {
+                    opt.BatchTimeout = timeout.Value;
+                }
             }, tran);
         }
 
@@ -232,6 +267,10 @@ namespace Dapper.Sharding
             DataBase.BulkInsert(Name, modelList, opt =>
             {
                 opt.InsertIfNotExists = true;
+                if (timeout != null)
+                {
+                    opt.BatchTimeout = timeout.Value;
+                }
             }, tran);
         }
 
@@ -241,6 +280,10 @@ namespace Dapper.Sharding
             {
                 opt.IgnoreOnInsertNames = SqlField.AllFieldExceptKeyList.Except(fields).ToList();
                 opt.InsertIfNotExists = true;
+                if (timeout != null)
+                {
+                    opt.BatchTimeout = timeout.Value;
+                }
             }, tran);
         }
 
@@ -250,6 +293,10 @@ namespace Dapper.Sharding
             {
                 opt.IgnoreOnInsertNames = fields;
                 opt.InsertIfNotExists = true;
+                if (timeout != null)
+                {
+                    opt.BatchTimeout = timeout.Value;
+                }
             }, tran);
         }
 
@@ -259,6 +306,10 @@ namespace Dapper.Sharding
             {
                 opt.IgnoreOnInsertNames = SqlField.AllFieldExceptKeyList.Except(fields).ToList();
                 opt.InsertKeepIdentity = true;
+                if (timeout != null)
+                {
+                    opt.BatchTimeout = timeout.Value;
+                }
             }, tran);
         }
 
@@ -268,6 +319,10 @@ namespace Dapper.Sharding
             {
                 opt.IgnoreOnInsertNames = fields;
                 opt.InsertKeepIdentity = true;
+                if (timeout != null)
+                {
+                    opt.BatchTimeout = timeout.Value;
+                }
             }, tran);
         }
 
@@ -276,6 +331,10 @@ namespace Dapper.Sharding
             DataBase.BulkInsert(Name, modelList, opt =>
             {
                 opt.InsertKeepIdentity = true;
+                if (timeout != null)
+                {
+                    opt.BatchTimeout = timeout.Value;
+                }
             }, tran);
         }
 
@@ -285,6 +344,10 @@ namespace Dapper.Sharding
             {
                 opt.IgnoreOnInsertNames = SqlField.AllFieldExceptKeyList.Except(fields).ToList();
                 opt.InsertKeepIdentity = true;
+                if (timeout != null)
+                {
+                    opt.BatchTimeout = timeout.Value;
+                }
             }, tran);
         }
 
@@ -294,6 +357,10 @@ namespace Dapper.Sharding
             {
                 opt.IgnoreOnInsertNames = fields;
                 opt.InsertKeepIdentity = true;
+                if (timeout != null)
+                {
+                    opt.BatchTimeout = timeout.Value;
+                }
             }, tran);
         }
 
@@ -303,6 +370,10 @@ namespace Dapper.Sharding
             {
                 opt.InsertKeepIdentity = true;
                 opt.InsertIfNotExists = true;
+                if (timeout != null)
+                {
+                    opt.BatchTimeout = timeout.Value;
+                }
             }, tran);
         }
 
@@ -313,6 +384,10 @@ namespace Dapper.Sharding
                 opt.IgnoreOnInsertNames = SqlField.AllFieldExceptKeyList.Except(fields).ToList();
                 opt.InsertKeepIdentity = true;
                 opt.InsertIfNotExists = true;
+                if (timeout != null)
+                {
+                    opt.BatchTimeout = timeout.Value;
+                }
             }, tran);
         }
 
@@ -323,6 +398,10 @@ namespace Dapper.Sharding
                 opt.IgnoreOnInsertNames = fields;
                 opt.InsertKeepIdentity = true;
                 opt.InsertIfNotExists = true;
+                if (timeout != null)
+                {
+                    opt.BatchTimeout = timeout.Value;
+                }
             }, tran);
         }
 
@@ -332,6 +411,10 @@ namespace Dapper.Sharding
             {
                 opt.InsertKeepIdentity = true;
                 opt.InsertIfNotExists = true;
+                if (timeout != null)
+                {
+                    opt.BatchTimeout = timeout.Value;
+                }
             }, tran);
         }
 
@@ -342,6 +425,10 @@ namespace Dapper.Sharding
                 opt.IgnoreOnInsertNames = SqlField.AllFieldExceptKeyList.Except(fields).ToList();
                 opt.InsertKeepIdentity = true;
                 opt.InsertIfNotExists = true;
+                if (timeout != null)
+                {
+                    opt.BatchTimeout = timeout.Value;
+                }
             }, tran);
         }
 
@@ -352,6 +439,10 @@ namespace Dapper.Sharding
                 opt.IgnoreOnInsertNames = fields;
                 opt.InsertKeepIdentity = true;
                 opt.InsertIfNotExists = true;
+                if (timeout != null)
+                {
+                    opt.BatchTimeout = timeout.Value;
+                }
             }, tran);
         }
 
@@ -365,6 +456,10 @@ namespace Dapper.Sharding
                     opt.IgnoreOnMergeUpdateNames = ignoreFileds;
                 }
                 opt.MergeKeepIdentity = true;
+                if (timeout != null)
+                {
+                    opt.BatchTimeout = timeout.Value;
+                }
             }, tran);
         }
 
@@ -378,6 +473,10 @@ namespace Dapper.Sharding
                     opt.IgnoreOnMergeUpdateNames = ignoreFileds;
                 }
                 opt.MergeKeepIdentity = true;
+                if (timeout != null)
+                {
+                    opt.BatchTimeout = timeout.Value;
+                }
             }, tran);
         }
 
@@ -390,6 +489,10 @@ namespace Dapper.Sharding
                     opt.IgnoreOnMergeUpdateNames = fields;
                 }
                 opt.MergeKeepIdentity = true;
+                if (timeout != null)
+                {
+                    opt.BatchTimeout = timeout.Value;
+                }
             }, tran);
         }
 
@@ -402,6 +505,10 @@ namespace Dapper.Sharding
                     opt.IgnoreOnMergeUpdateNames = fields;
                 }
                 opt.MergeKeepIdentity = true;
+                if (timeout != null)
+                {
+                    opt.BatchTimeout = timeout.Value;
+                }
             }, tran);
         }
 
@@ -583,6 +690,10 @@ namespace Dapper.Sharding
                 {
                     var ignoreFileds = SqlField.AllFieldExceptKeyList.Except(fields).ToList();
                     opt.IgnoreOnUpdateNames = ignoreFileds;
+                    if (timeout != null)
+                    {
+                        opt.BatchTimeout = timeout.Value;
+                    }
                 }
             }, tran);
         }
@@ -592,6 +703,10 @@ namespace Dapper.Sharding
             DataBase.BulkUpdate(Name, modelList, opt =>
             {
                 opt.IgnoreOnUpdateNames = fields;
+                if (timeout != null)
+                {
+                    opt.BatchTimeout = timeout.Value;
+                }
             }, tran);
         }
 
@@ -687,7 +802,14 @@ namespace Dapper.Sharding
 
         public virtual void Delete(IEnumerable<T> modelList, DistributedTransaction tran = null, int? timeout = null)
         {
-            DataBase.BulkDelete(Name, modelList, opt => { }, tran);
+            DataBase.BulkDelete(Name, modelList, opt =>
+            {
+                if (timeout != null)
+                {
+                    opt.BatchTimeout = timeout.Value;
+                }
+
+            }, tran);
         }
 
         #endregion

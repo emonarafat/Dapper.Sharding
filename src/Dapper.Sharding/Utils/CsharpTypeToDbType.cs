@@ -49,7 +49,7 @@ namespace Dapper.Sharding
                 return "bit";
             }
 
-            if (type == typeof(byte))
+            if (type == typeof(byte) || type == typeof(sbyte))
             {
                 return "tinyint";
             }
@@ -140,7 +140,7 @@ namespace Dapper.Sharding
                 return "bit(1)";
             }
 
-            if (type == typeof(byte))
+            if (type == typeof(byte) || type == typeof(sbyte))
             {
                 return "tinyint(4)";
             }
@@ -229,7 +229,7 @@ namespace Dapper.Sharding
                 return "NUMERIC";
             }
 
-            if (type == typeof(byte))
+            if (type == typeof(byte) || type == typeof(sbyte))
             {
                 return "NUMERIC";
             }
@@ -318,7 +318,7 @@ namespace Dapper.Sharding
                 return "bool";
             }
 
-            if (type == typeof(byte))
+            if (type == typeof(byte) || type == typeof(sbyte))
             {
                 return "int2";
             }
@@ -413,7 +413,7 @@ namespace Dapper.Sharding
                 return "NUMBER(1)";
             }
 
-            if (type == typeof(byte))
+            if (type == typeof(byte) || type == typeof(sbyte))
             {
                 return "NUMBER(4)";
             }

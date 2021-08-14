@@ -111,7 +111,6 @@ namespace Dapper.Sharding
             {
                 return cnn.QueryFirstOrDefault(sql, param, commandTimeout: timeout);
             }
-
         }
 
         public T QueryFirstOrDefault<T>(string sql, object param = null, int? timeout = null)

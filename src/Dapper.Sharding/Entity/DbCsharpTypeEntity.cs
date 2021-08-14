@@ -30,7 +30,8 @@ namespace Dapper.Sharding
                     case "byte[]": return typeof(byte[]);
                     case "TimeSpan": return typeof(TimeSpan);
                     case "DateTimeOffset": return typeof(DateTimeOffset);
-                    case "byte": return typeof(byte);          
+                    case "byte": return typeof(byte);
+                    case "sbyte": return typeof(sbyte);
                     default: return typeof(object);
                 }
             }

@@ -102,6 +102,10 @@ namespace Dapper.Sharding
             foreach (var item in tableEntity.ColumnList)
             {
                 sb.Append($"{item.Name} {item.DbType}");
+                if (item.CsType.IsValueType && item.CsType != typeof(DateTime) && item.CsType != typeof(DateTimeOffset))
+                {
+                    sb.Append(" DEFAULT 0");
+                }
                 sb.Append($" COMMENT '{item.Comment}'");
                 if (item != tableEntity.ColumnList.Last())
                 {
@@ -138,11 +142,6 @@ namespace Dapper.Sharding
                 sql += " DEDUPLICATE";
             }
             Execute(sql);
-        }
-
-        public override void SetCharset(string chartset)
-        {
-            throw new NotImplementedException();
         }
 
         public override void TruncateTable(string name)

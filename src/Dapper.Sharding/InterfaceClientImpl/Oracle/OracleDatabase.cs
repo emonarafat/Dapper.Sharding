@@ -133,6 +133,13 @@ WHERE C.TABLE_NAME = '{name.ToUpper()}' ORDER BY C.COLUMN_ID";
                 {
                     sb.Append(" PRIMARY KEY");
                 }
+                else
+                {
+                    if (item.CsType.IsValueType && item.CsType != typeof(DateTime) && item.CsType != typeof(DateTimeOffset))
+                    {
+                        sb.Append(" DEFAULT 0");
+                    }
+                }
                 if (item != tableEntity.ColumnList.Last())
                 {
                     sb.Append(",");
@@ -140,11 +147,6 @@ WHERE C.TABLE_NAME = '{name.ToUpper()}' ORDER BY C.COLUMN_ID";
             }
             sb.Append(")");
             return sb.ToString();
-        }
-
-        public override void SetCharset(string chartset)
-        {
-            throw new NotImplementedException();
         }
 
         public override void TruncateTable(string name)

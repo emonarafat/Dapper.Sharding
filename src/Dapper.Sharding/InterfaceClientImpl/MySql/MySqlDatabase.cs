@@ -58,11 +58,6 @@ namespace Dapper.Sharding
             return conn;
         }
 
-        public override void SetCharset(string chartset)
-        {
-            Execute($"ALTER DATABASE `{Name}` DEFAULT CHARACTER SET {chartset} COLLATE {chartset}_general_ci");
-        }
-
         public override void DropTable(string name)
         {
             Execute($"DROP TABLE IF EXISTS `{name}`");
@@ -97,15 +92,19 @@ namespace Dapper.Sharding
             foreach (var item in tableEntity.ColumnList)
             {
                 sb.Append($"`{item.Name}` {item.DbType}");
-                if (!string.IsNullOrEmpty(tableEntity.PrimaryKey))
+                if (tableEntity.PrimaryKey.ToLower() == item.Name.ToLower())
                 {
-                    if (tableEntity.PrimaryKey.ToLower() == item.Name.ToLower())
+                    if (tableEntity.IsIdentity)
                     {
-                        if (tableEntity.IsIdentity)
-                        {
-                            sb.Append(" AUTO_INCREMENT");
-                        }
-                        sb.Append(" PRIMARY KEY");
+                        sb.Append(" AUTO_INCREMENT");
+                    }
+                    sb.Append(" PRIMARY KEY");
+                }
+                else
+                {
+                    if (item.CsType.IsValueType && item.CsType != typeof(DateTime) && item.CsType != typeof(DateTimeOffset))
+                    {
+                        sb.Append(" DEFAULT 0");
                     }
                 }
                 sb.Append($" COMMENT '{item.Comment}'");

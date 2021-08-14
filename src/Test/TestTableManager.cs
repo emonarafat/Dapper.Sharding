@@ -24,12 +24,6 @@ namespace Test
         }
 
         [Test]
-        public void AlertIndex()
-        {
-            Factory.TableManager.AlertIndex("Name", "Name", IndexType.Unique);
-        }
-
-        [Test]
         public void GetIndexEntityList()
         {
             var data = Factory.TableManager.GetIndexEntityList();
@@ -44,39 +38,17 @@ namespace Test
         }
 
         [Test]
-        public void ReName()
-        {
-            Factory.TableManager.ReName("1111");
-        }
-
-        [Test]
-        public void SetComment()
-        {
-            Factory.TableManager.SetComment("人类表");
-        }
-
-        [Test]
-        public void SetCharset()
-        {
-            Factory.TableManager.SetCharset("utf8");
-        }
-
-        [Test]
         public void AddColumn()
         {
-            Factory.TableManager.AddColumn("NewColumn", typeof(string), 60, "新增字段");
+            Factory.TableManager.AddColumn("NewColumn", typeof(string), 60, "新增字段stting");
+            Factory.TableManager.AddColumn("NewColumn2", typeof(int), 0, "新增字段int");
         }
 
         [Test]
         public void DropColumn()
         {
             Factory.TableManager.DropColumn("NewColumn");
-        }
-
-        [Test]
-        public void AddColumnAfter()
-        {
-            Factory.TableManager.AddColumnAfter("NewColumn", "IsAdmin", typeof(string), 60, "新增字段");
+            Factory.TableManager.DropColumn("NewColumn2");
         }
 
     }

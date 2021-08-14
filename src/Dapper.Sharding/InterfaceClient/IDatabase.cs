@@ -800,8 +800,6 @@ namespace Dapper.Sharding
 
         public abstract Task<IDbConnection> GetConnAsync();
 
-        public abstract void SetCharset(string chartset);
-
         public abstract void DropTable(string name);
 
         public abstract void TruncateTable(string name);

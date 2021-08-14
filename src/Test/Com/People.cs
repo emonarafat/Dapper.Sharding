@@ -41,5 +41,7 @@ namespace Test
 
         [Ignore]
         public string NoDataBaseColumn { get; set; }
+
+        public bool bb { get; set; }
     }
 }

@@ -63,12 +63,12 @@ namespace Dapper.Sharding
                 {
                     try
                     {
-                        conn.Execute(sql1);
-                        conn.Execute(sql2);
-                        conn.Execute(sql3);
-                        conn.Execute(sql4);
-                        conn.Execute(sql5);
-                        conn.Execute(sql6);
+                        conn.Execute(sql1, null, tran);
+                        conn.Execute(sql2, null, tran);
+                        conn.Execute(sql3, null, tran);
+                        conn.Execute(sql4, null, tran);
+                        conn.Execute(sql5, null, tran);
+                        conn.Execute(sql6, null, tran);
                         tran.Commit();
                     }
                     catch (Exception ex)

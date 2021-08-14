@@ -150,6 +150,17 @@ order by a.relname asc";
                 else
                 {
                     sb.Append($"{item.Name.ToLower()} {dbtype}");
+                    if (item.CsType.IsValueType && item.CsType != typeof(DateTime) && item.CsType != typeof(DateTimeOffset))
+                    {
+                        if (item.CsType != typeof(bool))
+                        {
+                            sb.Append(" DEFAULT 0");
+                        }
+                        else
+                        {
+                            sb.Append(" DEFAULT FALSE");
+                        }
+                    }
                 }
 
                 if (item != tableEntity.ColumnList.Last())
@@ -207,10 +218,6 @@ order by a.relname asc";
             return sb.ToString();
         }
 
-        public override void SetCharset(string chartset)
-        {
-            throw new NotImplementedException();
-        }
 
         public override void TruncateTable(string name)
         {
