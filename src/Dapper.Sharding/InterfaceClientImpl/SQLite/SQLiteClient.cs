@@ -12,6 +12,14 @@ namespace Dapper.Sharding
     {
         public SQLiteClient(DataBaseConfig config) : base(DataBaseType.Sqlite, config)
         {
+            if (string.IsNullOrEmpty(config.Server))
+            {
+                config.Server = "db";
+            }
+            if (!config.Server.Contains(":"))
+            {
+                config.Server = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, config.Server);
+            }
             ConnectionString = config.Server;
         }
 

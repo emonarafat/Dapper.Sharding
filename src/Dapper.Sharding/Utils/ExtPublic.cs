@@ -80,7 +80,7 @@ namespace Dapper.Sharding
                 var ds = new DataSet();
                 int i = 0;
                 while (!reader.IsClosed)
-                {        
+                {
                     var dt = new DataTable();
                     dt.TableName = "t" + i;
                     dt.Load(reader);
@@ -116,6 +116,38 @@ namespace Dapper.Sharding
                     i++;
                 }
                 return ds;
+            }
+        }
+
+        #endregion
+
+        #region fastmember
+
+        public static DataTable ToDataTable<T>(this IEnumerable<T> dataList) where T : class
+        {
+            var table = new DataTable();
+            using (var reader = ObjectReader.Create(dataList))
+            {
+                table.Load(reader);
+            }
+            return table;
+        }
+        public static IEnumerable<T> ToEnumerableList<T>(this DataTable table) where T : class, new()
+        {
+            var accessor = TypeAccessor.Create(typeof(T));
+            var proList = accessor.GetMembers().Select(s => s.Name);
+            foreach (DataRow row in table.Rows)
+            {
+                var model = new T();
+                foreach (var name in proList)
+                {
+                    var val = row[name];
+                    if (val != DBNull.Value)
+                    {
+                        accessor[model, name] = val;
+                    }
+                }
+                yield return model;
             }
         }
 

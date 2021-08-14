@@ -17,18 +17,6 @@ namespace Dapper.Sharding
             Client = client;
         }
 
-        #region protected method
-
-        protected LockManager Locker { get; } = new LockManager();
-
-        protected ConcurrentDictionary<string, object> TableCache { get; } = new ConcurrentDictionary<string, object>();
-
-        protected ConcurrentDictionary<string, object> TableCache2 { get; } = new ConcurrentDictionary<string, object>();
-
-        protected abstract ITable<T> CreateITable<T>(string name) where T : class;
-
-        #endregion
-
         #region dapper method
 
         public int Execute(string sql, object param = null, DistributedTransaction tran = null, int? timeout = null)
@@ -636,6 +624,86 @@ namespace Dapper.Sharding
 
         #endregion
 
+        #region z.dapper.plus method async
+
+        public Task BulkInsertAsync<T>(string tableName, T model, Action<BulkOperation> action, DistributedTransaction tran = null) where T : class
+        {
+            return Task.Run(() =>
+            {
+                BulkInsert(tableName, model, action, tran);
+            });
+        }
+
+        public Task BulkInsertAsync<T>(string tableName, IEnumerable<T> modelList, Action<BulkOperation> action, DistributedTransaction tran = null) where T : class
+        {
+            return Task.Run(() =>
+            {
+                BulkInsert(tableName, modelList, action, tran);
+            });
+        }
+
+        public Task BulkUpdateAsync<T>(string tableName, T model, Action<BulkOperation> action, DistributedTransaction tran = null) where T : class
+        {
+            return Task.Run(() =>
+            {
+                BulkUpdate(tableName, model, action, tran);
+            });
+        }
+
+        public Task BulkUpdateAsync<T>(string tableName, IEnumerable<T> modelList, Action<BulkOperation> action, DistributedTransaction tran = null) where T : class
+        {
+            return Task.Run(() =>
+            {
+                BulkUpdate(tableName, modelList, action, tran);
+            });
+        }
+
+        public Task BulkDeleteAsync<T>(string tableName, T model, Action<BulkOperation> action, DistributedTransaction tran = null) where T : class
+        {
+            return Task.Run(() =>
+            {
+                BulkDelete(tableName, model, action, tran);
+            });
+        }
+
+        public Task BulkDeleteAsync<T>(string tableName, IEnumerable<T> modelList, Action<BulkOperation> action, DistributedTransaction tran = null) where T : class
+        {
+            return Task.Run(() =>
+            {
+                BulkDelete(tableName, modelList, action, tran);
+            });
+        }
+
+        public Task BulkMergeAsync<T>(string tableName, T model, Action<BulkOperation> action, DistributedTransaction tran = null) where T : class
+        {
+            return Task.Run(() =>
+            {
+                BulkMerge(tableName, model, action, tran);
+            });
+        }
+
+        public Task BulkMergeAsync<T>(string tableName, IEnumerable<T> modelList, Action<BulkOperation> action, DistributedTransaction tran = null) where T : class
+        {
+            return Task.Run(() =>
+            {
+                BulkMerge(tableName, modelList, action, tran);
+            });
+        }
+
+        #endregion
+
+        #region protected method
+
+        protected LockManager Locker { get; } = new LockManager();
+
+        protected ConcurrentDictionary<string, object> TableCache { get; } = new ConcurrentDictionary<string, object>();
+
+        protected ConcurrentDictionary<string, object> TableCache2 { get; } = new ConcurrentDictionary<string, object>();
+
+        protected abstract ITable<T> CreateITable<T>(string name) where T : class;
+
+        #endregion
+
         #region public method
 
         public string Name { get; }
@@ -691,10 +759,7 @@ namespace Dapper.Sharding
         public virtual void CreateTable<T>(string name)
         {
             var script = GetTableScript<T>(name);
-            using (var conn = GetConn())
-            {
-                conn.Execute(script);
-            }
+            Execute(script);
         }
 
         public ITable<T> GetTable<T>(string name) where T : class

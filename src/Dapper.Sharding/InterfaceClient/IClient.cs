@@ -15,69 +15,6 @@ namespace Dapper.Sharding
             Config = config;
         }
 
-        #region protected method
-
-        protected LockManager Locker { get; } = new LockManager();
-
-        protected ConcurrentDictionary<string, IDatabase> DataBaseCache { get; } = new ConcurrentDictionary<string, IDatabase>();
-
-        protected abstract IDatabase CreateIDatabase(string name);
-
-
-        #endregion
-
-        #region common method
-
-        public DataBaseType DbType { get; }
-
-        public DataBaseConfig Config { get; }
-
-        public string Charset { get; set; }
-
-        public bool AutoCreateDatabase { get; set; } = true;
-
-        public bool AutoCreateTable { get; set; } = true;
-
-        public bool AutoCompareTableColumn { get; set; } = false;
-
-        public virtual IDatabase GetDatabase(string name, bool useGis = false, string ext = null)
-        {
-            var exists = DataBaseCache.TryGetValue(name, out var val);
-            if (!exists)
-            {
-                lock (Locker.GetObject(name))
-                {
-                    if (!DataBaseCache.ContainsKey(name))
-                    {
-                        if (AutoCreateDatabase)
-                        {
-                            if (!ExistsDatabase(name))
-                            {
-                                CreateDatabase(name, useGis, ext);
-                            }
-                        }
-                        val = CreateIDatabase(name);
-                        DataBaseCache.TryAdd(name, val);
-                    }
-                }
-            }
-            return val;
-        }
-
-        public void ClearCache(string dbname = null)
-        {
-            if (!string.IsNullOrEmpty(dbname))
-            {
-                DataBaseCache.TryRemove(dbname, out _);
-            }
-            else
-            {
-                DataBaseCache.Clear();
-            }
-        }
-
-        #endregion
-
         #region dapper method
 
         public int Execute(string sql, object param = null, int? timeout = null)
@@ -183,7 +120,6 @@ namespace Dapper.Sharding
             {
                 return await cnn.ExecuteAsync(sql, param, commandTimeout: timeout);
             }
-
         }
 
         public async Task<object> ExecuteScalarAsync(string sql, object param = null, int? timeout = null)
@@ -199,7 +135,6 @@ namespace Dapper.Sharding
             {
                 return await cnn.ExecuteScalarAsync(sql, param, commandTimeout: timeout);
             }
-
         }
 
         public async Task<T> ExecuteScalarAsync<T>(string sql, object param = null, int? timeout = null)
@@ -330,6 +265,69 @@ namespace Dapper.Sharding
 
         #endregion
 
+        #region protected method
+
+        protected LockManager Locker { get; } = new LockManager();
+
+        protected ConcurrentDictionary<string, IDatabase> DataBaseCache { get; } = new ConcurrentDictionary<string, IDatabase>();
+
+        protected abstract IDatabase CreateIDatabase(string name);
+
+
+        #endregion
+
+        #region common method
+
+        public DataBaseType DbType { get; }
+
+        public DataBaseConfig Config { get; }
+
+        public string Charset { get; set; }
+
+        public bool AutoCreateDatabase { get; set; } = true;
+
+        public bool AutoCreateTable { get; set; } = true;
+
+        public bool AutoCompareTableColumn { get; set; } = false;
+
+        public virtual IDatabase GetDatabase(string name, bool useGis = false, string ext = null)
+        {
+            var exists = DataBaseCache.TryGetValue(name, out var val);
+            if (!exists)
+            {
+                lock (Locker.GetObject(name))
+                {
+                    if (!DataBaseCache.ContainsKey(name))
+                    {
+                        if (AutoCreateDatabase)
+                        {
+                            if (!ExistsDatabase(name))
+                            {
+                                CreateDatabase(name, useGis, ext);
+                            }
+                        }
+                        val = CreateIDatabase(name);
+                        DataBaseCache.TryAdd(name, val);
+                    }
+                }
+            }
+            return val;
+        }
+
+        public void ClearCache(string dbname = null)
+        {
+            if (!string.IsNullOrEmpty(dbname))
+            {
+                DataBaseCache.TryRemove(dbname, out _);
+            }
+            else
+            {
+                DataBaseCache.Clear();
+            }
+        }
+
+        #endregion
+
         #region abstract method
 
         public abstract string ConnectionString { get; }
@@ -347,7 +345,6 @@ namespace Dapper.Sharding
         public abstract IEnumerable<string> ShowDatabasesExcludeSystem();
 
         public abstract bool ExistsDatabase(string name);
-
 
         #endregion
 

@@ -5,7 +5,6 @@ using System.Threading.Tasks;
 
 namespace Dapper.Sharding
 {
-
     public abstract partial class ITable<T> where T : class
     {
         protected abstract string SqlInsert();
@@ -176,9 +175,33 @@ namespace Dapper.Sharding
             }, tran);
         }
 
+        public virtual Task InsertAsync(T model, List<string> fields, DistributedTransaction tran = null, int? timeout = null)
+        {
+            return DataBase.BulkInsertAsync(Name, model, opt =>
+            {
+                opt.IgnoreOnInsertNames = SqlField.AllFieldExceptKeyList.Except(fields).ToList();
+                if (timeout != null)
+                {
+                    opt.BatchTimeout = timeout.Value;
+                }
+            }, tran);
+        }
+
         public virtual void InsertIgnore(T model, List<string> fields, DistributedTransaction tran = null, int? timeout = null)
         {
             DataBase.BulkInsert(Name, model, opt =>
+            {
+                opt.IgnoreOnInsertNames = fields;
+                if (timeout != null)
+                {
+                    opt.BatchTimeout = timeout.Value;
+                }
+            }, tran);
+        }
+
+        public virtual Task InsertIgnoreAsync(T model, List<string> fields, DistributedTransaction tran = null, int? timeout = null)
+        {
+            return DataBase.BulkInsertAsync(Name, model, opt =>
             {
                 opt.IgnoreOnInsertNames = fields;
                 if (timeout != null)
@@ -200,9 +223,33 @@ namespace Dapper.Sharding
             }, tran);
         }
 
+        public virtual Task InsertAsync(IEnumerable<T> modelList, DistributedTransaction tran = null, int? timeout = null)
+        {
+            return DataBase.BulkInsertAsync(Name, modelList, opt =>
+            {
+                if (timeout != null)
+                {
+                    opt.BatchTimeout = timeout.Value;
+                }
+
+            }, tran);
+        }
+
         public virtual void Insert(IEnumerable<T> modelList, List<string> fields, DistributedTransaction tran = null, int? timeout = null)
         {
             DataBase.BulkInsert(Name, modelList, opt =>
+            {
+                opt.IgnoreOnInsertNames = SqlField.AllFieldExceptKeyList.Except(fields).ToList();
+                if (timeout != null)
+                {
+                    opt.BatchTimeout = timeout.Value;
+                }
+            }, tran);
+        }
+
+        public virtual Task InsertAsync(IEnumerable<T> modelList, List<string> fields, DistributedTransaction tran = null, int? timeout = null)
+        {
+            return DataBase.BulkInsertAsync(Name, modelList, opt =>
             {
                 opt.IgnoreOnInsertNames = SqlField.AllFieldExceptKeyList.Except(fields).ToList();
                 if (timeout != null)
@@ -224,6 +271,18 @@ namespace Dapper.Sharding
             }, tran);
         }
 
+        public virtual Task InsertIgnoreAsync(IEnumerable<T> modelList, List<string> fields, DistributedTransaction tran = null, int? timeout = null)
+        {
+            return DataBase.BulkInsertAsync(Name, modelList, opt =>
+            {
+                opt.IgnoreOnInsertNames = fields;
+                if (timeout != null)
+                {
+                    opt.BatchTimeout = timeout.Value;
+                }
+            }, tran);
+        }
+
         public virtual void InsertIfNoExists(T model, DistributedTransaction tran = null, int? timeout = null)
         {
             DataBase.BulkInsert(Name, model, opt =>
@@ -236,9 +295,34 @@ namespace Dapper.Sharding
             }, tran);
         }
 
+        public virtual Task InsertIfNoExistsAsync(T model, DistributedTransaction tran = null, int? timeout = null)
+        {
+            return DataBase.BulkInsertAsync(Name, model, opt =>
+            {
+                opt.InsertIfNotExists = true;
+                if (timeout != null)
+                {
+                    opt.BatchTimeout = timeout.Value;
+                }
+            }, tran);
+        }
+
         public virtual void InsertIfNoExists(T model, List<string> fields, DistributedTransaction tran = null, int? timeout = null)
         {
             DataBase.BulkInsert(Name, model, opt =>
+            {
+                opt.IgnoreOnInsertNames = SqlField.AllFieldExceptKeyList.Except(fields).ToList();
+                opt.InsertIfNotExists = true;
+                if (timeout != null)
+                {
+                    opt.BatchTimeout = timeout.Value;
+                }
+            }, tran);
+        }
+
+        public virtual Task InsertIfNoExistsAsync(T model, List<string> fields, DistributedTransaction tran = null, int? timeout = null)
+        {
+            return DataBase.BulkInsertAsync(Name, model, opt =>
             {
                 opt.IgnoreOnInsertNames = SqlField.AllFieldExceptKeyList.Except(fields).ToList();
                 opt.InsertIfNotExists = true;
@@ -262,6 +346,19 @@ namespace Dapper.Sharding
             }, tran);
         }
 
+        public virtual Task InsertIfNoExistsIgnoreAsync(T model, List<string> fields, DistributedTransaction tran = null, int? timeout = null)
+        {
+            return DataBase.BulkInsertAsync(Name, model, opt =>
+            {
+                opt.IgnoreOnInsertNames = fields;
+                opt.InsertIfNotExists = true;
+                if (timeout != null)
+                {
+                    opt.BatchTimeout = timeout.Value;
+                }
+            }, tran);
+        }
+
         public virtual void InsertIfNoExists(IEnumerable<T> modelList, DistributedTransaction tran = null, int? timeout = null)
         {
             DataBase.BulkInsert(Name, modelList, opt =>
@@ -274,9 +371,34 @@ namespace Dapper.Sharding
             }, tran);
         }
 
+        public virtual Task InsertIfNoExistsAsync(IEnumerable<T> modelList, DistributedTransaction tran = null, int? timeout = null)
+        {
+            return DataBase.BulkInsertAsync(Name, modelList, opt =>
+            {
+                opt.InsertIfNotExists = true;
+                if (timeout != null)
+                {
+                    opt.BatchTimeout = timeout.Value;
+                }
+            }, tran);
+        }
+
         public virtual void InsertIfNoExists(IEnumerable<T> modelList, List<string> fields, DistributedTransaction tran = null, int? timeout = null)
         {
             DataBase.BulkInsert(Name, modelList, opt =>
+            {
+                opt.IgnoreOnInsertNames = SqlField.AllFieldExceptKeyList.Except(fields).ToList();
+                opt.InsertIfNotExists = true;
+                if (timeout != null)
+                {
+                    opt.BatchTimeout = timeout.Value;
+                }
+            }, tran);
+        }
+
+        public virtual Task InsertIfNoExistsAsync(IEnumerable<T> modelList, List<string> fields, DistributedTransaction tran = null, int? timeout = null)
+        {
+            return DataBase.BulkInsertAsync(Name, modelList, opt =>
             {
                 opt.IgnoreOnInsertNames = SqlField.AllFieldExceptKeyList.Except(fields).ToList();
                 opt.InsertIfNotExists = true;
@@ -300,9 +422,35 @@ namespace Dapper.Sharding
             }, tran);
         }
 
+        public virtual Task InsertIfNoExistsIgnoreAsync(IEnumerable<T> modelList, List<string> fields, DistributedTransaction tran = null, int? timeout = null)
+        {
+            return DataBase.BulkInsertAsync(Name, modelList, opt =>
+            {
+                opt.IgnoreOnInsertNames = fields;
+                opt.InsertIfNotExists = true;
+                if (timeout != null)
+                {
+                    opt.BatchTimeout = timeout.Value;
+                }
+            }, tran);
+        }
+
         public virtual void InsertIdentity(T model, List<string> fields, DistributedTransaction tran = null, int? timeout = null)
         {
             DataBase.BulkInsert(Name, model, opt =>
+            {
+                opt.IgnoreOnInsertNames = SqlField.AllFieldExceptKeyList.Except(fields).ToList();
+                opt.InsertKeepIdentity = true;
+                if (timeout != null)
+                {
+                    opt.BatchTimeout = timeout.Value;
+                }
+            }, tran);
+        }
+
+        public virtual Task InsertIdentityAsync(T model, List<string> fields, DistributedTransaction tran = null, int? timeout = null)
+        {
+            return DataBase.BulkInsertAsync(Name, model, opt =>
             {
                 opt.IgnoreOnInsertNames = SqlField.AllFieldExceptKeyList.Except(fields).ToList();
                 opt.InsertKeepIdentity = true;
@@ -326,6 +474,19 @@ namespace Dapper.Sharding
             }, tran);
         }
 
+        public virtual Task InsertIdentityIgnoreAsync(T model, List<string> fields, DistributedTransaction tran = null, int? timeout = null)
+        {
+            return DataBase.BulkInsertAsync(Name, model, opt =>
+            {
+                opt.IgnoreOnInsertNames = fields;
+                opt.InsertKeepIdentity = true;
+                if (timeout != null)
+                {
+                    opt.BatchTimeout = timeout.Value;
+                }
+            }, tran);
+        }
+
         public virtual void InsertIdentity(IEnumerable<T> modelList, DistributedTransaction tran = null, int? timeout = null)
         {
             DataBase.BulkInsert(Name, modelList, opt =>
@@ -338,9 +499,34 @@ namespace Dapper.Sharding
             }, tran);
         }
 
+        public virtual Task InsertIdentityAsync(IEnumerable<T> modelList, DistributedTransaction tran = null, int? timeout = null)
+        {
+            return DataBase.BulkInsertAsync(Name, modelList, opt =>
+            {
+                opt.InsertKeepIdentity = true;
+                if (timeout != null)
+                {
+                    opt.BatchTimeout = timeout.Value;
+                }
+            }, tran);
+        }
+
         public virtual void InsertIdentity(IEnumerable<T> modelList, List<string> fields, DistributedTransaction tran = null, int? timeout = null)
         {
             DataBase.BulkInsert(Name, modelList, opt =>
+            {
+                opt.IgnoreOnInsertNames = SqlField.AllFieldExceptKeyList.Except(fields).ToList();
+                opt.InsertKeepIdentity = true;
+                if (timeout != null)
+                {
+                    opt.BatchTimeout = timeout.Value;
+                }
+            }, tran);
+        }
+
+        public virtual Task InsertIdentityAsync(IEnumerable<T> modelList, List<string> fields, DistributedTransaction tran = null, int? timeout = null)
+        {
+            return DataBase.BulkInsertAsync(Name, modelList, opt =>
             {
                 opt.IgnoreOnInsertNames = SqlField.AllFieldExceptKeyList.Except(fields).ToList();
                 opt.InsertKeepIdentity = true;
@@ -364,6 +550,19 @@ namespace Dapper.Sharding
             }, tran);
         }
 
+        public virtual Task InsertIdentityIgnoreAsync(IEnumerable<T> modelList, List<string> fields, DistributedTransaction tran = null, int? timeout = null)
+        {
+            return DataBase.BulkInsertAsync(Name, modelList, opt =>
+            {
+                opt.IgnoreOnInsertNames = fields;
+                opt.InsertKeepIdentity = true;
+                if (timeout != null)
+                {
+                    opt.BatchTimeout = timeout.Value;
+                }
+            }, tran);
+        }
+
         public virtual void InsertIdentityIfNoExists(T model, DistributedTransaction tran = null, int? timeout = null)
         {
             DataBase.BulkInsert(Name, model, opt =>
@@ -377,9 +576,36 @@ namespace Dapper.Sharding
             }, tran);
         }
 
+        public virtual Task InsertIdentityIfNoExistsAsync(T model, DistributedTransaction tran = null, int? timeout = null)
+        {
+            return DataBase.BulkInsertAsync(Name, model, opt =>
+            {
+                opt.InsertKeepIdentity = true;
+                opt.InsertIfNotExists = true;
+                if (timeout != null)
+                {
+                    opt.BatchTimeout = timeout.Value;
+                }
+            }, tran);
+        }
+
         public virtual void InsertIdentityIfNoExists(T model, List<string> fields, DistributedTransaction tran = null, int? timeout = null)
         {
             DataBase.BulkInsert(Name, model, opt =>
+            {
+                opt.IgnoreOnInsertNames = SqlField.AllFieldExceptKeyList.Except(fields).ToList();
+                opt.InsertKeepIdentity = true;
+                opt.InsertIfNotExists = true;
+                if (timeout != null)
+                {
+                    opt.BatchTimeout = timeout.Value;
+                }
+            }, tran);
+        }
+
+        public virtual Task InsertIdentityIfNoExistsAsync(T model, List<string> fields, DistributedTransaction tran = null, int? timeout = null)
+        {
+            return DataBase.BulkInsertAsync(Name, model, opt =>
             {
                 opt.IgnoreOnInsertNames = SqlField.AllFieldExceptKeyList.Except(fields).ToList();
                 opt.InsertKeepIdentity = true;
@@ -405,6 +631,20 @@ namespace Dapper.Sharding
             }, tran);
         }
 
+        public virtual Task InsertIdentityIfNoExistsIgnoreAsync(T model, List<string> fields, DistributedTransaction tran = null, int? timeout = null)
+        {
+            return DataBase.BulkInsertAsync(Name, model, opt =>
+            {
+                opt.IgnoreOnInsertNames = fields;
+                opt.InsertKeepIdentity = true;
+                opt.InsertIfNotExists = true;
+                if (timeout != null)
+                {
+                    opt.BatchTimeout = timeout.Value;
+                }
+            }, tran);
+        }
+
         public virtual void InsertIdentityIfNoExists(IEnumerable<T> modelList, DistributedTransaction tran = null, int? timeout = null)
         {
             DataBase.BulkInsert(Name, modelList, opt =>
@@ -418,9 +658,36 @@ namespace Dapper.Sharding
             }, tran);
         }
 
+        public virtual Task InsertIdentityIfNoExistsAsync(IEnumerable<T> modelList, DistributedTransaction tran = null, int? timeout = null)
+        {
+            return DataBase.BulkInsertAsync(Name, modelList, opt =>
+            {
+                opt.InsertKeepIdentity = true;
+                opt.InsertIfNotExists = true;
+                if (timeout != null)
+                {
+                    opt.BatchTimeout = timeout.Value;
+                }
+            }, tran);
+        }
+
         public virtual void InsertIdentityIfNoExists(IEnumerable<T> modelList, List<string> fields, DistributedTransaction tran = null, int? timeout = null)
         {
             DataBase.BulkInsert(Name, modelList, opt =>
+            {
+                opt.IgnoreOnInsertNames = SqlField.AllFieldExceptKeyList.Except(fields).ToList();
+                opt.InsertKeepIdentity = true;
+                opt.InsertIfNotExists = true;
+                if (timeout != null)
+                {
+                    opt.BatchTimeout = timeout.Value;
+                }
+            }, tran);
+        }
+
+        public virtual Task InsertIdentityIfNoExistsAsync(IEnumerable<T> modelList, List<string> fields, DistributedTransaction tran = null, int? timeout = null)
+        {
+            return DataBase.BulkInsertAsync(Name, modelList, opt =>
             {
                 opt.IgnoreOnInsertNames = SqlField.AllFieldExceptKeyList.Except(fields).ToList();
                 opt.InsertKeepIdentity = true;
@@ -446,9 +713,40 @@ namespace Dapper.Sharding
             }, tran);
         }
 
+        public virtual Task InsertIdentityIfNoExistsIgnoreAsync(IEnumerable<T> modelList, List<string> fields, DistributedTransaction tran = null, int? timeout = null)
+        {
+            return DataBase.BulkInsertAsync(Name, modelList, opt =>
+            {
+                opt.IgnoreOnInsertNames = fields;
+                opt.InsertKeepIdentity = true;
+                opt.InsertIfNotExists = true;
+                if (timeout != null)
+                {
+                    opt.BatchTimeout = timeout.Value;
+                }
+            }, tran);
+        }
+
         public virtual void Merge(T model, List<string> fields = null, DistributedTransaction tran = null, int? timeout = null)
         {
             DataBase.BulkMerge(Name, model, opt =>
+            {
+                if (fields != null)
+                {
+                    var ignoreFileds = SqlField.AllFieldExceptKeyList.Except(fields).ToList();
+                    opt.IgnoreOnMergeUpdateNames = ignoreFileds;
+                }
+                opt.MergeKeepIdentity = true;
+                if (timeout != null)
+                {
+                    opt.BatchTimeout = timeout.Value;
+                }
+            }, tran);
+        }
+
+        public virtual Task MergeAsync(T model, List<string> fields = null, DistributedTransaction tran = null, int? timeout = null)
+        {
+            return DataBase.BulkMergeAsync(Name, model, opt =>
             {
                 if (fields != null)
                 {
@@ -480,6 +778,23 @@ namespace Dapper.Sharding
             }, tran);
         }
 
+        public virtual Task MergeAsync(IEnumerable<T> modelList, List<string> fields = null, DistributedTransaction tran = null, int? timeout = null)
+        {
+            return DataBase.BulkMergeAsync(Name, modelList, opt =>
+            {
+                if (fields != null)
+                {
+                    var ignoreFileds = SqlField.AllFieldExceptKeyList.Except(fields).ToList();
+                    opt.IgnoreOnMergeUpdateNames = ignoreFileds;
+                }
+                opt.MergeKeepIdentity = true;
+                if (timeout != null)
+                {
+                    opt.BatchTimeout = timeout.Value;
+                }
+            }, tran);
+        }
+
         public virtual void MergeIgnore(T model, List<string> fields = null, DistributedTransaction tran = null, int? timeout = null)
         {
             DataBase.BulkMerge(Name, model, opt =>
@@ -496,9 +811,41 @@ namespace Dapper.Sharding
             }, tran);
         }
 
+        public virtual Task MergeIgnoreAsync(T model, List<string> fields = null, DistributedTransaction tran = null, int? timeout = null)
+        {
+            return DataBase.BulkMergeAsync(Name, model, opt =>
+            {
+                if (fields != null)
+                {
+                    opt.IgnoreOnMergeUpdateNames = fields;
+                }
+                opt.MergeKeepIdentity = true;
+                if (timeout != null)
+                {
+                    opt.BatchTimeout = timeout.Value;
+                }
+            }, tran);
+        }
+
         public virtual void MergeIgnore(IEnumerable<T> modelList, List<string> fields = null, DistributedTransaction tran = null, int? timeout = null)
         {
             DataBase.BulkMerge(Name, modelList, opt =>
+            {
+                if (fields != null)
+                {
+                    opt.IgnoreOnMergeUpdateNames = fields;
+                }
+                opt.MergeKeepIdentity = true;
+                if (timeout != null)
+                {
+                    opt.BatchTimeout = timeout.Value;
+                }
+            }, tran);
+        }
+
+        public virtual Task MergeIgnoreAsync(IEnumerable<T> modelList, List<string> fields = null, DistributedTransaction tran = null, int? timeout = null)
+        {
+            return DataBase.BulkMergeAsync(Name, modelList, opt =>
             {
                 if (fields != null)
                 {
@@ -698,9 +1045,37 @@ namespace Dapper.Sharding
             }, tran);
         }
 
+        public virtual Task UpdateAsync(IEnumerable<T> modelList, List<string> fields = null, DistributedTransaction tran = null, int? timeout = null)
+        {
+            return DataBase.BulkUpdateAsync(Name, modelList, opt =>
+            {
+                if (fields != null)
+                {
+                    var ignoreFileds = SqlField.AllFieldExceptKeyList.Except(fields).ToList();
+                    opt.IgnoreOnUpdateNames = ignoreFileds;
+                    if (timeout != null)
+                    {
+                        opt.BatchTimeout = timeout.Value;
+                    }
+                }
+            }, tran);
+        }
+
         public virtual void UpdateIgnore(IEnumerable<T> modelList, List<string> fields, DistributedTransaction tran = null, int? timeout = null)
         {
             DataBase.BulkUpdate(Name, modelList, opt =>
+            {
+                opt.IgnoreOnUpdateNames = fields;
+                if (timeout != null)
+                {
+                    opt.BatchTimeout = timeout.Value;
+                }
+            }, tran);
+        }
+
+        public virtual Task UpdateIgnoreAsync(IEnumerable<T> modelList, List<string> fields, DistributedTransaction tran = null, int? timeout = null)
+        {
+            return DataBase.BulkUpdateAsync(Name, modelList, opt =>
             {
                 opt.IgnoreOnUpdateNames = fields;
                 if (timeout != null)
@@ -809,6 +1184,17 @@ namespace Dapper.Sharding
                     opt.BatchTimeout = timeout.Value;
                 }
 
+            }, tran);
+        }
+
+        public virtual Task DeleteAsync(IEnumerable<T> modelList, DistributedTransaction tran = null, int? timeout = null)
+        {
+            return DataBase.BulkDeleteAsync(Name, modelList, opt =>
+            {
+                if (timeout != null)
+                {
+                    opt.BatchTimeout = timeout.Value;
+                }
             }, tran);
         }
 

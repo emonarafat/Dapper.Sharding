@@ -337,7 +337,16 @@ namespace Test
         {
             Factory.peopleTable.Insert(new People { Name = "马六", bb = true });
             var data = Factory.peopleTable.GetAll();
+
             Console.WriteLine(data.FirstOrDefault()?.bb);
+
+            var dt = data.ToDataTable();
+
+            Console.WriteLine(dt.Rows.Count + dt.Rows[0]["Name"].ToString());
+
+            var lisss = dt.ToEnumerableList<People>();
+
+            Console.WriteLine(lisss.Count() + lisss.First().Name);
         }
 
     }
