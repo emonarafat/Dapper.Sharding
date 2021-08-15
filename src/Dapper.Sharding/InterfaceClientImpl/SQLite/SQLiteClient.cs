@@ -43,7 +43,8 @@ namespace Dapper.Sharding
 
         public override IDatabase GetDatabase(string name, bool useGis = false, string ext = null)
         {
-            if (!DataBaseCache.ContainsKey(name))
+            var exists = DataBaseCache.TryGetValue(name, out var val);
+            if (!exists)
             {
                 lock (Locker.GetObject(name))
                 {
@@ -53,8 +54,9 @@ namespace Dapper.Sharding
                         DataBaseCache.TryAdd(name, CreateIDatabase(name));
                     }
                 }
+                val = DataBaseCache[name];
             }
-            return DataBaseCache[name];
+            return val;
         }
 
         #endregion

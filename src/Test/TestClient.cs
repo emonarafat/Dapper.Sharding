@@ -2,6 +2,7 @@
 using Newtonsoft.Json;
 using NUnit.Framework;
 using System;
+using System.Threading.Tasks;
 
 namespace Test
 {
@@ -61,6 +62,43 @@ namespace Test
             var id2 = ShardingFactory.NextObjectId();
             var id3 = ShardingFactory.NextSnowIdAsString();
             Assert.Pass($"{id}\n{id2}\n{id3}");
+        }
+
+        [Test]
+        public async Task TestThreadDb()
+        {
+            var task1 = Task.Run(() =>
+            {
+                return Factory.Client.GetDatabase("zzz1");
+            });
+
+            var task2 = Task.Run(() =>
+            {
+                return Factory.Client.GetDatabase("zzz1");
+            });
+
+            await Task.WhenAll(task1, task2);
+            Console.WriteLine(task1.Result.Equals(task2.Result));
+            Console.WriteLine("没问题");
+          
+        }
+
+        [Test]
+        public async Task TestThreadTable()
+        {
+            var task1 = Task.Run(() =>
+            {
+                return Factory.Client.GetDatabase("zzz1").GetTable<People>("p");
+            });
+
+            var task2 = Task.Run(() =>
+            {
+                return Factory.Client.GetDatabase("zzz1").GetTable<People>("p");
+            });
+
+            await Task.WhenAll(task1, task2);
+            Console.WriteLine(task1.Result.Equals(task2.Result));
+            Console.WriteLine("没问题");
         }
 
     }

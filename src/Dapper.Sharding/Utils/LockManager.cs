@@ -4,9 +4,9 @@ namespace Dapper.Sharding
 {
     public class LockManager
     {
-        private object _lock = new object();
+        private readonly object _lock = new object();
 
-        private Dictionary<string, object> dict = new Dictionary<string, object>();
+        private readonly Dictionary<string, object> dict = new Dictionary<string, object>();
 
         public object GetObject(string name)
         {
@@ -17,11 +17,11 @@ namespace Dapper.Sharding
                 {
                     if (!dict.ContainsKey(name))
                     {
-                        val = new object();
-                        dict.Add(name, val);
+                        dict.Add(name, new object());
                     }
                 }
-            }
+                val = dict[name];
+            }  
             return val;
         }
     }

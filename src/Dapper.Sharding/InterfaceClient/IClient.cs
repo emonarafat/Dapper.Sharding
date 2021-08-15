@@ -267,12 +267,11 @@ namespace Dapper.Sharding
 
         #region protected method
 
-        protected LockManager Locker { get; } = new LockManager();
+        protected readonly LockManager Locker = new LockManager();
 
-        protected ConcurrentDictionary<string, IDatabase> DataBaseCache { get; } = new ConcurrentDictionary<string, IDatabase>();
+        protected readonly ConcurrentDictionary<string, IDatabase> DataBaseCache = new ConcurrentDictionary<string, IDatabase>();
 
         protected abstract IDatabase CreateIDatabase(string name);
-
 
         #endregion
 
@@ -306,10 +305,10 @@ namespace Dapper.Sharding
                                 CreateDatabase(name, useGis, ext);
                             }
                         }
-                        val = CreateIDatabase(name);
-                        DataBaseCache.TryAdd(name, val);
+                        DataBaseCache.TryAdd(name, CreateIDatabase(name));
                     }
                 }
+                val = DataBaseCache[name];
             }
             return val;
         }

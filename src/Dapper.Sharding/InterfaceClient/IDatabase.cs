@@ -694,11 +694,11 @@ namespace Dapper.Sharding
 
         #region protected method
 
-        protected LockManager Locker { get; } = new LockManager();
+        protected readonly LockManager Locker = new LockManager();
 
-        protected ConcurrentDictionary<string, object> TableCache { get; } = new ConcurrentDictionary<string, object>();
+        protected readonly ConcurrentDictionary<string, object> TableCache = new ConcurrentDictionary<string, object>();
 
-        protected ConcurrentDictionary<string, object> TableCache2 { get; } = new ConcurrentDictionary<string, object>();
+        protected readonly ConcurrentDictionary<string, object> TableCache2 = new ConcurrentDictionary<string, object>();
 
         protected abstract ITable<T> CreateITable<T>(string name) where T : class;
 
@@ -804,10 +804,10 @@ namespace Dapper.Sharding
 
                             #endregion
                         }
-                        val = CreateITable<T>(name);
-                        TableCache.TryAdd(name, val);
+                        TableCache.TryAdd(name, CreateITable<T>(name));
                     }
                 }
+                val = TableCache[name];
             }
             return (ITable<T>)val;
         }
@@ -822,10 +822,10 @@ namespace Dapper.Sharding
                 {
                     if (!TableCache2.ContainsKey(key))
                     {
-                        val = CreateITable<T>(name);
-                        TableCache2.TryAdd(key, val);
+                        TableCache2.TryAdd(key, CreateITable<T>(name));
                     }
                 }
+                val = TableCache2[key];
             }
             return (ITable<T>)val;
         }
