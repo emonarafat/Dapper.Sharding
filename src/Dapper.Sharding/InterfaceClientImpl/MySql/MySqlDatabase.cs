@@ -142,8 +142,16 @@ namespace Dapper.Sharding
                     }
                 }
             }
-            sb.Append($")DEFAULT CHARSET={Client.Charset} COMMENT '{tableEntity.Comment}'");
-
+            var engine = "";
+            if (string.IsNullOrEmpty(tableEntity.Engine))
+            {
+                engine = "InnoDB";
+            }
+            else if(tableEntity.Engine.ToLower()!= "innodb" || tableEntity.Engine.ToLower() != "myisam" || tableEntity.Engine.ToLower() != "xtradb" || tableEntity.Engine.ToLower() != "aria")
+            {
+                engine = "InnoDB";
+            }
+            sb.Append($") ENGINE={engine} DEFAULT CHARSET={Client.Charset} COMMENT '{tableEntity.Comment}'");
             return sb.ToString();
         }
 

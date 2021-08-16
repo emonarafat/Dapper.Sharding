@@ -124,7 +124,7 @@ namespace Dapper.Sharding
 
         }
 
-        public static void CreateDbContextFile(this IDatabase database, string savePath, string nameSpace, string modelNameSpace = "Model", string modelSuffix = "", bool proSuffix = false, bool tableNameLower = false)
+        public static void CreateDbContextFile(this IDatabase database, string savePath, string nameSpace, string modelNameSpace = "Model", string modelSuffix = "", bool proSuffix = false, bool tableNameLower = false, bool staticClass = true)
         {
             if (!Directory.Exists(savePath))
             {
@@ -152,18 +152,49 @@ namespace Dapper.Sharding
             sb.AppendLine();
             sb.Append("    {");
             sb.AppendLine();
-            sb.Append("        public readonly IDatabase Db;");
+            if (!staticClass)
+            {
+                sb.Append("        public readonly IDatabase Db;");
+                sb.AppendLine();
+                sb.Append("        public DbContext(IDatabase db)");
+                sb.AppendLine();
+                sb.Append("        {");
+                sb.AppendLine();
+                sb.Append("            Db = db;");
+                sb.AppendLine();
+                sb.Append("        }");
+            }
+            else
+            {
+                sb.Append("        public static readonly IClient Client;");
+                sb.AppendLine();
+                sb.Append($"        public static IDatabase Db => Client.GetDatabase(\"{database.Name}\");");
+                sb.AppendLine();
+                sb.Append("        static DbContext()");
+                sb.AppendLine();
+                sb.Append("        {");
+                sb.AppendLine();
+                sb.Append("            Client = ShardingFactory.CreateClient(DataBaseType.MySql, new DataBaseConfig { Server = \"127.0.0.1\", UserId = \"root\", Password = \"123\" });");
+                sb.AppendLine();
+                sb.Append("            //Client = ShardingFactory.CreateClient(DataBaseType.Postgresql, new DataBaseConfig { Server = \"127.0.0.1\", UserId = \"postgres\", Password = \"123\" });");
+                sb.AppendLine();
+                sb.Append("            //Client = ShardingFactory.CreateClient(DataBaseType.Sqlite, new DataBaseConfig { Server = \"db\" });");
+                sb.AppendLine();
+                sb.Append("            //Client = ShardingFactory.CreateClient(DataBaseType.SqlServer2008, new DataBaseConfig { Server = \".\", UserId = \"sa\", Password = \"123\" });");
+                sb.AppendLine();
+                sb.Append("            //Client = ShardingFactory.CreateClient(DataBaseType.ClickHouse, new DataBaseConfig { Server = \"127.0.0.1\", UserId = \"default\", Password = \"\" });");
+                sb.AppendLine();
+                sb.Append("            //Client = ShardingFactory.CreateClient(DataBaseType.Oracle, new DataBaseConfig { Server = \"127.0.0.1\", UserId = \"\", Password = \"\" });");
+                sb.AppendLine();
+                sb.Append("        }");
+            }
             sb.AppendLine();
             sb.AppendLine();
-            sb.Append("        public DbContext(IDatabase db)");
-            sb.AppendLine();
-            sb.Append("        {");
-            sb.AppendLine();
-            sb.Append("            Db = db;");
-            sb.AppendLine();
-            sb.Append("        }");
-            sb.AppendLine();
-            sb.AppendLine();
+            var st = " static";
+            if (!staticClass)
+            {
+                st = "";
+            }
             foreach (var name in tableList)
             {
                 var className = name.FirstCharToUpper() + modelSuffix;
@@ -181,7 +212,7 @@ namespace Dapper.Sharding
                 {
                     tablename = tablename.ToLower();
                 }
-                sb.Append($"        public ITable<{className}> {className2} => Db.GetTable<{className}>(\"{tablename}\");");
+                sb.Append($"        public{st} ITable<{className}> {className2} => Db.GetTable<{className}>(\"{tablename}\");");
                 sb.AppendLine();
             }
             sb.Append("    }");
