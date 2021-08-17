@@ -845,12 +845,10 @@ namespace Dapper.Sharding
             if (!string.IsNullOrEmpty(tablename))
             {
                 TableCache.TryRemove(tablename, out _);
-                TableCache2.TryRemove(tablename, out _);
             }
             else
             {
                 TableCache.Clear();
-                TableCache2.Clear();
             }
 
         }

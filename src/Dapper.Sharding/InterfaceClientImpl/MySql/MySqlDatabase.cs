@@ -142,12 +142,20 @@ namespace Dapper.Sharding
                     }
                 }
             }
-            var engine = "";
-            if (string.IsNullOrEmpty(tableEntity.Engine))
+
+            if (tableEntity.Engine == null)
             {
-                engine = "InnoDB";
+                tableEntity.Engine = "";
             }
-            else if(tableEntity.Engine.ToLower()!= "innodb" || tableEntity.Engine.ToLower() != "myisam" || tableEntity.Engine.ToLower() != "xtradb" || tableEntity.Engine.ToLower() != "aria")
+            var engineList = new string[] 
+            { 
+                "innodb", "myisam", "xtradb", "aria", "tokudb", 
+                "myrocks", "spider", "columnstore", "memory" ,"archive",
+                "connect","csv","federatedx","cassandrase","sphinxse","mroonga",
+                "sequence","blackhole","oqgraph"
+            };
+            var engine = engineList.FirstOrDefault(f => f == tableEntity.Engine.ToLower());
+            if (engine == null)
             {
                 engine = "InnoDB";
             }
