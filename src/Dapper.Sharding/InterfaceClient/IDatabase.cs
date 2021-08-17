@@ -793,11 +793,14 @@ namespace Dapper.Sharding
                                     }
                                 }
 
-                                foreach (var item in dbColumns)
+                                if (Client.AutoCompareTableColumnDelete)
                                 {
-                                    if (!tableEntity.ColumnList.Any(a => a.Name.ToLower().Equals(item.ToLower())))
+                                    foreach (var item in dbColumns)
                                     {
-                                        manager.DropColumn(item);
+                                        if (!tableEntity.ColumnList.Any(a => a.Name.ToLower().Equals(item.ToLower())))
+                                        {
+                                            manager.DropColumn(item);
+                                        }
                                     }
                                 }
                             }

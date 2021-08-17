@@ -289,6 +289,8 @@ namespace Dapper.Sharding
 
         public bool AutoCompareTableColumn { get; set; } = false;
 
+        public bool AutoCompareTableColumnDelete { get; set; } = false;
+
         public virtual IDatabase GetDatabase(string name, bool useGis = false, string ext = null)
         {
             var exists = DataBaseCache.TryGetValue(name, out var val);
