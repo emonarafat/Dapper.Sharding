@@ -8,6 +8,7 @@ static IClient client = ShardingFactory.CreateClient(DataBaseType.MySql, config)
 //client.AutoCreateDatabase = true;
 //client.AutoCreateTable = true;
 //client.AutoCompareTableColumn = false;
+//client.AutoCompareTableColumnDelete = false;
 
 var db = client.GetDatabase("test");
 //var db2 = client.GetDatabase("test2"); //this will create test2 database(自由分库)
