@@ -186,5 +186,10 @@ namespace Dapper.Sharding
         {
             return new SQLiteTable<T>(name, this);
         }
+
+        public override void Vacuum()
+        {
+            Execute("vacuum");
+        }
     }
 }

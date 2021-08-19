@@ -207,5 +207,10 @@ namespace Dapper.Sharding
         {
             throw new System.NotImplementedException();
         }
+
+        public override void Vacuum()
+        {
+            throw new NotImplementedException();
+        }
     }
 }

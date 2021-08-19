@@ -166,5 +166,26 @@ on (a.object_id = g.major_id AND g.minor_id = 0) where a.Name='{name}'";
         {
             throw new NotImplementedException();
         }
+
+        public override void Vacuum()
+        {
+            var sql = $@"DECLARE @DB NVARCHAR(MAX)='{Name}'
+DECLARE @sql NVARCHAR(MAX)='
+ALTER DATABASE '+@DB+' SET RECOVERY SIMPLE WITH NO_WAIT
+ALTER DATABASE '+@DB+' SET RECOVERY SIMPLE'
+
+DECLARE @sql2 NVARCHAR(MAX)='
+USE ['+@DB+']
+DBCC SHRINKDATABASE('+@DB+') 
+DBCC SHRINKFILE(1 , 1, TRUNCATEONLY)'
+
+DECLARE @sql3 NVARCHAR(MAX)='
+ALTER DATABASE '+@DB+' SET RECOVERY FULL WITH NO_WAIT
+ALTER DATABASE '+@DB+' SET RECOVERY FULL'
+EXEC(@sql)
+EXEC(@sql2)
+EXEC(@sql3)";
+            Execute(sql);
+        }
     }
 }

@@ -886,6 +886,8 @@ namespace Dapper.Sharding
 
         public abstract void OptimizeTable(string name, string partition, bool final = false, bool deduplicate = false);
 
+        public abstract void Vacuum();
+
         #endregion
 
     }

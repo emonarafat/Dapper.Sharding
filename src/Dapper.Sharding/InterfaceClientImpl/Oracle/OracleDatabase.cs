@@ -210,5 +210,10 @@ WHERE C.TABLE_NAME = '{name.ToUpper()}' ORDER BY C.COLUMN_ID";
         {
             throw new NotImplementedException();
         }
+
+        public override void Vacuum()
+        {
+            throw new NotImplementedException();
+        }
     }
 }

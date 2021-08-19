@@ -233,5 +233,10 @@ order by a.relname asc";
         {
             throw new NotImplementedException();
         }
+
+        public override void Vacuum()
+        {
+            throw new NotImplementedException();
+        }
     }
 }

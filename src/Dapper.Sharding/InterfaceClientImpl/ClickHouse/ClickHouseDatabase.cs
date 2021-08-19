@@ -149,6 +149,11 @@ namespace Dapper.Sharding
             throw new NotImplementedException();
         }
 
+        public override void Vacuum()
+        {
+            throw new NotImplementedException();
+        }
+
         protected override ITable<T> CreateITable<T>(string name)
         {
             return new ClickHouseTable<T>(name, this);
