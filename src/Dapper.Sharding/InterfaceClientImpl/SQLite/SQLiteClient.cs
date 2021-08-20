@@ -106,6 +106,9 @@ namespace Dapper.Sharding
             return ShowDatabases();
         }
 
-
+        public override void Vacuum(string dbname)
+        {
+            GetDatabase(dbname).Vacuum();
+        }
     }
 }

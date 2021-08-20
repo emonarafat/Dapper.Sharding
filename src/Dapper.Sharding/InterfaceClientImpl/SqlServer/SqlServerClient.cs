@@ -124,6 +124,25 @@ namespace Dapper.Sharding
             return ShowDatabases().Where(w => w != "master" && w != "tempdb" && w != "model" && w != "msdb" && w.ToLower() != "resource");
         }
 
+        public override void Vacuum(string dbname)
+        {
+            var sql = $@"DECLARE @DB NVARCHAR(MAX)='{dbname}'
+DECLARE @sql NVARCHAR(MAX)='
+ALTER DATABASE '+@DB+' SET RECOVERY SIMPLE WITH NO_WAIT
+ALTER DATABASE '+@DB+' SET RECOVERY SIMPLE'
 
+DECLARE @sql2 NVARCHAR(MAX)='
+USE ['+@DB+']
+DBCC SHRINKDATABASE('+@DB+') 
+DBCC SHRINKFILE(1 , 1, TRUNCATEONLY)'
+
+DECLARE @sql3 NVARCHAR(MAX)='
+ALTER DATABASE '+@DB+' SET RECOVERY FULL WITH NO_WAIT
+ALTER DATABASE '+@DB+' SET RECOVERY FULL'
+EXEC(@sql)
+EXEC(@sql2)
+EXEC(@sql3)";
+            Execute(sql);
+        }
     }
 }

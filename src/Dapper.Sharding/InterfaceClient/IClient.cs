@@ -347,6 +347,8 @@ namespace Dapper.Sharding
 
         public abstract bool ExistsDatabase(string name);
 
+        public abstract void Vacuum(string dbname);
+
         #endregion
 
     }

@@ -137,5 +137,10 @@ namespace Dapper.Sharding
         {
             return ShowDatabases().Where(w => w != "template1" && w != "template0" && w != "postgres");
         }
+
+        public override void Vacuum(string dbname)
+        {
+            throw new NotImplementedException();
+        }
     }
 }

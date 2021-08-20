@@ -86,6 +86,11 @@ namespace Dapper.Sharding
             return ShowDatabases().Where(w => w != "system");
         }
 
+        public override void Vacuum(string dbname)
+        {
+            throw new NotImplementedException();
+        }
+
         protected override IDatabase CreateIDatabase(string name)
         {
             return new ClickHouseDatabase(name, this);

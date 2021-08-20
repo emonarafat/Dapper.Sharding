@@ -91,5 +91,9 @@ namespace Dapper.Sharding
             return ExecuteScalar<int>($"select COUNT(1) from information_schema.schemata where schema_name='{name}'") > 0;
         }
 
+        public override void Vacuum(string dbname)
+        {
+            throw new NotImplementedException();
+        }
     }
 }

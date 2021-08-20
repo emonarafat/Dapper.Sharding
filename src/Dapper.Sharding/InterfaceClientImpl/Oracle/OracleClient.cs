@@ -142,5 +142,9 @@ namespace Dapper.Sharding
             return Query<string>("SELECT USERNAME FROM dba_users WHERE DEFAULT_TABLESPACE NOT IN('SYSTEM','SYSAUX','USERS')");
         }
 
+        public override void Vacuum(string dbname)
+        {
+            throw new NotImplementedException();
+        }
     }
 }
