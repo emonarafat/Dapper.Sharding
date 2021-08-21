@@ -349,5 +349,15 @@ namespace Test
             Console.WriteLine(lisss.Count() + lisss.First().Name);
         }
 
+        [Test]
+        public void SeqUpdate()
+        {
+            var tt = Factory.Db.GetTable<People>("ppp");
+            tt.Merge(new People { Id = 1 });
+            tt.Merge(new People { Id = 5 });
+            tt.SeqUpdate();
+            tt.Insert(new People());
+        }
+
     }
 }

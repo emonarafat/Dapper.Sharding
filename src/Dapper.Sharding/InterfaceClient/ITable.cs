@@ -76,6 +76,8 @@ namespace Dapper.Sharding
         protected abstract string SqlGetByDescNextPage(int pageSize, string and = null, string returnFields = null, bool dy = false);
 
         protected abstract string SqlGetByDescLastPage(int pageSize, string and = null, string returnFields = null, bool dy = false);
+
+        public abstract void SeqUpdate(string name = null);
     }
 
     public abstract partial class ITable<T> where T : class

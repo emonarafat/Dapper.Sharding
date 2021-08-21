@@ -285,6 +285,11 @@ namespace Dapper.Sharding
             return $"SELECT * FROM (SELECT TOP({pageSize}) {returnFields} FROM [{Name}] AS A WHERE 1=1 {and} ORDER BY [{SqlField.PrimaryKey}]) AS B ORDER BY [{SqlField.PrimaryKey}] DESC";
         }
 
+        public override void SeqUpdate(string name = null)
+        {
+            //throw new System.NotImplementedException();
+        }
+
         #endregion
     }
 

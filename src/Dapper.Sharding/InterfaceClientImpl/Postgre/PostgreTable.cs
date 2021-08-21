@@ -347,6 +347,15 @@ namespace Dapper.Sharding
             return $"SELECT * FROM (SELECT {returnFields} FROM {Name} AS A WHERE 1=1 {and} ORDER BY {SqlField.PrimaryKey} LIMIT {pageSize}) AS B ORDER BY {SqlField.PrimaryKey} DESC";
         }
 
+        public override void SeqUpdate(string name = null)
+        {
+            if (string.IsNullOrEmpty(name))
+            {
+                name = Name;
+            }
+            DataBase.Execute($"select setval('{name}_id_seq',(select max({SqlField.PrimaryKey}) from {name}))");
+        }
+
         #endregion
     }
 }
