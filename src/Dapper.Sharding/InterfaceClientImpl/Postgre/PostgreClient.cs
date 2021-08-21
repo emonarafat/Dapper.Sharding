@@ -83,7 +83,7 @@ namespace Dapper.Sharding
 
         public override void DropDatabase(string name)
         {
-            Execute($"DROP DATABASE IF EXISTS {name}");
+            Execute($"SELECT pg_terminate_backend(pg_stat_activity.pid) FROM pg_stat_activity WHERE datname='{name}' AND pid<>pg_backend_pid();DROP DATABASE IF EXISTS {name}");
             DataBaseCache.TryRemove(name, out _);
         }
 

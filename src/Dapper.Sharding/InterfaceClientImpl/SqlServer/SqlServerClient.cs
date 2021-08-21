@@ -69,8 +69,11 @@ namespace Dapper.Sharding
 
         public override void DropDatabase(string name)
         {
-            Execute($"IF EXISTS (SELECT 1 FROM sys.databases WHERE name='{name}') DROP DATABASE [{name}]");
-            DataBaseCache.TryRemove(name, out _);
+            if (ExistsDatabase(name))
+            {
+                Execute($"USE [master];ALTER DATABASE [{name}] SET SINGLE_USER with ROLLBACK IMMEDIATE;DROP DATABASE [{name}]");
+                DataBaseCache.TryRemove(name, out _);
+            }
         }
 
         public override bool ExistsDatabase(string name)
