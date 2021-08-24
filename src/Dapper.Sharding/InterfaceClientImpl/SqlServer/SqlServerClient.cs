@@ -72,13 +72,13 @@ namespace Dapper.Sharding
             if (ExistsDatabase(name))
             {
                 Execute($"USE [master];ALTER DATABASE [{name}] SET SINGLE_USER with ROLLBACK IMMEDIATE;DROP DATABASE [{name}]");
-                DataBaseCache.TryRemove(name, out _);
             }
+            DataBaseCache.TryRemove(name, out _);
         }
 
         public override bool ExistsDatabase(string name)
         {
-            return ExecuteScalar<int>($"SELECT COUNT(1) FROM sys.databases WHERE name='{name}'") > 1;
+            return ExecuteScalar<int>($"SELECT COUNT(1) FROM sys.databases WHERE name='{name}'") > 0;
         }
 
         public override IDbConnection GetConn()

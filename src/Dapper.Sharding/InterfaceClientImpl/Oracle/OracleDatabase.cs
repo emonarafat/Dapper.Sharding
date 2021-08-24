@@ -29,7 +29,10 @@ namespace Dapper.Sharding
 
         public override void DropTable(string name)
         {
-            Execute("DROP TABLE " + name);
+            if (ExistsTable(name))
+            {
+                Execute("DROP TABLE " + name);
+            }
             TableCache.TryRemove(name, out _);
         }
 
