@@ -96,6 +96,17 @@ namespace Dapper.Sharding
             {
                 if (length == 0)
                     return "datetime";
+                if (length > 0)
+                {
+                    if (length == 1)
+                    {
+                        return "datetime2";
+                    }
+                    else
+                    {
+                        return $"datetime2({length})";
+                    }
+                }
                 if (length == -1)
                     return "date";
                 if (length == -2)
