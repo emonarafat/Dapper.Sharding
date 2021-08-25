@@ -33,6 +33,7 @@ namespace Test
 
         public int IsAdmin { get; set; }
 
+        [Column(6)]
         public DateTime AddTime { get; set; }
 
         public short ShortField { get; set; }

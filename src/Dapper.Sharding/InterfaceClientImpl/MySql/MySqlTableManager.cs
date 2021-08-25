@@ -131,6 +131,7 @@ namespace Dapper.Sharding
                 var t = array[0].ToLower();
                 model.DbType = t;
                 var map = DbCsharpTypeMap.MySqlMap.FirstOrDefault(f => f.DbType == t);
+
                 if (map != null)
                 {
                     model.CsStringType = map.CsStringType;
@@ -141,6 +142,7 @@ namespace Dapper.Sharding
                     model.CsStringType = "object";
                     model.CsType = typeof(object);
                 }
+
                 if (array.Length == 2 && t != "enum")
                 {
                     var length = array[1].Split(')')[0];

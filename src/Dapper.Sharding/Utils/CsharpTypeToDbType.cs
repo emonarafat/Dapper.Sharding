@@ -185,8 +185,10 @@ namespace Dapper.Sharding
 
             if (type == typeof(DateTime))
             {
-                if (length >= 0)
+                if (length == 0)
                     return "datetime";
+                if (length > 0)
+                    return $"datetime({length})";
                 if (length == -1)
                     return "datetime2";
                 if (length == -2)
@@ -364,7 +366,7 @@ namespace Dapper.Sharding
             if (type == typeof(DateTime))
             {
                 if (length >= 0)
-                    return "timestamp";
+                    return $"timestamp({length})";
                 if (length == -1)
                     return "timestamptz";
                 return "date";

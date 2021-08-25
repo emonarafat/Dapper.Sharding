@@ -203,6 +203,7 @@ where table_schema='public' and table_name=current_setting('myapp.name') order b
                 var t = array[0].ToLower();
                 model.DbType = t;
                 var map = DbCsharpTypeMap.PostgreSqlMap.FirstOrDefault(f => f.DbType == t);
+
                 if (map != null)
                 {
                     model.CsStringType = map.CsStringType;
@@ -213,6 +214,7 @@ where table_schema='public' and table_name=current_setting('myapp.name') order b
                     model.CsStringType = "object";
                     model.CsType = typeof(object);
                 }
+
                 if (array.Length == 2)
                 {
                     var length = array[1].Split(')')[0];
@@ -228,6 +230,11 @@ where table_schema='public' and table_name=current_setting('myapp.name') order b
                     else if (t.ToLower() == "longtext")
                     {
                         model.Length = -2;
+                    }
+                    else if (t.ToLower() == "timestamp")
+                    {
+                        model.Length = 6;
+                        model.DbLength = "6";
                     }
                     else
                     {
