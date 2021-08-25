@@ -123,6 +123,7 @@ order by a.id,a.colorder";
                 model.DbType = t.ToLower();
 
                 var map = DbCsharpTypeMap.SqlServerMap.FirstOrDefault(f => f.DbType == t);
+
                 if (map != null)
                 {
                     model.CsStringType = map.CsStringType;
@@ -133,10 +134,16 @@ order by a.id,a.colorder";
                     model.CsStringType = "object";
                     model.CsType = typeof(object);
                 }
+
                 if (model.DbType == "decimal")
                 {
                     model.Length = Convert.ToDouble($"{row.ColumnLength}.{row.DecimalDigit}");
                     model.DbLength = $"{row.ColumnLength},{row.DecimalDigit}";
+                }
+                else if (model.DbType == "datetime2")
+                {
+                    model.Length = 1;
+                    model.DbType = "1";
                 }
                 else
                 {
