@@ -4,6 +4,7 @@
     {
         MySql = 1,
         Sqlite = 2,
+        SqlServer2005 = 8,
         SqlServer2008 = 3,
         SqlServer2012 = 4,
         Postgresql = 5,

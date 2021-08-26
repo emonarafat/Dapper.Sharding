@@ -94,23 +94,30 @@ namespace Dapper.Sharding
 
             if (type == typeof(DateTime))
             {
-                if (length == 0)
-                    return "datetime";
-                if (length > 0)
+                if (length >= 0)
                 {
-                    if (length == 1)
+                    if (length > 7)
                     {
-                        return "datetime2";
+                        length = 7;
                     }
-                    else
-                    {
-                        return $"datetime2({length})";
-                    }
+                    return $"datetime2({length})";
                 }
                 if (length == -1)
                     return "date";
                 if (length == -2)
                     return "timestamp";
+                return $"datetime";
+            }
+
+            if (type == typeof(DateTimeOffset))
+            {
+                if (length >= 0)
+                {
+                    if (length > 7)
+                    {
+                        length = 7;
+                    }
+                }
                 return $"datetimeoffset({length})";
             }
 
@@ -143,7 +150,6 @@ namespace Dapper.Sharding
                 if (length <= 0)
                     length = 50;
                 return $"varchar({length})";
-
             }
 
             if (type == typeof(bool))
@@ -199,7 +205,13 @@ namespace Dapper.Sharding
                 if (length == 0)
                     return "datetime";
                 if (length > 0)
+                {
+                    if (length > 6)
+                    {
+                        length = 6;
+                    }
                     return $"datetime({length})";
+                }
                 if (length == -1)
                     return "datetime2";
                 if (length == -2)
@@ -377,7 +389,13 @@ namespace Dapper.Sharding
             if (type == typeof(DateTime))
             {
                 if (length >= 0)
+                {
+                    if (length > 6)
+                    {
+                        length = 6;
+                    }
                     return $"timestamp({length})";
+                }
                 if (length == -1)
                     return "timestamptz";
                 return "date";
@@ -385,7 +403,11 @@ namespace Dapper.Sharding
 
             if (type == typeof(DateTimeOffset))
             {
-                return "timetz";
+                if (length > 7)
+                {
+                    length = 6;
+                }
+                return $"timetz({length})";
             }
 
             if (type == typeof(TimeSpan))

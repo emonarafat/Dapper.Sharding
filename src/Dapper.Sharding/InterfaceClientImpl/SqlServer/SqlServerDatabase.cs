@@ -111,7 +111,15 @@ on (a.object_id = g.major_id AND g.minor_id = 0) where a.Name='{name}'";
             sb.Append($"CREATE TABLE [{name}](");
             foreach (var item in tableEntity.ColumnList)
             {
-                sb.Append($"[{item.Name}] {item.DbType}");
+                if (DbType == DataBaseType.SqlServer2005 && item.CsType == typeof(DateTime))
+                {
+                    sb.Append($"[{item.Name}] datetime");
+                }
+                else
+                {
+                    sb.Append($"[{item.Name}] {item.DbType}");
+                }
+
                 if (tableEntity.PrimaryKey.ToLower() == item.Name.ToLower())
                 {
                     if (tableEntity.IsIdentity)
@@ -120,13 +128,7 @@ on (a.object_id = g.major_id AND g.minor_id = 0) where a.Name='{name}'";
                     }
                     sb.Append(" PRIMARY KEY");
                 }
-                //else
-                //{
-                //    if (item.CsType.IsValueType && item.CsType != typeof(DateTime) && item.CsType != typeof(DateTimeOffset))
-                //    {
-                //        sb.Append(" DEFAULT 0");
-                //    }
-                //}
+
                 if (item != tableEntity.ColumnList.Last())
                 {
                     sb.Append(",");

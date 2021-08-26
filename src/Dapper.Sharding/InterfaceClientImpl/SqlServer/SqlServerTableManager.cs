@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Threading.Tasks;
 
 namespace Dapper.Sharding
 {
@@ -30,12 +29,17 @@ namespace Dapper.Sharding
 
         public override void AddColumn(string name, Type t, double length = 0, string comment = null)
         {
-            var dbType = CsharpTypeToDbType.Create(DataBase.DbType, t, length);
-            //if (t.IsValueType && t != typeof(DateTime) && t != typeof(DateTimeOffset))
-            //{
-            //    dbType += " DEFAULT 0";
-            //}
-            DataBase.Execute($"alter table [{Name}] add  [{name}] {dbType}");
+
+            if (DataBase.DbType == DataBaseType.SqlServer2005 && t == typeof(DateTime))
+            {
+                DataBase.Execute($"alter table [{Name}] add  [{name}] datetime");
+            }
+            else 
+            {
+                var dbType = CsharpTypeToDbType.Create(DataBase.DbType, t, length);
+                DataBase.Execute($"alter table [{Name}] add  [{name}] {dbType}");
+            }
+           
             if (!string.IsNullOrEmpty(comment))
             {
                 DataBase.Execute($"EXEC sp_addextendedproperty 'MS_Description', N'{comment}', 'SCHEMA', N'dbo','TABLE', N'{Name}','COLUMN', N'{name}'");
@@ -142,8 +146,13 @@ order by a.id,a.colorder";
                 }
                 else if (model.DbType == "datetime2")
                 {
-                    model.Length = 1;
-                    model.DbType = "1";
+                    model.Length = row.DecimalDigit;
+                    model.DbType = model.Length.ToString();
+                }
+                else if (model.DbType == "datetimeoffset")
+                {
+                    model.Length = row.DecimalDigit;
+                    model.DbType = model.Length.ToString();
                 }
                 else
                 {

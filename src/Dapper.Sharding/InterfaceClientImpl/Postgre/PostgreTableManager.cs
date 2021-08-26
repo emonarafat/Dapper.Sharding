@@ -236,6 +236,11 @@ where table_schema='public' and table_name=current_setting('myapp.name') order b
                         model.Length = 6;
                         model.DbLength = "6";
                     }
+                    else if (t.ToLower()== "timetz")
+                    {
+                        model.Length = 6;
+                        model.DbLength = "6";
+                    }
                     else
                     {
                         model.Length = 0;

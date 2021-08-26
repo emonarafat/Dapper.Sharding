@@ -37,6 +37,8 @@ namespace Dapper.Sharding
             {
                 case DataBaseType.MySql:
                     return new MySqlClient(config);
+                case DataBaseType.SqlServer2005:
+                    return new SqlServerClient(config, DataBaseType.SqlServer2005);
                 case DataBaseType.SqlServer2008:
                     return new SqlServerClient(config, DataBaseType.SqlServer2008);
                 case DataBaseType.SqlServer2012:
