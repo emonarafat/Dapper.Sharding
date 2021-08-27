@@ -21,10 +21,7 @@ namespace Dapper.Sharding
 
         public override void DropTable(string name)
         {
-            if (ExistsTable(name))
-            {
-                Execute($"DROP TABLE {name}");
-            }
+            Execute($"DROP TABLE IF EXISTS {name}");
             TableCache.TryRemove(name, out _);
         }
 

@@ -11,13 +11,14 @@ namespace Dapper.Sharding
             {
                 case DataBaseType.MySql: return CreateMySqlType(type, length);
                 case DataBaseType.Sqlite: return CreateSqliteType(type);
+                case DataBaseType.SqlServer2005: return CreateSqlServerType(type, length);
                 case DataBaseType.SqlServer2008: return CreateSqlServerType(type, length);
                 case DataBaseType.SqlServer2012: return CreateSqlServerType(type, length);
                 case DataBaseType.Postgresql: return CreatePostgresqlType(type, length);
                 case DataBaseType.Oracle: return CreateOracleType(type, length);
                 case DataBaseType.ClickHouse: return CreateClickHouseType(type, length);
             }
-            throw new Exception("no found");
+            throw new Exception("CsharpTypeToDbType no found");
         }
 
         private static string CreateSqlServerType(Type type, double length = 0)
@@ -224,7 +225,7 @@ namespace Dapper.Sharding
 
             if (type == typeof(DateTimeOffset))
             {
-                return "datetimeoffset";
+                return "timestamp";
             }
 
             if (length >= 0)
@@ -403,7 +404,7 @@ namespace Dapper.Sharding
 
             if (type == typeof(DateTimeOffset))
             {
-                if (length > 7)
+                if (length > 6)
                 {
                     length = 6;
                 }
