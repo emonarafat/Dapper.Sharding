@@ -44,6 +44,7 @@ namespace Dapper.Sharding
                 }
                 catch (Exception ex)
                 {
+
                     conn.Dispose();
                     throw ex;
                 }
@@ -62,7 +63,11 @@ namespace Dapper.Sharding
                 }
                 catch (Exception ex)
                 {
+#if CORE
+                    await conn.DisposeAsync();
+#else
                     conn.Dispose();
+#endif
                     throw ex;
                 }
             }
