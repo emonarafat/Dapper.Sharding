@@ -2,11 +2,12 @@
 	<PropertyGroup>
 		<TargetFrameworks>net45;netstandard2.0;net5.0</TargetFrameworks>
 	</PropertyGroup>
+	<PropertyGroup>
+		<LangVersion>9.0</LangVersion>
+		<AllowUnsafeBlocks>True</AllowUnsafeBlocks>
+	</PropertyGroup>
 	<PropertyGroup Condition="'$(TargetFramework)'=='net5.0'">
 		<DefineConstants>CORE</DefineConstants>
-	</PropertyGroup>
-	<PropertyGroup Condition="'$(TargetFramework)'=='net45'">
-		<DefineConstants>NET45</DefineConstants>
 	</PropertyGroup>
 	<ItemGroup>
 		<None Remove="DbTypeMap.xml" />
@@ -22,14 +23,19 @@
 	</ItemGroup>
 	
 	<ItemGroup Condition="'$(TargetFramework)'=='net45'">
+		<Reference Include="Dapper">
+			<HintPath>..\..\Lib\Z.Dapper.Plus\net45\Dapper.dll</HintPath>
+		</Reference>
 		<Reference Include="Z.Dapper.Plus">
 			<HintPath>..\..\Lib\Z.Dapper.Plus\net45\Z.Dapper.Plus.dll</HintPath>
 		</Reference>
+		<Reference Include="FastMember">
+			<HintPath>..\..\Lib\Z.Dapper.Plus\net45\FastMember.dll</HintPath>
+		</Reference>
 		<PackageReference Include="System.ValueTuple" Version="4.5.0" />
-		<PackageReference Include="Dapper" Version="1.50.2" />
-		<PackageReference Include="FastMember" Version="1.3.0" />
 		<PackageReference Include="Npgsql" Version="4.0.12" />
 		<PackageReference Include="Oracle.ManagedDataAccess" Version="19.12.0" />
+		<PackageReference Include="Microsoft.CSharp" Version="4.7.0" />
 	</ItemGroup>
 	
 	<ItemGroup Condition="'$(TargetFramework)'=='netstandard2.0'">

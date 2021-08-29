@@ -233,20 +233,11 @@ namespace Dapper.Sharding
             {
                 using (var cnn = await GetConnAsync())
                 {
-#if NET45
-                    return await cnn.QueryFirstOrDefaultAsync(typeof(Dictionary<string, object>), sql, param, commandTimeout: timeout);
-#else
                     return await cnn.QueryFirstOrDefaultAsync(sql, param, commandTimeout: timeout);
-#endif
                 }
             }
             var val = await tran.GetValAsync(this);
-#if NET45
-            return await val.Item1.QueryFirstOrDefaultAsync(typeof(Dictionary<string, object>), sql, param, val.Item2, timeout);
-#else
             return await val.Item1.QueryFirstOrDefaultAsync(sql, param, val.Item2, timeout);
-#endif
-
         }
 
         public async Task<T> QueryFirstOrDefaultAsync<T>(string sql, object param = null, DistributedTransaction tran = null, int? timeout = null)

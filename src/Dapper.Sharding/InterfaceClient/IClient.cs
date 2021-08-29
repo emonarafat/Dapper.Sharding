@@ -163,11 +163,7 @@ namespace Dapper.Sharding
             }
             using (var cnn = await GetConnAsync())
             {
-#if NET45
-                return await cnn.QueryFirstOrDefaultAsync(typeof(Dictionary<string, object>), sql, param, commandTimeout: timeout);
-#else
                 return await cnn.QueryFirstOrDefaultAsync(sql, param, commandTimeout: timeout);
-#endif
             }
 
         }
