@@ -36,6 +36,37 @@ namespace Dapper.Sharding
 
         #endregion
 
+        public override string GetDatabaseScript(string name, bool useGis = false, string ext = null)
+        {
+            var sb = new StringBuilder();
+            sb.Append($"IF NOT EXISTS (SELECT 1 FROM sys.databases WHERE name='{name}') CREATE DATABASE [{name}] ");
+            if (!string.IsNullOrEmpty(Config.Database_Path))
+            {
+                sb.Append($"ON (NAME={name},FILENAME='{Path.Combine(Config.Database_Path, name)}.mdf'");
+                if (Config.Database_Size_Mb != 0)
+                {
+                    sb.Append($",SIZE={Config.Database_Size_Mb}MB");
+                }
+                if (Config.Database_SizeGrowth_Mb != 0)
+                {
+                    sb.Append($",FILEGROWTH={Config.Database_SizeGrowth_Mb}MB");
+                }
+                sb.Append(")");
+                sb.Append($"LOG ON (NAME={name}_log,FILENAME='{Path.Combine(Config.Database_Path, name)}_log.ldf'");
+                if (Config.Database_LogSize_Mb != 0)
+                {
+                    sb.Append($",SIZE={Config.Database_LogSize_Mb}MB");
+                }
+                if (Config.Database_LogSizGrowth_Mb != 0)
+                {
+                    sb.Append($",FILEGROWTH={Config.Database_LogSizGrowth_Mb}MB");
+                }
+                sb.Append(")");
+            }
+
+            return sb.ToString();
+        }
+
         public override void CreateDatabase(string name, bool useGis = false, string ext = null)
         {
             var sb = new StringBuilder();

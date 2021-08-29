@@ -65,6 +65,11 @@ namespace Dapper.Sharding
             return conn;
         }
 
+        public override string GetDatabaseScript(string name, bool useGis = false, string ext = null)
+        {
+            return $"CREATE DATABASE IF NOT EXISTS `{name}` DEFAULT CHARACTER SET {Charset} COLLATE {Charset}_general_ci";
+        }
+
         public override void CreateDatabase(string name, bool useGis = false, string ext = null)
         {
             Execute($"CREATE DATABASE IF NOT EXISTS `{name}` DEFAULT CHARACTER SET {Charset} COLLATE {Charset}_general_ci");
@@ -95,5 +100,6 @@ namespace Dapper.Sharding
         {
             throw new NotImplementedException();
         }
+
     }
 }

@@ -349,6 +349,8 @@ namespace Dapper.Sharding
 
         public abstract void Vacuum(string dbname);
 
+        public abstract string GetDatabaseScript(string name, bool useGis = false, string ext = null);
+
         #endregion
 
     }

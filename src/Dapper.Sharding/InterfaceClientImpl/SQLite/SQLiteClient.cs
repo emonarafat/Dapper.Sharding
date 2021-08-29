@@ -110,5 +110,10 @@ namespace Dapper.Sharding
         {
             GetDatabase(dbname).Vacuum();
         }
+
+        public override string GetDatabaseScript(string name, bool useGis = false, string ext = null)
+        {
+            throw new NotImplementedException();
+        }
     }
 }

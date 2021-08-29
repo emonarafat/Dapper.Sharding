@@ -16,16 +16,22 @@ namespace Dapper.Sharding
 
         public override string ConnectionString { get; }
 
-        public override void CreateDatabase(string name, bool useGis = false, string ext = null)
+        public override string GetDatabaseScript(string name, bool useGis = false, string ext = null)
         {
             if (string.IsNullOrEmpty(ext))
             {
-                Execute($"CREATE DATABASE IF NOT EXISTS {name}");
+                return $"CREATE DATABASE IF NOT EXISTS {name}";
             }
             else
             {
-                Execute($"CREATE DATABASE IF NOT EXISTS {name} {ext}");
+                return $"CREATE DATABASE IF NOT EXISTS {name} {ext}";
             }
+        }
+
+        public override void CreateDatabase(string name, bool useGis = false, string ext = null)
+        {
+            var sql = GetDatabaseScript(name, useGis, ext);
+            Execute(sql);
         }
 
         public override void DropDatabase(string name)

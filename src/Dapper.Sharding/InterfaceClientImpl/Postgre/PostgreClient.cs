@@ -27,6 +27,11 @@ namespace Dapper.Sharding
 
         #endregion
 
+        public override string GetDatabaseScript(string name, bool useGis = false, string ext = null)
+        {
+            return $"CREATE DATABASE {name}";
+        }
+
         public override void CreateDatabase(string name, bool useGis = false, string ext = null)
         {
             Execute($"CREATE DATABASE {name}");

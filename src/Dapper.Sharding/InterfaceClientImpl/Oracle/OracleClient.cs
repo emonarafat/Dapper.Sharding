@@ -38,6 +38,11 @@ namespace Dapper.Sharding
 
         #endregion
 
+        public override string GetDatabaseScript(string name, bool useGis = false, string ext = null)
+        {
+            throw new NotImplementedException();
+        }
+
         public override void CreateDatabase(string name, bool useGis = false, string ext = null)
         {
             var upName = name.ToUpper();
