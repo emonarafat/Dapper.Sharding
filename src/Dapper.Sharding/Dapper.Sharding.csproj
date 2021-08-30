@@ -16,25 +16,21 @@
 		<EmbeddedResource Include="DbTypeMap.xml" />
 	</ItemGroup>
 	<ItemGroup>
+		<PackageReference Include="System.Linq.Dynamic.Core" Version="1.2.12" />
 		<PackageReference Include="MySqlConnector" Version="1.3.11" />
 		<PackageReference Include="System.Data.SQLite.Core" Version="1.0.115" />
-		<PackageReference Include="System.Linq.Dynamic.Core" Version="1.2.12" />
 		<PackageReference Include="ClickHouse.Ado.Dapper" Version="1.0.8" />
 	</ItemGroup>
 	
 	<ItemGroup Condition="'$(TargetFramework)'=='net45'">
-		<Reference Include="Dapper">
-			<HintPath>..\..\Lib\Z.Dapper.Plus\net45\Dapper.dll</HintPath>
-		</Reference>
 		<Reference Include="Z.Dapper.Plus">
 			<HintPath>..\..\Lib\Z.Dapper.Plus\net45\Z.Dapper.Plus.dll</HintPath>
 		</Reference>
-		<Reference Include="FastMember">
-			<HintPath>..\..\Lib\Z.Dapper.Plus\net45\FastMember.dll</HintPath>
-		</Reference>
-		<PackageReference Include="System.ValueTuple" Version="4.5.0" />
+		<PackageReference Include="Dapper.Net45" Version="2.0.90" />
+		<PackageReference Include="FastMember.Net45" Version="1.5.0" />
 		<PackageReference Include="Npgsql" Version="4.0.12" />
 		<PackageReference Include="Oracle.ManagedDataAccess" Version="19.12.0" />
+		<PackageReference Include="System.ValueTuple" Version="4.5.0" />
 		<PackageReference Include="Microsoft.CSharp" Version="4.7.0" />
 	</ItemGroup>
 	
