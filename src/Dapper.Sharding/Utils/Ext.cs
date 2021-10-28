@@ -32,7 +32,7 @@ namespace Dapper.Sharding
 
         #region IDatabase
 
-        public static void CreateTableFiles(this IDatabase database, string savePath, List<string> tableList = null, string nameSpace = "Model", string suffix = "", bool partialClass = false)
+        public static void CreateTableFiles(this IDatabase database, string savePath, List<string> tableList = null, string nameSpace = "Model", string suffix = "", bool partialClass = false, bool fisrtCharUpper = false)
         {
             if (!Directory.Exists(savePath))
             {
@@ -106,7 +106,14 @@ namespace Dapper.Sharding
                     }
                     else
                     {
-                        sb.Append("        public " + item.CsStringType + " " + item.Name.FirstCharToUpper() + " { get; set; }");
+                        if (fisrtCharUpper)
+                        {
+                            sb.Append("        public " + item.CsStringType + " " + item.Name.FirstCharToUpper() + " { get; set; }");
+                        }
+                        else
+                        {
+                            sb.Append("        public " + item.CsStringType + " " + item.Name + " { get; set; }");
+                        }
                         sb.AppendLine();
                     }
                     if (item != entity.ColumnList.Last())
