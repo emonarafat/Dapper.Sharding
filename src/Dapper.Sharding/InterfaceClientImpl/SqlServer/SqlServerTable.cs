@@ -290,6 +290,16 @@ namespace Dapper.Sharding
             //throw new System.NotImplementedException();
         }
 
+        protected override string SqlGetByIdForUpdateNoWait(string returnFields = null, bool dy = false)
+        {
+            throw new System.NotImplementedException();
+        }
+
+        protected override string SqlGetByIdsForUpdateNoWait(string returnFields = null, bool dy = false)
+        {
+            throw new System.NotImplementedException();
+        }
+
         #endregion
     }
 

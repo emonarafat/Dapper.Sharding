@@ -382,6 +382,11 @@ namespace Dapper.Sharding
             throw new NotImplementedException();
         }
 
+        protected override string SqlGetByIdForUpdateNoWait(string returnFields = null, bool dy = false)
+        {
+            throw new NotImplementedException();
+        }
+
         protected override string SqlGetByIds(string returnFields = null, bool dy = false)
         {
             if (string.IsNullOrEmpty(returnFields))
@@ -502,6 +507,11 @@ namespace Dapper.Sharding
             //throw new NotImplementedException();
         }
 
+
+        protected override string SqlGetByIdsForUpdateNoWait(string returnFields = null, bool dy = false)
+        {
+            throw new NotImplementedException();
+        }
         #endregion
     }
 }

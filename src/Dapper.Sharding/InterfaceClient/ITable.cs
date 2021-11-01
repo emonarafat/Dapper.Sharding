@@ -45,9 +45,13 @@ namespace Dapper.Sharding
 
         protected abstract string SqlGetByIdForUpdate(string returnFields = null, bool dy = false);
 
+        protected abstract string SqlGetByIdForUpdateNoWait(string returnFields = null, bool dy = false);
+
         protected abstract string SqlGetByIds(string returnFields = null, bool dy = false);
 
         protected abstract string SqlGetByIdsForUpdate(string returnFields = null, bool dy = false);
+
+        protected abstract string SqlGetByIdsForUpdateNoWait(string returnFields = null, bool dy = false);
 
         protected abstract string SqlGetByIdsWithField(string field, string returnFields = null, bool dy = false);
 
@@ -1330,24 +1334,48 @@ namespace Dapper.Sharding
 
         #region GetByIdForUpdate
 
-        public T GetByIdForUpdate(object id, string returnFields = null, DistributedTransaction tran = null, int? timeout = null)
+        public T GetByIdForUpdate(object id, DistributedTransaction tran, string returnFields = null, int? timeout = null)
         {
             return DataBase.QueryFirstOrDefault<T>(SqlGetByIdForUpdate(returnFields), new { id }, tran, timeout);
         }
 
-        public Task<T> GetByIdForUpdateAsync(object id, string returnFields = null, DistributedTransaction tran = null, int? timeout = null)
+        public Task<T> GetByIdForUpdateAsync(object id, DistributedTransaction tran, string returnFields = null, int? timeout = null)
         {
             return DataBase.QueryFirstOrDefaultAsync<T>(SqlGetByIdForUpdate(returnFields), new { id }, tran, timeout);
         }
 
-        public dynamic GetByIdForUpdateDynamic(object id, string returnFields = null, DistributedTransaction tran = null, int? timeout = null)
+        public dynamic GetByIdForUpdateDynamic(object id, DistributedTransaction tran, string returnFields = null, int? timeout = null)
         {
             return DataBase.QueryFirstOrDefault(SqlGetByIdForUpdate(returnFields, true), new { id }, tran, timeout);
         }
 
-        public Task<dynamic> GetByIdForUpdateDynamicAsync(object id, string returnFields = null, DistributedTransaction tran = null, int? timeout = null)
+        public Task<dynamic> GetByIdForUpdateDynamicAsync(object id, DistributedTransaction tran, string returnFields = null, int? timeout = null)
         {
             return DataBase.QueryFirstOrDefaultAsync(SqlGetByIdForUpdate(returnFields, true), new { id }, tran, timeout);
+        }
+
+        #endregion
+
+        #region GetByIdForUpdateNoWait
+
+        public T GetByIdForUpdateNoWait(object id, DistributedTransaction tran, string returnFields = null, int? timeout = null)
+        {
+            return DataBase.QueryFirstOrDefault<T>(SqlGetByIdForUpdateNoWait(returnFields), new { id }, tran, timeout);
+        }
+
+        public Task<T> GetByIdForUpdateNoWaitAsync(object id, DistributedTransaction tran, string returnFields = null, int? timeout = null)
+        {
+            return DataBase.QueryFirstOrDefaultAsync<T>(SqlGetByIdForUpdateNoWait(returnFields), new { id }, tran, timeout);
+        }
+
+        public dynamic GetByIdForUpdateNoWaitDynamic(object id, DistributedTransaction tran, string returnFields = null, int? timeout = null)
+        {
+            return DataBase.QueryFirstOrDefault(SqlGetByIdForUpdateNoWait(returnFields, true), new { id }, tran, timeout);
+        }
+
+        public Task<dynamic> GetByIdForUpdateNoWaitDynamicAsync(object id, DistributedTransaction tran, string returnFields = null, int? timeout = null)
+        {
+            return DataBase.QueryFirstOrDefaultAsync(SqlGetByIdForUpdateNoWait(returnFields, true), new { id }, tran, timeout);
         }
 
         #endregion
@@ -1422,7 +1450,7 @@ namespace Dapper.Sharding
 
         #region GetByIdsForUpdate
 
-        public IEnumerable<T> GetByIdsForUpdate(object ids, string returnFields = null, DistributedTransaction tran = null, int? timeout = null)
+        public IEnumerable<T> GetByIdsForUpdate(object ids, DistributedTransaction tran, string returnFields = null, int? timeout = null)
         {
             if (CommonUtil.ObjectIsEmpty(ids))
                 return Enumerable.Empty<T>();
@@ -1438,7 +1466,7 @@ namespace Dapper.Sharding
             return DataBase.Query<T>(SqlGetByIdsForUpdate(returnFields), dpar, tran, timeout);
         }
 
-        public Task<IEnumerable<T>> GetByIdsForUpdateAsync(object ids, string returnFields = null, DistributedTransaction tran = null, int? timeout = null)
+        public Task<IEnumerable<T>> GetByIdsForUpdateAsync(object ids, DistributedTransaction tran, string returnFields = null, int? timeout = null)
         {
             if (CommonUtil.ObjectIsEmpty(ids))
                 return Task.FromResult(Enumerable.Empty<T>());
@@ -1454,7 +1482,7 @@ namespace Dapper.Sharding
             return DataBase.QueryAsync<T>(SqlGetByIdsForUpdate(returnFields), dpar, tran, timeout);
         }
 
-        public IEnumerable<dynamic> GetByIdsForUpdateDynamic(object ids, string returnFields = null, DistributedTransaction tran = null, int? timeout = null)
+        public IEnumerable<dynamic> GetByIdsForUpdateDynamic(object ids, DistributedTransaction tran, string returnFields = null, int? timeout = null)
         {
             if (CommonUtil.ObjectIsEmpty(ids))
                 return Enumerable.Empty<dynamic>();
@@ -1470,7 +1498,7 @@ namespace Dapper.Sharding
             return DataBase.Query(SqlGetByIdsForUpdate(returnFields, true), dpar, tran, timeout);
         }
 
-        public Task<IEnumerable<dynamic>> GetByIdsForUpdateDynamicAsync(object ids, string returnFields = null, DistributedTransaction tran = null, int? timeout = null)
+        public Task<IEnumerable<dynamic>> GetByIdsForUpdateDynamicAsync(object ids, DistributedTransaction tran, string returnFields = null, int? timeout = null)
         {
             if (CommonUtil.ObjectIsEmpty(ids))
                 return Task.FromResult(Enumerable.Empty<dynamic>());
@@ -1484,6 +1512,74 @@ namespace Dapper.Sharding
                 dpar.Add(":ids", ids);
             }
             return DataBase.QueryAsync(SqlGetByIdsForUpdate(returnFields, true), dpar, tran, timeout);
+        }
+
+        #endregion
+
+        #region GetByIdsForUpdate
+
+        public IEnumerable<T> GetByIdsForUpdateNoWait(object ids, DistributedTransaction tran, string returnFields = null, int? timeout = null)
+        {
+            if (CommonUtil.ObjectIsEmpty(ids))
+                return Enumerable.Empty<T>();
+            var dpar = new DynamicParameters();
+            if (DbType != DataBaseType.Oracle)
+            {
+                dpar.Add("@ids", ids);
+            }
+            else
+            {
+                dpar.Add(":ids", ids);
+            }
+            return DataBase.Query<T>(SqlGetByIdsForUpdateNoWait(returnFields), dpar, tran, timeout);
+        }
+
+        public Task<IEnumerable<T>> GetByIdsForUpdateNoWaitAsync(object ids, DistributedTransaction tran, string returnFields = null, int? timeout = null)
+        {
+            if (CommonUtil.ObjectIsEmpty(ids))
+                return Task.FromResult(Enumerable.Empty<T>());
+            var dpar = new DynamicParameters();
+            if (DbType != DataBaseType.Oracle)
+            {
+                dpar.Add("@ids", ids);
+            }
+            else
+            {
+                dpar.Add(":ids", ids);
+            }
+            return DataBase.QueryAsync<T>(SqlGetByIdsForUpdateNoWait(returnFields), dpar, tran, timeout);
+        }
+
+        public IEnumerable<dynamic> GetByIdsForUpdateNoWaitDynamic(object ids, DistributedTransaction tran, string returnFields = null, int? timeout = null)
+        {
+            if (CommonUtil.ObjectIsEmpty(ids))
+                return Enumerable.Empty<dynamic>();
+            var dpar = new DynamicParameters();
+            if (DbType != DataBaseType.Oracle)
+            {
+                dpar.Add("@ids", ids);
+            }
+            else
+            {
+                dpar.Add(":ids", ids);
+            }
+            return DataBase.Query(SqlGetByIdsForUpdateNoWait(returnFields, true), dpar, tran, timeout);
+        }
+
+        public Task<IEnumerable<dynamic>> GetByIdsForUpdateNoWaitDynamicAsync(object ids, DistributedTransaction tran, string returnFields = null, int? timeout = null)
+        {
+            if (CommonUtil.ObjectIsEmpty(ids))
+                return Task.FromResult(Enumerable.Empty<dynamic>());
+            var dpar = new DynamicParameters();
+            if (DbType != DataBaseType.Oracle)
+            {
+                dpar.Add("@ids", ids);
+            }
+            else
+            {
+                dpar.Add(":ids", ids);
+            }
+            return DataBase.QueryAsync(SqlGetByIdsForUpdateNoWait(returnFields, true), dpar, tran, timeout);
         }
 
         #endregion

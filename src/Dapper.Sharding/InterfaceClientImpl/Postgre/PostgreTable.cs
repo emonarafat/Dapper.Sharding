@@ -166,6 +166,19 @@ namespace Dapper.Sharding
             return $"SELECT {returnFields} FROM {Name} WHERE {SqlField.PrimaryKey}=@id FOR UPDATE";
         }
 
+        protected override string SqlGetByIdForUpdateNoWait(string returnFields = null, bool dy = false)
+        {
+            if (string.IsNullOrEmpty(returnFields))
+                returnFields = SqlField.AllFields;
+            if (dy && !returnFields.Contains(" AS "))
+            {
+                returnFields = returnFields.AsPgsqlField();
+            }
+            return $"SELECT {returnFields} FROM {Name} WHERE {SqlField.PrimaryKey}=@id FOR UPDATE NOWAIT";
+        }
+
+
+
         protected override string SqlGetByIds(string returnFields = null, bool dy = false)
         {
             if (string.IsNullOrEmpty(returnFields))
@@ -186,6 +199,17 @@ namespace Dapper.Sharding
                 returnFields = SqlField.AllFields;
             }
             return $"SELECT {returnFields} FROM {Name} WHERE {SqlField.PrimaryKey}=ANY(@ids) FOR UPDATE";
+        }
+
+        protected override string SqlGetByIdsForUpdateNoWait(string returnFields = null, bool dy = false)
+        {
+            if (string.IsNullOrEmpty(returnFields))
+                returnFields = SqlField.AllFields;
+            if (dy && !returnFields.Contains(" AS "))
+            {
+                returnFields = SqlField.AllFields;
+            }
+            return $"SELECT {returnFields} FROM {Name} WHERE {SqlField.PrimaryKey}=ANY(@ids) FOR UPDATE NOWAIT";
         }
 
         protected override string SqlGetByIdsWithField(string field, string returnFields = null, bool dy = false)
@@ -355,6 +379,8 @@ namespace Dapper.Sharding
             }
             DataBase.Execute($"select setval('{name}_id_seq',(select max({SqlField.PrimaryKey}) from {name}))");
         }
+
+
 
         #endregion
     }

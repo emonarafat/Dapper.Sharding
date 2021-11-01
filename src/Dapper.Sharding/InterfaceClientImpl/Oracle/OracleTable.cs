@@ -148,6 +148,15 @@ namespace Dapper.Sharding
             return $"SELECT {returnFields} FROM {Name} WHERE {SqlField.PrimaryKey}=:id FOR UPDATE";
         }
 
+        protected override string SqlGetByIdForUpdateNoWait(string returnFields = null, bool dy = false)
+        {
+            if (string.IsNullOrEmpty(returnFields))
+                returnFields = SqlField.AllFields;
+            return $"SELECT {returnFields} FROM {Name} WHERE {SqlField.PrimaryKey}=:id FOR UPDATE NOWAIT";
+        }
+
+
+
         protected override string SqlGetByIds(string returnFields = null, bool dy = false)
         {
             if (string.IsNullOrEmpty(returnFields))
@@ -160,6 +169,13 @@ namespace Dapper.Sharding
             if (string.IsNullOrEmpty(returnFields))
                 returnFields = SqlField.AllFields;
             return $"SELECT {returnFields} FROM {Name} WHERE {SqlField.PrimaryKey} IN :ids FOR UPDATE";
+        }
+
+        protected override string SqlGetByIdsForUpdateNoWait(string returnFields = null, bool dy = false)
+        {
+            if (string.IsNullOrEmpty(returnFields))
+                returnFields = SqlField.AllFields;
+            return $"SELECT {returnFields} FROM {Name} WHERE {SqlField.PrimaryKey} IN :ids FOR UPDATE NOWAIT";
         }
 
         protected override string SqlGetByIdsWithField(string field, string returnFields = null, bool dy = false)
