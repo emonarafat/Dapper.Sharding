@@ -1516,7 +1516,7 @@ namespace Dapper.Sharding
 
         #endregion
 
-        #region GetByIdsForUpdate
+        #region GetByIdsForUpdateNoWait
 
         public IEnumerable<T> GetByIdsForUpdateNoWait(object ids, DistributedTransaction tran, string returnFields = null, int? timeout = null)
         {
