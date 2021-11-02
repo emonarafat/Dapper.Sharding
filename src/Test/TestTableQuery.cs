@@ -82,8 +82,8 @@ namespace Test
         [Test]
         public void GetByIdForUpdate()
         {
-            var model = Factory.peopleTable.GetByIdForUpdate(1);
-            Console.WriteLine(JsonConvert.SerializeObject(model));
+            //var model = Factory.peopleTable.GetByIdForUpdate(1);
+            //Console.WriteLine(JsonConvert.SerializeObject(model));
 
         }
 

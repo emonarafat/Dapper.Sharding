@@ -45,7 +45,7 @@ namespace Dapper.Sharding
                 {
                     dbType += " DEFAULT FALSE";
                 }
-                
+
             }
             if (string.IsNullOrEmpty(comment))
             {
@@ -54,7 +54,7 @@ namespace Dapper.Sharding
             else
             {
                 DataBase.Execute($"ALTER TABLE {Name} ADD COLUMN {name} {dbType};COMMENT ON COLUMN {Name.ToLower()}.{name.ToLower()} IS '{comment}'");
-            }        
+            }
         }
 
         public override void DropColumn(string name)
@@ -149,7 +149,7 @@ order by
             return list;
         }
 
-        public override List<ColumnEntity> GetColumnEntityList(TableEntity tb = null)
+        public override List<ColumnEntity> GetColumnEntityList(TableEntity tb = null, bool firstCharToUpper = false)
         {
             if (tb == null)
                 tb = new TableEntity();
@@ -188,7 +188,15 @@ where table_schema='public' and table_name=current_setting('myapp.name') order b
             {
                 var model = new ColumnEntity();
                 var row2 = data2.FirstOrDefault(s => s.name == row.name);
-                model.Name = ((string)row.name).FirstCharToUpper();
+                if (firstCharToUpper)
+                {
+                    model.Name = ((string)row.name).FirstCharToUpper();
+                }
+                else
+                {
+                    model.Name = (string)row.name;
+                }
+
                 if (row2.ispk.ToString() == "1")
                 {
                     tb.PrimaryKey = model.Name;
@@ -236,7 +244,7 @@ where table_schema='public' and table_name=current_setting('myapp.name') order b
                         model.Length = 6;
                         model.DbLength = "6";
                     }
-                    else if (t.ToLower()== "timetz")
+                    else if (t.ToLower() == "timetz")
                     {
                         model.Length = 6;
                         model.DbLength = "6";

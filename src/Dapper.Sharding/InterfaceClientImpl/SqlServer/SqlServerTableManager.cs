@@ -34,12 +34,12 @@ namespace Dapper.Sharding
             {
                 DataBase.Execute($"alter table [{Name}] add  [{name}] datetime");
             }
-            else 
+            else
             {
                 var dbType = CsharpTypeToDbType.Create(DataBase.DbType, t, length);
                 DataBase.Execute($"alter table [{Name}] add  [{name}] {dbType}");
             }
-           
+
             if (!string.IsNullOrEmpty(comment))
             {
                 DataBase.Execute($"EXEC sp_addextendedproperty 'MS_Description', N'{comment}', 'SCHEMA', N'dbo','TABLE', N'{Name}','COLUMN', N'{name}'");
@@ -88,7 +88,7 @@ namespace Dapper.Sharding
             return list;
         }
 
-        public override List<ColumnEntity> GetColumnEntityList(TableEntity tb = null)
+        public override List<ColumnEntity> GetColumnEntityList(TableEntity tb = null, bool firstCharToUpper = false)
         {
             if (tb == null)
                 tb = new TableEntity();
@@ -119,8 +119,15 @@ order by a.id,a.colorder";
             foreach (var row in data)
             {
                 var model = new ColumnEntity();
-
-                model.Name = ((string)row.ColumnName).FirstCharToUpper();
+                if (firstCharToUpper)
+                {
+                    model.Name = ((string)row.ColumnName).FirstCharToUpper();
+                }
+                else
+                {
+                    model.Name = (string)row.ColumnName;
+                }
+                  
                 model.Comment = row.ColumnCommnent;
 
                 var t = (string)row.ColumnType;

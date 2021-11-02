@@ -69,11 +69,11 @@ namespace Dapper.Sharding
             return Query($"DESCRIBE TABLE {name}").Select(s => (string)s.name);
         }
 
-        public override TableEntity GetTableEntityFromDatabase(string name)
+        public override TableEntity GetTableEntityFromDatabase(string name, bool firstCharToUpper = false)
         {
             var entity = new TableEntity();
             var manager = GetTableManager(name);
-            entity.ColumnList = manager.GetColumnEntityList();
+            entity.ColumnList = manager.GetColumnEntityList(null, firstCharToUpper);
             return entity;
         }
 

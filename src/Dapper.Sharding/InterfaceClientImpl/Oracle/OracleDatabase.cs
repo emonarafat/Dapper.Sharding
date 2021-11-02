@@ -96,13 +96,13 @@ WHERE C.TABLE_NAME = '{name.ToUpper()}' ORDER BY C.COLUMN_ID";
             return Query<string>(sql);
         }
 
-        public override TableEntity GetTableEntityFromDatabase(string name)
+        public override TableEntity GetTableEntityFromDatabase(string name, bool firstCharToUpper = false)
         {
             var entity = new TableEntity();
             entity.PrimaryKey = "";
             var manager = GetTableManager(name);
             entity.IndexList = manager.GetIndexEntityList();
-            entity.ColumnList = manager.GetColumnEntityList(entity);
+            entity.ColumnList = manager.GetColumnEntityList(entity, firstCharToUpper);
             var col = entity.ColumnList.FirstOrDefault(w => w.Name.ToLower() == entity.PrimaryKey.ToLower());
             if (col != null)
             {

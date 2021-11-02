@@ -49,7 +49,7 @@ namespace Dapper.Sharding
             throw new NotImplementedException();
         }
 
-        public override List<ColumnEntity> GetColumnEntityList(TableEntity tb = null)
+        public override List<ColumnEntity> GetColumnEntityList(TableEntity tb = null, bool firstCharToUpper = false)
         {
             var list = new List<ColumnEntity>();
             var columnList = DataBase.Query($"DESCRIBE TABLE {Name}");

@@ -76,7 +76,7 @@ namespace Dapper.Sharding
             return data.Select(s => s.name as string);
         }
 
-        public override TableEntity GetTableEntityFromDatabase(string name)
+        public override TableEntity GetTableEntityFromDatabase(string name, bool firstCharToUpper = false)
         {
             dynamic dynamicTable = QueryFirstOrDefault($"SELECT * FROM sqlite_master where type='table' and tbl_name='{name}'");
             IEnumerable<dynamic> dynamicColums = Query($"pragma table_info('{name}')");
@@ -95,7 +95,7 @@ namespace Dapper.Sharding
             var manager = GetTableManager(name);
             var indexList = manager.GetIndexEntityList();
             entity.IndexList = indexList;
-            entity.ColumnList = manager.GetColumnEntityList();
+            entity.ColumnList = manager.GetColumnEntityList(null, firstCharToUpper);
             var col = entity.ColumnList.FirstOrDefault(w => w.Name.ToLower() == entity.PrimaryKey.ToLower());
             if (col != null)
             {

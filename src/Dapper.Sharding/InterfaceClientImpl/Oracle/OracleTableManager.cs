@@ -100,7 +100,7 @@ and col.table_name = '{Name.ToUpper()}'";
             return list;
         }
 
-        public override List<ColumnEntity> GetColumnEntityList(TableEntity tb = null)
+        public override List<ColumnEntity> GetColumnEntityList(TableEntity tb = null, bool firstCharToUpper = false)
         {
             if (tb == null)
                 tb = new TableEntity();
@@ -120,7 +120,10 @@ WHERE C.TABLE_NAME = '{Name.ToUpper()}' ORDER BY C.COLUMN_ID";
                 var model = new ColumnEntity();
 
                 model.Name = row.name;
-                model.Name = model.Name.ToLower().FirstCharToUpper();
+                if (firstCharToUpper)
+                {
+                    model.Name = model.Name.FirstCharToUpper();
+                }
                 model.Comment = row.comment;
 
                 var t = ((string)row.type).Split('(')[0];

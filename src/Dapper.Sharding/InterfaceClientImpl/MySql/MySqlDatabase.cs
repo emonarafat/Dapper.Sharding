@@ -163,7 +163,7 @@ namespace Dapper.Sharding
             return sb.ToString();
         }
 
-        public override TableEntity GetTableEntityFromDatabase(string name)
+        public override TableEntity GetTableEntityFromDatabase(string name, bool firstCharToUpper = false)
         {
             dynamic data = QueryFirstOrDefault($"SHOW TABLE STATUS LIKE '{name}'");
             var entity = new TableEntity();
@@ -179,9 +179,16 @@ namespace Dapper.Sharding
             var ix = indexList.FirstOrDefault(f => f.Type == IndexType.PrimaryKey);
             if (ix != null)
             {
-                entity.PrimaryKey = ix.Columns.FirstCharToUpper();
+                if (firstCharToUpper)
+                {
+                    entity.PrimaryKey = ix.Columns.FirstCharToUpper();
+                }
+                else
+                {
+                    entity.PrimaryKey = ix.Columns;
+                }
             }
-            entity.ColumnList = manager.GetColumnEntityList();
+            entity.ColumnList = manager.GetColumnEntityList(null, firstCharToUpper);
 
             var col = entity.ColumnList.FirstOrDefault(w => w.Name.ToLower() == entity.PrimaryKey.ToLower());
             if (col != null)

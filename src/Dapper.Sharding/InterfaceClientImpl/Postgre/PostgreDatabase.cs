@@ -83,7 +83,7 @@ namespace Dapper.Sharding
             return Query<string>($"select column_name from information_schema.columns where table_schema='public' and table_name = '{name}'");
         }
 
-        public override TableEntity GetTableEntityFromDatabase(string name)
+        public override TableEntity GetTableEntityFromDatabase(string name, bool firstCharToUpper = false)
         {
             var entity = new TableEntity();
             entity.PrimaryKey = "";
@@ -106,7 +106,7 @@ order by a.relname asc";
             {
                 entity.PrimaryKey = ix.Columns.FirstCharToUpper();
             }
-            entity.ColumnList = manager.GetColumnEntityList(entity);
+            entity.ColumnList = manager.GetColumnEntityList(entity, firstCharToUpper);
 
             if (entity.PrimaryKey != null)
             {

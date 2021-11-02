@@ -79,13 +79,13 @@ namespace Dapper.Sharding
             return Query<string>($"Select Name FROM SysColumns Where id=Object_Id('{name}')");
         }
 
-        public override TableEntity GetTableEntityFromDatabase(string name)
+        public override TableEntity GetTableEntityFromDatabase(string name, bool firstCharToUpper = false)
         {
             var entity = new TableEntity();
             entity.PrimaryKey = "";
             var manager = GetTableManager(name);
             entity.IndexList = manager.GetIndexEntityList();
-            entity.ColumnList = manager.GetColumnEntityList(entity);
+            entity.ColumnList = manager.GetColumnEntityList(entity, firstCharToUpper);
             string sql = $@"select ROW_NUMBER() OVER (ORDER BY a.name) AS Num, 
 a.name AS Name,
 CONVERT(NVARCHAR(100),isnull(g.[value],'')) AS Comment

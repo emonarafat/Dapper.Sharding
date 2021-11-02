@@ -833,9 +833,9 @@ namespace Dapper.Sharding
             return (ITable<T>)val;
         }
 
-        public void GeneratorTableFile(string savePath, List<string> tableList = null, string nameSpace = "Model", string suffix = "", bool partialClass = false)
+        public void GeneratorTableFile(string savePath, List<string> tableList = null, string nameSpace = "Model", string suffix = "", bool partialClass = false, bool fisrtCharUpper = false)
         {
-            this.CreateTableFiles(savePath, tableList, nameSpace, suffix, partialClass);
+            this.CreateTableFiles(savePath, tableList, nameSpace, suffix, partialClass, fisrtCharUpper);
         }
 
         public void GeneratorDbContextFile(string savePath, string nameSpace = "Model", string modelNameSpace = "Model", string modelSuffix = "", bool proSuffix = false, bool tableNameLower = false, bool staticClass = true)
@@ -878,7 +878,7 @@ namespace Dapper.Sharding
 
         public abstract string GetTableScript<T>(string name);
 
-        public abstract TableEntity GetTableEntityFromDatabase(string name);
+        public abstract TableEntity GetTableEntityFromDatabase(string name, bool firstCharToUpper = false);
 
         public abstract ITableManager GetTableManager(string name);
 

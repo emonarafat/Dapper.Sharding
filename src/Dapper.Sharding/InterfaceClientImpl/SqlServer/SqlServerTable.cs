@@ -154,6 +154,14 @@ namespace Dapper.Sharding
             return $"SELECT {returnFields} FROM [{Name}] WITH (UPDLOCK) WHERE [{SqlField.PrimaryKey}]=@id";
         }
 
+
+        protected override string SqlGetByIdForUpdateNoWait(string returnFields = null, bool dy = false)
+        {
+            if (string.IsNullOrEmpty(returnFields))
+                returnFields = SqlField.AllFields;
+            return $"SELECT {returnFields} FROM [{Name}] WITH (UPDLOCK,NOWAIT) WHERE [{SqlField.PrimaryKey}]=@id";
+        }
+
         protected override string SqlGetByIds(string returnFields = null, bool dy = false)
         {
             if (string.IsNullOrEmpty(returnFields))
@@ -166,6 +174,13 @@ namespace Dapper.Sharding
             if (string.IsNullOrEmpty(returnFields))
                 returnFields = SqlField.AllFields;
             return $"SELECT {returnFields} FROM [{Name}] WITH (UPDLOCK) WHERE [{SqlField.PrimaryKey}] IN @ids";
+        }
+
+        protected override string SqlGetByIdsForUpdateNoWait(string returnFields = null, bool dy = false)
+        {
+            if (string.IsNullOrEmpty(returnFields))
+                returnFields = SqlField.AllFields;
+            return $"SELECT {returnFields} FROM [{Name}] WITH (UPDLOCK,NOWAIT) WHERE [{SqlField.PrimaryKey}] IN @ids";
         }
 
         protected override string SqlGetByIdsWithField(string field, string returnFields = null, bool dy = false)
@@ -290,15 +305,6 @@ namespace Dapper.Sharding
             //throw new System.NotImplementedException();
         }
 
-        protected override string SqlGetByIdForUpdateNoWait(string returnFields = null, bool dy = false)
-        {
-            throw new System.NotImplementedException();
-        }
-
-        protected override string SqlGetByIdsForUpdateNoWait(string returnFields = null, bool dy = false)
-        {
-            throw new System.NotImplementedException();
-        }
 
         #endregion
     }

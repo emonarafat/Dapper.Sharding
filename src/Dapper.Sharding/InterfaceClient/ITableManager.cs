@@ -33,7 +33,7 @@ namespace Dapper.Sharding
 
         public abstract List<IndexEntity> GetIndexEntityList();
 
-        public abstract List<ColumnEntity> GetColumnEntityList(TableEntity tb = null);
+        public abstract List<ColumnEntity> GetColumnEntityList(TableEntity tb = null, bool firstCharToUpper = false);
 
     }
 }

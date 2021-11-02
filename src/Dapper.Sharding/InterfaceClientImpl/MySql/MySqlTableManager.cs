@@ -106,7 +106,7 @@ namespace Dapper.Sharding
             return list;
         }
 
-        public override List<ColumnEntity> GetColumnEntityList(TableEntity tb = null)
+        public override List<ColumnEntity> GetColumnEntityList(TableEntity tb = null, bool firstCharToUpper = false)
         {
             if (tb == null)
                 tb = new TableEntity();
@@ -115,7 +115,14 @@ namespace Dapper.Sharding
             foreach (var item in columnList)
             {
                 ColumnEntity model = new ColumnEntity();
-                model.Name = ((string)item.Field).FirstCharToUpper(); //列名
+                if (firstCharToUpper)
+                {
+                    model.Name = ((string)item.Field).FirstCharToUpper(); //列名
+                }
+                else
+                {
+                    model.Name = (string)item.Field;
+                }
 
                 string columnType = item.Type;//数据类型
 
