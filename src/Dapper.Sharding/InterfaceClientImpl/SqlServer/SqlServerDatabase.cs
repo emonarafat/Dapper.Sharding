@@ -148,7 +148,7 @@ on (a.object_id = g.major_id AND g.minor_id = 0) where a.Name='{name}'";
                 {
                     sb.Append("UNIQUE");
                 }
-                sb.Append($" NONCLUSTERED INDEX [{name}_{item.Name}] ON [dbo].[People]({item.Columns});");
+                sb.Append($" NONCLUSTERED INDEX [{name}_{item.Name}] ON [dbo].[{name}]({item.Columns});");
 
             }
             sb.Append($"EXEC sp_addextendedproperty 'MS_Description', N'{tableEntity.Comment}','SCHEMA', N'dbo','TABLE', N'{name}';");
