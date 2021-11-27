@@ -15,10 +15,16 @@ namespace Dapper.Sharding
         /// </summary>
         public string Comment;
 
-        public ColumnAttribute(double length = 0, string comment = null)
+        /// <summary>
+        /// 数据库类型
+        /// </summary>
+        public string ColumnType;
+
+        public ColumnAttribute(double length = 0, string comment = null, string columnType = null)
         {
             Length = length;
             Comment = comment;
+            ColumnType = columnType;
         }
 
 

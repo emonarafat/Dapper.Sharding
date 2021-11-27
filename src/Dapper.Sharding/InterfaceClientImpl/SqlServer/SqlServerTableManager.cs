@@ -27,7 +27,7 @@ namespace Dapper.Sharding
             DataBase.Execute($"DROP INDEX {name} ON [{Name}]");
         }
 
-        public override void AddColumn(string name, Type t, double length = 0, string comment = null)
+        public override void AddColumn(string name, Type t, double length = 0, string comment = null, string columnType = null)
         {
 
             if (DataBase.DbType == DataBaseType.SqlServer2005 && t == typeof(DateTime))
@@ -36,7 +36,7 @@ namespace Dapper.Sharding
             }
             else
             {
-                var dbType = CsharpTypeToDbType.Create(DataBase.DbType, t, length);
+                var dbType = CsharpTypeToDbType.Create(DataBase.DbType, t, length, columnType);
                 DataBase.Execute($"alter table [{Name}] add  [{name}] {dbType}");
             }
 
@@ -51,9 +51,9 @@ namespace Dapper.Sharding
             DataBase.Execute($"alter table [{Name}] drop column [{name}]");
         }
 
-        public override void ModifyColumn(string name, Type t, double length = 0, string comment = null)
+        public override void ModifyColumn(string name, Type t, double length = 0, string comment = null, string columnType = null)
         {
-            var dbType = CsharpTypeToDbType.Create(DataBase.DbType, t, length);
+            var dbType = CsharpTypeToDbType.Create(DataBase.DbType, t, length, columnType);
             DataBase.Execute($"alter table [{Name}] alter column [{name}] {dbType}");
         }
 
@@ -127,7 +127,7 @@ order by a.id,a.colorder";
                 {
                     model.Name = (string)row.ColumnName;
                 }
-                  
+
                 model.Comment = row.ColumnCommnent;
 
                 var t = (string)row.ColumnType;

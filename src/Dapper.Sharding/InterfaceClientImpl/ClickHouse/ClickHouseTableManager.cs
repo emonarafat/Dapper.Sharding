@@ -23,9 +23,9 @@ namespace Dapper.Sharding
         }
 
 
-        public override void AddColumn(string name, Type t, double length = 0, string comment = null)
+        public override void AddColumn(string name, Type t, double length = 0, string comment = null, string columnType = null)
         {
-            var dbType = CsharpTypeToDbType.Create(DataBase.DbType, t, length);
+            var dbType = CsharpTypeToDbType.Create(DataBase.DbType, t, length, columnType);
             if (t.IsValueType && t != typeof(DateTime) && t != typeof(DateTimeOffset))
             {
                 dbType += " DEFAULT 0";
@@ -38,9 +38,9 @@ namespace Dapper.Sharding
             DataBase.Execute($"ALTER TABLE `{Name}` DROP COLUMN IF EXISTS `{name}`");
         }
 
-        public override void ModifyColumn(string name, Type t, double length = 0, string comment = null)
+        public override void ModifyColumn(string name, Type t, double length = 0, string comment = null, string columnType = null)
         {
-            var dbType = CsharpTypeToDbType.Create(DataBase.DbType, t, length);
+            var dbType = CsharpTypeToDbType.Create(DataBase.DbType, t, length, columnType);
             DataBase.Execute($"ALTER TABLE `{Name}` MODIFY COLUMN IF EXISTS `{name}` {dbType}");
         }
 

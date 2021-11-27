@@ -1,12 +1,17 @@
 ﻿using System;
+using System.Collections.Generic;
 
 namespace Dapper.Sharding
 {
     internal class CsharpTypeToDbType
     {
 
-        public static string Create(DataBaseType dbType, Type type, double length = 0)
+        public static string Create(DataBaseType dbType, Type type, double length = 0, string columnType = null)
         {
+            if (!string.IsNullOrEmpty(columnType))
+            {
+                return columnType;
+            }
             switch (dbType)
             {
                 case DataBaseType.MySql: return CreateMySqlType(type, length);
@@ -416,6 +421,18 @@ namespace Dapper.Sharding
                 if (length >= 0)
                     return "time";
                 return "interval";
+            }
+
+            var typeList = new List<string>
+            {
+                "Point", "MultiPoint", "LineString",
+                "MultiLineString", "Polygon", "MultiPolygon", "GeometryCollection",
+                "Feature","FeatureCollection","GeoJSONObject","Geometry"
+            };
+
+            if (typeList.Contains(type.Name))
+            {
+                return "geometry";
             }
 
             return "bytea";

@@ -789,7 +789,7 @@ namespace Dapper.Sharding
                                 {
                                     if (!dbColumns.Any(a => a.ToLower().Equals(item.Name.ToLower())))
                                     {
-                                        manager.AddColumn(item.Name, item.CsType, item.Length, item.Comment);
+                                        manager.AddColumn(item.Name, item.CsType, item.Length, item.Comment, item.DbType);
                                     }
                                 }
 

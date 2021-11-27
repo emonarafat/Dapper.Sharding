@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using Z.Dapper.Plus;
 
 namespace Dapper.Sharding
 {
