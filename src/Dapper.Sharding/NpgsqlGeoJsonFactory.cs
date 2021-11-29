@@ -1,7 +1,6 @@
 ﻿using GeoJSON.Net;
 using GeoJSON.Net.Feature;
 using GeoJSON.Net.Geometry;
-using Npgsql;
 using System.Data;
 using Z.Dapper.Plus;
 
@@ -12,7 +11,7 @@ namespace Dapper.Sharding
         public static void UseGeoJson()
         {
             //NpgsqlConnection.GlobalTypeMapper.UseNetTopologySuite();
-            NpgsqlConnection.GlobalTypeMapper.UseGeoJson();
+            //NpgsqlConnection.GlobalTypeMapper.UseGeoJson();
             DapperPlusManager.AddCustomSupportedType(typeof(Point));
             DapperPlusManager.AddCustomSupportedType(typeof(MultiPoint));
             DapperPlusManager.AddCustomSupportedType(typeof(LineString));
