@@ -29,6 +29,10 @@ namespace Dapper.Sharding
 
         protected string GetFileName(string name, bool createDir)
         {
+            if (name.StartsWith("/") || name.StartsWith(@"\"))
+            {
+                throw new Exception(@"sqlite database name cannot start with / or \");
+            }
             var fileName = Path.Combine(ConnectionString, name);
             if (createDir)
             {
