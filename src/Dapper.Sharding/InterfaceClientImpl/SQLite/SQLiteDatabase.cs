@@ -13,7 +13,7 @@ namespace Dapper.Sharding
     {
         public SQLiteDatabase(string name, SQLiteClient client) : base(name, client)
         {
-            ConnectionString = $"data source={Path.Combine(client.Config.Server, name)}";
+            ConnectionString = ConnectionStringBuilder.BuilderSQLite(client.Config, name);
         }
 
         public override string ConnectionString { get; }

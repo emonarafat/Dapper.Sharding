@@ -34,6 +34,12 @@
 
         public int Database_LogSizGrowth_Mb { get; set; }
 
+        public int SQLite_Synchronous { get; set; }
+
+        public int SQLite_CacheSize { get; set; }
+
+        public int SQLite_PageSize { get; set; }
+
         public string OtherConfig { get; set; }
 
     }

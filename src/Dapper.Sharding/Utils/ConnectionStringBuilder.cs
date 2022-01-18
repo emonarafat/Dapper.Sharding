@@ -1,4 +1,5 @@
-﻿using System.Text;
+﻿using System.IO;
+using System.Text;
 
 namespace Dapper.Sharding
 {
@@ -259,6 +260,42 @@ namespace Dapper.Sharding
             }
             sb.Append($";Database={databaseName}");
             sb.Append(";Compress=True");
+            if (!string.IsNullOrEmpty(config.OtherConfig))
+            {
+                sb.Append($";{config.OtherConfig}");
+            }
+            return sb.ToString();
+        }
+
+        public static string BuilderSQLite(DataBaseConfig config, string databaseName = null)
+        {
+            var sb = new StringBuilder();
+            if (!string.IsNullOrEmpty(config.Server))
+            {
+                sb.Append($"data source={Path.Combine(config.Server, databaseName)}");
+            }
+            if (config.SQLite_CacheSize != 0)
+            {
+                sb.Append($";Cache Size={config.SQLite_CacheSize}");
+            }
+            if (config.SQLite_PageSize != 0)
+            {
+                sb.Append($";Page Size={config.SQLite_PageSize}");
+            }
+            if (config.MinPoolSize != 0 || config.MaxPoolSize != 0)
+            {
+                sb.Append($";Pooling=True");
+                if (config.MinPoolSize != 0)
+                {
+                    sb.Append($";Min Pool Size={config.MinPoolSize}");
+                }
+                if (config.MaxPoolSize != 0)
+                {
+                    sb.Append($";Max Pool Size={config.MaxPoolSize}");
+                }
+
+            }
+            sb.Append($";Synchronous={config.SQLite_Synchronous}");
             if (!string.IsNullOrEmpty(config.OtherConfig))
             {
                 sb.Append($";{config.OtherConfig}");
