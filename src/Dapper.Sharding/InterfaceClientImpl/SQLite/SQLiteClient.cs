@@ -16,7 +16,7 @@ namespace Dapper.Sharding
             {
                 config.Server = "db";
             }
-            if (!config.Server.Contains(":"))
+            if (!config.Server.Contains(":") && !config.Server.StartsWith("/"))
             {
                 config.Server = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, config.Server);
             }
