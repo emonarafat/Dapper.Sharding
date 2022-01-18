@@ -64,6 +64,12 @@ namespace ConsoleApp
 ```
 
 ```csharp
+//custom column type
+[Column(ColumnType: "text")]
+[Column(ColumnType: "geometry")]
+```
+
+```csharp
 //client must singleton mode(必须是单例模式)
 
     /*===mysql need MySqlConnector===*/
@@ -103,4 +109,10 @@ GeneratorClassFile(can create class entity file from database) //代码生成器
 db.GeneratorTableFile("D:\\Class"); //生成表实体类
 
 db.GeneratorDbContextFile("D:\\Class"); //生成请求上下文文件
+```
+
+```csharp
+//Npgsql GeoJson
+NpgsqlConnection.GlobalTypeMapper.UseGeoJson();
+NpgsqlGeoJsonFactory.UseGeoJson();
 ```
