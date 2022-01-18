@@ -27,13 +27,18 @@ namespace Dapper.Sharding
 
         #region protected method
 
-        protected string GetFileName(string name)
+        protected string GetFileName(string name, bool createDir)
         {
-            if (!Directory.Exists(ConnectionString))
+            var fileName = Path.Combine(ConnectionString, name);
+            if (createDir)
             {
-                Directory.CreateDirectory(ConnectionString);
+                var dir = Path.GetDirectoryName(fileName);
+                if (!Directory.Exists(dir))
+                {
+                    Directory.CreateDirectory(dir);
+                }
             }
-            return Path.Combine(ConnectionString, name);
+            return fileName;
         }
 
         protected override IDatabase CreateIDatabase(string name)
@@ -73,7 +78,7 @@ namespace Dapper.Sharding
 
         public override void CreateDatabase(string name, bool useGis = false, string ext = null)
         {
-            var fileName = GetFileName(name);
+            var fileName = GetFileName(name, true);
             if (!File.Exists(fileName))
             {
                 SQLiteConnection.CreateFile(fileName);
@@ -82,7 +87,7 @@ namespace Dapper.Sharding
 
         public override void DropDatabase(string name)
         {
-            var fileName = GetFileName(name);
+            var fileName = GetFileName(name, false);
             if (File.Exists(fileName))
             {
                 File.Delete(fileName);
@@ -92,7 +97,7 @@ namespace Dapper.Sharding
 
         public override bool ExistsDatabase(string name)
         {
-            var fileName = GetFileName(name);
+            var fileName = GetFileName(name, false);
             return File.Exists(fileName);
         }
 
