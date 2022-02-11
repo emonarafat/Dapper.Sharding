@@ -26,7 +26,7 @@ namespace Dapper.Sharding
 
         protected override string SqlInsertIdentity()
         {
-            return $"INSERT INTO [{Name}] ({SqlField.AllFields})VALUES({SqlField.AllFieldsAt})";
+            return $"SET IDENTITY_INSERT [{Name}] ON;INSERT INTO [{Name}] ({SqlField.AllFields})VALUES({SqlField.AllFieldsAt});SET IDENTITY_INSERT [{Name}] OFF";
         }
 
 
