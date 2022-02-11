@@ -1,0 +1,56 @@
+[Table("Id", true, "人类表")]
+public class Student
+{
+	public int Id { get; set; }
+
+	public string Name { get; set; }
+
+	[Column(0, "这是json", "text")]
+	public Child cc { get; set; }
+}
+
+public class Child
+{
+	public string Name { get; set; }
+
+	public int Sex { get; set; }
+}
+
+//第一种
+public class MyTypeHandler : SqlMapper.ITypeHandler
+{
+	public object Parse(Type destinationType, object value)
+	{
+		return JsonConvert.DeserializeObject((string)value, destinationType);
+	}
+
+	public void SetValue(IDbDataParameter parameter, object value)
+	{
+		parameter.Value = (value == null) ? DBNull.Value : JsonConvert.SerializeObject(value);
+		parameter.DbType = DbType.String;
+	}
+}
+
+//第二种
+public class MyTypeHandler<T> : SqlMapper.TypeHandler<T>
+    {
+        public override T Parse(object value)
+        {
+            return JsonConvert.DeserializeObject<T>((string)value);
+        }
+
+        public override void SetValue(IDbDataParameter parameter, T value)
+        {
+            parameter.Value = (value == null) ? DBNull.Value : JsonConvert.SerializeObject(value);
+            parameter.DbType = DbType.String;
+        }
+    }
+
+//使用
+//SqlMapper.AddTypeHandler(typeof(Child), new MyTypeHandler());
+//SqlMapper.AddTypeHandler(new MyTypeHandler<Child>());
+
+=================================================================================================
+
+//另一种匹配方式，直接匹配类型的
+//SqlMapper.AddTypeMap(typeof(Point), DbType.Object);
