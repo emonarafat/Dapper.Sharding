@@ -51,7 +51,6 @@ namespace Dapper.Sharding
                 var column = new ColumnEntity();
                 column.Name = pro.Name;
                 column.CsType = pro.PropertyType;
-                column.DbType = CsharpTypeToDbType.Create(dbType, column.CsType);
                 if (column.Name.ToLower() == entity.PrimaryKey.ToLower())
                 {
                     entity.PrimaryKeyType = column.CsType;
@@ -78,6 +77,10 @@ namespace Dapper.Sharding
                             entity.OtherColumnDict.Add(column.Name, column.Length);
                         }
                     }
+                }
+                else 
+                {
+                    column.DbType = CsharpTypeToDbType.Create(dbType, column.CsType);
                 }
                 entity.ColumnList.Add(column);
             }
