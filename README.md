@@ -72,35 +72,35 @@ namespace ConsoleApp
 ```csharp
 //client must singleton mode(必须是单例模式)
 
-    /*===mysql need MySqlConnector===*/
-    public static IClient Client = ShardingFactory.CreateClient(DataBaseType.MySql, new DataBaseConfig { Server = "127.0.0.1", UserId = "root", Password = "123", Port = 3306 })
+/*===mysql need MySqlConnector===*/
+public static IClient Client = ShardingFactory.CreateClient(DataBaseType.MySql, new DataBaseConfig { Server = "127.0.0.1", UserId = "root", Password = "123", Port = 3306 })
 
-    /*===sqlite need System.Data.SQLite.Core===*/
-    //public static IClient Client = ShardingFactory.CreateClient(DataBaseType.Sqlite, new DataBaseConfig { Server = "D:\\DatabaseFile" })
+/*===sqlite need System.Data.SQLite.Core===*/
+//public static IClient Client = ShardingFactory.CreateClient(DataBaseType.Sqlite, new DataBaseConfig { Server = "D:\\DatabaseFile" })
 
-    /*===sqlserver need System.Data.SqlClient ===*/
-    //public static IClient Client = ShardingFactory.CreateClient(DataBaseType.SqlServer2008, new DataBaseConfig { Server = ".\\express", UserId = "sa", Password = "123456", Database_Path = "D:\\DatabaseFile" })
-   
-    /*===clickhouse need ClickHouse.Ado.Dapper ===*/
-   //public static IClient ClientHouse = ShardingFactory.CreateClient(DataBaseType.ClickHouse, new DataBaseConfig { Server = "192.168.0.200" });
-    
-    /*===postgresql need Npgsql===*/
-    //public static IClient Client = ShardingFactory.CreateClient(DataBaseType.Postgresql, new DataBaseConfig { Server = "127.0.0.1", UserId = "postgres", Password = "123" })
+/*===sqlserver need System.Data.SqlClient ===*/
+//public static IClient Client = ShardingFactory.CreateClient(DataBaseType.SqlServer2008, new DataBaseConfig { Server = ".\\express", UserId = "sa", Password = "123456", Database_Path = "D:\\DatabaseFile" })
 
-    /*===oracle need Oracle.ManagedDataAccess.Core===*/
-    static DataBaseConfig oracleConfig = new DataBaseConfig
-    {
-        Server = "127.0.0.1",
-        UserId = "test",
-        Password = "123",
-        Oracle_ServiceName = "xe",
-        Oracle_SysUserId = "sys",
-        Oracle_SysPassword = "123",
-        Database_Path = "D:\\DatabaseFile",
-        Database_Size_Mb = 1,
-        Database_SizeGrowth_Mb = 1
-    };
-    //public static IClient Client = ShardingFactory.CreateClient(DataBaseType.Oracle, oracleConfig)
+/*===clickhouse need ClickHouse.Ado.Dapper ===*/
+//public static IClient ClientHouse = ShardingFactory.CreateClient(DataBaseType.ClickHouse, new DataBaseConfig { Server = "192.168.0.200" });
+
+/*===postgresql need Npgsql===*/
+//public static IClient Client = ShardingFactory.CreateClient(DataBaseType.Postgresql, new DataBaseConfig { Server = "127.0.0.1", UserId = "postgres", Password = "123" })
+
+/*===oracle need Oracle.ManagedDataAccess.Core===*/
+static DataBaseConfig oracleConfig = new DataBaseConfig
+{
+    Server = "127.0.0.1",
+    UserId = "test",
+    Password = "123",
+    Oracle_ServiceName = "xe",
+    Oracle_SysUserId = "sys",
+    Oracle_SysPassword = "123",
+    Database_Path = "D:\\DatabaseFile",
+    Database_Size_Mb = 1,
+    Database_SizeGrowth_Mb = 1
+};
+//public static IClient Client = ShardingFactory.CreateClient(DataBaseType.Oracle, oracleConfig)
 ```
 
 ```csharp
