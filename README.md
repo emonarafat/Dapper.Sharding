@@ -131,7 +131,7 @@ var config = new DataBaseConfig { Password = "123" };
 var client = ShardingFactory.CreateClient(DataBaseType.Postgresql, config);
 client.AutoCompareTableColumn = true;
 
-//TypeHandlerJsonNet.Add<Student>(); json.net
+//TypeHandlerJsonNet.Add<Student>(); //json.net
 TypeHandlerSystemTextJson.Add<Student>(); //System.Text.Json add dapper typehandler
 
 var db = client.GetDatabase("test");
