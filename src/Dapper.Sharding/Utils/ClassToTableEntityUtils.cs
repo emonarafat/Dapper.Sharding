@@ -62,28 +62,23 @@ namespace Dapper.Sharding
                     column.Comment = colAttr.Comment;
                     column.DbType = CsharpTypeToDbType.Create(dbType, column.CsType, colAttr.Length, colAttr.ColumnType);
                     column.Length = colAttr.Length;
-                    if (column.Length > -20 && column.Length <= -10)
+
+                    if (dbType == DataBaseType.Postgresql)
                     {
-                        entity.OtherColumnDict.Add(column.Name, column.Length);
+                        if (colAttr.ColumnType == "json")
+                        {
+                            entity.OtherColumnDict.Add(column.Name, -11);
+                        }
+                        else if (colAttr.ColumnType == "jsonb")
+                        {
+                            entity.OtherColumnDict.Add(column.Name, -10);
+                        }
+                        else if (column.Length > -20 && column.Length <= -10)
+                        {
+                            entity.OtherColumnDict.Add(column.Name, column.Length);
+                        }
                     }
                 }
-
-                if (dbType == DataBaseType.Postgresql)
-                {
-                    if (colAttr.ColumnType == "json")
-                    {
-                        entity.OtherColumnDict.Add(column.Name, -11);
-                    }
-                    else if (colAttr.ColumnType == "jsonb")
-                    {
-                        entity.OtherColumnDict.Add(column.Name, -10);
-                    }
-                    else if (column.Length > -20 && column.Length <= -10)
-                    {
-                        entity.OtherColumnDict.Add(column.Name, column.Length);
-                    }
-                }
-
                 entity.ColumnList.Add(column);
             }
 
