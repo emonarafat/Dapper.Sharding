@@ -10,6 +10,55 @@ namespace Dapper.Sharding
         {
             if (!string.IsNullOrEmpty(columnType))
             {
+                if (dbType != DataBaseType.Postgresql)
+                {
+                    if (columnType == "json" || columnType == "jsonb")
+                    {
+                        if (dbType == DataBaseType.MySql)
+                        {
+                            return "json";
+                        }
+                        else if (dbType == DataBaseType.SqlServer2012 || dbType == DataBaseType.SqlServer2008 || dbType == DataBaseType.SqlServer2005)
+                        {
+                            return "varchar(max)";
+                        }
+                        else if (dbType == DataBaseType.ClickHouse)
+                        {
+                            return "String";
+                        }
+                        else if (dbType == DataBaseType.Oracle)
+                        {
+                            return "CLOB";
+                        }
+                        else
+                        {
+                            return "text";
+                        }
+                    }
+                }
+
+                if (dbType != DataBaseType.MySql)
+                {
+                    if (columnType == "longtext")
+                    {
+                        if (dbType == DataBaseType.SqlServer2012 || dbType == DataBaseType.SqlServer2008 || dbType == DataBaseType.SqlServer2005)
+                        {
+                            return "varchar(max)";
+                        }
+                        else if (dbType == DataBaseType.Oracle)
+                        {
+                            return "CLOB";
+                        }
+                        else if (dbType == DataBaseType.ClickHouse)
+                        {
+                            return "String";
+                        }
+                        else
+                        {
+                            return "text";
+                        }
+                    }
+                }
                 return columnType;
             }
             switch (dbType)
@@ -24,6 +73,11 @@ namespace Dapper.Sharding
                 case DataBaseType.ClickHouse: return CreateClickHouseType(type, length);
             }
             throw new Exception("CsharpTypeToDbType no found");
+        }
+
+        private static string UnknownTypeMessage(string t)
+        {
+            return $"unknown type {t}, please set ColumnAttribute ColumnType like [Column(columnType:\"jsonb\")] or other database type.";
         }
 
         private static string CreateSqlServerType(Type type, double length = 0)
@@ -127,9 +181,11 @@ namespace Dapper.Sharding
                 return $"datetimeoffset({length})";
             }
 
-            if (length <= 0)
-                length = 50;
-            return $"binary({length})";
+            throw new Exception(UnknownTypeMessage(type.Name));
+
+            //if (length <= 0)
+            //    length = 50;
+            //return $"binary({length})";
         }
 
         private static string CreateMySqlType(Type type, double length = 0)
@@ -233,13 +289,15 @@ namespace Dapper.Sharding
                 return "timestamp";
             }
 
-            if (length >= 0)
-                return "blob";
-            if (length == -1)
-                return "tinyblob";
-            if (length == -2)
-                return "mediumblob";
-            return "longblob";
+            throw new Exception(UnknownTypeMessage(type.Name));
+
+            //if (length >= 0)
+            //    return "blob";
+            //if (length == -1)
+            //    return "tinyblob";
+            //if (length == -2)
+            //    return "mediumblob";
+            //return "longblob";
 
         }
 
@@ -300,7 +358,9 @@ namespace Dapper.Sharding
                 return "DATETIME";
             }
 
-            return "BLOB";
+            throw new Exception(UnknownTypeMessage(type.Name));
+
+            //return "BLOB";
         }
 
         private static string CreatePostgresqlType(Type type, double length = 0)
@@ -435,7 +495,9 @@ namespace Dapper.Sharding
                 return "geometry";
             }
 
-            return "bytea";
+            throw new Exception(UnknownTypeMessage(type.Name));
+
+            //return "bytea";
 
         }
 
@@ -514,7 +576,9 @@ namespace Dapper.Sharding
                 return "TIMESTAMP";
             }
 
-            return "BLOB";
+            throw new Exception(UnknownTypeMessage(type.Name));
+
+            //return "BLOB";
         }
 
         private static string CreateClickHouseType(Type type, double length = 0)

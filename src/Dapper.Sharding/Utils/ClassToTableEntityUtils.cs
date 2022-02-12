@@ -67,6 +67,23 @@ namespace Dapper.Sharding
                         entity.OtherColumnDict.Add(column.Name, column.Length);
                     }
                 }
+
+                if (dbType == DataBaseType.Postgresql)
+                {
+                    if (colAttr.ColumnType == "json")
+                    {
+                        entity.OtherColumnDict.Add(column.Name, -11);
+                    }
+                    else if (colAttr.ColumnType == "jsonb")
+                    {
+                        entity.OtherColumnDict.Add(column.Name, -10);
+                    }
+                    else if (column.Length > -20 && column.Length <= -10)
+                    {
+                        entity.OtherColumnDict.Add(column.Name, column.Length);
+                    }
+                }
+
                 entity.ColumnList.Add(column);
             }
 
