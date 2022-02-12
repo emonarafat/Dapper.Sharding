@@ -104,6 +104,54 @@ namespace ConsoleApp
 ```
 
 ```csharp
+//json or json string field
+namespace ConsoleApp1
+{
+    [Table("Id", true, "人类")]
+    public class School
+    {
+        public int Id { get; set; }
+
+        public string Name { get; set; }
+
+        //[Column(columnType: "varchar(8000)")]
+        [Column(columnType: "jsonb")]
+        public Student Stu { get; set; }  //json or json string
+    }
+
+    public class Student
+    {
+        public string Name { get; set; }
+
+        public int Age { get; set; }
+    }
+}
+
+var config = new DataBaseConfig { Password = "123" };
+var client = ShardingFactory.CreateClient(DataBaseType.Postgresql, config);
+client.AutoCompareTableColumn = true;
+
+//TypeHandlerJsonNet.Add<Student>(); json.net
+TypeHandlerSystemTextJson.Add<Student>(); //System.Text.Json add dapper typehandler
+
+var db = client.GetDatabase("test");
+var table = db.GetTable<School>("school");
+
+var school = new School
+{
+    Name = "test",
+    Stu = new Student
+    {
+        Name = "lihua",
+        Age = 18
+    }
+};
+table.Insert(school);
+var model = table.GetById(1);
+Console.WriteLine(model.Stu.Name);
+```
+
+```csharp
 GeneratorClassFile(can create class entity file from database) //代码生成器
 
 db.GeneratorTableFile("D:\\Class"); //生成表实体类
