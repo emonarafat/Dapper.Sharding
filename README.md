@@ -65,8 +65,8 @@ namespace ConsoleApp
 
 ```csharp
 //custom column type
-[Column(ColumnType: "text")]
-[Column(ColumnType: "geometry")]
+[Column(columnType: "text")]
+[Column(columnType: "geometry")]
 ```
 
 ```csharp
