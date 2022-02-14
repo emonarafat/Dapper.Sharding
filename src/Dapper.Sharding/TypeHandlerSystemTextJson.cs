@@ -33,7 +33,12 @@ namespace Dapper.Sharding
             }
             try
             {
-                return JsonSerializer.Deserialize<T>((string)value, options);
+                var val = (string)value;
+                if (val == "")
+                {
+                    return default;
+                }
+                return JsonSerializer.Deserialize<T>(val, options);
             }
             catch
             {

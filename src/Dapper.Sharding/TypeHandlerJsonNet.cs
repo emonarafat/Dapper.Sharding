@@ -22,7 +22,12 @@ namespace Dapper.Sharding
             }
             try
             {
-                return JsonConvert.DeserializeObject<T>((string)value);
+                var val = (string)value;
+                if (val == "")
+                {
+                    return default;
+                }
+                return JsonConvert.DeserializeObject<T>(val);
             }
             catch
             {

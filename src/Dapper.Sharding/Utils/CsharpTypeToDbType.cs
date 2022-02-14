@@ -119,7 +119,7 @@ namespace Dapper.Sharding
                 return "smallint";
             }
 
-            if (type == typeof(int) || type == typeof(uint))
+            if (type == typeof(int) || type.BaseType == typeof(Enum) || type == typeof(uint))
             {
                 return "int";
             }
@@ -229,7 +229,7 @@ namespace Dapper.Sharding
                 return "smallint(6)";
             }
 
-            if (type == typeof(int) || type == typeof(uint))
+            if (type == typeof(int) || type.BaseType == typeof(Enum) || type == typeof(uint))
             {
                 return "int(11)";
             }
@@ -328,7 +328,7 @@ namespace Dapper.Sharding
                 return "NUMERIC";
             }
 
-            if (type == typeof(int) || type == typeof(uint))
+            if (type == typeof(int) || type.BaseType == typeof(Enum) || type == typeof(uint))
             {
                 return "NUMERIC";
             }
@@ -419,7 +419,7 @@ namespace Dapper.Sharding
                 return "int2";
             }
 
-            if (type == typeof(int) || type == typeof(uint))
+            if (type == typeof(int) || type.BaseType == typeof(Enum) || type == typeof(uint))
             {
                 return "int4";
             }
@@ -538,7 +538,7 @@ namespace Dapper.Sharding
                 return "NUMBER(4)";
             }
 
-            if (type == typeof(int) || type == typeof(uint))
+            if (type == typeof(int) || type.BaseType == typeof(Enum) || type == typeof(uint))
             {
                 return "NUMBER(9)";
             }
@@ -630,7 +630,7 @@ namespace Dapper.Sharding
                 return "Int16";
             }
 
-            if (type == typeof(int))
+            if (type == typeof(int) || type.BaseType == typeof(Enum))
             {
                 if (length == -1)
                 {
