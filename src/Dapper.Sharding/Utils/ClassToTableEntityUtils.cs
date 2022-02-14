@@ -59,8 +59,8 @@ namespace Dapper.Sharding
                 if (colAttr != null)
                 {
                     column.Comment = colAttr.Comment;
-                    column.DbType = CsharpTypeToDbType.Create(dbType, column.CsType, colAttr.Length, colAttr.ColumnType);
                     column.Length = colAttr.Length;
+                    column.DbType = CsharpTypeToDbType.Create(dbType, column.CsType, colAttr.Length, colAttr.ColumnType);
 
                     if (dbType == DataBaseType.Postgresql)
                     {
