@@ -149,6 +149,18 @@ var school = new School
 table.Insert(school);
 var model = table.GetById(1);
 Console.WriteLine(model.Stu.Name);
+
+//System.Text.Json
+TypeHandlerSystemTextJson.Add<Child>();
+TypeHandlerSystemTextJson.Add<List<Child>>();
+TypeHandlerSystemTextJson.Add<JsonObject>();
+TypeHandlerSystemTextJson.Add<JsonArray>();
+
+//Json.Net
+TypeHandlerJsonNet.Add<Child>();
+TypeHandlerJsonNet.Add<List<Child>>();
+TypeHandlerJsonNet.Add<JObject>();
+TypeHandlerJsonNet.Add<JArray>();
 ```
 
 ```csharp
