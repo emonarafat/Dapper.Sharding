@@ -175,4 +175,8 @@ db.GeneratorDbContextFile("D:\\Class"); //生成请求上下文文件
 //Npgsql GeoJson
 NpgsqlConnection.GlobalTypeMapper.UseGeoJson();
 NpgsqlGeoJsonFactory.UseGeoJson();
+
+//Npgsql NetTopologySuite
+NpgsqlConnection.GlobalTypeMapper.UseNetTopologySuite();
+NpgsqlGeoFactory.UseGeo();
 ```
