@@ -1,26 +1,22 @@
-﻿using GeoJSON.Net;
-using GeoJSON.Net.Feature;
-using GeoJSON.Net.Geometry;
+﻿using NetTopologySuite.Geometries;
 using System.Data;
 using Z.Dapper.Plus;
 
 namespace Dapper.Sharding
 {
-    public class NpgsqlGeoJsonFactory
+    public class NpgsqlGeoFactory
     {
-        public static void UseGeoJson()
+        public static void UseGeo()
         {
-            //NpgsqlConnection.GlobalTypeMapper.UseGeoJson();
+            //NpgsqlConnection.GlobalTypeMapper.UseNetTopologySuite();
             DapperPlusManager.AddCustomSupportedType(typeof(Point));
             DapperPlusManager.AddCustomSupportedType(typeof(MultiPoint));
             DapperPlusManager.AddCustomSupportedType(typeof(LineString));
             DapperPlusManager.AddCustomSupportedType(typeof(MultiLineString));
             DapperPlusManager.AddCustomSupportedType(typeof(Polygon));
             DapperPlusManager.AddCustomSupportedType(typeof(MultiPolygon));
+            DapperPlusManager.AddCustomSupportedType(typeof(Geometry));
             DapperPlusManager.AddCustomSupportedType(typeof(GeometryCollection));
-            DapperPlusManager.AddCustomSupportedType(typeof(Feature));
-            DapperPlusManager.AddCustomSupportedType(typeof(FeatureCollection));
-            DapperPlusManager.AddCustomSupportedType(typeof(GeoJSONObject));
 
             SqlMapper.AddTypeMap(typeof(Point), DbType.Object);
             SqlMapper.AddTypeMap(typeof(MultiPoint), DbType.Object);
@@ -28,10 +24,8 @@ namespace Dapper.Sharding
             SqlMapper.AddTypeMap(typeof(MultiLineString), DbType.Object);
             SqlMapper.AddTypeMap(typeof(Polygon), DbType.Object);
             SqlMapper.AddTypeMap(typeof(MultiPolygon), DbType.Object);
+            SqlMapper.AddTypeMap(typeof(Geometry), DbType.Object);
             SqlMapper.AddTypeMap(typeof(GeometryCollection), DbType.Object);
-            SqlMapper.AddTypeMap(typeof(Feature), DbType.Object);
-            SqlMapper.AddTypeMap(typeof(FeatureCollection), DbType.Object);
-            SqlMapper.AddTypeMap(typeof(GeoJSONObject), DbType.Object);
-        }
+        }     
     }
 }

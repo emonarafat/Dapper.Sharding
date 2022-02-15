@@ -26,9 +26,10 @@
 		<Reference Include="Z.Dapper.Plus">
 			<HintPath>..\..\Lib\Z.Dapper.Plus\net45\Z.Dapper.Plus.dll</HintPath>
 		</Reference>
-		<PackageReference Include="Dapper.Net45" Version="2.0.90" />
+		<PackageReference Include="Dapper.Net45" Version="2.0.123" />
 		<PackageReference Include="FastMember.Net45" Version="1.5.0" />
 		<PackageReference Include="Npgsql" Version="4.0.12" />
+		<PackageReference Include="Npgsql.NetTopologySuite " Version="4.0.11" />
 		<PackageReference Include="Npgsql.GeoJSON" Version="4.0.11" />
 		<PackageReference Include="Oracle.ManagedDataAccess" Version="19.12.0" />
 		<PackageReference Include="System.ValueTuple" Version="4.5.0" />
@@ -38,6 +39,7 @@
 		<PackageReference Include="Dapper" Version="2.0.123" />
 		<PackageReference Include="FastMember" Version="1.5.0" />
 		<PackageReference Include="Npgsql" Version="5.0.11" />
+		<PackageReference Include="Npgsql.NetTopologySuite " Version="5.0.11" />
 		<PackageReference Include="Npgsql.GeoJSON" Version="5.0.11" />
 		<PackageReference Include="System.Data.SqlClient" Version="4.8.3" />
 		<PackageReference Include="Oracle.ManagedDataAccess.Core" Version="3.21.4" />
