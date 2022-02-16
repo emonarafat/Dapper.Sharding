@@ -151,14 +151,14 @@ var model = table.GetById(1);
 Console.WriteLine(model.Stu.Name);
 
 //System.Text.Json
-TypeHandlerSystemTextJson.Add<Child>();
-TypeHandlerSystemTextJson.Add<List<Child>>();
+TypeHandlerSystemTextJson.Add<Student>();
+TypeHandlerSystemTextJson.Add<List<Student>>();
 TypeHandlerSystemTextJson.Add<JsonObject>();
 TypeHandlerSystemTextJson.Add<JsonArray>();
 
 //Json.Net
-TypeHandlerJsonNet.Add<Child>();
-TypeHandlerJsonNet.Add<List<Child>>();
+TypeHandlerJsonNet.Add<Student>();
+TypeHandlerJsonNet.Add<List<Student>>();
 TypeHandlerJsonNet.Add<JObject>();
 TypeHandlerJsonNet.Add<JArray>();
 ```
