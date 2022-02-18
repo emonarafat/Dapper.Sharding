@@ -147,6 +147,7 @@ var school = new School
     }
 };
 table.Insert(school);
+//table.InsertMany(list);
 var model = table.GetById(1);
 Console.WriteLine(model.Stu.Name);
 
