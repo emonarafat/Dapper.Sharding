@@ -1,4 +1,5 @@
 ﻿using FastMember;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
@@ -136,6 +137,34 @@ namespace Dapper.Sharding
             }
         }
 
+        public void InsertMany(IEnumerable<T> list, DistributedTransaction tran = null, int? timeout = null)
+        {
+            if (tran == null)
+            {
+                tran = new DistributedTransaction();
+                try
+                {
+                    foreach (var item in list)
+                    {
+                        Insert(item, tran, timeout);
+                    }
+                    tran.Commit();
+                }
+                catch (Exception ex)
+                {
+                    tran.Rollback();
+                    throw ex;
+                }
+            }
+            else
+            {
+                foreach (var item in list)
+                {
+                    Insert(item, tran, timeout);
+                }
+            }
+        }
+
         public async Task InsertAsync(T model, DistributedTransaction tran = null, int? timeout = null)
         {
             var sql = SqlInsert();
@@ -159,14 +188,98 @@ namespace Dapper.Sharding
             }
         }
 
+        public async Task InsertManyAsync(IEnumerable<T> list, DistributedTransaction tran = null, int? timeout = null)
+        {
+            if (tran == null)
+            {
+                tran = new DistributedTransaction();
+                try
+                {
+                    foreach (var item in list)
+                    {
+                        await InsertAsync(item, tran, timeout);
+                    }
+                    tran.Commit();
+                }
+                catch (Exception ex)
+                {
+                    tran.Rollback();
+                    throw ex;
+                }
+            }
+            else
+            {
+                foreach (var item in list)
+                {
+                    await InsertAsync(item, tran, timeout);
+                }
+            }
+        }
+
         public void InsertIdentity(T model, DistributedTransaction tran = null, int? timeout = null)
         {
             DataBase.Execute(SqlInsertIdentity(), model, tran, timeout);
         }
 
+        public void InsertIdentityMany(IEnumerable<T> list, DistributedTransaction tran = null, int? timeout = null)
+        {
+            if (tran == null)
+            {
+                tran = new DistributedTransaction();
+                try
+                {
+                    foreach (var item in list)
+                    {
+                        InsertIdentity(item, tran, timeout);
+                    }
+                    tran.Commit();
+                }
+                catch (Exception ex)
+                {
+                    tran.Rollback();
+                    throw ex;
+                }
+            }
+            else
+            {
+                foreach (var item in list)
+                {
+                    InsertIdentity(item, tran, timeout);
+                }
+            }
+        }
+
         public async Task InsertIdentityAsync(T model, DistributedTransaction tran = null, int? timeout = null)
         {
             await DataBase.ExecuteAsync(SqlInsertIdentity(), model, tran, timeout);
+        }
+
+        public async Task InsertIdentityManyAsync(IEnumerable<T> list, DistributedTransaction tran = null, int? timeout = null)
+        {
+            if (tran == null)
+            {
+                tran = new DistributedTransaction();
+                try
+                {
+                    foreach (var item in list)
+                    {
+                        await InsertIdentityAsync(item, tran, timeout);
+                    }
+                    tran.Commit();
+                }
+                catch (Exception ex)
+                {
+                    tran.Rollback();
+                    throw ex;
+                }
+            }
+            else
+            {
+                foreach (var item in list)
+                {
+                    await InsertIdentityAsync(item, tran, timeout);
+                }
+            }
         }
 
         public virtual void Insert(T model, List<string> fields, DistributedTransaction tran = null, int? timeout = null)
@@ -1000,9 +1113,65 @@ namespace Dapper.Sharding
             return DataBase.Execute(SqlUpdate(fields), model, tran, timeout);
         }
 
+        public void UpdateMany(IEnumerable<T> list, List<string> fields = null, DistributedTransaction tran = null, int? timeout = null)
+        {
+            if (tran == null)
+            {
+                tran = new DistributedTransaction();
+                try
+                {
+                    foreach (var item in list)
+                    {
+                        Update(item, fields, tran, timeout);
+                    }
+                    tran.Commit();
+                }
+                catch (Exception ex)
+                {
+                    tran.Rollback();
+                    throw ex;
+                }
+            }
+            else
+            {
+                foreach (var item in list)
+                {
+                    Update(item, fields, tran, timeout);
+                }
+            }
+        }
+
         public Task<int> UpdateAsync(T model, List<string> fields = null, DistributedTransaction tran = null, int? timeout = null)
         {
             return DataBase.ExecuteAsync(SqlUpdate(fields), model, tran, timeout);
+        }
+
+        public async Task UpdateManyAsync(IEnumerable<T> list, List<string> fields = null, DistributedTransaction tran = null, int? timeout = null)
+        {
+            if (tran == null)
+            {
+                tran = new DistributedTransaction();
+                try
+                {
+                    foreach (var item in list)
+                    {
+                        await UpdateAsync(item, fields, tran, timeout);
+                    }
+                    tran.Commit();
+                }
+                catch (Exception ex)
+                {
+                    tran.Rollback();
+                    throw ex;
+                }
+            }
+            else
+            {
+                foreach (var item in list)
+                {
+                    await UpdateAsync(item, fields, tran, timeout);
+                }
+            }
         }
 
         public int UpdateIgnore(T model, List<string> fields, DistributedTransaction tran = null, int? timeout = null)
@@ -1010,9 +1179,65 @@ namespace Dapper.Sharding
             return DataBase.Execute(SqlUpdateIgnore(fields), model, tran, timeout);
         }
 
+        public void UpdateIgnoreMany(IEnumerable<T> list, List<string> fields, DistributedTransaction tran = null, int? timeout = null)
+        {
+            if (tran == null)
+            {
+                tran = new DistributedTransaction();
+                try
+                {
+                    foreach (var item in list)
+                    {
+                        UpdateIgnore(item, fields, tran, timeout);
+                    }
+                    tran.Commit();
+                }
+                catch (Exception ex)
+                {
+                    tran.Rollback();
+                    throw ex;
+                }
+            }
+            else
+            {
+                foreach (var item in list)
+                {
+                    UpdateIgnore(item, fields, tran, timeout);
+                }
+            }
+        }
+
         public Task<int> UpdateIgnoreAsync(T model, List<string> fields, DistributedTransaction tran = null, int? timeout = null)
         {
             return DataBase.ExecuteAsync(SqlUpdateIgnore(fields), model, tran, timeout);
+        }
+
+        public async Task UpdateIgnoreManyAsync(IEnumerable<T> list, List<string> fields, DistributedTransaction tran = null, int? timeout = null)
+        {
+            if (tran == null)
+            {
+                tran = new DistributedTransaction();
+                try
+                {
+                    foreach (var item in list)
+                    {
+                        await UpdateIgnoreAsync(item, fields, tran, timeout);
+                    }
+                    tran.Commit();
+                }
+                catch (Exception ex)
+                {
+                    tran.Rollback();
+                    throw ex;
+                }
+            }
+            else
+            {
+                foreach (var item in list)
+                {
+                    await UpdateIgnoreAsync(item, fields, tran, timeout);
+                }
+            }
         }
 
         public int UpdateByWhere(object model, string where, List<string> fields = null, DistributedTransaction tran = null, int? timeout = null)
