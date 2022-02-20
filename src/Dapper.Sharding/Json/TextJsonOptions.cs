@@ -20,7 +20,7 @@ namespace Dapper.Sharding
         }
 #endif
 
-        internal static readonly JsonSerializerOptions Options = new JsonSerializerOptions()
+        public static readonly JsonSerializerOptions Options = new JsonSerializerOptions()
         {
             Encoder = JavaScriptEncoder.Create(UnicodeRanges.All), //不编码中文
             NumberHandling = JsonNumberHandling.AllowReadingFromString, //反序列化时允许string转数字
