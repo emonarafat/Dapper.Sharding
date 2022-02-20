@@ -1,10 +1,16 @@
 ﻿using System.Collections.Generic;
-using Z.Dapper.Plus;
 
 namespace Dapper.Sharding
 {
     public class ShardingFactory
     {
+#if CORE6
+        static ShardingFactory()
+        {
+            SqlMapper.AddTypeHandler(new DateOnlyTypeHandler());
+            SqlMapper.AddTypeHandler(new TimeOnlyTypeHandler());
+        }
+#endif
         public static bool ClickHouseFixedString { get; set; } = false;
 
         public static void SetSnowFlakeWorker(long workerId, long datacenterId, long seqLength = 0)

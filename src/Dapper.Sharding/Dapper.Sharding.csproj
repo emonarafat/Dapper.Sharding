@@ -6,8 +6,11 @@
 		<LangVersion>9.0</LangVersion>
 		<AllowUnsafeBlocks>True</AllowUnsafeBlocks>
 	</PropertyGroup>
-	<PropertyGroup Condition="'$(TargetFramework)'=='netstandard2.1' Or '$(TargetFramework)'=='net5.0' Or '$(TargetFramework)'=='net6.0'">
+	<PropertyGroup Condition="'$(TargetFramework)'=='netstandard2.1' Or '$(TargetFramework)'=='net5.0'">
 		<DefineConstants>CORE</DefineConstants>
+	</PropertyGroup>
+	<PropertyGroup Condition="'$(TargetFramework)'=='net6.0'">
+		<DefineConstants>CORE;CORE6</DefineConstants>
 	</PropertyGroup>
 	<ItemGroup>
 		<None Remove="DbTypeMap.xml" />

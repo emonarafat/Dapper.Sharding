@@ -181,6 +181,18 @@ namespace Dapper.Sharding
                 return $"datetimeoffset({length})";
             }
 
+#if CORE6
+            if (type == typeof(DateOnly))
+            {
+                return "int";
+            }
+
+            if (type == typeof(TimeOnly))
+            {
+                return "bigint";
+            }
+#endif
+
             throw new Exception(UnknownTypeMessage(type.Name));
 
             //if (length <= 0)
@@ -289,6 +301,18 @@ namespace Dapper.Sharding
                 return "timestamp";
             }
 
+#if CORE6
+            if (type == typeof(DateOnly))
+            {
+                return "int(11)";
+            }
+
+            if (type == typeof(TimeOnly))
+            {
+                return "bigint(20)";
+            }
+#endif
+
             throw new Exception(UnknownTypeMessage(type.Name));
 
             //if (length >= 0)
@@ -357,6 +381,18 @@ namespace Dapper.Sharding
             {
                 return "DATETIME";
             }
+
+#if CORE6
+            if (type == typeof(DateOnly))
+            {
+                return "NUMERIC";
+            }
+
+            if (type == typeof(TimeOnly))
+            {
+                return "NUMERIC";
+            }
+#endif
 
             throw new Exception(UnknownTypeMessage(type.Name));
 
@@ -483,6 +519,18 @@ namespace Dapper.Sharding
                 return "interval";
             }
 
+#if CORE6
+            if (type == typeof(DateOnly))
+            {
+                return "int4";
+            }
+
+            if (type == typeof(TimeOnly))
+            {
+                return "int8";
+            }
+#endif
+
             var typeList = new List<string>
             {
                 "Point", "MultiPoint", "LineString",
@@ -494,7 +542,6 @@ namespace Dapper.Sharding
             {
                 return "geometry";
             }
-
             throw new Exception(UnknownTypeMessage(type.Name));
 
             //return "bytea";
@@ -575,6 +622,18 @@ namespace Dapper.Sharding
             {
                 return "TIMESTAMP";
             }
+
+#if CORE6
+            if (type == typeof(DateOnly))
+            {
+                return "NUMBER(9)";
+            }
+
+            if (type == typeof(TimeOnly))
+            {
+                return "NUMBER(19)";
+            }
+#endif
 
             throw new Exception(UnknownTypeMessage(type.Name));
 
@@ -705,6 +764,18 @@ namespace Dapper.Sharding
 
                 return $"Decimal32({s})";
             }
+
+#if CORE6
+            if (type == typeof(DateOnly))
+            {
+                return "Int32";
+            }
+
+            if (type == typeof(TimeOnly))
+            {
+                return "Int64";
+            }
+#endif
 
             return "String";
         }
