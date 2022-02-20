@@ -7,13 +7,16 @@ using System.Text.Unicode;
 
 namespace Dapper.Sharding
 {
-    internal class TextJsonOptions
+    public class TextJsonOptions
     {
 #if CORE6
         static TextJsonOptions()
         {
-            Options.Converters.Add(new TextJsonDateOnlyConverter());
-            Options.Converters.Add(new TextJsonTimeOnlyConverter());
+            if (ShardingFactory.UseDateAndTimeOnlyJsonConverter)
+            {
+                Options.Converters.Add(new TextJsonDateOnlyConverter());
+                Options.Converters.Add(new TextJsonTimeOnlyConverter());
+            }
         }
 #endif
 

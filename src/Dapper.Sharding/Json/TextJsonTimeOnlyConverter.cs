@@ -9,8 +9,7 @@ namespace Dapper.Sharding
     {
         public override TimeOnly Read(ref Utf8JsonReader reader, Type typeToConvert, JsonSerializerOptions options)
         {
-            TimeOnly.TryParse(reader.GetString(), out var val);
-            return val;
+            return TimeOnly.Parse(reader.GetString());
         }
 
         public override void Write(Utf8JsonWriter writer, TimeOnly value, JsonSerializerOptions options)

@@ -11,6 +11,9 @@ namespace Dapper.Sharding
             SqlMapper.AddTypeHandler(new TimeOnlyTypeHandler());
         }
 #endif
+
+        public static bool UseDateAndTimeOnlyJsonConverter { get; set; } = true;
+
         public static bool ClickHouseFixedString { get; set; } = false;
 
         public static void SetSnowFlakeWorker(long workerId, long datacenterId, long seqLength = 0)
