@@ -7,7 +7,7 @@ namespace Dapper.Sharding
 #if CORE6
 
         public static DbTypeDateOnly DateOnlyFormat { get; set; } = DbTypeDateOnly.Date;
-        public static DbTypeTimeOnly TimeOnlyFormat { get; set; } = DbTypeTimeOnly.DateTime;//only mysql and pgsql,other use time
+        public static DbTypeTimeOnly TimeOnlyFormat { get; set; } = DbTypeTimeOnly.TimeSpan;//only mysql and pgsql,other use time
         static ShardingFactory()
         {
             SqlMapper.AddTypeHandler(new DateOnlyTypeHandler());
