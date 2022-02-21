@@ -21,6 +21,10 @@ namespace Dapper.Sharding
             {
                 return DateOnly.FromDayNumber((int)value);
             }
+            else if (t == typeof(decimal))
+            {
+                return DateOnly.FromDayNumber(Convert.ToInt32(value));
+            }
             else
             {
                 string val = (string)value;

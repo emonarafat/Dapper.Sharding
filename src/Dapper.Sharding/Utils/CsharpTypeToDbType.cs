@@ -207,7 +207,7 @@ namespace Dapper.Sharding
             {
                 if (ShardingFactory.TimeOnlyFormat == DbTypeTimeOnly.TimeSpan)
                 {
-                    return "datetime2(7)";
+                    return "time";
                 }
                 else if (ShardingFactory.TimeOnlyFormat == DbTypeTimeOnly.Time)
                 {

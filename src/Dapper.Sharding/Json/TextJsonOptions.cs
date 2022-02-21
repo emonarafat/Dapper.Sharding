@@ -12,11 +12,8 @@ namespace Dapper.Sharding
 #if CORE6
         static TextJsonOptions()
         {
-            if (ShardingFactory.UseDateAndTimeOnlyJsonConverter)
-            {
-                Options.Converters.Add(new TextJsonDateOnlyConverter());
-                Options.Converters.Add(new TextJsonTimeOnlyConverter());
-            }
+            Options.Converters.Add(new TextJsonDateOnlyConverter());
+            Options.Converters.Add(new TextJsonTimeOnlyConverter());
         }
 #endif
 

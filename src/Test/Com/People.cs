@@ -3,10 +3,10 @@ using System;
 
 namespace Test
 {
-    //[Index("Name","Name",IndexType.Normal)]
-    //[Index("Age","Age",IndexType.Unique)]
+    //[Index("Name", "Name", IndexType.Normal)]
+    //[Index("Age", "Age", IndexType.Unique)]
     //[Index("NameAndAge", "Name,Age", IndexType.Unique)]
-    [Table("Id", true, "人类表", "Log")]
+    //[Table("Id", true, "人类表", "Log")]
     public class People
     {
         [Column(11, "主键id")]

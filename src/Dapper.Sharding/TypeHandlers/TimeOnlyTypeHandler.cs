@@ -21,6 +21,14 @@ namespace Dapper.Sharding
             {
                 return TimeOnly.FromDateTime((DateTime)value);
             }
+            else if (t == typeof(long))
+            {
+                return new TimeOnly((long)value);
+            }
+            else if (t == typeof(decimal))
+            {
+                return new TimeOnly(Convert.ToInt64(value));
+            }
             else
             {
                 var val = (string)value;
