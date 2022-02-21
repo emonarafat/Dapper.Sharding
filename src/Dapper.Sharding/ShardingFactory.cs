@@ -5,6 +5,9 @@ namespace Dapper.Sharding
     public class ShardingFactory
     {
 #if CORE6
+
+        public static DbTypeDateOnly DateOnlyFormat { get; set; } = DbTypeDateOnly.Date;
+        public static DbTypeTimeOnly TimeOnlyFormat { get; set; } = DbTypeTimeOnly.TimeSpan;
         static ShardingFactory()
         {
             SqlMapper.AddTypeHandler(new DateOnlyTypeHandler());

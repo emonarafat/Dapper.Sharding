@@ -142,7 +142,11 @@ WHERE C.TABLE_NAME = '{name.ToUpper()}' ORDER BY C.COLUMN_ID";
                 }
                 else
                 {
+#if CORE6
+                    if (item.CsType.IsValueType && item.CsType != typeof(DateTime) && item.CsType != typeof(DateTimeOffset) && item.CsType != typeof(DateOnly) && item.CsType != typeof(TimeOnly))
+#else
                     if (item.CsType.IsValueType && item.CsType != typeof(DateTime) && item.CsType != typeof(DateTimeOffset))
+#endif
                     {
                         sb.Append(" DEFAULT 0");
                     }

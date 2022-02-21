@@ -184,11 +184,47 @@ namespace Dapper.Sharding
 #if CORE6
             if (type == typeof(DateOnly))
             {
+                if (ShardingFactory.DateOnlyFormat == DbTypeDateOnly.Date)
+                {
+                    return "date";
+                }
+                else if (ShardingFactory.DateOnlyFormat == DbTypeDateOnly.DateTime)
+                {
+                    return "datetime";
+                }
+                else if (ShardingFactory.DateOnlyFormat == DbTypeDateOnly.Number)
+                {
+                    return "int";
+                }
+                else if (ShardingFactory.DateOnlyFormat == DbTypeDateOnly.String)
+                {
+                    return "varchar(10)";
+                }
                 return "int";
             }
 
             if (type == typeof(TimeOnly))
             {
+                if (ShardingFactory.TimeOnlyFormat == DbTypeTimeOnly.TimeSpan)
+                {
+                    return "datetime2(7)";
+                }
+                else if (ShardingFactory.TimeOnlyFormat == DbTypeTimeOnly.Time)
+                {
+                    return "time";
+                }
+                else if (ShardingFactory.TimeOnlyFormat == DbTypeTimeOnly.DateTime)
+                {
+                    return "datetime2(7)";
+                }
+                else if (ShardingFactory.TimeOnlyFormat == DbTypeTimeOnly.Number)
+                {
+                    return "bigint";
+                }
+                else if (ShardingFactory.TimeOnlyFormat == DbTypeTimeOnly.String)
+                {
+                    return "varchar(8)";
+                }
                 return "bigint";
             }
 #endif
@@ -304,11 +340,47 @@ namespace Dapper.Sharding
 #if CORE6
             if (type == typeof(DateOnly))
             {
+                if (ShardingFactory.DateOnlyFormat == DbTypeDateOnly.Date)
+                {
+                    return "date";
+                }
+                else if (ShardingFactory.DateOnlyFormat == DbTypeDateOnly.DateTime)
+                {
+                    return "datetime";
+                }
+                else if (ShardingFactory.DateOnlyFormat == DbTypeDateOnly.Number)
+                {
+                    return "int(11)";
+                }
+                else if (ShardingFactory.DateOnlyFormat == DbTypeDateOnly.String)
+                {
+                    return "varchar(10)";
+                }
                 return "int(11)";
             }
 
             if (type == typeof(TimeOnly))
             {
+                if (ShardingFactory.TimeOnlyFormat == DbTypeTimeOnly.TimeSpan)
+                {
+                    return "time";
+                }
+                else if (ShardingFactory.TimeOnlyFormat == DbTypeTimeOnly.Time)
+                {
+                    return "time";
+                }
+                else if (ShardingFactory.TimeOnlyFormat == DbTypeTimeOnly.DateTime)
+                {
+                    return "datetime(6)";
+                }
+                else if (ShardingFactory.TimeOnlyFormat == DbTypeTimeOnly.Number)
+                {
+                    return "bigint(20)";
+                }
+                else if (ShardingFactory.TimeOnlyFormat == DbTypeTimeOnly.String)
+                {
+                    return "varchar(8)";
+                }
                 return "bigint(20)";
             }
 #endif
@@ -385,11 +457,47 @@ namespace Dapper.Sharding
 #if CORE6
             if (type == typeof(DateOnly))
             {
+                if (ShardingFactory.DateOnlyFormat == DbTypeDateOnly.Date)
+                {
+                    return "DATE";
+                }
+                else if (ShardingFactory.DateOnlyFormat == DbTypeDateOnly.DateTime)
+                {
+                    return "DATETIME";
+                }
+                else if (ShardingFactory.DateOnlyFormat == DbTypeDateOnly.Number)
+                {
+                    return "NUMERIC";
+                }
+                else if (ShardingFactory.DateOnlyFormat == DbTypeDateOnly.String)
+                {
+                    return "TEXT";
+                }
                 return "NUMERIC";
             }
 
             if (type == typeof(TimeOnly))
             {
+                if (ShardingFactory.TimeOnlyFormat == DbTypeTimeOnly.TimeSpan)
+                {
+                    return "DATETIME";
+                }
+                else if (ShardingFactory.TimeOnlyFormat == DbTypeTimeOnly.Time)
+                {
+                    return "TIME";
+                }
+                else if (ShardingFactory.TimeOnlyFormat == DbTypeTimeOnly.DateTime)
+                {
+                    return "DATETIME";
+                }
+                else if (ShardingFactory.TimeOnlyFormat == DbTypeTimeOnly.Number)
+                {
+                    return "NUMERIC";
+                }
+                else if (ShardingFactory.TimeOnlyFormat == DbTypeTimeOnly.String)
+                {
+                    return "TEXT";
+                }
                 return "NUMERIC";
             }
 #endif
@@ -522,11 +630,47 @@ namespace Dapper.Sharding
 #if CORE6
             if (type == typeof(DateOnly))
             {
+                if (ShardingFactory.DateOnlyFormat == DbTypeDateOnly.Date)
+                {
+                    return "date";
+                }
+                else if (ShardingFactory.DateOnlyFormat == DbTypeDateOnly.DateTime)
+                {
+                    return "timestamp(0)";
+                }
+                else if (ShardingFactory.DateOnlyFormat == DbTypeDateOnly.Number)
+                {
+                    return "int4";
+                }
+                else if (ShardingFactory.DateOnlyFormat == DbTypeDateOnly.String)
+                {
+                    return "varchar(10)";
+                }
                 return "int4";
             }
 
             if (type == typeof(TimeOnly))
             {
+                if (ShardingFactory.TimeOnlyFormat == DbTypeTimeOnly.TimeSpan)
+                {
+                    return "time";
+                }
+                else if (ShardingFactory.TimeOnlyFormat == DbTypeTimeOnly.Time)
+                {
+                    return "timestamp(6)";
+                }
+                else if (ShardingFactory.TimeOnlyFormat == DbTypeTimeOnly.DateTime)
+                {
+                    return "timestamp(6)";
+                }
+                else if (ShardingFactory.TimeOnlyFormat == DbTypeTimeOnly.Number)
+                {
+                    return "int8";
+                }
+                else if (ShardingFactory.TimeOnlyFormat == DbTypeTimeOnly.String)
+                {
+                    return "varchar(8)";
+                }
                 return "int8";
             }
 #endif
@@ -626,11 +770,47 @@ namespace Dapper.Sharding
 #if CORE6
             if (type == typeof(DateOnly))
             {
+                if (ShardingFactory.DateOnlyFormat == DbTypeDateOnly.Date)
+                {
+                    return "DATE";
+                }
+                else if (ShardingFactory.DateOnlyFormat == DbTypeDateOnly.DateTime)
+                {
+                    return "TIMESTAMP";
+                }
+                else if (ShardingFactory.DateOnlyFormat == DbTypeDateOnly.Number)
+                {
+                    return "NUMBER(9)";
+                }
+                else if (ShardingFactory.DateOnlyFormat == DbTypeDateOnly.String)
+                {
+                    return "VARCHAR2(10)";
+                }
                 return "NUMBER(9)";
             }
 
             if (type == typeof(TimeOnly))
             {
+                if (ShardingFactory.TimeOnlyFormat == DbTypeTimeOnly.TimeSpan)
+                {
+                    return "TIME";
+                }
+                else if (ShardingFactory.TimeOnlyFormat == DbTypeTimeOnly.Time)
+                {
+                    return "TIME";
+                }
+                else if (ShardingFactory.TimeOnlyFormat == DbTypeTimeOnly.DateTime)
+                {
+                    return "TIMESTAMP";
+                }
+                else if (ShardingFactory.TimeOnlyFormat == DbTypeTimeOnly.Number)
+                {
+                    return "NUMBER(19)";
+                }
+                else if (ShardingFactory.TimeOnlyFormat == DbTypeTimeOnly.String)
+                {
+                    return "VARCHAR2(8)";
+                }
                 return "NUMBER(19)";
             }
 #endif
@@ -768,11 +948,47 @@ namespace Dapper.Sharding
 #if CORE6
             if (type == typeof(DateOnly))
             {
+                if (ShardingFactory.DateOnlyFormat == DbTypeDateOnly.Date)
+                {
+                    return "Date";
+                }
+                else if (ShardingFactory.DateOnlyFormat == DbTypeDateOnly.DateTime)
+                {
+                    return "Datetime";
+                }
+                else if (ShardingFactory.DateOnlyFormat == DbTypeDateOnly.Number)
+                {
+                    return "Int32";
+                }
+                else if (ShardingFactory.DateOnlyFormat == DbTypeDateOnly.String)
+                {
+                    return "String";
+                }
                 return "Int32";
             }
 
             if (type == typeof(TimeOnly))
             {
+                if (ShardingFactory.TimeOnlyFormat == DbTypeTimeOnly.TimeSpan)
+                {
+                    return "Datetime64";
+                }
+                else if (ShardingFactory.TimeOnlyFormat == DbTypeTimeOnly.Time)
+                {
+                    return "Datetime64";
+                }
+                else if (ShardingFactory.TimeOnlyFormat == DbTypeTimeOnly.DateTime)
+                {
+                    return "Datetime64";
+                }
+                else if (ShardingFactory.TimeOnlyFormat == DbTypeTimeOnly.Number)
+                {
+                    return "Int64";
+                }
+                else if (ShardingFactory.TimeOnlyFormat == DbTypeTimeOnly.String)
+                {
+                    return "String";
+                }
                 return "Int64";
             }
 #endif

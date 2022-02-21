@@ -12,13 +12,57 @@ namespace Dapper.Sharding
     {
         public override TimeOnly Parse(object value)
         {
-            return new TimeOnly((long)value);
+            var t = value.GetType();
+            if (t == typeof(TimeSpan))
+            {
+                return TimeOnly.FromTimeSpan((TimeSpan)value);
+            }
+            else if (t == typeof(DateTime))
+            {
+                return TimeOnly.FromDateTime((DateTime)value);
+            }
+            else
+            {
+                var val = (string)value;
+                if (string.IsNullOrEmpty(val))
+                {
+                    return default;
+                }
+                TimeOnly.TryParse(val, out var d);
+                return d;
+            }
+
         }
 
         public override void SetValue(IDbDataParameter parameter, TimeOnly value)
         {
-            parameter.DbType = DbType.Int64;
-            parameter.Value = value.Ticks;
+            if (ShardingFactory.TimeOnlyFormat == DbTypeTimeOnly.TimeSpan)
+            {
+                parameter.DbType = DbType.Time;
+                parameter.Value = value.ToTimeSpan();
+            }
+            else if (ShardingFactory.TimeOnlyFormat == DbTypeTimeOnly.Time)
+            {
+                parameter.DbType = DbType.Time;
+                var date = new DateOnly(2000, 1, 1);
+                parameter.Value = date.ToDateTime(value);
+            }
+            else if (ShardingFactory.TimeOnlyFormat == DbTypeTimeOnly.DateTime)
+            {
+                parameter.DbType = DbType.DateTime;
+                var date = new DateOnly(2000, 1, 1);
+                parameter.Value = date.ToDateTime(value);
+            }
+            else if (ShardingFactory.TimeOnlyFormat == DbTypeTimeOnly.Number)
+            {
+                parameter.DbType = DbType.Int64;
+                parameter.Value = value.Ticks;
+            }
+            else
+            {
+                parameter.DbType = DbType.String;
+                parameter.Value = value.ToString("HH:mm:ss");
+            }
         }
     }
 }

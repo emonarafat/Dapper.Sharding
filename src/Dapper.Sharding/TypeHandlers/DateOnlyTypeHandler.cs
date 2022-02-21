@@ -12,13 +12,52 @@ namespace Dapper.Sharding
     {
         public override DateOnly Parse(object value)
         {
-            return DateOnly.FromDayNumber((int)value);
+            var t = value.GetType();
+            if (t == typeof(DateTime))
+            {
+                return DateOnly.FromDateTime((DateTime)value);
+            }
+            else if (t == typeof(int))
+            {
+                return DateOnly.FromDayNumber((int)value);
+            }
+            else
+            {
+                string val = (string)value;
+                if (string.IsNullOrEmpty(val))
+                {
+                    return default;
+                }
+                DateOnly.TryParse(val, out var d);
+                return d;
+            }
+
         }
 
         public override void SetValue(IDbDataParameter parameter, DateOnly value)
         {
-            parameter.DbType = DbType.Int32;
-            parameter.Value = value.DayNumber;
+            if (ShardingFactory.DateOnlyFormat == DbTypeDateOnly.Date)
+            {
+                parameter.DbType = DbType.Date;
+                parameter.Value = value.ToDateTime(TimeOnly.MinValue);
+            }
+            else if (ShardingFactory.DateOnlyFormat == DbTypeDateOnly.DateTime)
+            {
+                parameter.DbType = DbType.DateTime;
+                parameter.Value = value.ToDateTime(TimeOnly.MinValue);
+
+            }
+            else if (ShardingFactory.DateOnlyFormat == DbTypeDateOnly.Number)
+            {
+                parameter.DbType = DbType.Int32;
+                parameter.Value = value.DayNumber;
+            }
+            else
+            {
+                parameter.DbType = DbType.String;
+                parameter.Value = value.ToString("yyyy-MM-dd");
+            }
+
         }
     }
 }
