@@ -190,7 +190,7 @@ namespace Dapper.Sharding
                 }
                 else if (ShardingFactory.DateOnlyFormat == DbTypeDateOnly.DateTime)
                 {
-                    return "datetime";
+                    return "datetime2(0)";
                 }
                 else if (ShardingFactory.DateOnlyFormat == DbTypeDateOnly.Number)
                 {
