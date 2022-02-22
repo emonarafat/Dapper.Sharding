@@ -8,63 +8,231 @@ namespace Dapper.Sharding
 {
     public class DistributedTransaction
     {
-        private readonly Dictionary<IDatabase, (IDbConnection, IDbTransaction)> dict = new Dictionary<IDatabase, (IDbConnection, IDbTransaction)>();
+        private IDatabase defaultDb = null;
+        private (IDbConnection, IDbTransaction) defaultVal = default;
+        private Dictionary<IDatabase, (IDbConnection, IDbTransaction)> dict = null;
+
+        private (IDbConnection, IDbTransaction) CreateConnAndTran(IDatabase db)
+        {
+            IDbConnection conn = null;
+            IDbTransaction tran = null;
+            try
+            {
+                conn = db.GetConn();
+                tran = conn.BeginTransaction();
+                return (conn, tran);
+            }
+            catch
+            {
+                if (tran != null)
+                {
+                    tran.Dispose();
+                }
+                if (conn != null)
+                {
+                    conn.Dispose();
+                }
+                throw;
+            }
+        }
+
+        private async Task<(IDbConnection, IDbTransaction)> CreateConnAndTranAsync(IDatabase db)
+        {
+            IDbConnection conn = null;
+            IDbTransaction tran = null;
+            try
+            {
+                conn = await db.GetConnAsync();
+                tran = conn.BeginTransaction();
+                return (conn, tran);
+            }
+            catch
+            {
+                if (tran != null)
+                {
+                    tran.Dispose();
+                }
+                if (conn != null)
+                {
+                    conn.Dispose();
+                }
+                throw;
+            }
+
+        }
+
 
         public (IDbConnection, IDbTransaction) GetVal(IDatabase db)
         {
-            var ok = dict.TryGetValue(db, out var val);
-            if (!ok)
+            if (defaultDb == null) //第一次初始化
             {
-                var conn = db.GetConn();
-                var tran = conn.BeginTransaction();
-                val = (conn, tran);
-                dict.Add(db, val);
+                IDbConnection conn = null;
+                IDbTransaction tran = null;
+                try
+                {
+                    conn = db.GetConn();
+                    tran = conn.BeginTransaction();
+                }
+                catch
+                {
+                    if (tran != null)
+                    {
+                        tran.Dispose();
+                    }
+                    if (conn != null)
+                    {
+                        conn.Dispose();
+                    }
+                    throw;
+                }
+                defaultDb = db;
+                defaultVal.Item1 = conn;
+                defaultVal.Item2 = tran;
+                return defaultVal;
             }
-            return val;
+            else if (defaultDb.Equals(db))
+            {
+                return defaultVal;
+            }
+            else
+            {
+                if (dict == null)//dict为null第一次创建
+                {
+                    dict = new Dictionary<IDatabase, (IDbConnection, IDbTransaction)>();
+                    var val = CreateConnAndTran(db);
+                    dict.Add(db, val);
+                    return val;
+                }
+                else
+                {
+                    var ok = dict.TryGetValue(db, out var val);
+                    if (!ok)
+                    {
+                        val = CreateConnAndTran(db);
+                        dict.Add(db, val);
+                    }
+                    return val;
+                }
+            }
         }
 
         public async Task<(IDbConnection, IDbTransaction)> GetValAsync(IDatabase db)
         {
-            var ok = dict.TryGetValue(db, out var val);
-            if (!ok)
+            if (defaultDb == null) //第一次初始化
             {
-                IDbConnection conn = await db.GetConnAsync();
-                IDbTransaction tran = conn.BeginTransaction();
-                val = (conn, tran);
-                dict.Add(db, val);
+                IDbConnection conn = null;
+                IDbTransaction tran = null;
+                try
+                {
+                    conn = await db.GetConnAsync();
+                    tran = conn.BeginTransaction();
+                }
+                catch
+                {
+                    if (tran != null)
+                    {
+                        tran.Dispose();
+                    }
+                    if (conn != null)
+                    {
+                        conn.Dispose();
+                    }
+                    throw;
+                }
+                defaultDb = db;
+                defaultVal.Item1 = conn;
+                defaultVal.Item2 = tran;
+                return defaultVal;
             }
-            return val;
+            else if (defaultDb.Equals(db))
+            {
+                return defaultVal;
+            }
+            else
+            {
+                if (dict == null)//dict为null第一次创建
+                {
+                    dict = new Dictionary<IDatabase, (IDbConnection, IDbTransaction)>();
+                    var val = await CreateConnAndTranAsync(db);
+                    dict.Add(db, val);
+                    return val;
+                }
+                else
+                {
+                    var ok = dict.TryGetValue(db, out var val);
+                    if (!ok)
+                    {
+                        val = await CreateConnAndTranAsync(db);
+                        dict.Add(db, val);
+                    }
+                    return val;
+                }
+            }
         }
 
         public void Commit()
         {
-            foreach (var item in dict.Values)
+            if (defaultDb != null)
             {
                 try
                 {
-                    item.Item2.Commit();
+                    defaultVal.Item2.Commit();
                 }
                 finally
                 {
-                    item.Item2.Dispose();
-                    item.Item1.Dispose();
+                    defaultVal.Item2.Dispose();
+                    defaultVal.Item1.Dispose();
                 }
+                defaultDb = null;
+            }
+            if (dict != null && dict.Count > 0)
+            {
+                foreach (var item in dict.Values)
+                {
+                    try
+                    {
+                        item.Item2.Commit();
+                    }
+                    finally
+                    {
+                        item.Item2.Dispose();
+                        item.Item1.Dispose();
+                    }
+                }
+                dict.Clear();
             }
         }
 
         public void Rollback()
         {
-            foreach (var item in dict.Values)
+            if (defaultDb != null)
             {
                 try
                 {
-                    item.Item2.Rollback();
+                    defaultVal.Item2.Rollback();
                 }
                 finally
                 {
-                    item.Item2.Dispose();
-                    item.Item1.Dispose();
+                    defaultVal.Item2.Dispose();
+                    defaultVal.Item1.Dispose();
                 }
+                defaultDb = null;
+            }
+            if (dict != null && dict.Count > 0)
+            {
+                foreach (var item in dict.Values)
+                {
+                    try
+                    {
+                        item.Item2.Rollback();
+                    }
+                    finally
+                    {
+                        item.Item2.Dispose();
+                        item.Item1.Dispose();
+                    }
+                }
+                dict.Clear();
             }
         }
     }
