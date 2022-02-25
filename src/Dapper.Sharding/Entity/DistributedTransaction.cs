@@ -178,6 +178,10 @@ namespace Dapper.Sharding
                 {
                     defaultVal.Item2.Commit();
                 }
+                catch
+                {
+                    throw; //如果第一个提交失败，抛出异常执行Rollback全部回滚
+                }
                 finally
                 {
                     defaultVal.Item2.Dispose();
@@ -192,6 +196,14 @@ namespace Dapper.Sharding
                     try
                     {
                         item.Item2.Commit();
+                    }
+                    catch
+                    {
+                        try
+                        {
+                            item.Item2.Rollback();
+                        }
+                        catch { }
                     }
                     finally
                     {
