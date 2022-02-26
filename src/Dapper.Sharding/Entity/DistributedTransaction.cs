@@ -61,7 +61,6 @@ namespace Dapper.Sharding
 
         }
 
-
         public (IDbConnection, IDbTransaction) GetVal(IDatabase db)
         {
             if (defaultDb == null) //第一次初始化
@@ -182,11 +181,8 @@ namespace Dapper.Sharding
                 {
                     throw; //如果第一个提交失败，抛出异常执行Rollback全部回滚
                 }
-                finally
-                {
-                    defaultVal.Item2.Dispose();
-                    defaultVal.Item1.Dispose();
-                }
+                defaultVal.Item2.Dispose();
+                defaultVal.Item1.Dispose();
                 defaultDb = null;
             }
             if (dict != null && dict.Count > 0)
