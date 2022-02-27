@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Data;
 using System.Linq;
@@ -169,6 +170,22 @@ namespace Dapper.Sharding
             }
         }
 
+        public bool ShowResult { get; set; }
+
+        public ConcurrentDictionary<IDatabase, bool> Result;
+
+        private void AddResult(IDatabase db, bool ok)
+        {
+            if (ShowResult)
+            {
+                if (Result == null)
+                {
+                    Result = new ConcurrentDictionary<IDatabase, bool>();
+                }
+                Result.TryAdd(db, ok);
+            }
+        }
+
         public void Commit()
         {
             if (defaultDb != null)
@@ -176,6 +193,7 @@ namespace Dapper.Sharding
                 try
                 {
                     defaultVal.Item2.Commit();
+                    AddResult(defaultDb, true);
                 }
                 catch
                 {
@@ -187,16 +205,19 @@ namespace Dapper.Sharding
             }
             if (dict != null && dict.Count > 0)
             {
-                foreach (var item in dict.Values)
+                foreach (var d in dict)
                 {
+                    var item = d.Value;
                     try
                     {
                         item.Item2.Commit();
+                        AddResult(d.Key, true);
                     }
                     catch
                     {
                         try
                         {
+                            AddResult(d.Key, false);
                             item.Item2.Rollback();
                         }
                         catch { }
@@ -217,6 +238,7 @@ namespace Dapper.Sharding
             {
                 try
                 {
+                    AddResult(defaultDb, false);
                     defaultVal.Item2.Rollback();
                 }
                 finally
@@ -228,10 +250,12 @@ namespace Dapper.Sharding
             }
             if (dict != null && dict.Count > 0)
             {
-                foreach (var item in dict.Values)
+                foreach (var d in dict)
                 {
+                    var item = d.Value;
                     try
                     {
+                        AddResult(d.Key, false);
                         item.Item2.Rollback();
                     }
                     finally
