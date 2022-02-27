@@ -174,6 +174,16 @@ namespace Dapper.Sharding
 
         public ConcurrentDictionary<IDatabase, bool> Result;
 
+        public bool GetResult(IDatabase db)
+        {
+            if (!ShowResult)
+            {
+                throw new Exception("you must set ShowResult=true");
+            }
+            Result.TryGetValue(db, out var val);
+            return val;
+        }
+
         private void AddResult(IDatabase db, bool ok)
         {
             if (ShowResult)
