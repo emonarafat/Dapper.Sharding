@@ -44,7 +44,7 @@ catch
 }
 
 //Transaction CAP
-<a href="https://gitee.com/znyet/dapper.sharding.cap">https://gitee.com/znyet/dapper.sharding.cap</a>
+[]https://gitee.com/znyet/dapper.sharding.cap
 
 namespace ConsoleApp
 {
