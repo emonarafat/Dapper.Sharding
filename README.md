@@ -43,6 +43,9 @@ catch
     tran.Rollback();    
 }
 
+//Transaction CAP
+https://gitee.com/znyet/dapper.sharding.cap
+
 namespace ConsoleApp
 {
     [Table("Id", false, "学生表")]
