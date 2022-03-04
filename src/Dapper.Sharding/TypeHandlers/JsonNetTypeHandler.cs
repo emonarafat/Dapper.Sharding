@@ -6,7 +6,6 @@ namespace Dapper.Sharding
 {
     internal class JsonNetTypeHandler : SqlMapper.ITypeHandler
     {
-
         public object Parse(Type destinationType, object value)
         {
             if (value == null || value == DBNull.Value)

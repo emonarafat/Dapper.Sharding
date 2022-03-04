@@ -1,17 +1,12 @@
 ﻿#if CORE
 using System;
 using System.Data;
-using System.Text.Encodings.Web;
 using System.Text.Json;
-using System.Text.Json.Serialization;
-using System.Text.Unicode;
 
 namespace Dapper.Sharding
 {
-
     internal class SystemTextJsonTypeHandler : SqlMapper.ITypeHandler
     {
-
         public object Parse(Type destinationType, object value)
         {
             if (value == null || value == DBNull.Value)

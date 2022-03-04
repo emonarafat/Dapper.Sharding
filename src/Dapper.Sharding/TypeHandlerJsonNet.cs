@@ -26,5 +26,14 @@ namespace Dapper.Sharding
             });
         }
 
+        public static void AddCurrentDomain()
+        {
+            var assamblys = AppDomain.CurrentDomain.GetAssemblies();
+            foreach (var item in assamblys)
+            {
+                Add(item);
+            }
+        }
+
     }
 }
