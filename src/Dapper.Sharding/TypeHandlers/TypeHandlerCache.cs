@@ -43,7 +43,10 @@ namespace Dapper.Sharding
                         {
                             if (colAttr.ColumnType == "json" || colAttr.ColumnType == "jsonb" || colAttr.ColumnType == "jsons")
                             {
-                                action(pro.PropertyType);
+                                if (pro.PropertyType != typeof(string))
+                                {
+                                    action(pro.PropertyType);
+                                }
                             }
                         }
                     }
