@@ -9,10 +9,10 @@ using System.Text.Unicode;
 namespace Dapper.Sharding
 {
 
-    internal class SystemTextJsonTypeHandler<T> : SqlMapper.TypeHandler<T>
+    internal class SystemTextJsonTypeHandler : SqlMapper.ITypeHandler
     {
 
-        public override T Parse(object value)
+        public object Parse(Type destinationType, object value)
         {
             if (value == null || value == DBNull.Value)
             {
@@ -25,7 +25,7 @@ namespace Dapper.Sharding
                 {
                     return default;
                 }
-                return JsonSerializer.Deserialize<T>(val, TextJsonOptions.Options);
+                return JsonSerializer.Deserialize(val, destinationType, TextJsonOptions.Options);
             }
             catch
             {
@@ -33,7 +33,7 @@ namespace Dapper.Sharding
             }
         }
 
-        public override void SetValue(IDbDataParameter parameter, T value)
+        public void SetValue(IDbDataParameter parameter, object value)
         {
             parameter.DbType = DbType.String;
             if (value == null)

@@ -10,6 +10,31 @@ namespace Dapper.Sharding
         {
             if (!string.IsNullOrEmpty(columnType))
             {
+                if (columnType == "jsons")
+                {
+                    if (dbType == DataBaseType.MySql)
+                    {
+                        return "longtext";
+                    }
+                    if (dbType == DataBaseType.Postgresql)
+                    {
+                        return "text";
+                    }
+                    if (dbType == DataBaseType.Sqlite)
+                    {
+                        return "text";
+                    }
+                    if (dbType == DataBaseType.ClickHouse)
+                    {
+                        return "String";
+                    }
+                    if (dbType == DataBaseType.Oracle)
+                    {
+                        return "CLOB";
+                    }
+                    return "varchar(max)"; //sqlserver
+                }
+
                 if (dbType != DataBaseType.Postgresql)
                 {
                     if (columnType == "json" || columnType == "jsonb")

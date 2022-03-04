@@ -1,0 +1,372 @@
+{
+  "format": 1,
+  "restore": {
+    "D:\\GitHub\\Dapper.Sharding\\src\\ConsoleApp1\\ConsoleApp1.csproj": {}
+  },
+  "projects": {
+    "D:\\GitHub\\Dapper.Sharding\\src\\ConsoleApp1\\ConsoleApp1.csproj": {
+      "version": "1.0.0",
+      "restore": {
+        "projectUniqueName": "D:\\GitHub\\Dapper.Sharding\\src\\ConsoleApp1\\ConsoleApp1.csproj",
+        "projectName": "ConsoleApp1",
+        "projectPath": "D:\\GitHub\\Dapper.Sharding\\src\\ConsoleApp1\\ConsoleApp1.csproj",
+        "packagesPath": "C:\\Users\\Administrator\\.nuget\\packages\\",
+        "outputPath": "D:\\GitHub\\Dapper.Sharding\\src\\ConsoleApp1\\obj\\",
+        "projectStyle": "PackageReference",
+        "configFilePaths": [
+          "C:\\Users\\Administrator\\AppData\\Roaming\\NuGet\\NuGet.Config",
+          "C:\\Program Files (x86)\\NuGet\\Config\\Microsoft.VisualStudio.Offline.config"
+        ],
+        "originalTargetFrameworks": [
+          "net6.0"
+        ],
+        "sources": {
+          "C:\\Program Files (x86)\\Microsoft SDKs\\NuGetPackages\\": {},
+          "https://api.nuget.org/v3/index.json": {}
+        },
+        "frameworks": {
+          "net6.0": {
+            "targetAlias": "net6.0",
+            "projectReferences": {
+              "D:\\GitHub\\Dapper.Sharding\\src\\Dapper.Sharding\\Dapper.Sharding.csproj": {
+                "projectPath": "D:\\GitHub\\Dapper.Sharding\\src\\Dapper.Sharding\\Dapper.Sharding.csproj"
+              }
+            }
+          }
+        },
+        "warningProperties": {
+          "warnAsError": [
+            "NU1605"
+          ]
+        }
+      },
+      "frameworks": {
+        "net6.0": {
+          "targetAlias": "net6.0",
+          "dependencies": {
+            "MySqlConnector": {
+              "target": "Package",
+              "version": "[2.1.7, )"
+            }
+          },
+          "imports": [
+            "net461",
+            "net462",
+            "net47",
+            "net471",
+            "net472",
+            "net48"
+          ],
+          "assetTargetFallback": true,
+          "warn": true,
+          "frameworkReferences": {
+            "Microsoft.NETCore.App": {
+              "privateAssets": "all"
+            }
+          },
+          "runtimeIdentifierGraphPath": "C:\\Program Files\\dotnet\\sdk\\6.0.200\\RuntimeIdentifierGraph.json"
+        }
+      }
+    },
+    "D:\\GitHub\\Dapper.Sharding\\src\\Dapper.Sharding\\Dapper.Sharding.csproj": {
+      "version": "1.0.0",
+      "restore": {
+        "projectUniqueName": "D:\\GitHub\\Dapper.Sharding\\src\\Dapper.Sharding\\Dapper.Sharding.csproj",
+        "projectName": "Dapper.Sharding",
+        "projectPath": "D:\\GitHub\\Dapper.Sharding\\src\\Dapper.Sharding\\Dapper.Sharding.csproj",
+        "packagesPath": "C:\\Users\\Administrator\\.nuget\\packages\\",
+        "outputPath": "D:\\GitHub\\Dapper.Sharding\\src\\Dapper.Sharding\\obj\\",
+        "projectStyle": "PackageReference",
+        "crossTargeting": true,
+        "configFilePaths": [
+          "C:\\Users\\Administrator\\AppData\\Roaming\\NuGet\\NuGet.Config",
+          "C:\\Program Files (x86)\\NuGet\\Config\\Microsoft.VisualStudio.Offline.config"
+        ],
+        "originalTargetFrameworks": [
+          "net45",
+          "net5.0",
+          "net6.0",
+          "netstandard2.1"
+        ],
+        "sources": {
+          "C:\\Program Files (x86)\\Microsoft SDKs\\NuGetPackages\\": {},
+          "https://api.nuget.org/v3/index.json": {}
+        },
+        "frameworks": {
+          "net5.0": {
+            "targetAlias": "net5.0",
+            "projectReferences": {}
+          },
+          "net6.0": {
+            "targetAlias": "net6.0",
+            "projectReferences": {}
+          },
+          "net45": {
+            "targetAlias": "net45",
+            "projectReferences": {}
+          },
+          "netstandard2.1": {
+            "targetAlias": "netstandard2.1",
+            "projectReferences": {}
+          }
+        },
+        "warningProperties": {
+          "warnAsError": [
+            "NU1605"
+          ]
+        }
+      },
+      "frameworks": {
+        "net5.0": {
+          "targetAlias": "net5.0",
+          "dependencies": {
+            "ClickHouse.Ado.Dapper": {
+              "target": "Package",
+              "version": "[1.0.8, )"
+            },
+            "Dapper": {
+              "target": "Package",
+              "version": "[2.0.123, )"
+            },
+            "FastMember": {
+              "target": "Package",
+              "version": "[1.5.0, )"
+            },
+            "MySqlConnector": {
+              "target": "Package",
+              "version": "[1.3.14, )"
+            },
+            "Npgsql": {
+              "target": "Package",
+              "version": "[5.0.11, )"
+            },
+            "Npgsql.GeoJSON": {
+              "target": "Package",
+              "version": "[5.0.11, )"
+            },
+            "Npgsql.NetTopologySuite": {
+              "target": "Package",
+              "version": "[5.0.11, )"
+            },
+            "Oracle.ManagedDataAccess.Core": {
+              "target": "Package",
+              "version": "[3.21.4, )"
+            },
+            "System.Data.SQLite.Core": {
+              "target": "Package",
+              "version": "[1.0.115.5, )"
+            },
+            "System.Data.SqlClient": {
+              "target": "Package",
+              "version": "[4.8.3, )"
+            },
+            "System.Linq.Dynamic.Core": {
+              "target": "Package",
+              "version": "[1.2.15, )"
+            }
+          },
+          "imports": [
+            "net461",
+            "net462",
+            "net47",
+            "net471",
+            "net472",
+            "net48"
+          ],
+          "assetTargetFallback": true,
+          "warn": true,
+          "frameworkReferences": {
+            "Microsoft.NETCore.App": {
+              "privateAssets": "all"
+            }
+          },
+          "runtimeIdentifierGraphPath": "C:\\Program Files\\dotnet\\sdk\\6.0.200\\RuntimeIdentifierGraph.json"
+        },
+        "net6.0": {
+          "targetAlias": "net6.0",
+          "dependencies": {
+            "ClickHouse.Ado.Dapper": {
+              "target": "Package",
+              "version": "[1.0.8, )"
+            },
+            "Dapper": {
+              "target": "Package",
+              "version": "[2.0.123, )"
+            },
+            "FastMember": {
+              "target": "Package",
+              "version": "[1.5.0, )"
+            },
+            "MySqlConnector": {
+              "target": "Package",
+              "version": "[1.3.14, )"
+            },
+            "Npgsql": {
+              "target": "Package",
+              "version": "[5.0.11, )"
+            },
+            "Npgsql.GeoJSON": {
+              "target": "Package",
+              "version": "[5.0.11, )"
+            },
+            "Npgsql.NetTopologySuite": {
+              "target": "Package",
+              "version": "[5.0.11, )"
+            },
+            "Oracle.ManagedDataAccess.Core": {
+              "target": "Package",
+              "version": "[3.21.4, )"
+            },
+            "System.Data.SQLite.Core": {
+              "target": "Package",
+              "version": "[1.0.115.5, )"
+            },
+            "System.Data.SqlClient": {
+              "target": "Package",
+              "version": "[4.8.3, )"
+            },
+            "System.Linq.Dynamic.Core": {
+              "target": "Package",
+              "version": "[1.2.15, )"
+            }
+          },
+          "imports": [
+            "net461",
+            "net462",
+            "net47",
+            "net471",
+            "net472",
+            "net48"
+          ],
+          "assetTargetFallback": true,
+          "warn": true,
+          "frameworkReferences": {
+            "Microsoft.NETCore.App": {
+              "privateAssets": "all"
+            }
+          },
+          "runtimeIdentifierGraphPath": "C:\\Program Files\\dotnet\\sdk\\6.0.200\\RuntimeIdentifierGraph.json"
+        },
+        "net45": {
+          "targetAlias": "net45",
+          "dependencies": {
+            "ClickHouse.Ado.Dapper": {
+              "target": "Package",
+              "version": "[1.0.8, )"
+            },
+            "Dapper.Net45": {
+              "target": "Package",
+              "version": "[2.0.123, )"
+            },
+            "FastMember.Net45": {
+              "target": "Package",
+              "version": "[1.5.0, )"
+            },
+            "Microsoft.CSharp": {
+              "target": "Package",
+              "version": "[4.7.0, )"
+            },
+            "MySqlConnector": {
+              "target": "Package",
+              "version": "[1.3.14, )"
+            },
+            "Npgsql": {
+              "target": "Package",
+              "version": "[4.0.12, )"
+            },
+            "Npgsql.GeoJSON": {
+              "target": "Package",
+              "version": "[4.0.11, )"
+            },
+            "Npgsql.NetTopologySuite": {
+              "target": "Package",
+              "version": "[4.0.11, )"
+            },
+            "Oracle.ManagedDataAccess": {
+              "target": "Package",
+              "version": "[19.12.0, )"
+            },
+            "System.Data.SQLite.Core": {
+              "target": "Package",
+              "version": "[1.0.115.5, )"
+            },
+            "System.Linq.Dynamic.Core": {
+              "target": "Package",
+              "version": "[1.2.15, )"
+            },
+            "System.ValueTuple": {
+              "target": "Package",
+              "version": "[4.5.0, )"
+            }
+          },
+          "runtimeIdentifierGraphPath": "C:\\Program Files\\dotnet\\sdk\\6.0.200\\RuntimeIdentifierGraph.json"
+        },
+        "netstandard2.1": {
+          "targetAlias": "netstandard2.1",
+          "dependencies": {
+            "ClickHouse.Ado.Dapper": {
+              "target": "Package",
+              "version": "[1.0.8, )"
+            },
+            "Dapper": {
+              "target": "Package",
+              "version": "[2.0.123, )"
+            },
+            "FastMember": {
+              "target": "Package",
+              "version": "[1.5.0, )"
+            },
+            "MySqlConnector": {
+              "target": "Package",
+              "version": "[1.3.14, )"
+            },
+            "Npgsql": {
+              "target": "Package",
+              "version": "[5.0.11, )"
+            },
+            "Npgsql.GeoJSON": {
+              "target": "Package",
+              "version": "[5.0.11, )"
+            },
+            "Npgsql.NetTopologySuite": {
+              "target": "Package",
+              "version": "[5.0.11, )"
+            },
+            "Oracle.ManagedDataAccess.Core": {
+              "target": "Package",
+              "version": "[3.21.4, )"
+            },
+            "System.Data.SQLite.Core": {
+              "target": "Package",
+              "version": "[1.0.115.5, )"
+            },
+            "System.Data.SqlClient": {
+              "target": "Package",
+              "version": "[4.8.3, )"
+            },
+            "System.Linq.Dynamic.Core": {
+              "target": "Package",
+              "version": "[1.2.15, )"
+            }
+          },
+          "imports": [
+            "net461",
+            "net462",
+            "net47",
+            "net471",
+            "net472",
+            "net48"
+          ],
+          "assetTargetFallback": true,
+          "warn": true,
+          "frameworkReferences": {
+            "NETStandard.Library": {
+              "privateAssets": "all"
+            }
+          },
+          "runtimeIdentifierGraphPath": "C:\\Program Files\\dotnet\\sdk\\6.0.200\\RuntimeIdentifierGraph.json"
+        }
+      }
+    }
+  }
+}
