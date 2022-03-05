@@ -41,6 +41,7 @@ namespace Dapper.Sharding
 #endif
 
 //Assembly.GetExecutingAssembly()
+//Assembly.GetExecutingAssembly().GetReferencedAssemblies()
+//AppDomain.CurrentDomain.GetAssemblies()
 //typeof(T).Assembly
 //Assembly.Load()
-//AppDomain.CurrentDomain.GetAssemblies()
