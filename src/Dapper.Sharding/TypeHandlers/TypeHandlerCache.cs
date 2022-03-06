@@ -27,7 +27,7 @@ namespace Dapper.Sharding
             }
         }
 
-        internal static void Add(Assembly assembly, Action<Type> action)
+        internal static void GetJsonPropertyType(Assembly assembly, Action<Type> action)
         {
             var types = assembly.GetTypes();
             foreach (var type in types)

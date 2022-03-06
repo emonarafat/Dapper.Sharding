@@ -20,7 +20,7 @@ namespace Dapper.Sharding
 
         public static void Add(Assembly assembly)
         {
-            TypeHandlerCache.Add(assembly, (type) =>
+            TypeHandlerCache.GetJsonPropertyType(assembly, (type) =>
             {
                 Add(type);
             });
