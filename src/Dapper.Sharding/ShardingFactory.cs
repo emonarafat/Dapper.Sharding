@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using static Dapper.SqlMapper;
 
 namespace Dapper.Sharding
 {
@@ -138,7 +137,7 @@ namespace Dapper.Sharding
             return NextLongId().ToString();
         }
 
-        public static void AddTypeHandler(Type type, ITypeHandler handler)
+        public static void AddTypeHandler(Type type, SqlMapper.ITypeHandler handler)
         {
             TypeHandlerCache.Add(type, () =>
             {
