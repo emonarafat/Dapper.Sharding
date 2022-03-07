@@ -48,6 +48,17 @@ namespace Dapper.Sharding
                                     action(pro.PropertyType);
                                 }
                             }
+                            else
+                            {
+                                var ok = type.GetCustomAttributes(false).Any(f => f is JsonStringAttribute);
+                                if (ok)
+                                {
+                                    if (pro.PropertyType != typeof(string))
+                                    {
+                                        action(pro.PropertyType);
+                                    }
+                                }
+                            }
                         }
                     }
                 }

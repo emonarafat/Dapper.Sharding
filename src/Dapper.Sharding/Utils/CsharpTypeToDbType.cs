@@ -32,7 +32,7 @@ namespace Dapper.Sharding
                     {
                         return "CLOB";
                     }
-                    return "varchar(max)"; //sqlserver
+                    return "nvarchar(max)"; //sqlserver
                 }
 
                 if (dbType != DataBaseType.Postgresql)
@@ -45,7 +45,7 @@ namespace Dapper.Sharding
                         }
                         else if (dbType == DataBaseType.SqlServer2012 || dbType == DataBaseType.SqlServer2008 || dbType == DataBaseType.SqlServer2005)
                         {
-                            return "varchar(max)";
+                            return "nvarchar(max)";
                         }
                         else if (dbType == DataBaseType.ClickHouse)
                         {
@@ -68,7 +68,7 @@ namespace Dapper.Sharding
                     {
                         if (dbType == DataBaseType.SqlServer2012 || dbType == DataBaseType.SqlServer2008 || dbType == DataBaseType.SqlServer2005)
                         {
-                            return "varchar(max)";
+                            return "nvarchar(max)";
                         }
                         else if (dbType == DataBaseType.Oracle)
                         {
@@ -113,7 +113,7 @@ namespace Dapper.Sharding
                 {
                     length = 36;
                 }
-                return $"varchar({length})";
+                return $"nvarchar({length})";
             }
 
             if (type == typeof(string))
@@ -123,10 +123,10 @@ namespace Dapper.Sharding
                 if (length == -3)
                     return "ntext";
                 if (length <= -1)
-                    return "varchar(max)";
+                    return "nvarchar(max)";
                 if (length == 0)
                     length = 50;
-                return $"varchar({length})";
+                return $"nvarchar({length})";
             }
 
             if (type == typeof(bool))
@@ -725,7 +725,7 @@ namespace Dapper.Sharding
                 {
                     length = 36;
                 }
-                return $"VARCHAR2({length})";
+                return $"NVARCHAR2({length})";
 
             }
 
@@ -735,7 +735,7 @@ namespace Dapper.Sharding
                     return "CLOB";
                 if (length <= 0)
                     length = 50;
-                return $"VARCHAR2({length})";
+                return $"NVARCHAR2({length})";
 
             }
 
