@@ -50,7 +50,7 @@ namespace Dapper.Sharding
                             }
                             else
                             {
-                                var ok = type.GetCustomAttributes(false).Any(f => f is JsonStringAttribute);
+                                var ok = pro.GetCustomAttributes(false).Any(f => f is JsonStringAttribute);
                                 if (ok)
                                 {
                                     if (pro.PropertyType != typeof(string))
