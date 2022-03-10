@@ -155,16 +155,20 @@ var model = table.GetById(1);
 Console.WriteLine(model.Stu.Name);
 
 //System.Text.Json
-TypeHandlerSystemTextJson.Add<Student>();
-TypeHandlerSystemTextJson.Add<List<Student>>();
-TypeHandlerSystemTextJson.Add<JsonObject>();
-TypeHandlerSystemTextJson.Add<JsonArray>();
+TypeHandlerSystemTextJson.Add(typeof(Student));
+TypeHandlerSystemTextJson.Add(typeof(List<Student>));
+TypeHandlerSystemTextJson.Add(typeof(JsonObject));
+TypeHandlerSystemTextJson.Add(typeof(JsonArray));
+/**Add Assembly***/
+TypeHandlerSystemTextJson.Add(typeof(Student).Assembly);
 
 //Json.Net
-TypeHandlerJsonNet.Add<Student>();
-TypeHandlerJsonNet.Add<List<Student>>();
-TypeHandlerJsonNet.Add<JObject>();
-TypeHandlerJsonNet.Add<JArray>();
+TypeHandlerJsonNet.Add(typeof(Student));
+TypeHandlerJsonNet.Add(typeof(List<Student>));
+TypeHandlerJsonNet.Add(typeof(JObject));
+TypeHandlerJsonNet.Add(typeof(JArray));
+/**Add Assembly***/
+TypeHandlerJsonNet.Add(typeof(Student).Assembly);
 ```
 
 ```csharp
