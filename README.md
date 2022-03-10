@@ -116,7 +116,8 @@ namespace ConsoleApp1
         public int Id { get; set; }
 
         public string Name { get; set; }
-
+        
+        //[JsonString]
         //[Column(columnType: "varchar(8000)")]
         [Column(columnType: "jsonb")]
         public Student Stu { get; set; }  //json or json string
