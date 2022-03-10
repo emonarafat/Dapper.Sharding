@@ -13,11 +13,6 @@ namespace Dapper.Sharding
             });
         }
 
-        public static void Add<T>()
-        {
-            Add(typeof(T));
-        }
-
         public static void Add(Assembly assembly)
         {
             TypeHandlerCache.GetJsonPropertyType(assembly, (type) =>
@@ -25,15 +20,5 @@ namespace Dapper.Sharding
                 Add(type);
             });
         }
-
-        public static void AddCurrentDomain()
-        {
-            var assamblys = AppDomain.CurrentDomain.GetAssemblies();
-            foreach (var item in assamblys)
-            {
-                Add(item);
-            }
-        }
-
     }
 }
