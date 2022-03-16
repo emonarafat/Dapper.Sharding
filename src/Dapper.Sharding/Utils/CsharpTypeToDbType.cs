@@ -275,9 +275,9 @@ namespace Dapper.Sharding
             if (type == typeof(string))
             {
                 if (length == -1)
-                    return "text";
-                if (length == -2)
                     return "longtext";
+                if (length == -2)
+                    return "text";
                 if (length == -3)
                     return "mediumtext";
                 if (length == -4)

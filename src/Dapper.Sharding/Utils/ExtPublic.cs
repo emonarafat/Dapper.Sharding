@@ -59,6 +59,11 @@ namespace Dapper.Sharding
             return sb.ToString();
         }
 
+        public static List<string> SplitToList(this string data, char separator = ',')
+        {
+            return data.Split(separator).ToList();
+        }
+
         #endregion
 
         #region dapper
