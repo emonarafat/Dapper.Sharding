@@ -61,6 +61,10 @@ namespace Dapper.Sharding
 
         public static List<string> SplitToList(this string data, char separator = ',')
         {
+            if (string.IsNullOrEmpty(data))
+            {
+                return null;
+            }
             return data.Split(separator).ToList();
         }
 
