@@ -2460,6 +2460,17 @@ namespace Dapper.Sharding
 
         #endregion
 
+        /*******IQuery********/
+
+        public IQuery AsQuery(string asName)
+        {
+            if (DbType == DataBaseType.MySql)
+            {
+                return new MySqlQuery(DataBase);
+            }
+            return default;
+        }
+
     }
 
 }
