@@ -189,3 +189,17 @@ NpgsqlGeoJsonFactory.UseGeoJson();
 NpgsqlConnection.GlobalTypeMapper.UseNetTopologySuite();
 NpgsqlGeoFactory.UseGeo();
 ```
+```csharp
+//IQuery
+var query = table.AsQuery("a")
+     .LeftJoin(table2, "b", "a.bid=b.id")
+     .Where("a.name=@name")
+     //.Limit(10)
+     .Page(1, 10)
+     .OrderBy("a.id")
+     .ReturnFields("a.*,b.name")
+     .Param(new { name = "lili" });
+
+var data = query.Query<T>();
+var data2 = query.QueryPageAndCount<T>();
+```
