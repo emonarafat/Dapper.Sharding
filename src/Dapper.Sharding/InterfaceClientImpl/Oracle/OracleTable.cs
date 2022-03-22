@@ -224,7 +224,7 @@ namespace Dapper.Sharding
         {
             if (string.IsNullOrEmpty(returnFields))
                 returnFields = SqlField.AllFields;
-            return $"SELECT {returnFields} FROM {Name} {where} {orderby.SetOrderBy(SqlField.PrimaryKey)} LIMIT {skip},{take}";
+            return $"SELECT * FROM(SELECT AA.*,rownum rn FROM(SELECT {returnFields} FROM {Name} {where} {orderby.SetOrderBy(SqlField.PrimaryKey)}) AA WHERE rownum<={skip + take}) BB WHERE rn>={skip + 1}";
         }
 
         protected override string SqlGetByAscFirstPage(int pageSize, string and = null, string returnFields = null, bool dy = false)

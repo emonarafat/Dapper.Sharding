@@ -1,8 +1,8 @@
 ﻿namespace Dapper.Sharding
 {
-    internal class MySqlQuery : IQuery
+    internal class ClickHouseQuery : IQuery
     {
-        public MySqlQuery(IDatabase db) : base(db)
+        public ClickHouseQuery(IDatabase db) : base(db)
         {
 
         }
@@ -12,13 +12,13 @@
             primaryKey = table.SqlField.PrimaryKey;
             if (string.IsNullOrEmpty(asName))
             {
-                sqlTable = $"`{table.Name}`";
+                sqlTable = $"{table.Name}";
                 returnFields = table.SqlField.AllFields;
                 sqlOrderBy = primaryKey;
             }
             else
             {
-                sqlTable = $"`{table.Name}` AS {asName}";
+                sqlTable = $"{table.Name} AS {asName}";
                 returnFields = $"{asName}.*";
                 sqlOrderBy = $"{asName}.{primaryKey}";
             }
@@ -27,13 +27,13 @@
 
         public override IQuery InnerJoin<T>(ITable<T> table, string asName, string on)
         {
-            sqlTable += $" INNER JOIN `{table.Name}` AS {asName} ON {on}";
+            sqlTable += $" INNER JOIN {table.Name} AS {asName} ON {on}";
             return this;
         }
 
         public override IQuery LeftJoin<T>(ITable<T> table, string asName, string on)
         {
-            sqlTable += $" LEFT JOIN `{table.Name}` AS {asName} ON {on}";
+            sqlTable += $" LEFT JOIN {table.Name} AS {asName} ON {on}";
             return this;
         }
 

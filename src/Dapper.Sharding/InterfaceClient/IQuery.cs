@@ -1,6 +1,5 @@
 ﻿using System.Collections.Generic;
 using System.Data;
-using System.Text;
 using System.Threading.Tasks;
 
 namespace Dapper.Sharding
@@ -9,12 +8,10 @@ namespace Dapper.Sharding
     {
         protected IDatabase db;
         protected string primaryKey;
-        protected string returnFields;
         protected string _sql;
         protected string _sqlCount;
         protected int skip;
         protected int take;
-        protected bool EnableCount = false;
         object par;
         DistributedTransaction tran;
         int? timeout;
@@ -32,12 +29,9 @@ namespace Dapper.Sharding
 
         public abstract IQuery InnerJoin<T>(ITable<T> table, string asName, string on) where T : class;
 
-        public abstract IQuery Union<T>(ITable<T> table) where T : class;
-
-        public abstract IQuery UnionAll<T>(ITable<T> table) where T : class;
-
         internal abstract void Build();
 
+        internal abstract void BuildCount();
         #endregion
 
         #region GetSQL
@@ -50,8 +44,7 @@ namespace Dapper.Sharding
 
         public string GetSqlCount()
         {
-            EnableCount = true;
-            Build();
+            BuildCount();
             return _sqlCount;
         }
 
@@ -62,7 +55,21 @@ namespace Dapper.Sharding
         protected string sqlWhere;
         public IQuery Where(string where)
         {
-            sqlWhere = where;
+            sqlWhere = $"WHERE {where}";
+            return this;
+        }
+
+        protected string sqlGroupBy;
+        public IQuery GroupBy(string groupBy)
+        {
+            sqlGroupBy = $"GROUP BY {groupBy}";
+            return this;
+        }
+
+        protected string sqlHaving;
+        public IQuery Having(string having)
+        {
+            sqlHaving = $"HAVING {having}";
             return this;
         }
 
@@ -73,9 +80,36 @@ namespace Dapper.Sharding
             return this;
         }
 
+        protected string returnFields;
         public IQuery ReturnFields(string fields)
         {
             returnFields = fields;
+            return this;
+        }
+
+        public IQuery Limit(int count)
+        {
+            skip = 0;
+            take = count;
+            return this;
+        }
+
+        public IQuery Limit(int skip, int take)
+        {
+            this.skip = skip;
+            this.take = take;
+            return this;
+        }
+
+        public IQuery Page(int page, int pageSize)
+        {
+            int skip = 0;
+            if (page > 0)
+            {
+                skip = (page - 1) * pageSize;
+            }
+            this.skip = skip;
+            take = pageSize;
             return this;
         }
 
@@ -93,11 +127,13 @@ namespace Dapper.Sharding
 
         public long Count()
         {
+            BuildCount();
             return db.ExecuteScalar<long>(_sqlCount, par, tran, timeout);
         }
 
         public Task<long> CountAsync()
         {
+            BuildCount();
             return db.ExecuteScalarAsync<long>(_sqlCount, par, tran, timeout);
         }
 
@@ -185,96 +221,20 @@ namespace Dapper.Sharding
             return db.ExecuteScalarAsync(_sql, par, tran, timeout);
         }
 
-        /**********QuerySkipTake************/
-        public IEnumerable<T> QuerySkipTake<T>(int skip, int take)
-        {
-            this.skip = skip;
-            this.take = take;
-            Build();
-            return db.Query<T>(_sql, par, tran, timeout);
-        }
-
-        public Task<IEnumerable<T>> QuerySkipTakeAsync<T>(int skip, int take)
-        {
-            this.skip = skip;
-            this.take = take;
-            Build();
-            return db.QueryAsync<T>(_sql, par, tran, timeout);
-        }
-
-        public IEnumerable<dynamic> QuerySkipTake(int skip, int take)
-        {
-            this.skip = skip;
-            this.take = take;
-            Build();
-            return db.Query(_sql, par, tran, timeout);
-        }
-
-        public Task<IEnumerable<dynamic>> QuerySkipTakeAsync(int skip, int take)
-        {
-            this.skip = skip;
-            this.take = take;
-            Build();
-            return db.QueryAsync(_sql, par, tran, timeout);
-        }
-
-        /**********QueryPage************/
-        public IEnumerable<T> QueryPage<T>(int page, int pageSize)
-        {
-            int skip = 0;
-            if (page > 0)
-            {
-                skip = (page - 1) * pageSize;
-            }
-            return QuerySkipTake<T>(skip, pageSize);
-        }
-
-        public Task<IEnumerable<T>> QueryPageAsync<T>(int page, int pageSize)
-        {
-            int skip = 0;
-            if (page > 0)
-            {
-                skip = (page - 1) * pageSize;
-            }
-            return QuerySkipTakeAsync<T>(skip, pageSize);
-        }
-
-        public IEnumerable<dynamic> QueryPage(int page, int pageSize)
-        {
-            int skip = 0;
-            if (page > 0)
-            {
-                skip = (page - 1) * pageSize;
-            }
-            return QuerySkipTake(skip, pageSize);
-        }
-
-        public Task<IEnumerable<dynamic>> QueryPageAsync(int page, int pageSize)
-        {
-            int skip = 0;
-            if (page > 0)
-            {
-                skip = (page - 1) * pageSize;
-            }
-            return QuerySkipTakeAsync(skip, pageSize);
-        }
-
         /**********QueryPageAndCount************/
 
-        public PageEntity<T> QueryPageAndCount<T>(int page, int pageSize)
+        public PageEntity<T> QueryPageAndCount<T>()
         {
-            EnableCount = true;
             return new PageEntity<T>
             {
-                Data = QueryPage<T>(page, pageSize),
+                Data = Query<T>(),
                 Count = Count()
             };
         }
 
-        public async Task<PageEntity<T>> QueryPageAndCountAsync<T>(int page, int pageSize)
+        public async Task<PageEntity<T>> QueryPageAndCountAsync<T>()
         {
-            EnableCount = true;
-            var task1 = QueryPageAsync<T>(page, pageSize);
+            var task1 = QueryAsync<T>();
             var task2 = CountAsync();
             await Task.WhenAll(task1, task2);
             return new PageEntity<T>
@@ -284,20 +244,18 @@ namespace Dapper.Sharding
             };
         }
 
-        public PageEntity<dynamic> QueryPageAndCount(int page, int pageSize)
+        public PageEntity<dynamic> QueryPageAndCount()
         {
-            EnableCount = true;
             return new PageEntity<dynamic>
             {
-                Data = QueryPage(page, pageSize),
+                Data = Query(),
                 Count = Count()
             };
         }
 
-        public async Task<PageEntity<dynamic>> QueryPageAndCountAsync(int page, int pageSize)
+        public async Task<PageEntity<dynamic>> QueryPageAndCountAsync()
         {
-            EnableCount = true;
-            var task1 = QueryPageAsync(page, pageSize);
+            var task1 = QueryAsync();
             var task2 = CountAsync();
             await Task.WhenAll(task1, task2);
             return new PageEntity<dynamic>

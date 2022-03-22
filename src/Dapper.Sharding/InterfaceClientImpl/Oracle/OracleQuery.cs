@@ -1,8 +1,10 @@
-﻿namespace Dapper.Sharding
+﻿using System;
+
+namespace Dapper.Sharding
 {
-    internal class MySqlQuery : IQuery
+    internal class OracleQuery : IQuery
     {
-        public MySqlQuery(IDatabase db) : base(db)
+        public OracleQuery(IDatabase db) : base(db)
         {
 
         }
@@ -12,13 +14,13 @@
             primaryKey = table.SqlField.PrimaryKey;
             if (string.IsNullOrEmpty(asName))
             {
-                sqlTable = $"`{table.Name}`";
+                sqlTable = $"{table.Name}";
                 returnFields = table.SqlField.AllFields;
                 sqlOrderBy = primaryKey;
             }
             else
             {
-                sqlTable = $"`{table.Name}` AS {asName}";
+                sqlTable = $"{table.Name} AS {asName}";
                 returnFields = $"{asName}.*";
                 sqlOrderBy = $"{asName}.{primaryKey}";
             }
@@ -27,13 +29,13 @@
 
         public override IQuery InnerJoin<T>(ITable<T> table, string asName, string on)
         {
-            sqlTable += $" INNER JOIN `{table.Name}` AS {asName} ON {on}";
+            sqlTable += $" INNER JOIN {table.Name} AS {asName} ON {on}";
             return this;
         }
 
         public override IQuery LeftJoin<T>(ITable<T> table, string asName, string on)
         {
-            sqlTable += $" LEFT JOIN `{table.Name}` AS {asName} ON {on}";
+            sqlTable += $" LEFT JOIN {table.Name} AS {asName} ON {on}";
             return this;
         }
 
@@ -45,7 +47,7 @@
             }
             else
             {
-                _sql = $"SELECT {returnFields} FROM {sqlTable} {sqlWhere} {sqlGroupBy} {sqlHaving} ORDER BY {sqlOrderBy} LIMIT {skip},{take}";
+                _sql = $"SELECT * FROM(SELECT AA.*,rownum rn FROM(SELECT {returnFields} FROM {sqlTable} {sqlWhere} {sqlGroupBy} {sqlHaving} ORDER BY {sqlOrderBy}) AA WHERE rownum<={skip + take}) BB WHERE rn>={skip + 1}";
             }
         }
 

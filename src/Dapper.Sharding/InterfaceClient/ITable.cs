@@ -2461,14 +2461,35 @@ namespace Dapper.Sharding
         #endregion
 
         /*******IQuery********/
-
-        public IQuery AsQuery(string asName)
+        public IQuery AsQuery(string asName = null)
         {
+            IQuery query;
             if (DbType == DataBaseType.MySql)
             {
-                return new MySqlQuery(DataBase);
+                query = new MySqlQuery(DataBase);
             }
-            return default;
+            else if (DbType == DataBaseType.Postgresql)
+            {
+                query = new PostgreQuery(DataBase);
+            }
+            else if (DbType == DataBaseType.Sqlite)
+            {
+                query = new SQLiteQuery(DataBase);
+            }
+            else if (DbType == DataBaseType.ClickHouse)
+            {
+                query = new ClickHouseQuery(DataBase);
+            }
+            else if (DbType == DataBaseType.Oracle)
+            {
+                query = new OracleQuery(DataBase);
+            }
+            else
+            {
+                query = new SqlServerQuery(DataBase);
+            }
+            query.Add(this, asName);
+            return query;
         }
 
     }
