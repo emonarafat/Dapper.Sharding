@@ -2493,7 +2493,7 @@ namespace Dapper.Sharding
         }
 
         /*******IUnion********/
-        public IUnion AsUnion(string asName = null)
+        public IUnion AsUnion()
         {
             if (DbType == DataBaseType.MySql)
             {
