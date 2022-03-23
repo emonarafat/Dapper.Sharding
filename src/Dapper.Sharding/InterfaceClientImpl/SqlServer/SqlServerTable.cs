@@ -213,21 +213,24 @@ namespace Dapper.Sharding
         {
             if (string.IsNullOrEmpty(returnFields))
                 returnFields = SqlField.AllFields;
-            if (DataBase.Client.DbType == DataBaseType.SqlServer2012)
+
+            if (skip == 0) //第一页,使用Top语句
             {
-                return $"SELECT {returnFields} FROM [{Name}] {where} {orderby.SetOrderBy(SqlField.PrimaryKey)} offset {skip} rows fetch next {take} rows only";
+                return $"SELECT TOP ({take}) {returnFields} FROM [{Name}] {where} {orderby.SetOrderBy(SqlField.PrimaryKey)}";
             }
             else
             {
-                if (skip == 0) //第一页,使用Top语句
+                if (DataBase.Client.DbType == DataBaseType.SqlServer2012)
                 {
-                    return $"SELECT TOP ({take}) {returnFields} FROM [{Name}] {where} {orderby.SetOrderBy(SqlField.PrimaryKey)}";
+                    return $"SELECT {returnFields} FROM [{Name}] {where} {orderby.SetOrderBy(SqlField.PrimaryKey)} offset {skip} rows fetch next {take} rows only";
                 }
-                else //使用ROW_NUMBER()
+                else
                 {
+                    //使用ROW_NUMBER()
                     return $"WITH cte AS(SELECT ROW_NUMBER() OVER({orderby.SetOrderBy(SqlField.PrimaryKey)}) AS Row_Number,{returnFields} FROM [{Name}] {where}) SELECT * FROM cte WHERE cte.Row_Number BETWEEN {skip + 1} AND {skip + take}";
                 }
             }
+
         }
 
         protected override string SqlGetByAscFirstPage(int pageSize, string and = null, string returnFields = null, bool dy = false)

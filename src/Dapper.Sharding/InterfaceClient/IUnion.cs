@@ -4,7 +4,7 @@ using System.Threading.Tasks;
 
 namespace Dapper.Sharding
 {
-    public abstract class IQuery
+    public abstract class IUnion
     {
         protected IDatabase db;
         protected string _sql;
@@ -14,22 +14,77 @@ namespace Dapper.Sharding
         object par;
         DistributedTransaction tran;
         int? timeout;
-        public IQuery(IDatabase db)
+        public IUnion(IDatabase db)
         {
+            returnFields = "*";
             this.db = db;
         }
 
+        public IUnion Union(IQuery query)
+        {
+            if (db.DbType != DataBaseType.MySql && db.DbType != DataBaseType.Postgresql && db.DbType != DataBaseType.ClickHouse)
+            {
+                query.sqlOrderBy = null;
+            }
+            if (string.IsNullOrEmpty(_sql))
+            {
+
+                if (db.DbType != DataBaseType.Sqlite)
+                {
+                    _sql += $"({query.GetSql()})";
+                }
+                else
+                {
+                    _sql += query.GetSql();
+                }
+            }
+            else
+            {
+                if (db.DbType != DataBaseType.Sqlite)
+                {
+                    _sql += $" UNION ({query.GetSql()})";
+                }
+                else
+                {
+                    _sql += $" UNION {query.GetSql()}";
+                }
+            }
+            return this;
+        }
+
+        public IUnion UnionAll(IQuery query)
+        {
+            if (db.DbType != DataBaseType.MySql && db.DbType != DataBaseType.Postgresql && db.DbType != DataBaseType.ClickHouse)
+            {
+                query.sqlOrderBy = null;
+            }
+
+            if (string.IsNullOrEmpty(_sql))
+            {
+                if (db.DbType != DataBaseType.Sqlite)
+                {
+                    _sql += $"({query.GetSql()})";
+                }
+                else
+                {
+                    _sql += query.GetSql();
+                }
+            }
+            else
+            {
+                if (db.DbType != DataBaseType.Sqlite)
+                {
+                    _sql += $" UNION ALL ({query.GetSql()})";
+                }
+                else
+                {
+                    _sql += $" UNION ALL {query.GetSql()}";
+                }
+            }
+            return this;
+        }
+
         #region Abstract
-
-        protected string _sqlTable;
-        protected string sqlTable;
-        internal abstract IQuery Add<T>(ITable<T> table, string asName = null) where T : class;
-
-        public abstract IQuery InnerJoin<T>(ITable<T> table, string asName, string on) where T : class;
-
-        public abstract IQuery LeftJoin<T>(ITable<T> table, string asName, string on) where T : class;
-
-        public abstract IQuery RightJoin<T>(ITable<T> table, string asName, string on) where T : class;
 
         internal abstract void Build();
 
@@ -53,9 +108,7 @@ namespace Dapper.Sharding
 
         public void Clear()
         {
-            sqlTable = _sqlTable;
-            returnFields = _returnFields;
-            sqlOrderBy = _sqlOrderBy;
+            returnFields = "*";
             skip = 0;
             take = 0;
             par = null;
@@ -65,7 +118,7 @@ namespace Dapper.Sharding
             _sqlCount = null;
             sqlWhere = null;
             sqlGroupBy = null;
-            sqlHaving=  null;
+            sqlHaving = null;
         }
 
         #endregion
@@ -73,29 +126,29 @@ namespace Dapper.Sharding
         #region Query Condition
 
         protected string sqlWhere;
-        public IQuery Where(string where)
+        public IUnion Where(string where)
         {
             sqlWhere = $" WHERE {where}";
             return this;
         }
 
         protected string sqlGroupBy;
-        public IQuery GroupBy(string groupBy)
+        public IUnion GroupBy(string groupBy)
         {
             sqlGroupBy = $" GROUP BY {groupBy}";
             return this;
         }
 
         protected string sqlHaving;
-        public IQuery Having(string having)
+        public IUnion Having(string having)
         {
             sqlHaving = $" HAVING {having}";
             return this;
         }
 
         protected string _sqlOrderBy;
-        internal string sqlOrderBy;
-        public IQuery OrderBy(string orderBy)
+        protected string sqlOrderBy;
+        public IUnion OrderBy(string orderBy)
         {
             sqlOrderBy = $" ORDER BY {orderBy}";
             return this;
@@ -103,27 +156,27 @@ namespace Dapper.Sharding
 
         protected string _returnFields;
         protected string returnFields;
-        public IQuery ReturnFields(string fields)
+        public IUnion ReturnFields(string fields)
         {
             returnFields = fields;
             return this;
         }
 
-        public IQuery Limit(int count)
+        public IUnion Limit(int count)
         {
             skip = 0;
             take = count;
             return this;
         }
 
-        public IQuery Limit(int skip, int take)
+        public IUnion Limit(int skip, int take)
         {
             this.skip = skip;
             this.take = take;
             return this;
         }
 
-        public IQuery Page(int page, int pageSize)
+        public IUnion Page(int page, int pageSize)
         {
             int skip = 0;
             if (page > 1)
@@ -135,7 +188,7 @@ namespace Dapper.Sharding
             return this;
         }
 
-        public IQuery Param(object param, DistributedTransaction tran = null, int? timeout = null)
+        public IUnion Param(object param, DistributedTransaction tran = null, int? timeout = null)
         {
             par = param;
             this.tran = tran;
@@ -288,6 +341,5 @@ namespace Dapper.Sharding
         }
 
         #endregion
-
     }
 }

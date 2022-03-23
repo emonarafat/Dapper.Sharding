@@ -2199,7 +2199,7 @@ namespace Dapper.Sharding
         public IEnumerable<T> GetByPage(int page, int pageSize, string where = null, object param = null, string returnFields = null, string orderby = null, DistributedTransaction tran = null, int? timeout = null)
         {
             int skip = 0;
-            if (page > 0)
+            if (page > 1)
             {
                 skip = (page - 1) * pageSize;
             }
@@ -2209,7 +2209,7 @@ namespace Dapper.Sharding
         public Task<IEnumerable<T>> GetByPageAsync(int page, int pageSize, string where = null, object param = null, string returnFields = null, string orderby = null, DistributedTransaction tran = null, int? timeout = null)
         {
             int skip = 0;
-            if (page > 0)
+            if (page > 1)
             {
                 skip = (page - 1) * pageSize;
             }
@@ -2219,7 +2219,7 @@ namespace Dapper.Sharding
         public IEnumerable<dynamic> GetByPageDynamic(int page, int pageSize, string where = null, object param = null, string returnFields = null, string orderby = null, DistributedTransaction tran = null, int? timeout = null)
         {
             int skip = 0;
-            if (page > 0)
+            if (page > 1)
             {
                 skip = (page - 1) * pageSize;
             }
@@ -2229,7 +2229,7 @@ namespace Dapper.Sharding
         public Task<IEnumerable<dynamic>> GetByPageDynamicAsync(int page, int pageSize, string where = null, object param = null, string returnFields = null, string orderby = null, DistributedTransaction tran = null, int? timeout = null)
         {
             int skip = 0;
-            if (page > 0)
+            if (page > 1)
             {
                 skip = (page - 1) * pageSize;
             }
@@ -2492,6 +2492,34 @@ namespace Dapper.Sharding
             return query;
         }
 
+        /*******IUnion********/
+        public IUnion AsUnion(string asName = null)
+        {
+            if (DbType == DataBaseType.MySql)
+            {
+                return new MySqlUnion(DataBase);
+            }
+            else if (DbType == DataBaseType.Postgresql)
+            {
+                return new PostgreUnion(DataBase);
+            }
+            else if (DbType == DataBaseType.Sqlite)
+            {
+                return new SQLiteUnion(DataBase);
+            }
+            else if (DbType == DataBaseType.ClickHouse)
+            {
+                return new ClickHouseUnion(DataBase);
+            }
+            else if (DbType == DataBaseType.Oracle)
+            {
+                return new OracleUnion(DataBase);
+            }
+            else
+            {
+                return new SqlServerUnion(DataBase);
+            }
+        }
     }
 
 }

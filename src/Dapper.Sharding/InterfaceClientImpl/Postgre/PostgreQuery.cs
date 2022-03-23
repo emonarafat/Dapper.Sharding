@@ -9,19 +9,22 @@
 
         internal override IQuery Add<T>(ITable<T> table, string asName = null)
         {
-            primaryKey = table.SqlField.PrimaryKey;
+            var primaryKey = table.SqlField.PrimaryKey;
             if (string.IsNullOrEmpty(asName))
             {
                 sqlTable = $"{table.Name}";
                 returnFields = table.SqlField.AllFields;
-                sqlOrderBy = primaryKey;
+                sqlOrderBy = $" ORDER BY {primaryKey}";
             }
             else
             {
                 sqlTable = $"{table.Name} AS {asName}";
                 returnFields = $"{asName}.*";
-                sqlOrderBy = $"{asName}.{primaryKey}";
+                sqlOrderBy = $" ORDER BY {asName}.{primaryKey}";
             }
+            _sqlTable = sqlTable;
+            _returnFields = returnFields;
+            _sqlOrderBy = sqlOrderBy;
             return this;
         }
 
@@ -37,21 +40,27 @@
             return this;
         }
 
+        public override IQuery RightJoin<T>(ITable<T> table, string asName, string on)
+        {
+            sqlTable += $" RIGHT JOIN {table.Name} AS {asName} ON {on}";
+            return this;
+        }
+
         internal override void Build()
         {
             if (take == 0)
             {
-                _sql = $"SELECT {returnFields} FROM {sqlTable} {sqlWhere} {sqlGroupBy} {sqlHaving} ORDER BY {sqlOrderBy}";
+                _sql = $"SELECT {returnFields} FROM {string.Concat(sqlTable, sqlWhere, sqlGroupBy, sqlHaving, sqlOrderBy)}";
             }
             else
             {
-                _sql = $"SELECT {returnFields} FROM {sqlTable} {sqlWhere} {sqlGroupBy} {sqlHaving} ORDER BY {sqlOrderBy} LIMIT {take} OFFSET {skip}";
+                _sql = $"SELECT {returnFields} FROM {string.Concat(sqlTable, sqlWhere, sqlGroupBy, sqlHaving, sqlOrderBy)} LIMIT {take} OFFSET {skip}";
             }
         }
 
         internal override void BuildCount()
         {
-            _sqlCount = $"SELECT COUNT(1) FROM {sqlTable} {sqlWhere} {sqlGroupBy} {sqlHaving}";
+            _sqlCount = $"SELECT COUNT(1) FROM {string.Concat(sqlTable, sqlWhere, sqlGroupBy, sqlHaving)}";
         }
     }
 }
