@@ -119,6 +119,7 @@ namespace Dapper.Sharding
             sqlWhere = null;
             sqlGroupBy = null;
             sqlHaving = null;
+            sqlOrderBy = null;
         }
 
         #endregion
@@ -146,7 +147,6 @@ namespace Dapper.Sharding
             return this;
         }
 
-        protected string _sqlOrderBy;
         protected string sqlOrderBy;
         public IUnion OrderBy(string orderBy)
         {
@@ -154,7 +154,6 @@ namespace Dapper.Sharding
             return this;
         }
 
-        protected string _returnFields;
         protected string returnFields;
         public IUnion ReturnFields(string fields)
         {
