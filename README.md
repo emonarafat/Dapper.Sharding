@@ -203,6 +203,8 @@ var query = table.AsQuery("a")
 var data = query.Query<T>();
 var data2 = query.QueryPageAndCount<T>();
 ```
+```csharp
 //IUnion
 var union = table.AsUnion();
 union.Union(IQuery...);
+```
