@@ -65,7 +65,7 @@ namespace Dapper.Sharding
             _sqlCount = null;
             sqlWhere = null;
             sqlGroupBy = null;
-            sqlHaving=  null;
+            sqlHaving = null;
         }
 
         #endregion
@@ -285,6 +285,60 @@ namespace Dapper.Sharding
                 Data = task1.Result,
                 Count = task2.Result
             };
+        }
+
+        #endregion
+
+        #region Union
+
+        private IUnion CreateUnion()
+        {
+            if (db.DbType == DataBaseType.MySql)
+            {
+                return new MySqlUnion(db);
+            }
+            else if (db.DbType == DataBaseType.Postgresql)
+            {
+                return new PostgreUnion(db);
+            }
+            else if (db.DbType == DataBaseType.Sqlite)
+            {
+                return new SQLiteUnion(db);
+            }
+            else if (db.DbType == DataBaseType.ClickHouse)
+            {
+                return new ClickHouseUnion(db);
+            }
+            else if (db.DbType == DataBaseType.Oracle)
+            {
+                return new OracleUnion(db);
+            }
+            else
+            {
+                return new SqlServerUnion(db);
+            }
+        }
+
+        public IUnion Union(params IQuery[] querys)
+        {
+            var union = CreateUnion();
+            union.Union(this);
+            foreach (var item in querys)
+            {
+                union.Union(item);
+            }
+            return union;
+        }
+
+        public IUnion UnionAll(params IQuery[] querys)
+        {
+            var union = CreateUnion();
+            union.UnionAll(this);
+            foreach (var item in querys)
+            {
+                union.UnionAll(item);
+            }
+            return union;
         }
 
         #endregion

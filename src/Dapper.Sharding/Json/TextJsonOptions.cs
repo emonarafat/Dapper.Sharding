@@ -19,9 +19,11 @@ namespace Dapper.Sharding
 
         public static readonly JsonSerializerOptions Options = new JsonSerializerOptions()
         {
-            Encoder = JavaScriptEncoder.Create(UnicodeRanges.All), //不编码中文
+            //Encoder = JavaScriptEncoder.Create(UnicodeRanges.All), //不编码中文
+            //PropertyNamingPolicy = null, //序列化属性不转小写
+            Encoder = JavaScriptEncoder.UnsafeRelaxedJsonEscaping,//不编码中文和html
             NumberHandling = JsonNumberHandling.AllowReadingFromString, //反序列化时允许string转数字
-            PropertyNameCaseInsensitive = true //忽略大小写
+            PropertyNameCaseInsensitive = true //反序列化忽略大小写
         };
     }
 }

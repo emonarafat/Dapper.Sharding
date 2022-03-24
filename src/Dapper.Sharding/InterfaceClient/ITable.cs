@@ -2491,35 +2491,6 @@ namespace Dapper.Sharding
             query.Add(this, asName);
             return query;
         }
-
-        /*******IUnion********/
-        public IUnion AsUnion()
-        {
-            if (DbType == DataBaseType.MySql)
-            {
-                return new MySqlUnion(DataBase);
-            }
-            else if (DbType == DataBaseType.Postgresql)
-            {
-                return new PostgreUnion(DataBase);
-            }
-            else if (DbType == DataBaseType.Sqlite)
-            {
-                return new SQLiteUnion(DataBase);
-            }
-            else if (DbType == DataBaseType.ClickHouse)
-            {
-                return new ClickHouseUnion(DataBase);
-            }
-            else if (DbType == DataBaseType.Oracle)
-            {
-                return new OracleUnion(DataBase);
-            }
-            else
-            {
-                return new SqlServerUnion(DataBase);
-            }
-        }
     }
 
 }

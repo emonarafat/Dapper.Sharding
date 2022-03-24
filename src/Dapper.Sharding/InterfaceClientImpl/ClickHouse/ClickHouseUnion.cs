@@ -11,17 +11,17 @@
         {
             if (take == 0)
             {
-                _sql = $"SELECT {returnFields} FROM ({_sql}) AS UTable{string.Concat(sqlWhere, sqlGroupBy, sqlHaving, sqlOrderBy)}";
+                _sql = $"SELECT {returnFields} FROM ({sqlTable}) AS UTable{string.Concat(sqlWhere, sqlGroupBy, sqlHaving, sqlOrderBy)}";
             }
             else
             {
-                _sql = $"SELECT {returnFields} FROM ({_sql}) AS UTable{string.Concat(sqlWhere, sqlGroupBy, sqlHaving, sqlOrderBy)} LIMIT {skip},{take}";
+                _sql = $"SELECT {returnFields} FROM ({sqlTable}) AS UTable{string.Concat(sqlWhere, sqlGroupBy, sqlHaving, sqlOrderBy)} LIMIT {skip},{take}";
             }
         }
 
         internal override void BuildCount()
         {
-            _sqlCount = $"SELECT COUNT(1) FROM ({_sql}) AS UTable{string.Concat(sqlWhere, sqlGroupBy, sqlHaving)}";
+            _sqlCount = $"SELECT COUNT(1) FROM ({sqlTable}) AS UTable{string.Concat(sqlWhere, sqlGroupBy, sqlHaving)}";
         }
     }
 }

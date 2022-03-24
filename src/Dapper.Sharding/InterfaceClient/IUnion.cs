@@ -9,6 +9,7 @@ namespace Dapper.Sharding
         protected IDatabase db;
         protected string _sql;
         protected string _sqlCount;
+        protected string sqlTable;
         protected int skip;
         protected int take;
         object par;
@@ -22,31 +23,37 @@ namespace Dapper.Sharding
 
         public IUnion Union(IQuery query)
         {
-            if (db.DbType != DataBaseType.MySql && db.DbType != DataBaseType.Postgresql && db.DbType != DataBaseType.ClickHouse)
+            if (db.DbType == DataBaseType.Sqlite)
             {
                 query.sqlOrderBy = null;
             }
-            if (string.IsNullOrEmpty(_sql))
-            {
 
-                if (db.DbType != DataBaseType.Sqlite)
+            if (db.DbType == DataBaseType.SqlServer2005 || db.DbType == DataBaseType.SqlServer2008 || db.DbType == DataBaseType.SqlServer2012)
+            {
+                sqlOrderBy = query.sqlOrderBy;
+                query.sqlOrderBy = null;
+            }
+
+            if (string.IsNullOrEmpty(sqlTable))
+            {
+                if (db.DbType == DataBaseType.Sqlite)
                 {
-                    _sql += $"({query.GetSql()})";
+                    sqlTable += query.GetSql();
                 }
                 else
                 {
-                    _sql += query.GetSql();
+                    sqlTable += $"({query.GetSql()})";
                 }
             }
             else
             {
-                if (db.DbType != DataBaseType.Sqlite)
+                if (db.DbType == DataBaseType.Sqlite)
                 {
-                    _sql += $" UNION ({query.GetSql()})";
+                    sqlTable += $" UNION {query.GetSql()}";
                 }
                 else
                 {
-                    _sql += $" UNION {query.GetSql()}";
+                    sqlTable += $" UNION ({query.GetSql()})";
                 }
             }
             return this;
@@ -54,31 +61,37 @@ namespace Dapper.Sharding
 
         public IUnion UnionAll(IQuery query)
         {
-            if (db.DbType != DataBaseType.MySql && db.DbType != DataBaseType.Postgresql && db.DbType != DataBaseType.ClickHouse)
+            if (db.DbType == DataBaseType.Sqlite)
             {
                 query.sqlOrderBy = null;
             }
 
-            if (string.IsNullOrEmpty(_sql))
+            if (db.DbType == DataBaseType.SqlServer2005 || db.DbType == DataBaseType.SqlServer2008 || db.DbType == DataBaseType.SqlServer2012)
             {
-                if (db.DbType != DataBaseType.Sqlite)
+                sqlOrderBy = query.sqlOrderBy;
+                query.sqlOrderBy = null;
+            }
+
+            if (string.IsNullOrEmpty(sqlTable))
+            {
+                if (db.DbType == DataBaseType.Sqlite)
                 {
-                    _sql += $"({query.GetSql()})";
+                    sqlTable += query.GetSql();
                 }
                 else
                 {
-                    _sql += query.GetSql();
+                    sqlTable += $"({query.GetSql()})";
                 }
             }
             else
             {
-                if (db.DbType != DataBaseType.Sqlite)
+                if (db.DbType == DataBaseType.Sqlite)
                 {
-                    _sql += $" UNION ALL ({query.GetSql()})";
+                    sqlTable += $" UNION ALL {query.GetSql()}";
                 }
                 else
                 {
-                    _sql += $" UNION ALL {query.GetSql()}";
+                    sqlTable += $" UNION ALL ({query.GetSql()})";
                 }
             }
             return this;
@@ -116,6 +129,7 @@ namespace Dapper.Sharding
             timeout = 0;
             _sql = null;
             _sqlCount = null;
+            sqlTable = null;
             sqlWhere = null;
             sqlGroupBy = null;
             sqlHaving = null;

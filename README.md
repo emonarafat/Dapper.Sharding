@@ -202,9 +202,14 @@ var query = table.AsQuery("a")
 
 var data = query.Query<T>();
 var data2 = query.QueryPageAndCount<T>();
-```
-```csharp
+
 //IUnion
-var union = table.AsUnion();
-union.Union(IQuery...);
+var union = query.Union(query2)
+			     .Union(query3)
+				 .Where("a.name=@name")
+				 .OrderBy("a.id")
+				 .Page(1, 10)
+				 .Param(new { name = "lili" });
+
+var data = union.Query<T>();
 ```

@@ -67,7 +67,7 @@
                     else
                     {
                         //使用ROW_NUMBER()
-                        _sql = $"WITH cte AS(SELECT ROW_NUMBER() OVER({sqlOrderBy.Trim()}) AS Row_Number,{returnFields} FROM {string.Concat(sqlTable, sqlWhere, sqlGroupBy, sqlHaving)}) SELECT * FROM cte WHERE cte.Row_Number BETWEEN {skip + 1} AND {skip + take}";
+                        _sql = $"WITH cte AS(SELECT ROW_NUMBER() OVER({sqlOrderBy?.Trim()}) AS Row_Number,{returnFields} FROM {string.Concat(sqlTable, sqlWhere, sqlGroupBy, sqlHaving)}) SELECT * FROM cte WHERE cte.Row_Number BETWEEN {skip + 1} AND {skip + take}";
                     }
                 }
 
