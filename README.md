@@ -206,8 +206,8 @@ var data2 = query.QueryPageAndCount<T>();
 //IUnion
 var union = query.Union(query2)
 			     .Union(query3)
-				 .Where("a.name=@name")
-				 .OrderBy("a.id")
+				 .Where("name=@name")
+				 .OrderBy("id")
 				 .Page(1, 10)
 				 .Param(new { name = "lili" });
 
