@@ -46,37 +46,37 @@
             return this;
         }
 
-        internal override void Build()
+        public override string GetSql()
         {
             if (take == 0)
             {
-                _sql = $"SELECT {returnFields} FROM {string.Concat(sqlTable, sqlWhere, sqlGroupBy, sqlHaving, sqlOrderBy)}";
+                return $"SELECT {returnFields} FROM {string.Concat(sqlTable, sqlWhere, sqlGroupBy, sqlHaving, sqlOrderBy)}";
             }
             else
             {
                 if (skip == 0) //第一页,使用Top语句
                 {
-                    _sql = $"SELECT TOP ({take}) {returnFields} FROM {string.Concat(sqlTable, sqlWhere, sqlGroupBy, sqlHaving, sqlOrderBy)}";
+                    return $"SELECT TOP ({take}) {returnFields} FROM {string.Concat(sqlTable, sqlWhere, sqlGroupBy, sqlHaving, sqlOrderBy)}";
                 }
                 else
                 {
                     if (db.DbType == DataBaseType.SqlServer2012)
                     {
-                        _sql = $"SELECT {returnFields} FROM {string.Concat(sqlTable, sqlWhere, sqlGroupBy, sqlHaving, sqlOrderBy)} offset {skip} rows fetch next {take} rows only";
+                        return $"SELECT {returnFields} FROM {string.Concat(sqlTable, sqlWhere, sqlGroupBy, sqlHaving, sqlOrderBy)} offset {skip} rows fetch next {take} rows only";
                     }
                     else
                     {
                         //使用ROW_NUMBER()
-                        _sql = $"WITH cte AS(SELECT ROW_NUMBER() OVER({sqlOrderBy?.Trim()}) AS Row_Number,{returnFields} FROM {string.Concat(sqlTable, sqlWhere, sqlGroupBy, sqlHaving)}) SELECT * FROM cte WHERE cte.Row_Number BETWEEN {skip + 1} AND {skip + take}";
+                        return $"WITH cte AS(SELECT ROW_NUMBER() OVER({sqlOrderBy?.Trim()}) AS Row_Number,{returnFields} FROM {string.Concat(sqlTable, sqlWhere, sqlGroupBy, sqlHaving)}) SELECT * FROM cte WHERE cte.Row_Number BETWEEN {skip + 1} AND {skip + take}";
                     }
                 }
 
             }
         }
 
-        internal override void BuildCount()
+        public override string GetSqlCount()
         {
-            _sqlCount = $"SELECT COUNT(1) FROM {string.Concat(sqlTable, sqlWhere, sqlGroupBy, sqlHaving)}";
+            return $"SELECT COUNT(1) FROM {string.Concat(sqlTable, sqlWhere, sqlGroupBy, sqlHaving)}";
         }
     }
 }
