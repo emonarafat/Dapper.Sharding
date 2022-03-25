@@ -890,5 +890,36 @@ namespace Dapper.Sharding
 
         #endregion
 
+        #region IUnion
+
+        public IUnion CreateUnion()
+        {
+            if (DbType == DataBaseType.MySql)
+            {
+                return new MySqlUnion(this);
+            }
+            else if (DbType == DataBaseType.Postgresql)
+            {
+                return new PostgreUnion(this);
+            }
+            else if (DbType == DataBaseType.Sqlite)
+            {
+                return new SQLiteUnion(this);
+            }
+            else if (DbType == DataBaseType.ClickHouse)
+            {
+                return new ClickHouseUnion(this);
+            }
+            else if (DbType == DataBaseType.Oracle)
+            {
+                return new OracleUnion(this);
+            }
+            else
+            {
+                return new SqlServerUnion(this);
+            }
+        }
+
+        #endregion
     }
 }

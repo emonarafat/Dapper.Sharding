@@ -7,8 +7,8 @@ namespace Dapper.Sharding
     public abstract class IQuery
     {
         protected IDatabase db;
-        protected int skip;
-        protected int take;
+        internal int skip;
+        internal int take;
         object par;
         DistributedTransaction tran;
         int? timeout;
@@ -259,37 +259,9 @@ namespace Dapper.Sharding
 
         #region Union
 
-        private IUnion CreateUnion()
-        {
-            if (db.DbType == DataBaseType.MySql)
-            {
-                return new MySqlUnion(db);
-            }
-            else if (db.DbType == DataBaseType.Postgresql)
-            {
-                return new PostgreUnion(db);
-            }
-            else if (db.DbType == DataBaseType.Sqlite)
-            {
-                return new SQLiteUnion(db);
-            }
-            else if (db.DbType == DataBaseType.ClickHouse)
-            {
-                return new ClickHouseUnion(db);
-            }
-            else if (db.DbType == DataBaseType.Oracle)
-            {
-                return new OracleUnion(db);
-            }
-            else
-            {
-                return new SqlServerUnion(db);
-            }
-        }
-
         public IUnion Union(params IQuery[] querys)
         {
-            var union = CreateUnion();
+            var union = db.CreateUnion();
             union.Union(this);
             foreach (var item in querys)
             {
@@ -300,7 +272,7 @@ namespace Dapper.Sharding
 
         public IUnion UnionAll(params IQuery[] querys)
         {
-            var union = CreateUnion();
+            var union = db.CreateUnion();
             union.UnionAll(this);
             foreach (var item in querys)
             {

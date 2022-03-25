@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Data;
 using System.Threading.Tasks;
 
@@ -19,24 +20,34 @@ namespace Dapper.Sharding
             this.db = db;
         }
 
-        public IUnion Union(IQuery query)
+        private void SetSqlServer(IQuery query)
         {
-            if (db.DbType == DataBaseType.Sqlite)
-            {
-                query.sqlOrderBy = null;
-            }
-
-            if (db.DbType == DataBaseType.SqlServer2005 || db.DbType == DataBaseType.SqlServer2008 || db.DbType == DataBaseType.SqlServer2012)
+            if (db.DbType == DataBaseType.SqlServer2012)
             {
                 sqlOrderBy = query.sqlOrderBy;
-                query.sqlOrderBy = null;
             }
+            else if (db.DbType == DataBaseType.SqlServer2005 || db.DbType == DataBaseType.SqlServer2008)
+            {
+                sqlOrderBy = query.sqlOrderBy;
+                if (query.skip > 1)
+                {
+                    throw new Exception("IQuery must set page=1 or skip=0");
+                }
+                if (query.take <= 0)
+                {
+                    query.sqlOrderBy = null;
+                }
+            }
+        }
 
+        public IUnion Union(IQuery query)
+        {
+            SetSqlServer(query);
             if (string.IsNullOrEmpty(sqlTable))
             {
                 if (db.DbType == DataBaseType.Sqlite)
                 {
-                    sqlTable += query.GetSql();
+                    sqlTable += $"SELECT * FROM ({query.GetSql()})";
                 }
                 else
                 {
@@ -47,7 +58,7 @@ namespace Dapper.Sharding
             {
                 if (db.DbType == DataBaseType.Sqlite)
                 {
-                    sqlTable += $" UNION {query.GetSql()}";
+                    sqlTable += $" UNION SELECT * FROM ({query.GetSql()})";
                 }
                 else
                 {
@@ -59,22 +70,12 @@ namespace Dapper.Sharding
 
         public IUnion UnionAll(IQuery query)
         {
-            if (db.DbType == DataBaseType.Sqlite)
-            {
-                query.sqlOrderBy = null;
-            }
-
-            if (db.DbType == DataBaseType.SqlServer2005 || db.DbType == DataBaseType.SqlServer2008 || db.DbType == DataBaseType.SqlServer2012)
-            {
-                sqlOrderBy = query.sqlOrderBy;
-                query.sqlOrderBy = null;
-            }
-
+            SetSqlServer(query);
             if (string.IsNullOrEmpty(sqlTable))
             {
                 if (db.DbType == DataBaseType.Sqlite)
                 {
-                    sqlTable += query.GetSql();
+                    sqlTable += $"SELECT * FROM ({query.GetSql()})";
                 }
                 else
                 {
@@ -85,7 +86,7 @@ namespace Dapper.Sharding
             {
                 if (db.DbType == DataBaseType.Sqlite)
                 {
-                    sqlTable += $" UNION ALL {query.GetSql()}";
+                    sqlTable += $" UNION ALL SELECT * FROM ({query.GetSql()})";
                 }
                 else
                 {
