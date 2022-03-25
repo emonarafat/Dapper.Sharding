@@ -78,7 +78,7 @@ var query = table.AsQuery("a")
      .LeftJoin(table2, "b", "a.bid=b.id")
      .Where("a.name=@name")
      .OrderBy("a.id")
-     .ReturnFields("a.*,b.name")
+     .ReturnFields("a.*,b.name as bname")
      //.Limit(10)
      .Page(1, 10)
      .Param(new { name = "lili" });
