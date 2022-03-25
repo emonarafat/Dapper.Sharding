@@ -73,6 +73,31 @@ namespace ConsoleApp
 ```
 
 ```csharp
+//IQuery
+var query = table.AsQuery("a")
+     .LeftJoin(table2, "b", "a.bid=b.id")
+     .Where("a.name=@name")
+     .OrderBy("a.id")
+     .ReturnFields("a.*,b.name")
+     //.Limit(10)
+     .Page(1, 10)
+     .Param(new { name = "lili" });
+
+var data = query.Query<T>();
+var data2 = query.QueryPageAndCount<T>();
+
+//IUnion
+var union = query.Union(query2)
+			     .Union(query3)
+				 .Where("name=@name")
+				 .OrderBy("id")
+				 .Page(1, 10)
+				 .Param(new { name = "lili" });
+
+var data = union.Query<T>();
+```
+
+```csharp
 //client must singleton mode(必须是单例模式)
 
 /*===mysql need MySqlConnector===*/
@@ -188,28 +213,4 @@ NpgsqlGeoJsonFactory.UseGeoJson();
 //Npgsql NetTopologySuite
 NpgsqlConnection.GlobalTypeMapper.UseNetTopologySuite();
 NpgsqlGeoFactory.UseGeo();
-```
-```csharp
-//IQuery
-var query = table.AsQuery("a")
-     .LeftJoin(table2, "b", "a.bid=b.id")
-     .Where("a.name=@name")
-     .OrderBy("a.id")
-     .ReturnFields("a.*,b.name")
-     //.Limit(10)
-     .Page(1, 10)
-     .Param(new { name = "lili" });
-
-var data = query.Query<T>();
-var data2 = query.QueryPageAndCount<T>();
-
-//IUnion
-var union = query.Union(query2)
-			     .Union(query3)
-				 .Where("name=@name")
-				 .OrderBy("id")
-				 .Page(1, 10)
-				 .Param(new { name = "lili" });
-
-var data = union.Query<T>();
 ```
