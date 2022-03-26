@@ -159,8 +159,6 @@ namespace Dapper.Sharding
             return $"SELECT {returnFields} FROM {Name} WHERE {SqlField.PrimaryKey}=@id FOR UPDATE NOWAIT";
         }
 
-
-
         protected override string SqlGetByIds(string returnFields = null)
         {
             if (string.IsNullOrEmpty(returnFields))
