@@ -40,47 +40,47 @@ namespace Dapper.Sharding
 
         protected abstract string SqlAvg(string field, string where = null);
 
-        protected abstract string SqlGetAll(string returnFields = null, string orderby = null, bool dy = false);
+        protected abstract string SqlGetAll(string returnFields = null, string orderby = null);
 
-        protected abstract string SqlGetById(string returnFields = null, bool dy = false);
+        protected abstract string SqlGetById(string returnFields = null);
 
-        protected abstract string SqlGetByIdForUpdate(string returnFields = null, bool dy = false);
+        protected abstract string SqlGetByIdForUpdate(string returnFields = null);
 
-        protected abstract string SqlGetByIdForUpdateNoWait(string returnFields = null, bool dy = false);
+        protected abstract string SqlGetByIdForUpdateNoWait(string returnFields = null);
 
-        protected abstract string SqlGetByIds(string returnFields = null, bool dy = false);
+        protected abstract string SqlGetByIds(string returnFields = null);
 
-        protected abstract string SqlGetByIdsForUpdate(string returnFields = null, bool dy = false);
+        protected abstract string SqlGetByIdsForUpdate(string returnFields = null);
 
-        protected abstract string SqlGetByIdsForUpdateNoWait(string returnFields = null, bool dy = false);
+        protected abstract string SqlGetByIdsForUpdateNoWait(string returnFields = null);
 
-        protected abstract string SqlGetByIdsWithField(string field, string returnFields = null, bool dy = false);
+        protected abstract string SqlGetByIdsWithField(string field, string returnFields = null);
 
-        protected abstract string SqlGetByWhere(string where, string returnFields = null, string orderby = null, int limit = 0, bool dy = false);
+        protected abstract string SqlGetByWhere(string where, string returnFields = null, string orderby = null, int limit = 0);
 
-        protected abstract string SqlGetByWhereFirst(string where, string returnFields = null, bool dy = false);
+        protected abstract string SqlGetByWhereFirst(string where, string returnFields = null);
 
-        protected abstract string SqlGetBySkipTake(int skip, int take, string where = null, string returnFields = null, string orderby = null, bool dy = false);
+        protected abstract string SqlGetBySkipTake(int skip, int take, string where = null, string returnFields = null, string orderby = null);
 
-        protected abstract string SqlGetByAscFirstPage(int pageSize, string and = null, string returnFields = null, bool dy = false);
+        protected abstract string SqlGetByAscFirstPage(int pageSize, string and = null, string returnFields = null);
 
-        protected abstract string SqlGetByAscPrevPage(int pageSize, string and = null, string returnFields = null, bool dy = false);
+        protected abstract string SqlGetByAscPrevPage(int pageSize, string and = null, string returnFields = null);
 
-        protected abstract string SqlGetByAscCurrentPage(int pageSize, string and = null, string returnFields = null, bool dy = false);
+        protected abstract string SqlGetByAscCurrentPage(int pageSize, string and = null, string returnFields = null);
 
-        protected abstract string SqlGetByAscNextPage(int pageSize, string and = null, string returnFields = null, bool dy = false);
+        protected abstract string SqlGetByAscNextPage(int pageSize, string and = null, string returnFields = null);
 
-        protected abstract string SqlGetByAscLastPage(int pageSize, string and = null, string returnFields = null, bool dy = false);
+        protected abstract string SqlGetByAscLastPage(int pageSize, string and = null, string returnFields = null);
 
-        protected abstract string SqlGetByDescFirstPage(int pageSize, string and = null, string returnFields = null, bool dy = false);
+        protected abstract string SqlGetByDescFirstPage(int pageSize, string and = null, string returnFields = null);
 
-        protected abstract string SqlGetByDescPrevPage(int pageSize, string and = null, string returnFields = null, bool dy = false);
+        protected abstract string SqlGetByDescPrevPage(int pageSize, string and = null, string returnFields = null);
 
-        protected abstract string SqlGetByDescCurrentPage(int pageSize, string and = null, string returnFields = null, bool dy = false);
+        protected abstract string SqlGetByDescCurrentPage(int pageSize, string and = null, string returnFields = null);
 
-        protected abstract string SqlGetByDescNextPage(int pageSize, string and = null, string returnFields = null, bool dy = false);
+        protected abstract string SqlGetByDescNextPage(int pageSize, string and = null, string returnFields = null);
 
-        protected abstract string SqlGetByDescLastPage(int pageSize, string and = null, string returnFields = null, bool dy = false);
+        protected abstract string SqlGetByDescLastPage(int pageSize, string and = null, string returnFields = null);
 
         public abstract void SeqUpdate(string name = null);
     }
@@ -1523,12 +1523,12 @@ namespace Dapper.Sharding
 
         public IEnumerable<dynamic> GetAllDynamic(string returnFields = null, string orderby = null, DistributedTransaction tran = null, int? timeout = null)
         {
-            return DataBase.Query(SqlGetAll(returnFields, orderby, true), null, tran, timeout);
+            return DataBase.Query(SqlGetAll(returnFields, orderby), null, tran, timeout);
         }
 
         public Task<IEnumerable<dynamic>> GetAllDynamicAsync(string returnFields = null, string orderby = null, DistributedTransaction tran = null, int? timeout = null)
         {
-            return DataBase.QueryAsync(SqlGetAll(returnFields, orderby, true), null, tran, timeout);
+            return DataBase.QueryAsync(SqlGetAll(returnFields, orderby), null, tran, timeout);
         }
 
         #endregion
@@ -1547,12 +1547,12 @@ namespace Dapper.Sharding
 
         public dynamic GetByIdDynamic(object id, string returnFields = null, DistributedTransaction tran = null, int? timeout = null)
         {
-            return DataBase.QueryFirstOrDefault(SqlGetById(returnFields, true), new { id }, tran, timeout);
+            return DataBase.QueryFirstOrDefault(SqlGetById(returnFields), new { id }, tran, timeout);
         }
 
         public Task<dynamic> GetByIdDynamicAsync(object id, string returnFields = null, DistributedTransaction tran = null, int? timeout = null)
         {
-            return DataBase.QueryFirstOrDefaultAsync(SqlGetById(returnFields, true), new { id }, tran, timeout);
+            return DataBase.QueryFirstOrDefaultAsync(SqlGetById(returnFields), new { id }, tran, timeout);
         }
 
         #endregion
@@ -1571,12 +1571,12 @@ namespace Dapper.Sharding
 
         public dynamic GetByIdForUpdateDynamic(object id, DistributedTransaction tran, string returnFields = null, int? timeout = null)
         {
-            return DataBase.QueryFirstOrDefault(SqlGetByIdForUpdate(returnFields, true), new { id }, tran, timeout);
+            return DataBase.QueryFirstOrDefault(SqlGetByIdForUpdate(returnFields), new { id }, tran, timeout);
         }
 
         public Task<dynamic> GetByIdForUpdateDynamicAsync(object id, DistributedTransaction tran, string returnFields = null, int? timeout = null)
         {
-            return DataBase.QueryFirstOrDefaultAsync(SqlGetByIdForUpdate(returnFields, true), new { id }, tran, timeout);
+            return DataBase.QueryFirstOrDefaultAsync(SqlGetByIdForUpdate(returnFields), new { id }, tran, timeout);
         }
 
         #endregion
@@ -1595,12 +1595,12 @@ namespace Dapper.Sharding
 
         public dynamic GetByIdForUpdateNoWaitDynamic(object id, DistributedTransaction tran, string returnFields = null, int? timeout = null)
         {
-            return DataBase.QueryFirstOrDefault(SqlGetByIdForUpdateNoWait(returnFields, true), new { id }, tran, timeout);
+            return DataBase.QueryFirstOrDefault(SqlGetByIdForUpdateNoWait(returnFields), new { id }, tran, timeout);
         }
 
         public Task<dynamic> GetByIdForUpdateNoWaitDynamicAsync(object id, DistributedTransaction tran, string returnFields = null, int? timeout = null)
         {
-            return DataBase.QueryFirstOrDefaultAsync(SqlGetByIdForUpdateNoWait(returnFields, true), new { id }, tran, timeout);
+            return DataBase.QueryFirstOrDefaultAsync(SqlGetByIdForUpdateNoWait(returnFields), new { id }, tran, timeout);
         }
 
         #endregion
@@ -1652,7 +1652,7 @@ namespace Dapper.Sharding
             {
                 dpar.Add(":ids", ids);
             }
-            return DataBase.Query(SqlGetByIds(returnFields, true), dpar, tran, timeout);
+            return DataBase.Query(SqlGetByIds(returnFields), dpar, tran, timeout);
         }
 
         public Task<IEnumerable<dynamic>> GetByIdsDynamicAsync(object ids, string returnFields = null, DistributedTransaction tran = null, int? timeout = null)
@@ -1668,7 +1668,7 @@ namespace Dapper.Sharding
             {
                 dpar.Add(":ids", ids);
             }
-            return DataBase.QueryAsync(SqlGetByIds(returnFields, true), dpar, tran, timeout);
+            return DataBase.QueryAsync(SqlGetByIds(returnFields), dpar, tran, timeout);
         }
 
         #endregion
@@ -1720,7 +1720,7 @@ namespace Dapper.Sharding
             {
                 dpar.Add(":ids", ids);
             }
-            return DataBase.Query(SqlGetByIdsForUpdate(returnFields, true), dpar, tran, timeout);
+            return DataBase.Query(SqlGetByIdsForUpdate(returnFields), dpar, tran, timeout);
         }
 
         public Task<IEnumerable<dynamic>> GetByIdsForUpdateDynamicAsync(object ids, DistributedTransaction tran, string returnFields = null, int? timeout = null)
@@ -1736,7 +1736,7 @@ namespace Dapper.Sharding
             {
                 dpar.Add(":ids", ids);
             }
-            return DataBase.QueryAsync(SqlGetByIdsForUpdate(returnFields, true), dpar, tran, timeout);
+            return DataBase.QueryAsync(SqlGetByIdsForUpdate(returnFields), dpar, tran, timeout);
         }
 
         #endregion
@@ -1788,7 +1788,7 @@ namespace Dapper.Sharding
             {
                 dpar.Add(":ids", ids);
             }
-            return DataBase.Query(SqlGetByIdsForUpdateNoWait(returnFields, true), dpar, tran, timeout);
+            return DataBase.Query(SqlGetByIdsForUpdateNoWait(returnFields), dpar, tran, timeout);
         }
 
         public Task<IEnumerable<dynamic>> GetByIdsForUpdateNoWaitDynamicAsync(object ids, DistributedTransaction tran, string returnFields = null, int? timeout = null)
@@ -1804,7 +1804,7 @@ namespace Dapper.Sharding
             {
                 dpar.Add(":ids", ids);
             }
-            return DataBase.QueryAsync(SqlGetByIdsForUpdateNoWait(returnFields, true), dpar, tran, timeout);
+            return DataBase.QueryAsync(SqlGetByIdsForUpdateNoWait(returnFields), dpar, tran, timeout);
         }
 
         #endregion
@@ -1856,7 +1856,7 @@ namespace Dapper.Sharding
             {
                 dpar.Add(":ids", ids);
             }
-            return DataBase.Query(SqlGetByIdsWithField(field, returnFields, true), dpar, tran, timeout);
+            return DataBase.Query(SqlGetByIdsWithField(field, returnFields), dpar, tran, timeout);
         }
 
         public Task<IEnumerable<dynamic>> GetByIdsWithFieldDynamicAsync(object ids, string field, string returnFields = null, DistributedTransaction tran = null, int? timeout = null)
@@ -1872,7 +1872,7 @@ namespace Dapper.Sharding
             {
                 dpar.Add(":ids", ids);
             }
-            return DataBase.QueryAsync(SqlGetByIdsWithField(field, returnFields, true), dpar, tran, timeout);
+            return DataBase.QueryAsync(SqlGetByIdsWithField(field, returnFields), dpar, tran, timeout);
         }
 
         #endregion
@@ -1891,12 +1891,12 @@ namespace Dapper.Sharding
 
         public IEnumerable<dynamic> GetByWhereDynamic(string where, object param = null, string returnFields = null, string orderby = null, int limit = 0, DistributedTransaction tran = null, int? timeout = null)
         {
-            return DataBase.Query(SqlGetByWhere(where, returnFields, orderby, limit, true), param, tran, timeout);
+            return DataBase.Query(SqlGetByWhere(where, returnFields, orderby, limit), param, tran, timeout);
         }
 
         public Task<IEnumerable<dynamic>> GetByWhereDynamicAsync(string where, object param = null, string returnFields = null, string orderby = null, int limit = 0, DistributedTransaction tran = null, int? timeout = null)
         {
-            return DataBase.QueryAsync(SqlGetByWhere(where, returnFields, orderby, limit, true), param, tran, timeout);
+            return DataBase.QueryAsync(SqlGetByWhere(where, returnFields, orderby, limit), param, tran, timeout);
         }
 
         #endregion
@@ -1915,12 +1915,12 @@ namespace Dapper.Sharding
 
         public dynamic GetByWhereFirstDynamic(string where, object param = null, string returnFields = null, DistributedTransaction tran = null, int? timeout = null)
         {
-            return DataBase.QueryFirstOrDefault(SqlGetByWhereFirst(where, returnFields, true), param, tran, timeout);
+            return DataBase.QueryFirstOrDefault(SqlGetByWhereFirst(where, returnFields), param, tran, timeout);
         }
 
         public Task<dynamic> GetByWhereFirstDynamicAsync(string where, object param = null, string returnFields = null, DistributedTransaction tran = null, int? timeout = null)
         {
-            return DataBase.QueryFirstOrDefaultAsync(SqlGetByWhereFirst(where, returnFields, true), param, tran, timeout);
+            return DataBase.QueryFirstOrDefaultAsync(SqlGetByWhereFirst(where, returnFields), param, tran, timeout);
         }
 
         #endregion
@@ -1939,12 +1939,12 @@ namespace Dapper.Sharding
 
         public IEnumerable<dynamic> GetBySkipTakeDynamic(int skip, int take, string where = null, object param = null, string returnFields = null, string orderby = null, DistributedTransaction tran = null, int? timeout = null)
         {
-            return DataBase.Query(SqlGetBySkipTake(skip, take, where, returnFields, orderby, true), param, tran, timeout);
+            return DataBase.Query(SqlGetBySkipTake(skip, take, where, returnFields, orderby), param, tran, timeout);
         }
 
         public Task<IEnumerable<dynamic>> GetBySkipTakeDynamicAsync(int skip, int take, string where = null, object param = null, string returnFields = null, string orderby = null, DistributedTransaction tran = null, int? timeout = null)
         {
-            return DataBase.QueryAsync(SqlGetBySkipTake(skip, take, where, returnFields, orderby, true), param, tran, timeout);
+            return DataBase.QueryAsync(SqlGetBySkipTake(skip, take, where, returnFields, orderby), param, tran, timeout);
         }
 
         #endregion
@@ -1963,12 +1963,12 @@ namespace Dapper.Sharding
 
         public IEnumerable<dynamic> GetByAscFirstPageDynamic(int pageSize, object param = null, string and = null, string returnFields = null, DistributedTransaction tran = null, int? timeout = null)
         {
-            return DataBase.Query(SqlGetByAscFirstPage(pageSize, and, returnFields, true), param, tran, timeout);
+            return DataBase.Query(SqlGetByAscFirstPage(pageSize, and, returnFields), param, tran, timeout);
         }
 
         public Task<IEnumerable<dynamic>> GetByAscFirstPageDynamicAsync(int pageSize, object param = null, string and = null, string returnFields = null, DistributedTransaction tran = null, int? timeout = null)
         {
-            return DataBase.QueryAsync(SqlGetByAscFirstPage(pageSize, and, returnFields, true), param, tran, timeout);
+            return DataBase.QueryAsync(SqlGetByAscFirstPage(pageSize, and, returnFields), param, tran, timeout);
         }
 
         #endregion
@@ -1987,12 +1987,12 @@ namespace Dapper.Sharding
 
         public IEnumerable<dynamic> GetByAscPrevPageDynamic(int pageSize, object param, string and = null, string returnFields = null, DistributedTransaction tran = null, int? timeout = null)
         {
-            return DataBase.Query(SqlGetByAscPrevPage(pageSize, and, returnFields, true), param, tran, timeout);
+            return DataBase.Query(SqlGetByAscPrevPage(pageSize, and, returnFields), param, tran, timeout);
         }
 
         public Task<IEnumerable<dynamic>> GetByAscPrevPageDynamicAsync(int pageSize, object param, string and = null, string returnFields = null, DistributedTransaction tran = null, int? timeout = null)
         {
-            return DataBase.QueryAsync(SqlGetByAscPrevPage(pageSize, and, returnFields, true), param, tran, timeout);
+            return DataBase.QueryAsync(SqlGetByAscPrevPage(pageSize, and, returnFields), param, tran, timeout);
         }
 
         #endregion
@@ -2011,12 +2011,12 @@ namespace Dapper.Sharding
 
         public IEnumerable<dynamic> GetByAscCurrentPageDynamic(int pageSize, object param, string and = null, string returnFields = null, DistributedTransaction tran = null, int? timeout = null)
         {
-            return DataBase.Query(SqlGetByAscCurrentPage(pageSize, and, returnFields, true), param, tran, timeout);
+            return DataBase.Query(SqlGetByAscCurrentPage(pageSize, and, returnFields), param, tran, timeout);
         }
 
         public Task<IEnumerable<dynamic>> GetByAscCurrentPageDynamicAsync(int pageSize, object param, string and = null, string returnFields = null, DistributedTransaction tran = null, int? timeout = null)
         {
-            return DataBase.QueryAsync(SqlGetByAscCurrentPage(pageSize, and, returnFields, true), param, tran, timeout);
+            return DataBase.QueryAsync(SqlGetByAscCurrentPage(pageSize, and, returnFields), param, tran, timeout);
         }
 
         #endregion
@@ -2035,12 +2035,12 @@ namespace Dapper.Sharding
 
         public IEnumerable<dynamic> GetByAscNextPageDynamic(int pageSize, object param, string and = null, string returnFields = null, DistributedTransaction tran = null, int? timeout = null)
         {
-            return DataBase.Query(SqlGetByAscNextPage(pageSize, and, returnFields, true), param, tran, timeout);
+            return DataBase.Query(SqlGetByAscNextPage(pageSize, and, returnFields), param, tran, timeout);
         }
 
         public Task<IEnumerable<dynamic>> GetByAscNextPageDynamicAsync(int pageSize, object param, string and = null, string returnFields = null, DistributedTransaction tran = null, int? timeout = null)
         {
-            return DataBase.QueryAsync(SqlGetByAscNextPage(pageSize, and, returnFields, true), param, tran, timeout);
+            return DataBase.QueryAsync(SqlGetByAscNextPage(pageSize, and, returnFields), param, tran, timeout);
         }
 
         #endregion
@@ -2060,12 +2060,12 @@ namespace Dapper.Sharding
 
         public IEnumerable<dynamic> GetByAscLastPageDynamic(int pageSize, object param, string and = null, string returnFields = null, DistributedTransaction tran = null, int? timeout = null)
         {
-            return DataBase.Query(SqlGetByAscLastPage(pageSize, and, returnFields, true), param, tran, timeout);
+            return DataBase.Query(SqlGetByAscLastPage(pageSize, and, returnFields), param, tran, timeout);
         }
 
         public Task<IEnumerable<dynamic>> GetByAscLastPageDynamicAsync(int pageSize, object param, string and = null, string returnFields = null, DistributedTransaction tran = null, int? timeout = null)
         {
-            return DataBase.QueryAsync(SqlGetByAscLastPage(pageSize, and, returnFields, true), param, tran, timeout);
+            return DataBase.QueryAsync(SqlGetByAscLastPage(pageSize, and, returnFields), param, tran, timeout);
         }
 
 
@@ -2085,12 +2085,12 @@ namespace Dapper.Sharding
 
         public IEnumerable<dynamic> GetByDescFirstPageDynamic(int pageSize, object param, string and = null, string returnFields = null, DistributedTransaction tran = null, int? timeout = null)
         {
-            return DataBase.Query(SqlGetByDescFirstPage(pageSize, and, returnFields, true), param, tran, timeout);
+            return DataBase.Query(SqlGetByDescFirstPage(pageSize, and, returnFields), param, tran, timeout);
         }
 
         public Task<IEnumerable<dynamic>> GetByDescFirstPageDynamicAsync(int pageSize, object param, string and = null, string returnFields = null, DistributedTransaction tran = null, int? timeout = null)
         {
-            return DataBase.QueryAsync(SqlGetByDescFirstPage(pageSize, and, returnFields, true), param, tran, timeout);
+            return DataBase.QueryAsync(SqlGetByDescFirstPage(pageSize, and, returnFields), param, tran, timeout);
         }
 
         #endregion
@@ -2109,12 +2109,12 @@ namespace Dapper.Sharding
 
         public IEnumerable<dynamic> GetByDescPrevPageDynamic(int pageSize, object param, string and = null, string returnFields = null, DistributedTransaction tran = null, int? timeout = null)
         {
-            return DataBase.Query(SqlGetByDescPrevPage(pageSize, and, returnFields, true), param, tran, timeout);
+            return DataBase.Query(SqlGetByDescPrevPage(pageSize, and, returnFields), param, tran, timeout);
         }
 
         public Task<IEnumerable<dynamic>> GetByDescPrevPageDynamicAsync(int pageSize, object param, string and = null, string returnFields = null, DistributedTransaction tran = null, int? timeout = null)
         {
-            return DataBase.QueryAsync(SqlGetByDescPrevPage(pageSize, and, returnFields, true), param, tran, timeout);
+            return DataBase.QueryAsync(SqlGetByDescPrevPage(pageSize, and, returnFields), param, tran, timeout);
         }
 
 
@@ -2134,12 +2134,12 @@ namespace Dapper.Sharding
 
         public IEnumerable<dynamic> GetByDescCurrentPageDynamic(int pageSize, object param, string and = null, string returnFields = null, DistributedTransaction tran = null, int? timeout = null)
         {
-            return DataBase.Query(SqlGetByDescCurrentPage(pageSize, and, returnFields, true), param, tran, timeout);
+            return DataBase.Query(SqlGetByDescCurrentPage(pageSize, and, returnFields), param, tran, timeout);
         }
 
         public Task<IEnumerable<dynamic>> GetByDescCurrentPageDynamicAsync(int pageSize, object param, string and = null, string returnFields = null, DistributedTransaction tran = null, int? timeout = null)
         {
-            return DataBase.QueryAsync(SqlGetByDescCurrentPage(pageSize, and, returnFields, true), param, tran, timeout);
+            return DataBase.QueryAsync(SqlGetByDescCurrentPage(pageSize, and, returnFields), param, tran, timeout);
         }
 
         #endregion
@@ -2158,12 +2158,12 @@ namespace Dapper.Sharding
 
         public IEnumerable<dynamic> GetByDescNextPageDynamic(int pageSize, object param, string and = null, string returnFields = null, DistributedTransaction tran = null, int? timeout = null)
         {
-            return DataBase.Query(SqlGetByDescNextPage(pageSize, and, returnFields, true), param, tran, timeout);
+            return DataBase.Query(SqlGetByDescNextPage(pageSize, and, returnFields), param, tran, timeout);
         }
 
         public Task<IEnumerable<dynamic>> GetByDescNextPageDynamicAsync(int pageSize, object param, string and = null, string returnFields = null, DistributedTransaction tran = null, int? timeout = null)
         {
-            return DataBase.QueryAsync(SqlGetByDescNextPage(pageSize, and, returnFields, true), param, tran, timeout);
+            return DataBase.QueryAsync(SqlGetByDescNextPage(pageSize, and, returnFields), param, tran, timeout);
         }
 
         #endregion
@@ -2182,12 +2182,12 @@ namespace Dapper.Sharding
 
         public IEnumerable<dynamic> GetByDescLastPageDynamic(int pageSize, object param, string and = null, string returnFields = null, DistributedTransaction tran = null, int? timeout = null)
         {
-            return DataBase.Query(SqlGetByDescLastPage(pageSize, and, returnFields, true), param, tran, timeout);
+            return DataBase.Query(SqlGetByDescLastPage(pageSize, and, returnFields), param, tran, timeout);
         }
 
         public Task<IEnumerable<dynamic>> GetByDescLastPageDynamicAsync(int pageSize, object param, string and = null, string returnFields = null, DistributedTransaction tran = null, int? timeout = null)
         {
-            return DataBase.QueryAsync(SqlGetByDescLastPage(pageSize, and, returnFields, true), param, tran, timeout);
+            return DataBase.QueryAsync(SqlGetByDescLastPage(pageSize, and, returnFields), param, tran, timeout);
         }
 
         #endregion

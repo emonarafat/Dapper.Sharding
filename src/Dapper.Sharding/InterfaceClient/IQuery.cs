@@ -81,7 +81,14 @@ namespace Dapper.Sharding
         internal string sqlOrderBy;
         public IQuery OrderBy(string orderBy)
         {
-            sqlOrderBy = $" ORDER BY {orderBy}";
+            if (string.IsNullOrEmpty(orderBy))
+            {
+                sqlOrderBy = null;
+            }
+            else
+            {
+                sqlOrderBy = $" ORDER BY {orderBy}";
+            }
             return this;
         }
 

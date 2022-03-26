@@ -14,10 +14,10 @@ namespace Dapper.Sharding
     {
         #region string
 
-        internal static string AsPgsqlField(this string data)
+        public static string AsPgsqlField(this string data, char separator = ',')
         {
             var sb = new StringBuilder();
-            var arr = data.Split(',');
+            var arr = data.Split(separator);
             foreach (var item in arr)
             {
                 sb.Append($"{item} as \"{item}\"");
