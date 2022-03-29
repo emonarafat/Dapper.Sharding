@@ -164,7 +164,7 @@ namespace Dapper.Sharding
 
         #region IEnumerable map base
 
-        private static void ListOneToOne<T, T2>(this IEnumerable<T> list, string field, string propertyName, IEnumerable<T2> mapList, string mapField) where T : class where T2 : class
+        public static void ListOneToOne<T, T2>(this IEnumerable<T> list, string field, string propertyName, IEnumerable<T2> mapList, string mapField) where T : class where T2 : class
         {
             if (list == null || !list.Any())
                 return;
@@ -210,7 +210,7 @@ namespace Dapper.Sharding
             }
         }
 
-        private static void ListOneToMany<T, T2>(this IEnumerable<T> list, string field, string propertyName, IEnumerable<T2> mapList, string mapField) where T : class where T2 : class
+        public static void ListOneToMany<T, T2>(this IEnumerable<T> list, string field, string propertyName, IEnumerable<T2> mapList, string mapField) where T : class where T2 : class
         {
             if (list == null || !list.Any())
                 return;
@@ -256,7 +256,7 @@ namespace Dapper.Sharding
             }
         }
 
-        private static void ListCenterToMany<T, T2, T3>(this IEnumerable<T> list, string field, string propertyName, IEnumerable<T2> centerList, string prevField, string nextField, IEnumerable<T3> mapList, string mapField) where T : class where T2 : class where T3 : class
+        public static void ListCenterToMany<T, T2, T3>(this IEnumerable<T> list, string field, string propertyName, IEnumerable<T2> centerList, string prevField, string nextField, IEnumerable<T3> mapList, string mapField) where T : class where T2 : class where T3 : class
         {
             if (list == null || !list.Any())
                 return;

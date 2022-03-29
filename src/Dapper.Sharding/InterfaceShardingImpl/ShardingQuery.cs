@@ -108,99 +108,99 @@ namespace Dapper.Sharding
 
         #endregion
 
-        public async Task<bool> ExistsAsync(object id)
+        public async Task<bool> ExistsAsync(object id, int? timeout = null)
         {
             var taskList = TableList.Select(s =>
             {
-                return s.ExistsAsync(id);
+                return s.ExistsAsync(id, timeout: timeout);
             });
             var result = await Task.WhenAll(taskList);
             return result.Any(a => a == true);
         }
 
-        public async Task<bool> ExistsAsync(T model)
+        public async Task<bool> ExistsAsync(T model, int? timeout = null)
         {
             var taskList = TableList.Select(s =>
             {
-                return s.ExistsAsync(model);
+                return s.ExistsAsync(model, timeout: timeout);
             });
             var result = await Task.WhenAll(taskList);
             return result.Any(a => a == true);
         }
 
-        public async Task<long> CountAsync(string where = null, object param = null)
+        public async Task<long> CountAsync(string where = null, object param = null, int? timeout = null)
         {
             var taskList = TableList.Select(s =>
             {
-                return s.CountAsync(where, param);
+                return s.CountAsync(where, param, timeout: timeout);
             });
             var result = await Task.WhenAll(taskList);
             return result.Sum();
         }
 
-        public async Task<TResult> MinAsync<TResult>(string field, string where = null, object param = null)
+        public async Task<TResult> MinAsync<TResult>(string field, string where = null, object param = null, int? timeout = null)
         {
             var taskList = TableList.Select(s =>
             {
-                return s.MinAsync<TResult>(field, where, param);
+                return s.MinAsync<TResult>(field, where, param, timeout: timeout);
             });
             var result = await Task.WhenAll(taskList);
             return result.Min();
         }
 
-        public async Task<TResult> MaxAsync<TResult>(string field, string where = null, object param = null)
+        public async Task<TResult> MaxAsync<TResult>(string field, string where = null, object param = null, int? timeout = null)
         {
             var taskList = TableList.Select(s =>
             {
-                return s.MaxAsync<TResult>(field, where, param);
+                return s.MaxAsync<TResult>(field, where, param, timeout: timeout);
             });
             var result = await Task.WhenAll(taskList);
             return result.Max();
         }
 
-        public async Task<TResult[]> SumListAsync<TResult>(string field, string where = null, object param = null)
+        public async Task<TResult[]> SumListAsync<TResult>(string field, string where = null, object param = null, int? timeout = null)
         {
             var taskList = TableList.Select(s =>
             {
-                return s.SumAsync<TResult>(field, where, param);
+                return s.SumAsync<TResult>(field, where, param, timeout: timeout);
             });
             return await Task.WhenAll(taskList);
         }
 
-        public async Task<int> SumIntAsync(string field, string where = null, object param = null)
+        public async Task<int> SumIntAsync(string field, string where = null, object param = null, int? timeout = null)
         {
-            var data = await SumListAsync<int>(field, where, param);
+            var data = await SumListAsync<int>(field, where, param, timeout: timeout);
             return data.Sum();
         }
 
-        public async Task<long> SumLongAsync(string field, string where = null, object param = null)
+        public async Task<long> SumLongAsync(string field, string where = null, object param = null, int? timeout = null)
         {
-            var data = await SumListAsync<long>(field, where, param);
+            var data = await SumListAsync<long>(field, where, param, timeout: timeout);
             return data.Sum();
         }
 
-        public async Task<float> SumFloatAsync(string field, string where = null, object param = null)
+        public async Task<float> SumFloatAsync(string field, string where = null, object param = null, int? timeout = null)
         {
-            var data = await SumListAsync<float>(field, where, param);
+            var data = await SumListAsync<float>(field, where, param, timeout: timeout);
             return data.Sum();
         }
 
-        public async Task<double> SumDoubleAsync(string field, string where = null, object param = null)
+        public async Task<double> SumDoubleAsync(string field, string where = null, object param = null, int? timeout = null)
         {
-            var data = await SumListAsync<double>(field, where, param);
+            var data = await SumListAsync<double>(field, where, param, timeout: timeout);
             return data.Sum();
         }
 
-        public async Task<decimal> SumDecimalAsync(string field, string where = null, object param = null)
+        public async Task<decimal> SumDecimalAsync(string field, string where = null, object param = null, int? timeout = null)
         {
-            var data = await SumListAsync<decimal>(field, where, param);
+            var data = await SumListAsync<decimal>(field, where, param, timeout: timeout);
             return data.Sum();
         }
 
-        public async Task<decimal> AvgAsync(string field, string where = null, object param = null)
+        public async Task<decimal> AvgAsync(string field, string where = null, object param = null, int? timeout = null)
         {
             var countTask = CountAsync(where, param);
-            var sumTask = SumDecimalAsync(field, where, param);
+            var sumTask = SumDecimalAsync(field, where, param, timeout: timeout);
             await Task.WhenAll(countTask, sumTask);
             var count = countTask.Result;
             if (count == 0)
@@ -210,11 +210,11 @@ namespace Dapper.Sharding
             return sumTask.Result / count;
         }
 
-        public async Task<IEnumerable<T>> GetAllAsync(string returnFields = null, string orderby = null)
+        public async Task<IEnumerable<T>> GetAllAsync(string returnFields = null, string orderby = null, int? timeout = null)
         {
             var taskList = TableList.Select(s =>
             {
-                return s.GetAllAsync(returnFields, orderby);
+                return s.GetAllAsync(returnFields, orderby, timeout: timeout);
             });
             if (string.IsNullOrEmpty(orderby))
             {
@@ -224,41 +224,41 @@ namespace Dapper.Sharding
             return result.ConcatItem().AsQueryable().OrderBy(orderby).AsEnumerable<T>();
         }
 
-        public async Task<T> GetByIdAsync(object id, string returnFields = null)
+        public async Task<T> GetByIdAsync(object id, string returnFields = null, int? timeout = null)
         {
             var taskList = TableList.Select(s =>
             {
-                return s.GetByIdAsync(id, returnFields);
+                return s.GetByIdAsync(id, returnFields, timeout: timeout);
             });
             var result = await Task.WhenAll(taskList);
             return result.FirstOrDefault(f => f != null);
         }
 
-        public async Task<IEnumerable<T>> GetByIdsAsync(object ids, string returnFields = null)
+        public async Task<IEnumerable<T>> GetByIdsAsync(object ids, string returnFields = null, int? timeout = null)
         {
             var taskList = TableList.Select(s =>
             {
-                return s.GetByIdsAsync(ids, returnFields);
+                return s.GetByIdsAsync(ids, returnFields, timeout: timeout);
             });
             var result = await Task.WhenAll(taskList);
             return result.ConcatItem();
         }
 
-        public async Task<IEnumerable<T>> GetByIdsWithFieldAsync(object ids, string field, string returnFields = null)
+        public async Task<IEnumerable<T>> GetByIdsWithFieldAsync(object ids, string field, string returnFields = null, int? timeout = null)
         {
             var taskList = TableList.Select(s =>
             {
-                return s.GetByIdsWithFieldAsync(ids, field, returnFields);
+                return s.GetByIdsWithFieldAsync(ids, field, returnFields, timeout: timeout);
             });
             var result = await Task.WhenAll(taskList);
             return result.ConcatItem();
         }
 
-        public async Task<IEnumerable<T>> GetByWhereAsync(string where, object param = null, string returnFields = null, string orderby = null, int limit = 0)
+        public async Task<IEnumerable<T>> GetByWhereAsync(string where, object param = null, string returnFields = null, string orderby = null, int limit = 0, int? timeout = null)
         {
             var taskList = TableList.Select(s =>
             {
-                return s.GetByWhereAsync(where, param, returnFields, orderby, limit);
+                return s.GetByWhereAsync(where, param, returnFields, orderby, limit, timeout: timeout);
             });
             var result = await Task.WhenAll(taskList);
             if (string.IsNullOrEmpty(orderby))
@@ -273,11 +273,11 @@ namespace Dapper.Sharding
             return result.ConcatItem().AsQueryable().OrderBy(orderby).AsEnumerable<T>();
         }
 
-        public async Task<T> GetByWhereFirstAsync(string where, object param = null, string returnFields = null)
+        public async Task<T> GetByWhereFirstAsync(string where, object param = null, string returnFields = null, int? timeout = null)
         {
             var taskList = TableList.Select(s =>
             {
-                return s.GetByWhereFirstAsync(where, param, returnFields);
+                return s.GetByWhereFirstAsync(where, param, returnFields, timeout: timeout);
             });
             var result = await Task.WhenAll(taskList);
             return result.FirstOrDefault(f => f != null);
