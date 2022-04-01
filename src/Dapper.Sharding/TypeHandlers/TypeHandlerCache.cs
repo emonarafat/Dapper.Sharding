@@ -38,26 +38,31 @@ namespace Dapper.Sharding
                     var pros = type.GetProperties();
                     foreach (var pro in pros)
                     {
+                        if (pro.PropertyType == typeof(string))
+                        {
+                            continue;
+                        }
                         var colAttr = pro.GetCustomAttributes(false).FirstOrDefault(f => f is ColumnAttribute) as ColumnAttribute;
+                        var ok = pro.GetCustomAttributes(false).Any(f => f is JsonStringAttribute);
                         if (colAttr != null)
                         {
                             if (colAttr.ColumnType == "json" || colAttr.ColumnType == "jsonb" || colAttr.ColumnType == "jsons")
                             {
-                                if (pro.PropertyType != typeof(string))
+                                action(pro.PropertyType);
+                            }
+                            else
+                            {
+                                if (ok)
                                 {
                                     action(pro.PropertyType);
                                 }
                             }
-                            else
+                        }
+                        else
+                        {
+                            if (ok)
                             {
-                                var ok = pro.GetCustomAttributes(false).Any(f => f is JsonStringAttribute);
-                                if (ok)
-                                {
-                                    if (pro.PropertyType != typeof(string))
-                                    {
-                                        action(pro.PropertyType);
-                                    }
-                                }
+                                action(pro.PropertyType);
                             }
                         }
                     }

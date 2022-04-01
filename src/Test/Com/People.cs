@@ -1,12 +1,13 @@
 ﻿using Dapper.Sharding;
 using System;
+using System.Collections.Generic;
 
 namespace Test
 {
     //[Index("Name", "Name", IndexType.Normal)]
     //[Index("Age", "Age", IndexType.Unique)]
     //[Index("NameAndAge", "Name,Age", IndexType.Unique)]
-    //[Table("Id", true, "人类表", "Log")]
+    [Table("Id", true, "人类表", "Log")]
     public class People
     {
         [Column(11, "主键id")]
@@ -44,6 +45,9 @@ namespace Test
         public string NoDataBaseColumn { get; set; }
 
         public bool bb { get; set; }
+
+        [JsonString]
+        public IList<int> MyJson { get; set; }
 
     }
 }

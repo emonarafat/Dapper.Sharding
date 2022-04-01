@@ -61,7 +61,6 @@ namespace Dapper.Sharding
                     column.Comment = colAttr.Comment;
                     column.Length = colAttr.Length;
                     column.DbType = CsharpTypeToDbType.Create(dbType, column.CsType, colAttr.Length, colAttr.ColumnType);
-
                     if (dbType == DataBaseType.Postgresql)
                     {
                         if (colAttr.ColumnType == "json")
@@ -78,9 +77,18 @@ namespace Dapper.Sharding
                         }
                     }
                 }
-                else 
+                else
                 {
-                    column.DbType = CsharpTypeToDbType.Create(dbType, column.CsType);
+                    var ok = pro.GetCustomAttributes(false).Any(f => f is JsonStringAttribute);
+                    if (ok && pro.PropertyType != typeof(string))
+                    {
+                        column.DbType = CsharpTypeToDbType.Create(dbType, column.CsType, 0, "jsons");
+                    }
+                    else
+                    {
+                        column.DbType = CsharpTypeToDbType.Create(dbType, column.CsType);
+                    }
+
                 }
                 entity.ColumnList.Add(column);
             }
