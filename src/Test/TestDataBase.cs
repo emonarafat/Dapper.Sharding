@@ -66,7 +66,7 @@ namespace Test
         [Test]
         public void GeneratorTableFile()
         {
-            Factory.Db.GeneratorTableFile("D:\\Class",fisrtCharUpper:false);
+            Factory.Db.GeneratorTableFile("D:\\Class", classNameToUpper: false);
         }
 
         [Test]

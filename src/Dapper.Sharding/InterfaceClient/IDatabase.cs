@@ -2,7 +2,9 @@
 using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Data;
+using System.IO;
 using System.Linq;
+using System.Text;
 using System.Threading.Tasks;
 using Z.BulkOperations;
 using Z.Dapper.Plus;
@@ -833,14 +835,204 @@ namespace Dapper.Sharding
             return (ITable<T>)val;
         }
 
-        public void GeneratorTableFile(string savePath, List<string> tableList = null, string nameSpace = "Model", string suffix = "", bool partialClass = false, bool fisrtCharUpper = false)
+        public void GeneratorTableFile(string savePath, List<string> tableList = null, string nameSpace = "Model", string suffix = "", bool partialClass = false, bool classNameToUpper = false, bool columnToUpper = false)
         {
-            this.CreateTableFiles(savePath, tableList, nameSpace, suffix, partialClass, fisrtCharUpper);
+            if (!Directory.Exists(savePath))
+            {
+                Directory.CreateDirectory(savePath);
+            }
+            if (tableList == null || tableList.Count == 0)
+            {
+                tableList = GetTableList().ToList();
+            }
+            foreach (var name in tableList)
+            {
+                var entity = GetTableEntityFromDatabase(name, columnToUpper);
+                if (DbType == DataBaseType.ClickHouse)
+                {
+                    entity.IsIdentity = false;
+                    entity.PrimaryKey = entity.ColumnList[0].Name;
+                }
+                string className;
+                if (classNameToUpper)
+                {
+                    className = name.FirstCharToUpper() + suffix;
+                }
+                else
+                {
+                    className = name + suffix;
+                }
+                var sb = new StringBuilder();
+                sb.Append("using System;");
+                sb.AppendLine();
+                sb.Append("using Dapper.Sharding;");
+                sb.AppendLine();
+                sb.AppendLine();
+                sb.Append($"namespace {nameSpace}");
+                sb.AppendLine();
+                sb.Append("{");
+                sb.AppendLine();
+                if (entity.IndexList != null)
+                {
+                    var indexList = entity.IndexList.Where(w => w.Type != IndexType.PrimaryKey);
+                    foreach (var item in indexList)
+                    {
+                        sb.Append($"    [Index(\"{item.Name}\", \"{item.Columns}\", {item.StringType})]");
+                        sb.AppendLine();
+                    }
+                }
+                if (!string.IsNullOrEmpty(entity.Comment))
+                {
+                    entity.Comment = entity.Comment.Replace("\r", "").Replace("\n", "");
+                }
+                sb.Append($"    [Table(\"{entity.PrimaryKey}\", {entity.IsIdentity.ToString().ToLower()}, \"{entity.Comment}\")]");
+                sb.AppendLine();
+                if (partialClass)
+                {
+                    sb.Append($"    public partial class {className}");
+                    sb.AppendLine();
+                }
+                else
+                {
+                    sb.Append($"    public class {className}");
+                    sb.AppendLine();
+                }
+                sb.Append("    {");
+                sb.AppendLine();
+                foreach (var item in entity.ColumnList)
+                {
+                    if (item.Length != 0 || !string.IsNullOrEmpty(item.Comment))
+                    {
+                        if (!string.IsNullOrEmpty(item.Comment))
+                        {
+                            item.Comment = item.Comment.Replace("\r", "").Replace("\n", "");
+                        }
+                        sb.Append($"        [Column({item.Length}, \"{item.Comment}\")]");
+                        sb.AppendLine();
+                    }
+                    if (DbType == DataBaseType.ClickHouse)
+                    {
+                        sb.Append("        public " + item.CsStringType + " " + item.Name + " { get; set; }");
+                        sb.AppendLine();
+                    }
+                    else
+                    {
+                        sb.Append("        public " + item.CsStringType + " " + item.Name + " { get; set; }");
+                        sb.AppendLine();
+                    }
+                    if (item != entity.ColumnList.Last())
+                    {
+                        sb.AppendLine();
+                    }
+                }
+                sb.Append("    }");
+                sb.AppendLine();
+                sb.Append("}");
+                var path = Path.Combine(savePath, $"{className}.cs");
+                File.WriteAllText(path, sb.ToString(), Encoding.UTF8);
+            }
         }
 
-        public void GeneratorDbContextFile(string savePath, string nameSpace = "Model", string modelNameSpace = "Model", string modelSuffix = "", bool proSuffix = false, bool tableNameLower = false, bool staticClass = true)
+        public void GeneratorDbContextFile(string savePath, string nameSpace = "Model", string modelNameSpace = "Model", bool classNameToUpper = false, string modelSuffix = "", bool proSuffix = false, bool staticClass = true)
         {
-            this.CreateDbContextFile(savePath, nameSpace, modelNameSpace, modelSuffix, proSuffix, tableNameLower, staticClass);
+            if (!Directory.Exists(savePath))
+            {
+                Directory.CreateDirectory(savePath);
+            }
+            var tableList = GetTableList().ToList();
+            var sb = new StringBuilder();
+            sb.Append("using Dapper.Sharding;");
+            sb.AppendLine();
+            if (nameSpace != modelNameSpace)
+            {
+                sb.Append($"using {modelNameSpace};");
+                sb.AppendLine();
+                sb.AppendLine();
+            }
+            else
+            {
+                sb.AppendLine();
+            }
+            sb.Append($"namespace {nameSpace}");
+            sb.AppendLine();
+            sb.Append("{");
+            sb.AppendLine();
+            sb.Append("    public class DbContext");
+            sb.AppendLine();
+            sb.Append("    {");
+            sb.AppendLine();
+            if (!staticClass)
+            {
+                sb.Append("        public readonly IDatabase Db;");
+                sb.AppendLine();
+                sb.Append("        public DbContext(IDatabase db)");
+                sb.AppendLine();
+                sb.Append("        {");
+                sb.AppendLine();
+                sb.Append("            Db = db;");
+                sb.AppendLine();
+                sb.Append("        }");
+            }
+            else
+            {
+                sb.Append("        public static readonly IClient Client;");
+                sb.AppendLine();
+                sb.Append($"        public static IDatabase Db => Client.GetDatabase(\"{Name}\");");
+                sb.AppendLine();
+                sb.Append("        static DbContext()");
+                sb.AppendLine();
+                sb.Append("        {");
+                sb.AppendLine();
+                sb.Append("            Client = ShardingFactory.CreateClient(DataBaseType.MySql, new DataBaseConfig { Server = \"127.0.0.1\", UserId = \"root\", Password = \"123\" });");
+                sb.AppendLine();
+                sb.Append("            //Client = ShardingFactory.CreateClient(DataBaseType.Postgresql, new DataBaseConfig { Server = \"127.0.0.1\", UserId = \"postgres\", Password = \"123\" });");
+                sb.AppendLine();
+                sb.Append("            //Client = ShardingFactory.CreateClient(DataBaseType.Sqlite, new DataBaseConfig { Server = \"db\" });");
+                sb.AppendLine();
+                sb.Append("            //Client = ShardingFactory.CreateClient(DataBaseType.SqlServer2008, new DataBaseConfig { Server = \".\", UserId = \"sa\", Password = \"123\" });");
+                sb.AppendLine();
+                sb.Append("            //Client = ShardingFactory.CreateClient(DataBaseType.ClickHouse, new DataBaseConfig { Server = \"127.0.0.1\", UserId = \"default\", Password = \"\" });");
+                sb.AppendLine();
+                sb.Append("            //Client = ShardingFactory.CreateClient(DataBaseType.Oracle, new DataBaseConfig { Server = \"127.0.0.1\", UserId = \"\", Password = \"\" });");
+                sb.AppendLine();
+                sb.Append("        }");
+            }
+            sb.AppendLine();
+            sb.AppendLine();
+            var st = " static";
+            if (!staticClass)
+            {
+                st = "";
+            }
+            foreach (var name in tableList)
+            {
+                string className;
+                if (classNameToUpper)
+                {
+                    className = name.FirstCharToUpper() + modelSuffix;
+                }
+                else
+                {
+                    className = name + modelSuffix;
+                }
+
+                string className2;
+                if (proSuffix)
+                {
+                    className2 = className;
+                }
+                else
+                {
+                    className2 = name.FirstCharToUpper();
+                }
+                sb.Append($"        public{st} ITable<{className}> {className2} => Db.GetTable<{className}>(\"{name}\");");
+                sb.AppendLine();
+            }
+            sb.Append("    }");
+            sb.AppendLine();
+            sb.Append("}");
+            var path = Path.Combine(savePath, "DbContext.cs");
+            File.WriteAllText(path, sb.ToString(), Encoding.UTF8);
         }
 
         public void ClearCache(string tablename = null)
