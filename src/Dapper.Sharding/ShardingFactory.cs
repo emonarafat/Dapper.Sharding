@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using Z.Dapper.Plus;
 
 namespace Dapper.Sharding
 {
@@ -13,6 +14,8 @@ namespace Dapper.Sharding
         {
             SqlMapper.AddTypeHandler(new DateOnlyTypeHandler());
             SqlMapper.AddTypeHandler(new TimeOnlyTypeHandler());
+            DapperPlusManager.AddValueConverter(typeof(DateOnly), new DateOnlyTypeHandlerZ());
+            DapperPlusManager.AddValueConverter(typeof(TimeOnly), new TimeOnlyTypeHandlerZ());
         }
 #endif
 

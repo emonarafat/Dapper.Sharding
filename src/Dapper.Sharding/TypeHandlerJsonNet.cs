@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Reflection;
+using Z.Dapper.Plus;
 
 namespace Dapper.Sharding
 {
@@ -10,6 +11,7 @@ namespace Dapper.Sharding
             TypeHandlerCache.Add(type, () =>
             {
                 SqlMapper.AddTypeHandler(type, new JsonNetTypeHandler());
+                DapperPlusManager.AddValueConverter(type, new JsonNetTypeHandlerZ());
             });
         }
 
