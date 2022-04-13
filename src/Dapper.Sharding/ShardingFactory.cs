@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using Z.BulkOperations;
 using Z.Dapper.Plus;
 
 namespace Dapper.Sharding
@@ -140,11 +141,12 @@ namespace Dapper.Sharding
             return NextLongId().ToString();
         }
 
-        public static void AddTypeHandler(Type type, SqlMapper.ITypeHandler handler)
+        public static void AddTypeHandler(Type type, SqlMapper.ITypeHandler handler, IBulkValueConverter handlerz)
         {
             TypeHandlerCache.Add(type, () =>
             {
                 SqlMapper.AddTypeHandler(type, handler);
+                DapperPlusManager.AddValueConverter(type, handlerz);
             });
         }
     }
