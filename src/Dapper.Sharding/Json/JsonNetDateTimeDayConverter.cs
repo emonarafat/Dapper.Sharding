@@ -2,15 +2,15 @@
 
 namespace Dapper.Sharding
 {
-    public class JsonNetDataTimeDayConverter : IsoDateTimeConverter
+    public class JsonNetDateTimeDayConverter : IsoDateTimeConverter
     {
-        public JsonNetDataTimeDayConverter()
+        public JsonNetDateTimeDayConverter()
         {
             // 默认日期时间格式
             DateTimeFormat = "yyyy-MM-dd";
         }
 
-        public JsonNetDataTimeDayConverter(string format)
+        public JsonNetDateTimeDayConverter(string format)
         {
             DateTimeFormat = format;
         }

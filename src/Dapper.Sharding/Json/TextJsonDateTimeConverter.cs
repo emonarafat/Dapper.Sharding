@@ -5,7 +5,7 @@ using System.Text.Json.Serialization;
 
 namespace Dapper.Sharding
 {
-    public class TextJsonDataTimeDayConverter : JsonConverter<DateTime>
+    public class TextJsonDateTimeConverter : JsonConverter<DateTime>
     {
         public override DateTime Read(ref Utf8JsonReader reader, Type typeToConvert, JsonSerializerOptions options)
         {
@@ -14,8 +14,10 @@ namespace Dapper.Sharding
 
         public override void Write(Utf8JsonWriter writer, DateTime value, JsonSerializerOptions options)
         {
-            writer.WriteStringValue(value.ToString("yyyy-MM-dd"));
+            writer.WriteStringValue(value.ToString("yyyy-MM-dd HH:mm:ss"));
         }
     }
 }
 #endif
+
+//[JsonConverter(typeof(TextJsonDataTimeConverter))]
