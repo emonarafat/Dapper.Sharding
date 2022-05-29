@@ -21,11 +21,11 @@ namespace Dapper.Sharding
 /// <summary>
 /// 使用方法一(属性标注)
 ///// </summary>
-//[JsonConverter(typeof(JsonNetDataTimeConverter))]
+//[JsonConverter(typeof(JsonNetDateTimeConverter))]
 //public DateTime PayTime { get; set; }
 //
 //或者
-//[JsonConverter(typeof(JsonNetDataTimeConverter),"yyyy-MM-dd")]
+//[JsonConverter(typeof(JsonNetDateTimeConverter),"yyyy-MM-dd")]
 //public DateTime PayTime { get; set; }
 
 

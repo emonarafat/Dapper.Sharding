@@ -20,4 +20,4 @@ namespace Dapper.Sharding
 }
 #endif
 
-//[JsonConverter(typeof(TextJsonDataTimeConverter))]
+//[JsonConverter(typeof(TextJsonDateTimeConverter))]
