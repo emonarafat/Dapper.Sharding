@@ -17,6 +17,9 @@ namespace Dapper.Sharding
         {
             Name = name;
             Client = client;
+            AutoCreateTable = client.AutoCreateTable;
+            AutoCompareTableColumn = client.AutoCompareTableColumn;
+            AutoCompareTableColumnDelete = client.AutoCompareTableColumnDelete;
         }
 
         #region dapper method
@@ -712,6 +715,12 @@ namespace Dapper.Sharding
 
         public IClient Client { get; }
 
+        public bool AutoCreateTable { get; set; }
+
+        public bool AutoCompareTableColumn { get; set; }
+
+        public bool AutoCompareTableColumnDelete { get; set; }
+
         public DataBaseType DbType
         {
             get
@@ -773,7 +782,7 @@ namespace Dapper.Sharding
                 {
                     if (!TableCache.ContainsKey(name))
                     {
-                        if (Client.AutoCreateTable)
+                        if (AutoCreateTable)
                         {
                             #region 创建表、对比表
 
@@ -781,7 +790,7 @@ namespace Dapper.Sharding
                             {
                                 CreateTable<T>(name);
                             }
-                            else if (Client.AutoCompareTableColumn)
+                            else if (AutoCompareTableColumn)
                             {
                                 var dbColumns = GetTableColumnList(name);
                                 var tableEntity = ClassToTableEntityUtils.Get<T>(Client.DbType);
@@ -795,7 +804,7 @@ namespace Dapper.Sharding
                                     }
                                 }
 
-                                if (Client.AutoCompareTableColumnDelete)
+                                if (AutoCompareTableColumnDelete)
                                 {
                                     foreach (var item in dbColumns)
                                     {
